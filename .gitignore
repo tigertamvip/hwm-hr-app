@@ -1,0 +1,28 @@
+# 忽略临时文件和备份
+*.bak
+*.backup
+*.zip
+*.tmp
+
+# 忽略旧版本备份HTML
+app.v*.html
+index.html.bak*
+index_bak_*
+index.html.v*
+
+# 忽略 Node 模块
+node_modules/
+
+# 忽略 macOS 系统文件
+.DS_Store
+._*
+
+# 忽略 EdgeOne 缓存
+.edgeone/
+
+# 忽略禁用状态的文件
+*.disabled
+
+# 忽略大型二进制文件（字体子集已通过CDN加载）
+stheiti-subset.ttf
+stheiti-subset.b64

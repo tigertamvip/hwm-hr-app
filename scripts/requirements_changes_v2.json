@@ -1,0 +1,1362 @@
+[
+  {
+    "job_id": "jd-001",
+    "job_title": "总经理岗位说明书",
+    "req_idx": 3,
+    "category": "专业知识要求",
+    "content": "具备战熟悉企业全面运作，具有先进的管理理念以及战略制定与实施能力，有广泛的客户资源和社会资源；\n（2）略规划及战略推动实施能力；",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-004",
+    "job_title": "培训代表岗位说明书",
+    "req_idx": 4,
+    "category": "专业技能要求",
+    "content": "了解13485质量管理体系知识",
+    "new_category": "专业知识要求"
+  },
+  {
+    "job_id": "jd-005",
+    "job_title": "人事经理岗位说明书",
+    "req_idx": 4,
+    "category": "专业技能要求",
+    "content": "了解13485质量管理体系知识",
+    "new_category": "专业知识要求"
+  },
+  {
+    "job_id": "jd-006",
+    "job_title": "人事专员岗位说明书",
+    "req_idx": 3,
+    "category": "专业知识要求",
+    "content": "人力资源管理、数据统计分析",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-006",
+    "job_title": "人事专员岗位说明书",
+    "req_idx": 4,
+    "category": "专业技能要求",
+    "content": "了解13485质量管理体系知识优先",
+    "new_category": "专业知识要求"
+  },
+  {
+    "job_id": "jd-007",
+    "job_title": "行政专员岗位说明书",
+    "req_idx": 2,
+    "category": "经验要求",
+    "content": "可接受应届毕业生",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-007",
+    "job_title": "行政专员岗位说明书",
+    "req_idx": 3,
+    "category": "专业知识要求",
+    "content": "数据统计分析、沟通、时间管理等",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-007",
+    "job_title": "行政专员岗位说明书",
+    "req_idx": 4,
+    "category": "专业技能要求",
+    "content": "档案管理",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-008",
+    "job_title": "人力资源部负责人岗位说明书",
+    "req_idx": 4,
+    "category": "专业技能要求",
+    "content": "13485相关质量体系及法规知识",
+    "new_category": "专业知识要求"
+  },
+  {
+    "job_id": "jd-010",
+    "job_title": "制造中心负责人岗位说明书",
+    "req_idx": 4,
+    "category": "专业技能要求",
+    "content": "具有出色的领导能力和团队管理能力，能够激励和引导团队达成生产目标。\n具备良好的沟通协调能力，能够与其他部门和外部合作伙伴有效沟通合作。",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-010",
+    "job_title": "制造中心负责人岗位说明书",
+    "req_idx": 5,
+    "category": "素质要求",
+    "content": "具有较强的成本意识和财务管理能力，能够有效控制生产成本，提高生产效益。\n具备高度的责任感和职业道德，能够确保生产过程的安全和合规。\n熟练使用生产管理软件和办公软件",
+    "new_category": "专业技能要求"
+  },
+  {
+    "job_id": "jd-011",
+    "job_title": "生产管理部负责人岗位说明书",
+    "req_idx": 3,
+    "category": "专业知识要求",
+    "content": "1、具有良好的企业生产经营管理理念；\n2、具有良好的分析、沟通能力；\n3、具有较强的计划、组织、协调和执行能力；",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-011",
+    "job_title": "生产管理部负责人岗位说明书",
+    "req_idx": 4,
+    "category": "专业技能要求",
+    "content": "具有相应的专业知识(机械、电子、光电、机电等)，具备良好的沟通、协调能力，熟悉医疗器械相关法律、法规及相关标准、熟悉最新版13485及MDR法规要求。",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-012",
+    "job_title": "安全员岗位说明书",
+    "req_idx": 3,
+    "category": "专业知识要求",
+    "content": "熟悉安全生产相关法律法规",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-013",
+    "job_title": "设备技术员岗位说明书",
+    "req_idx": 3,
+    "category": "专业知识要求",
+    "content": "机械设备、零部件运行，基本机械动力、液压及气动回路、电路等",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-013",
+    "job_title": "设备技术员岗位说明书",
+    "req_idx": 4,
+    "category": "专业技能要求",
+    "content": "对常用机械设备及零部件，了解基本的机械动力、液压及气动回路、电路，有丰富的经验。",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-014",
+    "job_title": "生产部文员岗位说明书",
+    "req_idx": 3,
+    "category": "专业知识要求",
+    "content": "数据统计分析及文件管理相关知识",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-015",
+    "job_title": "生产车间组长岗位说明书",
+    "req_idx": 1,
+    "category": "专业要求",
+    "content": "不限\n年龄范围\n20~40",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-015",
+    "job_title": "生产车间组长岗位说明书",
+    "req_idx": 3,
+    "category": "专业知识要求",
+    "content": "数据统计、6S、人员监督等",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-016",
+    "job_title": "生产操作工（洁净区）岗位说明书",
+    "req_idx": 4,
+    "category": "专业技能要求",
+    "content": "动作协调、手脚灵活、吃苦耐劳，踏实肯干",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-017",
+    "job_title": "生产操作工（非洁净区）岗位说明书",
+    "req_idx": 4,
+    "category": "专业技能要求",
+    "content": "动作协调、手脚灵活、吃苦耐劳，踏实肯干",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-030",
+    "job_title": "产品研发部负责人岗位说明书",
+    "req_idx": 3,
+    "category": "专业知识要求",
+    "content": "1、擅长电子内窥镜、手术器械技术难题的分析和解决；\n2、具有较强的文字撰写能力，能够完成产品的研发、生产和质检相关的技术资料的撰写；\n3、能发现研发和生产过程中的异常情况并能指导纠正；\n4、熟悉医疗器械相关的国内外法律法规， 思维敏捷，具备医疗器械行业的洞察力，管理决策能力强",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-030",
+    "job_title": "产品研发部负责人岗位说明书",
+    "req_idx": 4,
+    "category": "专业技能要求",
+    "content": "能在专业领域具备良好的英文听说读写能力；\n出色的组织协调、沟通与跨部门合作能力；\n良好的项目统筹管理能力；\n正直、果断",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-031",
+    "job_title": "测试工程师/技术员岗位说明书",
+    "req_idx": 3,
+    "category": "专业知识要求",
+    "content": "1.了解YY/T 1587、YY 1028、YY 1081、ISO 8600系列等。\n2.熟悉多种检测设备及操作，能独立开展测试工作；\n3.敏锐的观察力和细致的分析能力，能根据测试结果分析产品的问题并提出整改意见。",
+    "new_category": "专业技能要求"
+  },
+  {
+    "job_id": "jd-031",
+    "job_title": "测试工程师/技术员岗位说明书",
+    "req_idx": 4,
+    "category": "专业技能要求",
+    "content": "思路清晰，工作严谨，具备较强的逻辑思维和文件编写能力，具有编写规范性文档经验",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-032",
+    "job_title": "项目管理部经理岗位说明书",
+    "req_idx": 0,
+    "category": "最低学历",
+    "content": "专科",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-032",
+    "job_title": "项目管理部经理岗位说明书",
+    "req_idx": 3,
+    "category": "专业知识要求",
+    "content": "1、有相关医疗产品开发工作经验，熟悉产品开发的整个生命周期；\n2、熟悉项目管理的基本理论与方法，工具的使用，有相关项目管理经理经验，有较强沟通、组织、管理、学习能力；\n3、具有医疗产品成功案例经历；\n4、掌握基本的风险管理，质量管理、文档体系管理及成本管控能力。",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-032",
+    "job_title": "项目管理部经理岗位说明书",
+    "req_idx": 4,
+    "category": "专业技能要求",
+    "content": "良好的组织协调、沟通与跨部门团队合作能力；正直、果断，敢于承受压力；",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-033",
+    "job_title": "研发项目经理岗位说明书",
+    "req_idx": 0,
+    "category": "最低学历",
+    "content": "专科",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-033",
+    "job_title": "研发项目经理岗位说明书",
+    "req_idx": 3,
+    "category": "专业知识要求",
+    "content": "1、有相关医疗产品开发工作经验，熟悉产品开发的整个生命周期；\n2、熟悉项目管理的基本理论与方法，工具的使用，有相关项目管理经理经验，有较强沟通、组织、管理、学习能力；\n3、具有医疗产品成功案例经历；\n4、掌握基本的风险管理，质量管理、文档体系管理及成本管控能力。",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-033",
+    "job_title": "研发项目经理岗位说明书",
+    "req_idx": 4,
+    "category": "专业技能要求",
+    "content": "良好的组织协调、沟通与跨部门团队合作能力；正直、果断，敢于承受压力；",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-034",
+    "job_title": "测试部副经理岗位说明书",
+    "req_idx": 3,
+    "category": "专业知识要求",
+    "content": "1.具有较强的文档编写及编辑能力，能够完成产品的研发、生产和质检相关的技术资料的撰写；\n2.掌握基本的风险管理，质量管理、文档体系管理及成本管控能力。",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-034",
+    "job_title": "测试部副经理岗位说明书",
+    "req_idx": 4,
+    "category": "专业技能要求",
+    "content": "良好的组织协调、沟通与跨部门团队合作能力；正直、果断，敢于承受压力；",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-035",
+    "job_title": "结构开发部负责人岗位说明书",
+    "req_idx": 0,
+    "category": "最低学历",
+    "content": "专科",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-035",
+    "job_title": "结构开发部负责人岗位说明书",
+    "req_idx": 3,
+    "category": "专业知识要求",
+    "content": "1.熟悉和了解电子内窥镜、手术器械、摄像系统等产品设计经验；\n2.具有较强的文档编写及编辑能力，能够完成产品的研发、生产和质检相关的技术资料的撰写；\n3.掌握基本的风险管理，质量管理、文档体系管理及成本管控能力。",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-035",
+    "job_title": "结构开发部负责人岗位说明书",
+    "req_idx": 4,
+    "category": "专业技能要求",
+    "content": "良好的组织协调、沟通与跨部门团队合作能力；正直、果断，敢于承受压力；",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-036",
+    "job_title": "软件开发部负责人岗位说明书",
+    "req_idx": 0,
+    "category": "最低学历",
+    "content": "专科",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-036",
+    "job_title": "软件开发部负责人岗位说明书",
+    "req_idx": 3,
+    "category": "专业知识要求",
+    "content": "具有较强的文档编写及编辑能力，能够完成产品的研发、生产和质检相关的技术资料的撰写；\n掌握基本的风险管理，质量管理、文档体系管理及成本管控能力。",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-036",
+    "job_title": "软件开发部负责人岗位说明书",
+    "req_idx": 4,
+    "category": "专业技能要求",
+    "content": "良好的组织协调、沟通与跨部门团队合作能力；正直、果断，敢于承受压力；",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-037",
+    "job_title": "硬件部主管岗位说明书",
+    "req_idx": 0,
+    "category": "最低学历",
+    "content": "专科",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-037",
+    "job_title": "硬件部主管岗位说明书",
+    "req_idx": 4,
+    "category": "专业技能要求",
+    "content": "良好的组织协调、沟通与跨部门团队合作能力；正直、果断，敢于承受压力",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-038",
+    "job_title": "硬件工程师岗位说明书",
+    "req_idx": 0,
+    "category": "最低学历",
+    "content": "专科",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-038",
+    "job_title": "硬件工程师岗位说明书",
+    "req_idx": 3,
+    "category": "专业知识要求",
+    "content": "1.熟悉ARM FPGA DDR3内存外围电路以及高速数字接口电路设计；\n2.熟悉常用电子元件的特性和选型方法和参数。\n3.熟悉高速信号的设计，I2C，UART，SPI，USB，HDMI,MIPI等接口设计。\n4.熟悉各类电路及PCB设计工具，如PADS、ORCAD，能熟练完成原理图和PCB设计。",
+    "new_category": "专业技能要求"
+  },
+  {
+    "job_id": "jd-038",
+    "job_title": "硬件工程师岗位说明书",
+    "req_idx": 4,
+    "category": "专业技能要求",
+    "content": "思路清晰，工作严谨，具备较强的逻辑思维和文件编写能力，具有编写规范性文档经验",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-039",
+    "job_title": "研发质量工程师(DQE)岗位说明书",
+    "req_idx": 0,
+    "category": "最低学历",
+    "content": "专科",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-039",
+    "job_title": "研发质量工程师(DQE)岗位说明书",
+    "req_idx": 4,
+    "category": "专业技能要求",
+    "content": "1. 熟练掌握质量管理工具和方法，如FMEA、Root Cause Analysis、六西格玛等；\n2. 具备设计验证和确认、风险管理、统计分析等方面的经验。",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-040",
+    "job_title": "研发文员岗位说明书",
+    "req_idx": 3,
+    "category": "专业知识要求",
+    "content": "熟练使用各项办公软件，良好的各种表格制作能力",
+    "new_category": "专业技能要求"
+  },
+  {
+    "job_id": "jd-040",
+    "job_title": "研发文员岗位说明书",
+    "req_idx": 4,
+    "category": "专业技能要求",
+    "content": "思路清晰，积极踏实，高效处理上级安排的任务，有工作时效概念，有一定的文件编写能力",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-041",
+    "job_title": "研发技术员岗位说明书",
+    "req_idx": 4,
+    "category": "专业技能要求",
+    "content": "思路清晰，工作严谨，具备较强的逻辑思维和文件编写能力，具有编写规范性文档经验",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-042",
+    "job_title": "软件工程师岗位说明书",
+    "req_idx": 0,
+    "category": "最低学历",
+    "content": "专科",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-042",
+    "job_title": "软件工程师岗位说明书",
+    "req_idx": 3,
+    "category": "专业知识要求",
+    "content": "具有ARM/DSP软件设计、开发经验 (STM32系列)；\n熟悉嵌入式、上位机软件开发；\n掌握软件开发的全过程，包括需求分析、设计、开发、测试、维护等；",
+    "new_category": "专业技能要求"
+  },
+  {
+    "job_id": "jd-042",
+    "job_title": "软件工程师岗位说明书",
+    "req_idx": 4,
+    "category": "专业技能要求",
+    "content": "思路清晰，工作严谨，具备较强的逻辑思维和文件编写能力，具有编写规范性文档经验",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-043",
+    "job_title": "结构工程师岗位说明书",
+    "req_idx": 0,
+    "category": "最低学历",
+    "content": "专科",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-043",
+    "job_title": "结构工程师岗位说明书",
+    "req_idx": 3,
+    "category": "专业知识要求",
+    "content": "熟练掌握机械类专业知识，熟练应用solid works、Catia、Pore、UG等三维软件的一种，熟练应用CAD",
+    "new_category": "专业技能要求"
+  },
+  {
+    "job_id": "jd-043",
+    "job_title": "结构工程师岗位说明书",
+    "req_idx": 4,
+    "category": "专业技能要求",
+    "content": "思路清晰，工作严谨，具备较强的逻辑思维和文件编写能力，具有编写规范性文档经验",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-044",
+    "job_title": "电气工程师岗位说明书",
+    "req_idx": 0,
+    "category": "最低学历",
+    "content": "专科",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-044",
+    "job_title": "电气工程师岗位说明书",
+    "req_idx": 3,
+    "category": "专业知识要求",
+    "content": "熟练掌握西门子、三菱、汇川等软件编程语言，熟悉电气布线、原理图设计、EPLAN、电气设计、HMI编写",
+    "new_category": "专业技能要求"
+  },
+  {
+    "job_id": "jd-044",
+    "job_title": "电气工程师岗位说明书",
+    "req_idx": 4,
+    "category": "专业技能要求",
+    "content": "思路清晰，工作严谨，具备较强的逻辑思维和文件编写能力，具有编写规范性文档经验",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-046",
+    "job_title": "组装工程师岗位说明书",
+    "req_idx": 3,
+    "category": "专业知识要求",
+    "content": "具有较强的文档编写及编辑能力，能够辅助完成产品的组装SOP的编写和转产时对员工的培训",
+    "new_category": "专业技能要求"
+  },
+  {
+    "job_id": "jd-046",
+    "job_title": "组装工程师岗位说明书",
+    "req_idx": 4,
+    "category": "专业技能要求",
+    "content": "思路清晰，工作严谨，具备较强的逻辑思维和文件编写能力，具有编写规范性文档经验",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-047",
+    "job_title": "测试专家岗位说明书",
+    "req_idx": 3,
+    "category": "专业知识要求",
+    "content": "1.精通YY/T 1587、YY 1028、YY 1081、ISO 8600系列等。\n2.熟悉多种检测设备及操作，能独立开展测试工作；\n3.敏锐的观察力和细致的分析能力，能根据测试结果分析产品的问题并提出整改意见。",
+    "new_category": "专业技能要求"
+  },
+  {
+    "job_id": "jd-047",
+    "job_title": "测试专家岗位说明书",
+    "req_idx": 4,
+    "category": "专业技能要求",
+    "content": "思路清晰，工作严谨，具备较强的逻辑思维和文件编写能力，具有丰富的编写规范性文档的经验",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-048",
+    "job_title": "研发中心负责人岗位说明书",
+    "req_idx": 3,
+    "category": "专业知识要求",
+    "content": "1、擅长电子内窥镜、手术器械技术难题的分析和解决；\n2、具有较强的文字撰写能力，能够完成产品的研发、生产和质检相关的技术资料的撰写；\n3、能发现研发和生产过程中的异常情况并能指导纠正；\n4、熟悉医疗器械相关的国内外法律法规， 思维敏捷，具备医疗器械行业的洞察力，管理决策能力强",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-048",
+    "job_title": "研发中心负责人岗位说明书",
+    "req_idx": 4,
+    "category": "专业技能要求",
+    "content": "能在专业领域具备良好的英文听说读写能力；\n出色的组织协调、沟通与跨部门合作能力；\n良好的项目统筹管理能力；\n正直、果断",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-050",
+    "job_title": "采购部负责人岗位说明书",
+    "req_idx": 4,
+    "category": "专业技能要求",
+    "content": "能够处理、分析机械、电子方面技术问题；",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-051",
+    "job_title": "采购专员岗位说明书",
+    "req_idx": 4,
+    "category": "专业技能要求",
+    "content": "熟练的EXCEL应用能力，善于使用EXCEL建模报表体系，精通ERP等系统操作",
+    "new_category": "专业知识要求"
+  },
+  {
+    "job_id": "jd-052",
+    "job_title": "仓库管理部负责人岗位说明书",
+    "req_idx": 0,
+    "category": "最低学历",
+    "content": "专科",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-052",
+    "job_title": "仓库管理部负责人岗位说明书",
+    "req_idx": 4,
+    "category": "专业技能要求",
+    "content": "熟悉出入库的相关流程、数据统计分析",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-053",
+    "job_title": "仓库管理员岗位说明书",
+    "req_idx": 4,
+    "category": "专业技能要求",
+    "content": "熟悉出入库的相关流程、数据统计分析",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-054",
+    "job_title": "PMC岗位说明书",
+    "req_idx": 4,
+    "category": "专业技能要求",
+    "content": "熟练的EXCEL应用能力，善于使用EXCEL建模报表体系，精通ERP等系统操作",
+    "new_category": "专业知识要求"
+  },
+  {
+    "job_id": "jd-060",
+    "job_title": "质量管理中心负责人岗位说明书",
+    "req_idx": 4,
+    "category": "专业技能要求",
+    "content": "良好的组织协调、沟通与跨部门团队合作能力；正直、果断，敢于承受压力",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-062",
+    "job_title": "检验员岗位说明书",
+    "req_idx": 3,
+    "category": "专业知识要求",
+    "content": "具有较强的原则性和责任心，了解工作涉及的相关经验规则和标准（接受相关培训后）",
+    "new_category": "专业技能要求"
+  },
+  {
+    "job_id": "jd-062",
+    "job_title": "检验员岗位说明书",
+    "req_idx": 4,
+    "category": "专业技能要求",
+    "content": "了解医疗器械产品相关检定方法，熟知公司所有检定方法及标准",
+    "new_category": "专业知识要求"
+  },
+  {
+    "job_id": "jd-063",
+    "job_title": "检验组长岗位说明书",
+    "req_idx": 1,
+    "category": "专业要求",
+    "content": "不限\n年龄范围\n25~45",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-063",
+    "job_title": "检验组长岗位说明书",
+    "req_idx": 4,
+    "category": "专业技能要求",
+    "content": "良好的组织协调、沟通与跨部门团队合作能力；正直、果断，敢于承受压力",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-064",
+    "job_title": "实验室QC岗位说明书",
+    "req_idx": 4,
+    "category": "专业技能要求",
+    "content": "了解医疗器械产品相关检定方法，熟知公司所有检定方法及标准",
+    "new_category": "专业知识要求"
+  },
+  {
+    "job_id": "jd-065",
+    "job_title": "文控专员岗位说明书",
+    "req_idx": 3,
+    "category": "专业知识要求",
+    "content": "文件流程、体系文件管理规范",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-065",
+    "job_title": "文控专员岗位说明书",
+    "req_idx": 4,
+    "category": "专业技能要求",
+    "content": "熟练使用计算机办公软件",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-067",
+    "job_title": "品质管理部负责人岗位说明书",
+    "req_idx": 0,
+    "category": "最低学历",
+    "content": "专科",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-067",
+    "job_title": "品质管理部负责人岗位说明书",
+    "req_idx": 4,
+    "category": "专业技能要求",
+    "content": "良好的组织协调、沟通与跨部门团队合作能力；正直、果断，敢于承受压力",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-068",
+    "job_title": "不良事件监测专员岗位说明书",
+    "req_idx": 3,
+    "category": "专业知识要求",
+    "content": "熟悉医疗器械不良事件监测相关法规; 具有医疗器械相关专业知识，熟悉所持有医疗器械产品特点",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-069",
+    "job_title": "QA岗位说明书",
+    "req_idx": 4,
+    "category": "专业技能要求",
+    "content": "良好的组织协调、沟通与跨部门团队合作能力；正直、果断，敢于承受压力",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-070",
+    "job_title": "QA主管岗位说明书",
+    "req_idx": 0,
+    "category": "最低学历",
+    "content": "专科",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-070",
+    "job_title": "QA主管岗位说明书",
+    "req_idx": 4,
+    "category": "专业技能要求",
+    "content": "思路清晰，工作严谨，具备较强的逻辑思维和文件编写能力，具有编写规范性文档经验",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-072",
+    "job_title": "管理者代表岗位说明书",
+    "req_idx": 0,
+    "category": "最低学历",
+    "content": "专科",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-072",
+    "job_title": "管理者代表岗位说明书",
+    "req_idx": 4,
+    "category": "专业技能要求",
+    "content": "熟悉医疗器械相关法律、法规及相关标准、熟悉最新版13485及MDR法规要求",
+    "new_category": "专业知识要求"
+  },
+  {
+    "job_id": "jd-073",
+    "job_title": "体系管理部负责人岗位说明书",
+    "req_idx": 4,
+    "category": "专业技能要求",
+    "content": "良好的组织协调、沟通与跨部门团队合作能力；正直、果断，敢于承受压力",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-074",
+    "job_title": "体系专员岗位说明书",
+    "req_idx": 3,
+    "category": "专业知识要求",
+    "content": "具有质量管理体系内部审核员证书者优先",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-074",
+    "job_title": "体系专员岗位说明书",
+    "req_idx": 4,
+    "category": "专业技能要求",
+    "content": "良好的组织协调、沟通与跨部门团队合作能力；正直、果断，敢于承受压力",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-080",
+    "job_title": "工程技术部负责人岗位说明书",
+    "req_idx": 3,
+    "category": "专业知识要求",
+    "content": "1.能够处理、分析机械、电子方面技术问题；\n2.具有与相关部门、下属领导有效沟通的技能。",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-080",
+    "job_title": "工程技术部负责人岗位说明书",
+    "req_idx": 4,
+    "category": "专业技能要求",
+    "content": "良好的组织协调、沟通与跨部门团队合作能力；正直、果断，敢于承受压力",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-081",
+    "job_title": "工艺工程师岗位说明书",
+    "req_idx": 4,
+    "category": "专业技能要求",
+    "content": "良好的组织协调、沟通与跨部门团队合作能力；正直、果断，敢于承受压力",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-090",
+    "job_title": "技术服务部负责人说明书",
+    "req_idx": 1,
+    "category": "专业要求",
+    "content": "机电一体化、生物工程、电子工程、自动化控制等专业\n工作经验\n有医疗器械、设备行业售后技术支持服务工作经验优先；\n具备良好的沟通能力与应变能力，具有较强的分析能力，能独立分析及处理问题；\n熟悉ISO13485及MDR和《规范》的相关要求。",
+    "new_category": "专业知识要求"
+  },
+  {
+    "job_id": "jd-090",
+    "job_title": "技术服务部负责人说明书",
+    "req_idx": 2,
+    "category": "专业知识要求",
+    "content": "有应对突发事件处理能力，解决难题，创新改进能力",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-090",
+    "job_title": "技术服务部负责人说明书",
+    "req_idx": 3,
+    "category": "素质要求",
+    "content": "要具有服务意识",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-091",
+    "job_title": "技术服务工程师岗位说明书",
+    "req_idx": 1,
+    "category": "专业要求",
+    "content": "市场营销、医学相关或者机电类相关专业\n工作经验\n有2年以上客户技术服务经（验优先考虑）；\n具有良好的沟通能力和客户服务理念；\n能适应省内外出差；",
+    "new_category": "经验要求"
+  },
+  {
+    "job_id": "jd-091",
+    "job_title": "技术服务工程师岗位说明书",
+    "req_idx": 2,
+    "category": "专业知识要求",
+    "content": "有应对突发事件处理能力，解决难题，创新改进能力",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-091",
+    "job_title": "技术服务工程师岗位说明书",
+    "req_idx": 3,
+    "category": "素质要求",
+    "content": "要具有服务意识，良好的沟通能力",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-092",
+    "job_title": "技术服务专员岗位说明书",
+    "req_idx": 1,
+    "category": "专业要求",
+    "content": "工业自动化、机械电子等\n工作经验\n（1）机械工程及自动化、电气工程及自动化，电子工程等相关专业，专科及以上学历；\n（2）熟悉电路原理及常识，会使用电子工具，有电子产品/家用电器等维修操作能力优选；\n（3）具有良好的沟通能力，责任心强，良好的团队协作精神；",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-092",
+    "job_title": "技术服务专员岗位说明书",
+    "req_idx": 2,
+    "category": "专业知识要求",
+    "content": "有应对突发事件处理能力，解决难题，创新改进能力",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-092",
+    "job_title": "技术服务专员岗位说明书",
+    "req_idx": 3,
+    "category": "素质要求",
+    "content": "要具有服务意识，良好的沟通能力",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-100",
+    "job_title": "销售行政部负责人岗位说明书",
+    "req_idx": 1,
+    "category": "专业要求",
+    "content": "不限\n工作经验\n2年以上销售运营管理工作相关经验；\n熟练掌握Excel技能，良好的沟通协调能力，很强的责任意识，善于思考和学习。",
+    "new_category": "经验要求"
+  },
+  {
+    "job_id": "jd-100",
+    "job_title": "销售行政部负责人岗位说明书",
+    "req_idx": 2,
+    "category": "专业知识要求",
+    "content": "熟练掌握办公自动化、良好的服务意识及主动意识",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-100",
+    "job_title": "销售行政部负责人岗位说明书",
+    "req_idx": 3,
+    "category": "素质要求",
+    "content": "积极主动、良好的思维能力和逻辑能力",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-101",
+    "job_title": "销售行政专员岗位说明书",
+    "req_idx": 1,
+    "category": "专业要求",
+    "content": "不限\n工作经验\n（1）1年或以上经验；\n（2）熟练使用office等相关办公软件；\n（3）需要具备较强的学习能力、抗压能力、综合协调能力和团队协作能力；\n（4）有责任心，工作态度积极、端正，能吃苦耐劳；",
+    "new_category": "经验要求"
+  },
+  {
+    "job_id": "jd-110",
+    "job_title": "营销中心负责人岗位说明书",
+    "req_idx": 4,
+    "category": "专业技能要求",
+    "content": "1、市场洞察及商业敏锐度\n2、谈判能力强\n3、团队引导、融合\n4、成就、结果导向",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-111",
+    "job_title": "销售部负责人岗位说明书",
+    "req_idx": 0,
+    "category": "最低学历",
+    "content": "专科",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-111",
+    "job_title": "销售部负责人岗位说明书",
+    "req_idx": 1,
+    "category": "专业要求",
+    "content": "市场营销及医学相关\n工作经验\n（1）5年以上医疗器械销售管理经验。有泌尿外科相关科室药品或器械经验优先；\n（2）具有良好的信息收集能力及学习能力，耐心细致，吃苦耐劳， 主动自信；\n（3）具有良好的沟通能力和应变能力；\n（4）具有医药销售经验者优先，临床医学、护理学或其他医学相关专业优先。",
+    "new_category": "经验要求"
+  },
+  {
+    "job_id": "jd-111",
+    "job_title": "销售部负责人岗位说明书",
+    "req_idx": 3,
+    "category": "专业技能要求",
+    "content": "暂无",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-112",
+    "job_title": "大区经理岗位说明书",
+    "req_idx": 0,
+    "category": "最低学历",
+    "content": "专科",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-112",
+    "job_title": "大区经理岗位说明书",
+    "req_idx": 1,
+    "category": "专业要求",
+    "content": "市场营销、医药、传播、工商管理等专业\n工作经验\n（1）3年以上医疗器械销售经验。有泌尿外科相关科室药品或器械推广经验，有大区内相关经销商资源尤佳，有合规意识；\n（2）具有良好的信息收集能力及学习能力，耐心细致，吃苦耐劳， 主动自信；\n（3）具有良好的沟通能力和应变能力；\n（4）抗压能力强，体力好，适应出差，适应公司高速发展中存在的各种变化调整，服从公司安排；\n（5）具有医药销售经验者优先，临床医学、护理学或其他医学相关专业优先。",
+    "new_category": "经验要求"
+  },
+  {
+    "job_id": "jd-112",
+    "job_title": "大区经理岗位说明书",
+    "req_idx": 3,
+    "category": "专业技能要求",
+    "content": "1、市场洞察及商业敏锐度\n2、谈判能力强\n3、团队引导、融合\n4、成就、结果导向",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-113",
+    "job_title": "海外业务专员岗位说明书",
+    "req_idx": 1,
+    "category": "专业要求",
+    "content": "市场营销及医学相关\n工作经验\n1年以上医疗器械相关产品海外销售工作经验（校园招聘的应届毕业生除外）；",
+    "new_category": "经验要求"
+  },
+  {
+    "job_id": "jd-113",
+    "job_title": "海外业务专员岗位说明书",
+    "req_idx": 3,
+    "category": "专业技能要求",
+    "content": "良好的商务谈判技能；",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-114",
+    "job_title": "商务专员岗位说明书",
+    "req_idx": 1,
+    "category": "专业要求",
+    "content": "不限\n工作经验\n（1）1年以上商务相关工作经验；\n（2）需要具备较强的学习能力、抗压能力、综合协调能力和团队协作能力；\n（3）有责任心，工作态度积极、端正，能吃苦耐劳；",
+    "new_category": "经验要求"
+  },
+  {
+    "job_id": "jd-114",
+    "job_title": "商务专员岗位说明书",
+    "req_idx": 2,
+    "category": "专业知识要求",
+    "content": "熟练使用office等相关办公软件；",
+    "new_category": "专业技能要求"
+  },
+  {
+    "job_id": "jd-115",
+    "job_title": "省区经理岗位说明书",
+    "req_idx": 0,
+    "category": "最低学历",
+    "content": "专科",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-115",
+    "job_title": "省区经理岗位说明书",
+    "req_idx": 1,
+    "category": "专业要求",
+    "content": "市场营销及医学相关\n工作经验\n要求3年或以上医疗相关产品销售经验；\n具有良好的信息收集能力及学习能力，耐心细致，吃苦耐劳， 主动自信；\n口齿清晰，形象好，具有良好的沟通能力和应变能力；\n抗压能力强，适应出差，能够适应公司高速发展中存在的各种变化调整，服从公司安排，有强烈的主人翁意识；\n具有医疗器械销售经验、临床医学、护理学或其他医学相关专业优先 。",
+    "new_category": "经验要求"
+  },
+  {
+    "job_id": "jd-115",
+    "job_title": "省区经理岗位说明书",
+    "req_idx": 3,
+    "category": "专业技能要求",
+    "content": "商务谈判技能",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-116",
+    "job_title": "市场推广经理岗位说明书",
+    "req_idx": 0,
+    "category": "最低学历",
+    "content": "专科",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-116",
+    "job_title": "市场推广经理岗位说明书",
+    "req_idx": 1,
+    "category": "专业要求",
+    "content": "市场营销、医药、传播、管理等专业\n工作经验\n本科及以上学历，临床医学、生物学、药学等相关专业；研究生优先；\n有至少5年以上的医药相关工作经验，做过销售岗位，有市场部带领团队的经验，有专业教育工作或培训经验的优先，外科耗材品类经验优先。对医疗产品生命周期的市场推广有见地和实际操作；\n有较强的强逻辑思维能力、市场分析、营销和推广能力；\n较强的沟通交流能力，演讲能力、语言组织能力及抗压能力，适应出差；\n熟练掌握相关文案材料设计编辑软件及常用办公软件。",
+    "new_category": "经验要求"
+  },
+  {
+    "job_id": "jd-116",
+    "job_title": "市场推广经理岗位说明书",
+    "req_idx": 3,
+    "category": "专业技能要求",
+    "content": "新媒体设计传播及相关技能",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-117",
+    "job_title": "市场专员岗位说明书",
+    "req_idx": 0,
+    "category": "最低学历",
+    "content": "专科",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-118",
+    "job_title": "市场准入经理岗位说明书",
+    "req_idx": 0,
+    "category": "最低学历",
+    "content": "专科",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-118",
+    "job_title": "市场准入经理岗位说明书",
+    "req_idx": 1,
+    "category": "专业要求",
+    "content": "不限\n工作经验\n2年以上医疗器械或相关产品的市场准入工作经验；\n至少负责过一个大区的市场准入，负责过全国准入或者泌尿耗材的优先，熟悉物价申报流程和医保流程；\n全日制本科以上学历，医学、药学、医疗器械等相关专业优先 ；\n具有良好沟通表达能力、公文写作能力、抗压能力、信息收集与分析能力；\n具有强烈责任心、进取心和团队协作精神，能适应较高频率出差其他信息。",
+    "new_category": "经验要求"
+  },
+  {
+    "job_id": "jd-118",
+    "job_title": "市场准入经理岗位说明书",
+    "req_idx": 3,
+    "category": "专业技能要求",
+    "content": "暂无",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-119",
+    "job_title": "海外售后技术服务工程师岗位说明书",
+    "req_idx": 0,
+    "category": "最低学历",
+    "content": "专科",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-119",
+    "job_title": "海外售后技术服务工程师岗位说明书",
+    "req_idx": 3,
+    "category": "专业知识要求",
+    "content": "有一定的医疗器械相关知识（如：13485）优先；\n能初步了解海外销售相关产品的具体工艺特点、技术性能特点、临床价值和使用操作方法（如暂时没有，可纳其入职培训补充相关知识、技能）；\n具备快速学习和掌握相关医保政策法规的能力者优先。",
+    "new_category": "专业技能要求"
+  },
+  {
+    "job_id": "jd-120",
+    "job_title": "医学市场部负责人岗位说明书",
+    "req_idx": 1,
+    "category": "专业要求",
+    "content": "市场营销、医药、传播、工商管理等专业\n工作经验\n有至少5年以上的医药相关工作经验，做过销售岗位，有市场部带领团队的经验，有专业教育工作或培训经验的优先，外科耗材品类经验优先。对医疗产品生命周期的市场推广有见地和实际操作；\n有较强的强逻辑思维能力、市场分析、营销和推广能力；\n较强的沟通交流能力，演讲能力、语言组织能力及抗压能力，适应出差；\n熟练掌握相关文案材料设计编辑软件及常用办公软件。",
+    "new_category": "经验要求"
+  },
+  {
+    "job_id": "jd-120",
+    "job_title": "医学市场部负责人岗位说明书",
+    "req_idx": 2,
+    "category": "专业知识要求",
+    "content": "医疗行业医学市场知识",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-121",
+    "job_title": "医学经理岗位说明书",
+    "req_idx": 1,
+    "category": "专业要求",
+    "content": "市场营销及医学相关\n工作经验\n有至少5年以上的医疗领域医学与市场复合经验；\n有专业文献检索、阅读、翻译技能；具有良好的英文读写能力，能阅读翻译相关英文文献者；\n有临床试验、市场管理复合相关工作经验，或临床医生经验者优先考虑；\n工作积极主动，具备良好的自我管理能力及团队合作精神，优秀的沟通协调和表达能力。",
+    "new_category": "经验要求"
+  },
+  {
+    "job_id": "jd-121",
+    "job_title": "医学经理岗位说明书",
+    "req_idx": 2,
+    "category": "专业知识要求",
+    "content": "英语水平优秀，具有阅读、撰写和口语交流能力，能满足国际多中心临床试验的需求。\n熟练使用Office软件和其他专业文献检索工具，具备较好的数据处理和分析能力。\n具备较强的书面和口头表达能力，可以独立撰写专业论文、研究报告和项目提案。",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-121",
+    "job_title": "医学经理岗位说明书",
+    "req_idx": 3,
+    "category": "专业技能要求",
+    "content": "暂无",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-122",
+    "job_title": "区域经理岗位说明书",
+    "req_idx": 0,
+    "category": "最低学历",
+    "content": "专科",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-122",
+    "job_title": "区域经理岗位说明书",
+    "req_idx": 1,
+    "category": "专业要求",
+    "content": "市场营销及医学相关\n工作经验\n要求有泌尿外科相关科室药品或器械推广经验，有相关经销商资源尤佳，有强烈的合规意识；\n具有良好的信息收集能力及学习能力，耐心细致，吃苦耐劳， 主动自信；\n口齿清晰，形象好，具有良好的沟通能力和应变能力；\n抗压能力强，适应出差，能够适应公司高速发展中存在的各种变化调整，服从公司安排，有强烈的主人翁意识；\n具有医疗器械销售经验、临床医学、护理学或其他医学相关专业优先 。",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-122",
+    "job_title": "区域经理岗位说明书",
+    "req_idx": 3,
+    "category": "专业技能要求",
+    "content": "商务谈判技能",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-130",
+    "job_title": "法规工程师岗位说明书",
+    "req_idx": 0,
+    "category": "最低学历",
+    "content": "专科",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-130",
+    "job_title": "法规工程师岗位说明书",
+    "req_idx": 4,
+    "category": "专业技能要求",
+    "content": "思路清晰，工作严谨，具备较强的逻辑思维和文件编写能力，具有编写规范性文档经验",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-131",
+    "job_title": "注册部负责人岗位说明书",
+    "req_idx": 0,
+    "category": "最低学历",
+    "content": "专科",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-131",
+    "job_title": "注册部负责人岗位说明书",
+    "req_idx": 3,
+    "category": "专业知识要求",
+    "content": "熟悉医疗器械相关的国内外法律法规，熟悉注册流程相关知识，具有注册管理的实践经验，思维敏捷，具备注册法规体系方面的深度洞察力，管理决策能力强",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-131",
+    "job_title": "注册部负责人岗位说明书",
+    "req_idx": 4,
+    "category": "专业技能要求",
+    "content": "良好的组织协调、沟通与跨部门团队合作能力；正直、果断，敢于承受压力；",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-132",
+    "job_title": "注册工程师岗位说明书",
+    "req_idx": 0,
+    "category": "最低学历",
+    "content": "专科",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-132",
+    "job_title": "注册工程师岗位说明书",
+    "req_idx": 4,
+    "category": "专业技能要求",
+    "content": "思路清晰，工作严谨，具备较强的逻辑思维和文件编写能力，具有编写规范性文档经验",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-133",
+    "job_title": "注册主管岗位说明书",
+    "req_idx": 0,
+    "category": "最低学历",
+    "content": "专科",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-133",
+    "job_title": "注册主管岗位说明书",
+    "req_idx": 4,
+    "category": "专业技能要求",
+    "content": "思路清晰，工作严谨，具备较强的逻辑思维和文件编写能力，具有编写规范性文档经验",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-140",
+    "job_title": "知识产权负责人岗位说明书",
+    "req_idx": 4,
+    "category": "专业技能要求",
+    "content": "专业的知识产权工作背景，15年以上相关工作任职经验；",
+    "new_category": "经验要求"
+  },
+  {
+    "job_id": "jd-150",
+    "job_title": "灭菌工程师岗位说明书",
+    "req_idx": 2,
+    "category": "经验要求",
+    "content": "接受过环氧乙烷灭菌生产过程的培训；",
+    "new_category": "专业技能要求"
+  },
+  {
+    "job_id": "jd-150",
+    "job_title": "灭菌工程师岗位说明书",
+    "req_idx": 3,
+    "category": "专业知识要求",
+    "content": "具有医疗器械相关专业知识，熟悉所持有医疗器械产品特点；了解医疗器械产品灭菌验证（ISO11135）方面的法规。",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-151",
+    "job_title": "战略发展总监岗位说明书",
+    "req_idx": 4,
+    "category": "专业技能要求",
+    "content": "良好的组织协调、沟通与跨部门团队合作能力；正直、果断，敢于承受压力",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-152",
+    "job_title": "内审员岗位说明书",
+    "req_idx": 2,
+    "category": "经验要求",
+    "content": "经培训后熟悉并了解所管理产品；\n了解公司建立的质量管理体系，严谨、工作认真，熟悉《医疗器械生产质量管理规范》与ISO 13485:2016 《医疗器械质量管理体系用于法规的要求》；",
+    "new_category": "专业技能要求"
+  },
+  {
+    "job_id": "jd-152",
+    "job_title": "内审员岗位说明书",
+    "req_idx": 3,
+    "category": "专业知识要求",
+    "content": "具有医疗器械相关专业知识，熟悉所持有医疗器械产品特点；了解医疗器械产品灭菌验证（ISO11135）方面的法规。",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-153",
+    "job_title": "灭菌工程师岗位说明书",
+    "req_idx": 0,
+    "category": "最低学历",
+    "content": "专科",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-153",
+    "job_title": "灭菌工程师岗位说明书",
+    "req_idx": 3,
+    "category": "专业知识要求",
+    "content": "精通相关信息化系统（ERP\\MES等）；\n办公软件 、办公自动化设备；\n极强的保密意识和职业化素质；",
+    "new_category": "专业技能要求"
+  },
+  {
+    "job_id": "jd-154",
+    "job_title": "采购及供应链中心负责人岗位说明书",
+    "req_idx": 4,
+    "category": "专业技能要求",
+    "content": "具备一定的原材料质量问题分析能力",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-155",
+    "job_title": "质量工程师岗位说明书",
+    "req_idx": 0,
+    "category": "最低学历",
+    "content": "专科",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-155",
+    "job_title": "质量工程师岗位说明书",
+    "req_idx": 4,
+    "category": "专业技能要求",
+    "content": "1. 熟练掌握质量管理工具和方法，如FMEA、Root Cause Analysis、六西格玛等；\n2. 具备设计验证和确认、风险管理、统计分析等方面的经验。",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-156",
+    "job_title": "品质经理岗位说明书",
+    "req_idx": 0,
+    "category": "最低学历",
+    "content": "专科",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-156",
+    "job_title": "品质经理岗位说明书",
+    "req_idx": 4,
+    "category": "专业技能要求",
+    "content": "良好的组织协调、沟通与跨部门团队合作能力；正直、果断，敢于承受压力",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-157",
+    "job_title": "测试专家岗位说明书",
+    "req_idx": 3,
+    "category": "专业知识要求",
+    "content": "  熟悉软件测试、硬件测试、系统测试等测试理论和方法。\n  熟练使用常用测试工具和自动化测试框架，如JUnit、Selenium、LoadRunner等。\n  具备丰富的测试用例设计和缺陷管理经验。",
+    "new_category": "专业技能要求"
+  },
+  {
+    "job_id": "jd-158",
+    "job_title": "供应商质量工程师（SQE）岗位说明书",
+    "req_idx": 0,
+    "category": "最低学历",
+    "content": "专科",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-159",
+    "job_title": "客户质量工程师（CQE）岗位说明书",
+    "req_idx": 0,
+    "category": "最低学历",
+    "content": "专科",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-163",
+    "job_title": "产品经理（市场）岗位说明书",
+    "req_idx": 0,
+    "category": "最低学历",
+    "content": "专科",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-164",
+    "job_title": "助理结构工程师岗位说明书",
+    "req_idx": 0,
+    "category": "最低学历",
+    "content": "专科",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-164",
+    "job_title": "助理结构工程师岗位说明书",
+    "req_idx": 3,
+    "category": "专业知识要求",
+    "content": "熟悉机械类专业知识，第solid works、Catia、Pore、UG等三维软件的一种有一定的了解和掌握，能使用CAD绘图",
+    "new_category": "专业技能要求"
+  },
+  {
+    "job_id": "jd-164",
+    "job_title": "助理结构工程师岗位说明书",
+    "req_idx": 4,
+    "category": "专业技能要求",
+    "content": "思路清晰，工作严谨，具备较强的逻辑思维和文件编写能力，具有编写规范性文档经验",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-165",
+    "job_title": "销售代表岗位说明书",
+    "req_idx": 0,
+    "category": "最低学历",
+    "content": "专科",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-165",
+    "job_title": "销售代表岗位说明书",
+    "req_idx": 1,
+    "category": "专业要求",
+    "content": "市场营销及医学相关专业\n工作经验\n有医疗器械产品销售经验者优先；\n具有良好的信息收集能力及学习能力，耐心细致，吃苦耐劳， 主动自信；\n口齿清晰，形象好，具有良好的沟通能力和应变能力；\n抗压能力强，适应出差，能够适应公司高速发展中存在的各种变化调整，服从公司安排，有强烈的主人翁意识；\n具有医疗器械销售经验、临床医学、护理学或其他医学相关专业优先 。",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-165",
+    "job_title": "销售代表岗位说明书",
+    "req_idx": 3,
+    "category": "专业技能要求",
+    "content": "商务谈判技能",
+    "new_category": "专业要求"
+  },
+  {
+    "job_id": "jd-166",
+    "job_title": "测试部经理岗位说明书",
+    "req_idx": 3,
+    "category": "专业知识要求",
+    "content": "1.具有较强的文档编写及编辑能力，能够完成产品的研发、生产和质检相关的技术资料的撰写；\n2.掌握基本的风险管理，质量管理、文档体系管理及成本管控能力。",
+    "new_category": "素质要求"
+  },
+  {
+    "job_id": "jd-166",
+    "job_title": "测试部经理岗位说明书",
+    "req_idx": 4,
+    "category": "专业技能要求",
+    "content": "良好的组织协调、沟通与跨部门团队合作能力；正直、果断，敢于承受压力；",
+    "new_category": "素质要求"
+  }
+]
