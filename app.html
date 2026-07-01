@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.13">
+<meta name="version" content="V0.1.14">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="人事档案">
@@ -2486,13 +2486,13 @@ table.collab-table tbody tr:hover{background:#fffdf5}
 </div>
 
 <script src="employees-data.js?v=15"></script>
-<script src="employee-photos.js?v=1"></script>
+<script src="employee-photos.js?v=1" defer onerror="console.warn('employee-photos load failed')"></script>
 <script src="xlsx-js-style.min.js" defer onerror="console.warn('xlsx-js-style load failed')"></script>
 <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.4/jspdf.plugin.autotable.min.js"></script>
-<script src="stheiti-font.js?v=2"></script>
+<script src="stheiti-font.js?v=2" defer onerror="console.warn('stheiti-font load failed')"></script>
 <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
