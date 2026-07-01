@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.14">
+<meta name="version" content="V0.1.15">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="人事档案">
@@ -2588,8 +2588,9 @@ function forceCleanShadowUsers(){
   try{
     var toDelete=[];
     var nameToKey={};
+    var chineseUIDFound=false;
 
-    // 建立 name → 中文 uid 映射（优先保留非纯英文数字的 uid）
+    // 建立 name → uid 映射（优先保留中文 uid）
     for(var k in USERS){
       if(!USERS.hasOwnProperty(k))continue;
       var nm=(USERS[k].name||'').trim();
@@ -2597,21 +2598,47 @@ function forceCleanShadowUsers(){
       if(!nameToKey[nm]||!/^[a-zA-Z0-9_]+$/.test(k)){
         nameToKey[nm]=k;
       }
+      if(!/^[a-zA-Z0-9_]+$/.test(k))chineseUIDFound=true;
     }
 
-    // 找出所有旧代号条目
+    // 找出旧代号条目（与中文uid重复的）
     for(var k in USERS){
       if(!USERS.hasOwnProperty(k))continue;
-      if(!/^[a-zA-Z0-9_]+$/.test(k))continue; // 只检查纯英文/数字 uid
+      if(!/^[a-zA-Z0-9_]+$/.test(k))continue;
       var nm=(USERS[k].name||'').trim();
-      if(!nm||nm===k)toDelete.push(k); // 没有中文名或 name=uid 本身
-      else if(nameToKey[nm]&&nameToKey[nm]!==k)toDelete.push(k); // 同名中文用户已存在
+      if(!nm||nm===k)toDelete.push(k);
+      else if(nameToKey[nm]&&nameToKey[nm]!==k)toDelete.push(k);
+    }
+
+    // ★ V0.1.15: 全英文UID自动迁移（跨浏览器数据修复）
+    if(!chineseUIDFound){
+      var defNameToKey={};
+      for(var dk in _DEFAULT_USERS){
+        if(!_DEFAULT_USERS.hasOwnProperty(dk))continue;
+        var dnm=(_DEFAULT_USERS[dk].name||'').trim();
+        if(dnm&&!/^[a-zA-Z0-9_]+$/.test(dk))defNameToKey[dnm]=dk;
+      }
+      var migrated=0;
+      for(var ek in USERS){
+        if(!USERS.hasOwnProperty(ek))continue;
+        if(!/^[a-zA-Z0-9_]+$/.test(ek))continue;
+        var enm=(USERS[ek].name||'').trim();
+        var targetKey=defNameToKey[enm];
+        if(targetKey&&targetKey!==ek&&!USERS[targetKey]){
+          USERS[targetKey]=JSON.parse(JSON.stringify(USERS[ek]));
+          toDelete.push(ek);
+          migrated++;
+        }
+      }
+      if(migrated>0)console.log('[autoMigrate] 全英文UID → 中文UID: '+migrated+'个用户已迁移');
     }
 
     if(toDelete.length===0)return;
-
-    console.log('[forceClean] 删除 '+toDelete.length+' 个旧代号用户:',toDelete);
-    for(var i=0;i<toDelete.length;i++)delete USERS[toDelete[i]];
+    // 去重
+    var seen={},unique=[];
+    for(var i=0;i<toDelete.length;i++){if(!seen[toDelete[i]]){seen[toDelete[i]]=true;unique.push(toDelete[i]);}}
+    console.log('[forceClean] 删除 '+unique.length+' 个旧uid:',unique);
+    for(var i=0;i<unique.length;i++)delete USERS[unique[i]];
     saveUserSettings();
     console.log('[forceClean] 清理完成');
   }catch(e){
