@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.15">
+<meta name="version" content="V0.1.16">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="人事档案">
@@ -2588,7 +2588,6 @@ function forceCleanShadowUsers(){
   try{
     var toDelete=[];
     var nameToKey={};
-    var chineseUIDFound=false;
 
     // 建立 name → uid 映射（优先保留中文 uid）
     for(var k in USERS){
@@ -2598,7 +2597,6 @@ function forceCleanShadowUsers(){
       if(!nameToKey[nm]||!/^[a-zA-Z0-9_]+$/.test(k)){
         nameToKey[nm]=k;
       }
-      if(!/^[a-zA-Z0-9_]+$/.test(k))chineseUIDFound=true;
     }
 
     // 找出旧代号条目（与中文uid重复的）
@@ -2610,28 +2608,28 @@ function forceCleanShadowUsers(){
       else if(nameToKey[nm]&&nameToKey[nm]!==k)toDelete.push(k);
     }
 
-    // ★ V0.1.15: 全英文UID自动迁移（跨浏览器数据修复）
-    if(!chineseUIDFound){
-      var defNameToKey={};
-      for(var dk in _DEFAULT_USERS){
-        if(!_DEFAULT_USERS.hasOwnProperty(dk))continue;
-        var dnm=(_DEFAULT_USERS[dk].name||'').trim();
-        if(dnm&&!/^[a-zA-Z0-9_]+$/.test(dk))defNameToKey[dnm]=dk;
-      }
-      var migrated=0;
-      for(var ek in USERS){
-        if(!USERS.hasOwnProperty(ek))continue;
-        if(!/^[a-zA-Z0-9_]+$/.test(ek))continue;
+    // ★ V0.1.16: 无条件迁移英文UID → 中文UID（跨浏览器数据修复）
+    var defNameToKey={};
+    for(var dk in _DEFAULT_USERS){
+      if(!_DEFAULT_USERS.hasOwnProperty(dk))continue;
+      var dnm=(_DEFAULT_USERS[dk].name||'').trim();
+      if(dnm&&!/^[a-zA-Z0-9_]+$/.test(dk)&&!/^\d+$/.test(dk))defNameToKey[dnm]=dk;
+    }
+    var migrated=0;
+    for(var ek in USERS){
+      if(!USERS.hasOwnProperty(ek))continue;
+      if(/^[a-zA-Z0-9_]+$/.test(ek)){
         var enm=(USERS[ek].name||'').trim();
         var targetKey=defNameToKey[enm];
-        if(targetKey&&targetKey!==ek&&!USERS[targetKey]){
+        // 条件：英文key + 有对应的中文key + 中文key不存在于USERS中
+        if(targetKey&&targetKey!==ek&&!(USERS[targetKey])){
           USERS[targetKey]=JSON.parse(JSON.stringify(USERS[ek]));
           toDelete.push(ek);
           migrated++;
         }
       }
-      if(migrated>0)console.log('[autoMigrate] 全英文UID → 中文UID: '+migrated+'个用户已迁移');
     }
+    if(migrated>0)console.log('[autoMigrate] 英文UID → 中文UID: '+migrated+'个用户已迁移');
 
     if(toDelete.length===0)return;
     // 去重
