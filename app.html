@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.22">
+<meta name="version" content="V0.1.23">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="人事档案">
@@ -3262,6 +3262,30 @@ function getCurrentEmployee(){
     supervisor: emp.supervisor || '',
     entryDate: emp.entryDate || ''
   };
+}
+
+// ★ V0.1.23: 获取当前正在查看的用户（自己/直属下属/部门成员），用于周计划模块
+function getViewedUserEmp(){
+  var targetName = _wpViewingSubordinate || _wpViewingDeptMember || (currentUser&&currentUser.name) || '';
+  if(!targetName) return getCurrentEmployee();
+  // 先从 USERS 查找
+  for(var uid in USERS){
+    if(USERS.hasOwnProperty(uid) && USERS[uid].name === targetName){
+      var u = USERS[uid];
+      return {name: u.name || targetName, dept: u.dept || '', position: u.position || ''};
+    }
+  }
+  // 再从 allEmployees 查找
+  if(typeof allEmployees !== 'undefined'){
+    for(var i=0; i<allEmployees.length; i++){
+      if(allEmployees[i].name === targetName || allEmployees[i]['姓名'] === targetName){
+        var e = allEmployees[i];
+        return {name: targetName, dept: e.dept || e['部门'] || '', position: e.position || e['岗位'] || ''};
+      }
+    }
+  }
+  // 查不到就只返回名字
+  return {name: targetName, dept: '', position: ''};
 }
 
 function catTag(cat){
@@ -15022,7 +15046,7 @@ function getWPLocalStorageKey(){
 function fixAllPlanDirtyData(){
   var correctName=_wpViewingSubordinate||_wpViewingDeptMember||(currentUser&&currentUser.name)||'';
   if(!correctName)return;
-  var emp=getCurrentEmployee();
+  var emp=getViewedUserEmp();
   var correctDept=emp?emp.dept:'';
   var correctPos=emp?emp.position:'';
 
@@ -15159,7 +15183,7 @@ function saveWP(y,m,w,plan){_wpData[makeWPId(y,m,w)]=plan;saveWPData();}
 function deleteWP(y,m,w){delete _wpData[makeWPId(y,m,w)];saveWPData();}
 
 function createEmptyPlan(y,m,w){
-  var emp=getCurrentEmployee();
+  var emp=getViewedUserEmp();
   var tasks=[];
   for(var i=0;i<8;i++)tasks.push({seq:i+1,work:'',goal:'',plannedDate:'',actualDate:'',estimatedHours:'',status:'',supporters:'',problems:'',problemType:'',needBoss:'',bossFeedback:'',aiSuggestion:''});
   return {year:y,month:m,week:w,name:emp.name,dept:emp.dept,position:emp.position,tasks:tasks,bossEvaluated:false,bossEvaluatedAt:null,bossEvaluatedBy:'',bossOverallFeedback:'',createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};
@@ -15389,8 +15413,8 @@ function selectWP(y,m,w){
   var plan=getWP(y,m,w);
   // ★ 确定当前正在查看的用户名（自己 or 下属）
   var correctName=_wpViewingSubordinate||_wpViewingDeptMember||(currentUser&&currentUser.name)||'';
-  // ★ 获取当前用户的正确部门/职位
-  var emp=getCurrentEmployee();
+  // ★ 获取正在查看用户的正确部门/职位（自己 or 下属）
+  var emp=getViewedUserEmp();
   var correctDept=emp?emp.dept:'';
   var correctPos=emp?emp.position:'';
 
