@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.28">
+<meta name="version" content="V0.1.29">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="人事档案">
@@ -1698,9 +1698,10 @@ body{
 .wp-toolbar button.wp-btn-ai{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border-color:transparent}
 .wp-toolbar button.wp-btn-freeze{background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;border-color:transparent;font-weight:600}
 .wp-toolbar button.wp-btn-freeze:hover{opacity:.85}
-/* ★ V0.1.28: 冻结列视觉提示 — 仅左侧蓝边框+锁图标 */
+/* ★ V0.1.29: 冻结列视觉提示 — 仅左侧蓝边框+锁图标（优先级列排除） */
 .wp-table td.wp-cell-frozen{border-left:3px solid #3b82f6!important;border-right:none!important;position:relative}
 .wp-table td.wp-cell-frozen::after{content:'🔒';position:absolute;top:2px;right:4px;font-size:9px;opacity:.5}
+.wp-table td.col-goal{border-left:1px solid var(--border)!important}
 .wp-toolbar-sep{width:1px;background:var(--border);margin:0 4px;display:inline-block}
 
 .wp-table-wrap{flex:1;overflow-x:auto;background:var(--card);border-radius:8px;border:1px solid var(--border)}
