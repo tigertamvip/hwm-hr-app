@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.20">
+<meta name="version" content="V0.1.21">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="人事档案">
@@ -15316,6 +15316,12 @@ function onWPSubordinateChange(){
   renderWPSubSelect();
   showWPEmpty();
   onWPMonthChange();
+  // ★ V0.1.21: 切换下属后自动选中当前月第1周（修复顶部下拉切换不刷新表格的bug）
+  var yEl=document.getElementById('wpYear');
+  var mEl=document.getElementById('wpMonth');
+  var autoY=yEl?parseInt(yEl.value):new Date().getFullYear();
+  var autoM=mEl?parseInt(mEl.value):(new Date().getMonth()+1);
+  setTimeout(function(){ try{selectWP(autoY,autoM,1);}catch(e){console.warn('auto-selectWP after subordinate change failed:',e);} }, 100);
 }
 
 function onWPYearChange(){onWPMonthChange();}
@@ -15343,6 +15349,12 @@ function onWPDeptMemberChange(){
   renderWPSubSelect();
   showWPEmpty();
   onWPMonthChange();
+  // ★ V0.1.21: 切换部门成员后自动选中当前月第1周（修复顶部下拉切换不刷新表格的bug）
+  var yEl=document.getElementById('wpYear');
+  var mEl=document.getElementById('wpMonth');
+  var autoY=yEl?parseInt(yEl.value):new Date().getFullYear();
+  var autoM=mEl?parseInt(mEl.value):(new Date().getMonth()+1);
+  setTimeout(function(){ try{selectWP(autoY,autoM,1);}catch(e){console.warn('auto-selectWP after deptMember change failed:',e);} }, 100);
 }
 
 function renderWPPlanList(year,month){
