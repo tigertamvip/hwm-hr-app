@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.26">
+<meta name="version" content="V0.1.27">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="人事档案">
@@ -1698,8 +1698,8 @@ body{
 .wp-toolbar button.wp-btn-ai{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border-color:transparent}
 .wp-toolbar button.wp-btn-freeze{background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;border-color:transparent;font-weight:600}
 .wp-toolbar button.wp-btn-freeze:hover{opacity:.85}
-/* ★ V0.1.23: 冻结列视觉提示 */
-.wp-table td.wp-cell-frozen{background:#e0f2fe!important;position:relative;cursor:not-allowed}
+/* ★ V0.1.27: 冻结列视觉提示 — 左边框+锁图标，不覆盖原有颜色 */
+.wp-table td.wp-cell-frozen{border-left:3px solid #3b82f6!important;position:relative}
 .wp-table td.wp-cell-frozen::after{content:'🔒';position:absolute;top:2px;right:4px;font-size:9px;opacity:.5}
 .wp-toolbar-sep{width:1px;background:var(--border);margin:0 4px;display:inline-block}
 
@@ -16019,10 +16019,12 @@ function renderWPTable(plan){
     html+='<tr>';
     html+='<td class="col-num">'+(j+1)+'</td>';
     var _frozenCls=(plan.frozen&&!_wpViewingSubordinate&&!_wpViewingDeptMember?' wp-cell-frozen':'');
+    // ★ V0.1.27: 优先级列不加冻结背景色——保持颜色编码可见
+    var _goalFrozenCls='';
     html+='<td class="editable col-work'+_frozenCls+'" data-field="tasks.'+j+'.work" data-type="textarea" onclick="startEditCell(this)">'+(t.work||plan._revisions&&plan._revisions['tasks.'+j+'.work']?renderWPCellValue(plan,'tasks.'+j+'.work',t.work):(t.work?_h(t.work):'<span style="color:var(--text-hint)">点击填写</span>'))+'</td>';
     var _goalVal=(t.goal||plan._revisions&&plan._revisions['tasks.'+j+'.goal']?renderWPCellValue(plan,'tasks.'+j+'.goal',t.goal):(t.goal?t.goal:''));
     var _goalPriClass=_goalVal==='重要紧急'?'pri-urgent':_goalVal==='重要'?'pri-important':_goalVal==='一般紧急'?'pri-normal-urgent':_goalVal==='一般'?'pri-normal':'';
-    html+='<td class="editable col-goal '+_goalPriClass+_frozenCls+'" data-field="tasks.'+j+'.goal" data-type="select" data-opts="'+WP_GOAL_OPTIONS.join(',')+'" onclick="startEditCell(this)">'+(_goalVal?_h(_goalVal):'<span style="color:var(--text-hint)">选择</span>')+'</td>';
+    html+='<td class="editable col-goal '+_goalPriClass+_goalFrozenCls+'" data-field="tasks.'+j+'.goal" data-type="select" data-opts="'+WP_GOAL_OPTIONS.join(',')+'" onclick="startEditCell(this)">'+(_goalVal?_h(_goalVal):'<span style="color:var(--text-hint)">选择</span>')+'</td>';
     var plannedDateDisplay=renderWPCellValue(plan,'tasks.'+j+'.plannedDate',t.plannedDate||'');
     html+='<td class="editable col-hours'+_frozenCls+'" data-field="tasks.'+j+'.plannedDate" data-type="date" onclick="startEditCell(this)">'+(plannedDateDisplay?plannedDateDisplay:'<span style="color:var(--text-hint)">点击选择日期</span>')+'</td>';
     var actualDateDisplay=renderWPCellValue(plan,'tasks.'+j+'.actualDate',t.actualDate||'');
