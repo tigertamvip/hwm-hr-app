@@ -16419,9 +16419,9 @@ function _renderTimeManagementPanel(plan){
 
   var revTime=plan.bossReviewedAt?_formatDateTime(plan.bossReviewedAt):'—';
 
-  // 豁免按钮（仅上级在超时红色时可见）
+  // ★ 豁免按钮：上级在非按时（待提交灰色/超时红色/已豁免蓝色）均可见
   var exemptionBtn='';
-  if((_wpViewingSubordinate||_wpViewingDeptMember)&&(subStatus==='late'||plan.exempted)){
+  if((_wpViewingSubordinate||_wpViewingDeptMember)&&(subStatus!=='on_time'||plan.exempted)){
     exemptionBtn='<button onclick="toggleWPExemption()" style="padding:2px 8px;border:none;border-radius:4px;cursor:pointer;font-size:11px;margin-top:4px;'+(plan.exempted?'background:#94a3b8;color:#fff':'background:#3b82f6;color:#fff')+'">'+(plan.exempted?'🔓 取消豁免':'🛡️ 豁免')+'</button>';
   }
 
@@ -16435,6 +16435,7 @@ function _renderTimeManagementPanel(plan){
   html+='• 法定节假日顺延<br>';
   html+='• 未按时提交每迟12h扣-1分<br>';
   html+='• 超48h未提交：-5分<br>';
+  html+='• 特殊情况可申请豁免（±0）<br>';
   html+='• 年累计 ≤-20分 = 不能胜任';
   html+='</div>';
 
