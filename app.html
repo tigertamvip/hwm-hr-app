@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.18">
+<meta name="version" content="V0.1.19">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="人事档案">
@@ -14993,6 +14993,9 @@ function initWPModule(){
       var mEl=document.getElementById('wpMonth');
       if(yEl)yEl.value=now.getFullYear();
       if(mEl)mEl.value=now.getMonth()+1;
+
+      // ★ V0.1.19: 批量修复当前用户所有周计划的脏数据（name/dept/position不匹配）
+      try{fixAllPlanDirtyData();}catch(e){console.warn('fixAllPlanDirtyData failed:',e);}
     }
     // 每次进入模块都刷新：信息栏 + 下属选择器 + 计划列表（各自独立容错）
     try{renderWPUserInfo();}catch(e){console.warn('renderWPUserInfo failed:',e);}
@@ -15011,6 +15014,33 @@ function initWPModule(){
 function getWPLocalStorageKey(){
   var user=_wpViewingSubordinate||(currentUser&&currentUser.name)||getCurrentEmployee().name;
   return 'hwm_workplans_'+user;
+}
+
+// ★ V0.1.19: 批量修复当前用户所有周计划的脏数据
+// 修复场景：跨浏览器登录、UID迁移后 localStorage 中残留其他用户信息
+function fixAllPlanDirtyData(){
+  var correctName=_wpViewingSubordinate||(currentUser&&currentUser.name)||'';
+  if(!correctName)return;
+  var emp=getCurrentEmployee();
+  var correctDept=emp?emp.dept:'';
+  var correctPos=emp?emp.position:''';
+
+  var fixed=0;
+  var keys=[];
+  for(var k in _wpData){if(_wpData.hasOwnProperty(k))keys.push(k);}
+  for(var i=0;i<keys.length;i++){
+    var plan=_wpData[keys[i]];
+    if(!plan||!plan.name)continue;
+    var dirty=false;
+    if(plan.name!==correctName){plan.name=correctName;dirty=true;}
+    if(correctDept&&plan.dept!==correctDept){plan.dept=correctDept;dirty=true;}
+    if(correctPos&&plan.position!==correctPos){plan.position=correctPos;dirty=true;}
+    if(dirty)fixed++;
+  }
+  if(fixed>0){
+    try{localStorage.setItem(getWPLocalStorageKey(),JSON.stringify(_wpData));}catch(e){}
+    console.log('[fixAllPlanDirtyData] 已修复 '+fixed+' 个周计划的脏数据 → '+correctName);
+  }
 }
 
 function loadWPData(){
@@ -15347,18 +15377,26 @@ function selectWP(y,m,w){
   var plan=getWP(y,m,w);
   // ★ 确定当前正在查看的用户名（自己 or 下属）
   var correctName=_wpViewingSubordinate||(currentUser&&currentUser.name)||'';
+  // ★ 获取当前用户的正确部门/职位
+  var emp=getCurrentEmployee();
+  var correctDept=emp?emp.dept:'';
+  var correctPos=emp?emp.position:'';
+
   if(plan){
-    // ★ 修复脏数据：计划中的 name 必须与当前查看用户一致
-    if(correctName && plan.name !== correctName){
-      plan.name = correctName;
-      saveWP(y,m,w,plan);
-    }
+    // ★ 全面修复脏数据：name / dept / position 必须与当前查看用户一致
+    var dirty=false;
+    if(correctName && plan.name !== correctName){ plan.name = correctName; dirty=true; }
+    if(correctDept && plan.dept !== correctDept){ plan.dept = correctDept; dirty=true; }
+    if(correctPos && plan.position !== correctPos){ plan.position = correctPos; dirty=true; }
+    if(dirty) saveWP(y,m,w,plan);
     _wpCurrent.plan=plan;
     renderWPTable(plan);
   }else{
     // ★ 自动创建空白周计划并渲染表单（用户无需手动点「新建周计划」）
     var newPlan=createEmptyPlan(y,m,w);
     if(correctName) newPlan.name = correctName;
+    if(correctDept) newPlan.dept = correctDept;
+    if(correctPos) newPlan.position = correctPos;
     saveWP(y,m,w,newPlan);
     _wpCurrent.plan=newPlan;
     renderWPTable(newPlan);
