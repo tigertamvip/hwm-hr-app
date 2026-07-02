@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.21">
+<meta name="version" content="V0.1.22">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="人事档案">
@@ -15013,14 +15013,14 @@ function initWPModule(){
 }
 
 function getWPLocalStorageKey(){
-  var user=_wpViewingSubordinate||(currentUser&&currentUser.name)||getCurrentEmployee().name;
+  var user=_wpViewingSubordinate||_wpViewingDeptMember||(currentUser&&currentUser.name)||getCurrentEmployee().name;
   return 'hwm_workplans_'+user;
 }
 
 // ★ V0.1.19: 批量修复当前用户所有周计划的脏数据
 // 修复场景：跨浏览器登录、UID迁移后 localStorage 中残留其他用户信息
 function fixAllPlanDirtyData(){
-  var correctName=_wpViewingSubordinate||(currentUser&&currentUser.name)||'';
+  var correctName=_wpViewingSubordinate||_wpViewingDeptMember||(currentUser&&currentUser.name)||'';
   if(!correctName)return;
   var emp=getCurrentEmployee();
   var correctDept=emp?emp.dept:'';
@@ -15048,8 +15048,7 @@ function loadWPData(){
   // ① 先读 localStorage（秒出，不卡）
   try{_wpData=JSON.parse(localStorage.getItem(getWPLocalStorageKey())||'{}');}catch(e){_wpData={};}
   // ② 后台从 Supabase 拉取并合并（跨设备数据同步，失败不影响使用）
-  var user=_wpViewingSubordinate||(currentUser&&currentUser.name)||getCurrentEmployee().name;
-  // 防御：user 为空时绝不能查询，否则 .eq 被忽略返回全表数据
+  var user=_wpViewingSubordinate||_wpViewingDeptMember||(currentUser&&currentUser.name)||getCurrentEmployee().name;
   if(!user||typeof user!=='string'||user.trim()===''){
     console.warn('HWM: loadWPData aborted - user is empty');
     return;
@@ -15105,7 +15104,7 @@ function saveWPData(){
     console.warn('HWM: WP Supabase not ready, skip cloud push');
     return;
   }
-  var user=_wpViewingSubordinate||(currentUser&&currentUser.name)||getCurrentEmployee().name;
+  var user=_wpViewingSubordinate||_wpViewingDeptMember||(currentUser&&currentUser.name)||getCurrentEmployee().name;
   // 防御：user 为空时绝不能保存
   if(!user||typeof user!=='string'||user.trim()===''){
     console.warn('HWM: saveWPData aborted - user is empty');
@@ -15389,7 +15388,7 @@ function selectWP(y,m,w){
   loadWPData();
   var plan=getWP(y,m,w);
   // ★ 确定当前正在查看的用户名（自己 or 下属）
-  var correctName=_wpViewingSubordinate||(currentUser&&currentUser.name)||'';
+  var correctName=_wpViewingSubordinate||_wpViewingDeptMember||(currentUser&&currentUser.name)||'';
   // ★ 获取当前用户的正确部门/职位
   var emp=getCurrentEmployee();
   var correctDept=emp?emp.dept:'';
