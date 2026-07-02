@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.23">
+<meta name="version" content="V0.1.24">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="人事档案">
@@ -1696,6 +1696,11 @@ body{
 .wp-toolbar button.wp-btn-warn:hover{opacity:.85}
 .wp-toolbar button.wp-btn-accent{background:#FFBB1C;color:var(--primary);border-color:#FFBB1C}
 .wp-toolbar button.wp-btn-ai{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border-color:transparent}
+.wp-toolbar button.wp-btn-freeze{background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;border-color:transparent;font-weight:600}
+.wp-toolbar button.wp-btn-freeze:hover{opacity:.85}
+/* ★ V0.1.23: 冻结列视觉提示 */
+.wp-table td.wp-cell-frozen{background:#e0f2fe!important;position:relative;cursor:not-allowed}
+.wp-table td.wp-cell-frozen::after{content:'🔒';position:absolute;top:2px;right:4px;font-size:9px;opacity:.5}
 .wp-toolbar-sep{width:1px;background:var(--border);margin:0 4px;display:inline-block}
 
 .wp-table-wrap{flex:1;overflow-x:auto;background:var(--card);border-radius:8px;border:1px solid var(--border)}
@@ -15942,6 +15947,10 @@ function renderWPTable(plan){
   html+='<div class="wp-info-bar"><strong>'+_h(plan.name)+'</strong>&nbsp;'+_h(plan.dept)+' | '+_h(plan.position)+'<span class="sep">|</span>'+weekLabel;
   if(_wpViewingSubordinate)html+='<span style="color:#E8622A;font-weight:500;margin-left:8px">（查看直属下属周计划）</span>';
   else if(_wpViewingDeptMember)html+='<span style="color:#E8622A;font-weight:500;margin-left:8px">（查看更多下属周计划）</span>';
+  if(plan.frozen && !_wpViewingSubordinate && !_wpViewingDeptMember){
+    html+='<span style="color:#3b82f6;font-weight:600;margin-left:8px">❄️ 已被上级冻结（本周重点/优先级/计划完成日期不可修改）</span>';
+    if(plan.frozenBy)html+='<span style="color:#6b7280;margin-left:4px;font-size:10px">by '+_h(plan.frozenBy)+'</span>';
+  }
   if(_wpRevisionMode)html+='<span style="color:#e53e3e;font-weight:500;margin-left:8px">🔴 修订模式</span>';
   if(plan.bossEvaluated)html+='<span style="color:#059669;margin-left:8px">✓ 上级已评价</span>';
   html+='</div>';
@@ -15953,18 +15962,21 @@ function renderWPTable(plan){
       html+='<button onclick="viewBossEval()">📋 查看上级评价</button>';
     }
   }else if(_wpViewingSubordinate){
-    // 查看下属：修订模式 + 上级评价编辑
+    // 查看下属：修订模式 + 审核冻结 + 上级评价编辑
     html+='<button class="' + (_wpRevisionMode?'wp-btn-warn':'') + '" onclick="toggleWPRevisionMode()" title="开启后可修改下属计划内容，修改将以红色标注">';
     html+=_wpRevisionMode?'🔴 关闭修订':'✏️ 开启修订';
     html+='</button>';
+    // ★ V0.1.23: 审核并冻结 — 上级点击后下属不能修改 本周重点工作/优先级/计划完成时间
+    var isFrozen = _wpCurrent.plan && _wpCurrent.plan.frozen;
+    html+='<button class="'+(isFrozen?'wp-btn-freeze':'')+'" onclick="toggleWPFreeze()" title="冻结后下属不能修改本周重点、优先级、计划完成日期">';
+    html+=isFrozen?'❄️ 解除冻结':'❄️ 审核并冻结';
+    html+='</button>';
     html+='<button onclick="openBossEval()">⭐ 上级评价</button>';
   }else{
-    // 自己的计划：完整编辑功能
-    html+='<button onclick="createNewWP()">＋ 新增周计划</button>';
+    // 自己的计划：完整编辑功能（去掉新增+转发，左下角已有新建）
     html+='<button onclick="editWPPlan()">✎ 修改周计划</button>';
     html+='<button class="wp-btn-warn" onclick="deleteCurrentWPPlan()">🗑 删除周计划</button>';
     html+='<button onclick="exportCurrentWP()">📥 导出周计划</button>';
-    html+='<button onclick="emailToSuperior()">📧 转发上级</button>';
     if(plan.bossEvaluated){
       html+='<button onclick="viewBossEval()">📋 查看上级评价</button>';
     }
@@ -16000,12 +16012,13 @@ function renderWPTable(plan){
     var t=plan.tasks[j];
     html+='<tr>';
     html+='<td class="col-num">'+(j+1)+'</td>';
-    html+='<td class="editable col-work" data-field="tasks.'+j+'.work" data-type="textarea" onclick="startEditCell(this)">'+(t.work||plan._revisions&&plan._revisions['tasks.'+j+'.work']?renderWPCellValue(plan,'tasks.'+j+'.work',t.work):(t.work?_h(t.work):'<span style="color:var(--text-hint)">点击填写</span>'))+'</td>';
+    var _frozenCls=(plan.frozen&&!_wpViewingSubordinate&&!_wpViewingDeptMember?' wp-cell-frozen':'');
+    html+='<td class="editable col-work'+_frozenCls+'" data-field="tasks.'+j+'.work" data-type="textarea" onclick="startEditCell(this)">'+(t.work||plan._revisions&&plan._revisions['tasks.'+j+'.work']?renderWPCellValue(plan,'tasks.'+j+'.work',t.work):(t.work?_h(t.work):'<span style="color:var(--text-hint)">点击填写</span>'))+'</td>';
     var _goalVal=(t.goal||plan._revisions&&plan._revisions['tasks.'+j+'.goal']?renderWPCellValue(plan,'tasks.'+j+'.goal',t.goal):(t.goal?t.goal:''));
     var _goalPriClass=_goalVal==='重要紧急'?'pri-urgent':_goalVal==='重要'?'pri-important':_goalVal==='一般紧急'?'pri-normal-urgent':_goalVal==='一般'?'pri-normal':'';
-    html+='<td class="editable col-goal '+_goalPriClass+'" data-field="tasks.'+j+'.goal" data-type="select" data-opts="'+WP_GOAL_OPTIONS.join(',')+'" onclick="startEditCell(this)">'+(_goalVal?_h(_goalVal):'<span style="color:var(--text-hint)">选择</span>')+'</td>';
+    html+='<td class="editable col-goal '+_goalPriClass+_frozenCls+'" data-field="tasks.'+j+'.goal" data-type="select" data-opts="'+WP_GOAL_OPTIONS.join(',')+'" onclick="startEditCell(this)">'+(_goalVal?_h(_goalVal):'<span style="color:var(--text-hint)">选择</span>')+'</td>';
     var plannedDateDisplay=renderWPCellValue(plan,'tasks.'+j+'.plannedDate',t.plannedDate||'');
-    html+='<td class="editable col-hours" data-field="tasks.'+j+'.plannedDate" data-type="date" onclick="startEditCell(this)">'+(plannedDateDisplay?plannedDateDisplay:'<span style="color:var(--text-hint)">点击选择日期</span>')+'</td>';
+    html+='<td class="editable col-hours'+_frozenCls+'" data-field="tasks.'+j+'.plannedDate" data-type="date" onclick="startEditCell(this)">'+(plannedDateDisplay?plannedDateDisplay:'<span style="color:var(--text-hint)">点击选择日期</span>')+'</td>';
     var actualDateDisplay=renderWPCellValue(plan,'tasks.'+j+'.actualDate',t.actualDate||'');
     html+='<td class="editable col-hours" data-field="tasks.'+j+'.actualDate" data-type="date" onclick="startEditCell(this)">'+(actualDateDisplay?actualDateDisplay:'<span style="color:var(--text-hint)">点击选择日期</span>')+'</td>';
     html+='<td class="editable col-status" data-field="tasks.'+j+'.status" data-type="select" data-opts="'+WP_STATUS_OPTIONS.join(',')+'" onclick="startEditCell(this)">'+(t.status||plan._revisions&&plan._revisions['tasks.'+j+'.status']?renderWPCellValue(plan,'tasks.'+j+'.status',t.status):(t.status?_h(t.status):'<span style="color:var(--text-hint)">选择</span>'))+'</td>';
@@ -16103,10 +16116,42 @@ function renderWPTable(plan){
   content.insertAdjacentHTML('beforeend',html);
 }
 
+// ★ V0.1.23: 审核并冻结 — 上级冻结下属周计划的核心三列
+function toggleWPFreeze(){
+  if(!_wpCurrent||!_wpCurrent.plan){alert('请先选择一个周计划');return;}
+  var plan=_wpCurrent.plan;
+  plan.frozen=!plan.frozen;
+  if(plan.frozen){
+    plan.frozenAt=new Date().toISOString();
+    plan.frozenBy=(currentUser&&currentUser.name)||'';
+    showToast('✅ 已冻结：下属不能修改本周重点/优先级/计划完成日期');
+  }else{
+    showToast('⚠️ 已解除冻结：下属可重新修改');
+  }
+  saveWP(plan.year,plan.month,plan.week,plan);
+  renderWPTable(plan); // 刷新按钮状态和视觉提示
+}
+
+// ★ V0.1.23: 判断某个字段是否被冻结（员工查看自己被上级冻结的计划时）
+function isFieldFrozen(cell){
+  // 冻结保护只对「员工查看自己的计划」生效
+  if(_wpViewingSubordinate||_wpViewingDeptMember)return false; // 上级不受限
+  var plan=_wpCurrent?_wpCurrent.plan:null;
+  if(!plan||!plan.frozen)return false;
+  var field=cell.dataset.field||'';
+  // 冻结的三列：本周重点工作、优先级、计划完成日期
+  return (field.indexOf('.work')>0||field.indexOf('.goal')>0||field.indexOf('.plannedDate')>0);
+}
+
 // ========== 单元格编辑 ==========
 function startEditCell(cell){
   // 查看间接下属时：完全只读
   if(_wpViewingDeptMember)return;
+  // ★ V0.1.23: 员工查看自己被冻结的计划时，冻结列不可编辑
+  if(isFieldFrozen(cell)){
+    showToast('❄️ 该字段已被上级审核冻结，如需修改请联系上级');
+    return;
+  }
   // 查看下属时：只允许编辑 bossFeedback，除非开启了修订模式
   if(_wpViewingSubordinate&&cell.dataset.field&&cell.dataset.field.indexOf('bossFeedback')<0&&!_wpRevisionMode)return;
   // 查看下属时且修订模式开启：允许编辑所有字段
