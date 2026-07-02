@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.35">
+<meta name="version" content="V0.1.36">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="人事档案">
@@ -16340,7 +16340,15 @@ function _calcWeekScore(plan){
   else if(subStatus==='late'&&plan.firstSubmittedAt){
     var deadline=_getWeekDeadline(plan.year,plan.month,plan.week);
     var diffHrs=(new Date(plan.firstSubmittedAt)-deadline)/(1000*3600);
-    weekScore-=diffHrs>48?-5:(diffHrs>0?-3:0);
+    // ★ V0.1.35 修订: 每12h扣-1分，>48h未提交=-5分
+    if(subStatus==='late'&&plan.firstSubmittedAt){
+      var deadline=_getWeekDeadline(plan.year,plan.month,plan.week);
+      var diffHrs=(new Date(plan.firstSubmittedAt)-deadline)/(1000*3600);
+      if(diffHrs>48)weekScore-=5;
+      else weekScore-=Math.ceil(diffHrs/12);
+      // 扣分上限为-5
+      if(weekScore<-5)weekScore=-5;
+    }
   }
 
   // 评价奖励（仅上级按时完成时给下属加分）
@@ -16425,8 +16433,8 @@ function _renderTimeManagementPanel(plan){
   html+='• 员工每周六 12:00 前提交<br>';
   html+='• 上级周一 12:00 前完成评价<br>';
   html+='• 法定节假日顺延<br>';
-  html+='• 超48h不提交：-3分/周<br>';
-  html+='• 未提交：-5分/周<br>';
+  html+='• 超48h未提交：-5分<br>';
+  html+='• 未按时提交每迟12h扣-1分<br>';
   html+='• 年累计 ≤-20分 = 不能胜任';
   html+='</div>';
 
@@ -16455,12 +16463,12 @@ function _renderTimeManagementPanel(plan){
   html+='<div style="font-weight:600;color:#374151;margin-bottom:6px;font-size:12px">📊 '
   +year+'年积分</div>';
   html+='<div style="font-size:12px;line-height:1.8">';
-  html+='<div>累计计分：<span style="color:#059669;font-weight:600">+'
+  html+='<div>累计计分：<span style="color:#059669;font-family:\'Arial Black\',sans-serif;font-size:18px">+'
   +(scores.total||0)+'</span></div>';
-  html+='<div>扣除积分：<span style="color:#dc2626;font-weight:600">'
+  html+='<div>扣除积分：<span style="color:#dc2626;font-family:\'Arial Black\',sans-serif;font-size:18px">'
   +(scores.deducted||0)+'</span></div>';
   html+='<div style="border-top:1px solid #e5e7eb;margin:2px 0;padding-top:2px">净积分：<span style="font-weight:700;color:'
-  +((scores.net||0)>=0?'#059669':'#dc2626')+'">'
+  +((scores.net||0)>=0?'#059669':'#dc2626')+';font-family:\'Arial Black\',sans-serif;font-size:20px">'
   +(scores.net||0)+'</span></div>';
   if((scores.net||0)<=-20){
     html+='<div style="color:#dc2626;font-weight:600;font-size:10px;margin-top:2px">⚠️ 不能胜任</div>';
