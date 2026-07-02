@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.24">
+<meta name="version" content="V0.1.25">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="人事档案">
@@ -15957,10 +15957,12 @@ function renderWPTable(plan){
 
   html+='<div class="wp-toolbar" id="wpToolbar">';
   if(_wpViewingDeptMember){
-    // 部门成员视图：完全只读，仅显示查看上级评价按钮
-    if(plan.bossEvaluated){
-      html+='<button onclick="viewBossEval()">📋 查看上级评价</button>';
-    }
+    // 部门成员视图：审核冻结 + 上级评价（同直属下属）
+    var isFrozen = _wpCurrent.plan && _wpCurrent.plan.frozen;
+    html+='<button class="'+(isFrozen?'wp-btn-freeze':'')+'" onclick="toggleWPFreeze()" title="冻结后下属不能修改本周重点/优先级/计划完成日期">';
+    html+=isFrozen?'❄️ 解除冻结':'❄️ 审核并冻结';
+    html+='</button>';
+    html+='<button onclick="openBossEval()">⭐ 上级评价</button>';
   }else if(_wpViewingSubordinate){
     // 查看下属：修订模式 + 审核冻结 + 上级评价编辑
     html+='<button class="' + (_wpRevisionMode?'wp-btn-warn':'') + '" onclick="toggleWPRevisionMode()" title="开启后可修改下属计划内容，修改将以红色标注">';
