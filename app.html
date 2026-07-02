@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.31">
+<meta name="version" content="V0.1.32">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="人事档案">
@@ -16034,7 +16034,7 @@ function renderWPTable(plan){
     html+='<td class="editable col-wide" data-field="tasks.'+j+'.problems" data-type="text" onclick="startEditCell(this)">'+(t.problems||plan._revisions&&plan._revisions['tasks.'+j+'.problems']?renderWPCellValue(plan,'tasks.'+j+'.problems',t.problems):(t.problems?_h(t.problems):'<span style="color:var(--text-hint)">填写</span>'))+'</td>';
     html+='<td class="editable col-problemtype" data-field="tasks.'+j+'.problemType" data-type="select" data-opts="'+WP_PROBLEM_OPTIONS.join(',')+'" onclick="startEditCell(this)">'+(t.problemType||plan._revisions&&plan._revisions['tasks.'+j+'.problemType']?renderWPCellValue(plan,'tasks.'+j+'.problemType',t.problemType):(t.problemType?_h(t.problemType):'<span style="color:var(--text-hint)">选择</span>'))+'</td>';
     html+='<td class="editable col-needboss" data-field="tasks.'+j+'.needBoss" data-type="select" data-opts="'+WP_NEEDBOSS_OPTIONS.join(',')+'" onclick="startEditCell(this)">'+renderWPCellValue(plan,'tasks.'+j+'.needBoss',t.needBoss||'')+'</td>';
-    var bossCanEdit=isMySubordinate(plan.name);
+    var bossCanEdit=isMySubordinate(plan.name) || !!_wpViewingDeptMember;
     html+='<td class="col-boss'+(bossCanEdit?' editable':'')+'"'+(bossCanEdit?' data-field="tasks.'+j+'.bossFeedback" data-type="textarea" onclick="startEditCell(this)"':'')+'>'+(t.bossFeedback?_h(t.bossFeedback):(plan._revisions&&plan._revisions['tasks.'+j+'.bossFeedback']?renderWPCellValue(plan,'tasks.'+j+'.bossFeedback',t.bossFeedback):'<span style="color:var(--text-hint)">上级建议</span>'))+'</td>';
     html+='<td class="col-ai">'+_h(t.aiSuggestion||'')+'</td>';
     html+='</tr>';
@@ -16153,8 +16153,8 @@ function isFieldFrozen(cell){
 
 // ========== 单元格编辑 ==========
 function startEditCell(cell){
-  // 查看间接下属时：完全只读
-  if(_wpViewingDeptMember)return;
+  // 查看间接下属时：只允许编辑 bossFeedback
+  if(_wpViewingDeptMember && (!cell.dataset.field || cell.dataset.field.indexOf('bossFeedback')<0)) return;
   // ★ V0.1.23: 员工查看自己被冻结的计划时，冻结列不可编辑
   if(isFieldFrozen(cell)){
     showToast('❄️ 该字段已被上级审核冻结，如需修改请联系上级');
