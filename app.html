@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.64">
+<meta name="version" content="V0.1.65">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -16056,7 +16056,7 @@ async function _collabRespondSyncToCloud(ct,newStatus,fromUid,reqId){
 // ★ V0.1.49: 渲染任务得分单元格
 function _renderTaskScoreCell(plan,taskIdx){
   var pts=plan._taskScores?plan._taskScores[taskIdx]:0;
-  if(!pts)return '<td class="col-score" style="text-align:center;font-size:10px;color:#9ca3af">—</td>';
+  if(!pts)return '<td class="col-score" style="text-align:center;font-size:12px;color:#9ca3af">—</td>';
   var scColor=pts>0?'#059669':pts<0?'#dc2626':'#6b7280';
   var scBg=pts>0?'#ECFDF5':pts<0?'#FEF2F2':'#F9FAFB';
   var scLabel=pts>0?'+'+pts:''+pts;
@@ -16064,7 +16064,7 @@ function _renderTaskScoreCell(plan,taskIdx){
   var tt=plan.tasks[taskIdx];
   var isDelayedDone=tt&&tt.status==='✓完成'&&tt.actualDate&&tt.plannedDate&&tt.actualDate>tt.plannedDate;
   if(isDelayedDone)scLabel+=(' (逾期)');
-  return '<td class="col-score" style="text-align:center;font-size:10px;font-weight:700;color:'+scColor+';background:'+scBg+';border-radius:3px;padding:2px 4px">'+scLabel+'</td>';
+  return '<td class="col-score" style="text-align:center;font-size:12px;font-weight:700;color:'+scColor+';background:'+scBg+';border-radius:3px;padding:2px 4px">'+scLabel+'</td>';
 }
 
 // ★ V0.1.59: 渲染 # 操作列（序号 + +/- 按钮）
