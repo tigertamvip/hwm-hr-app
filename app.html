@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.51c">
+<meta name="version" content="V0.1.51d">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -16680,17 +16680,20 @@ function _renderTimeManagementPanel(plan){
 
   var html='';
   html+='<div id="wpTimeMgmtPanel" style="background:#f8f9fa;border:1px solid #e5e7eb;border-radius:10px;padding:14px 16px;margin:8px 0 14px 0;font-size:12px;display:flex;gap:0">';
-  // ★ V0.1.51b: 四列布局 — 评分标准独立一列，完成时间压缩
-  // Col 1: 管理规则
-  html+='<div style="flex:1;min-width:0;padding-right:12px;border-right:1px solid #e5e7eb;color:#6b7280;line-height:1.65;font-size:10.5px">';
-  html+='<div style="font-weight:600;color:#374151;margin-bottom:3px;font-size:11.5px">📋 管理规则</div>';
-  html+='• 员工每周六 12:00 前提交<br>';
-  html+='• 上级周一 12:00 前完成评价<br>';
-  html+='• 法定节假日顺延<br>';
-  html+='• 未按时提交每迟12h扣-1分<br>';
-  html+='• 超48h未提交：-5分<br>';
-  html+='• 特殊情况可申请豁免（±0）<br>';
-  html+='• 年累计 ≤-20分 = 不能胜任';
+  // ★ V0.1.51d: 四列布局 — 左侧改为表格风格
+  // Col 1: 周计划提交积分标准（表格版）
+  html+='<div style="flex:1;min-width:0;padding-right:12px;border-right:1px solid #e5e7eb">';
+  html+='<div style="font-weight:600;color:#374151;margin-bottom:3px;font-size:11.5px">📋 周计划提交积分标准</div>';
+  html+='<table style="width:100%;font-size:9.5px;color:#6b7280;border-collapse:collapse">';
+  html+='<tr style="background:#f9fafb"><th style="text-align:left;padding:1px 3px 1px 1px;border-bottom:1px solid #e5e7eb">规则</th><th style="text-align:center;padding:1px 2px;border-bottom:1px solid #e5e7eb">积分</th></tr>';
+  html+='<tr><td style="padding:1px 3px 1px 1px">📌 每周六 12:00 前提交计划</td><td style="text-align:center;color:#059669">✅</td></tr>';
+  html+='<tr style="background:#fafafa"><td style="padding:1px 3px 1px 1px">⏰ 上级周一 12:00 前完成评价</td><td style="text-align:center;color:#059669">✅</td></tr>';
+  html+='<tr><td style="padding:1px 3px 1px 1px">🗓 法定节假日顺延</td><td style="text-align:center;color:#6b7280">—</td></tr>';
+  html+='<tr style="background:#fafafa"><td style="padding:1px 3px 1px 1px">❌ 未按时提交每迟12h</td><td style="text-align:center;color:#dc2626;font-weight:600">-1</td></tr>';
+  html+='<tr><td style="padding:1px 3px 1px 1px">❌ 超48h未提交</td><td style="text-align:center;color:#dc2626;font-weight:600">-5</td></tr>';
+  html+='<tr style="background:#fafafa"><td style="padding:1px 3px 1px 1px">🔖 特殊情况申请豁免</td><td style="text-align:center;color:#059669;font-style:italic">±0</td></tr>';
+  html+='<tr><td colspan=2 style="padding:2px 3px 1px 1px;text-align:right;border-top:1px solid #e5e7eb;color:#9ca3af;font-size:9px"><span style="color:#dc2626">年累计≤-20</span> = 不能胜任</td></tr>';
+  html+='</table>';
   html+='</div>';
 
   // Col 2: 任务评分标准（紧凑版）
@@ -17904,7 +17907,7 @@ function sysCloseModal(){
 // PWA Service Worker Registration
 if('serviceWorker' in navigator){
   window.addEventListener('load',function(){
-    navigator.serviceWorker.register('sw.js?v=V0.1.51c').then(function(reg){
+    navigator.serviceWorker.register('sw.js?v=V0.1.51d').then(function(reg){
       console.log('PWA SW registered:',reg.scope);
     }).catch(function(err){
       console.log('PWA SW registration failed:',err);

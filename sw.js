@@ -1,7 +1,6 @@
 // Service Worker for HWM HR App PWA
-// V0.1.51c — force SW reload (2026-07-03T17:58)
-const CACHE_NAME = 'hwm-hr-v0.1.51c';
-const SW_VERSION = 'V0.1.51c';
+// V0.1.51d — force SW reload (2026-07-03T18:08)
+const CACHE_NAME = 'hwm-hr-v0.1.51d';
 
 // On install, cache essential assets
 self.addEventListener('install', (event) => {
