@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.44">
+<meta name="version" content="V0.1.45">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -15242,7 +15242,7 @@ function _autoCarryTasks(plan,y,m,w){
   saveWP(y,m,w,plan);
 }
 
-// ★ V0.1.43: 员工完成小结 或 上级完成评价 后，将未完成任务顺延到下周
+// ★ V0.1.45: 仅上级完成评价后，将未完成任务顺延到下周
 // 上级评价时 forceResync=true，先清除旧转入再以上级修正状态重新 copy
 function _carryTasksToNextWeek(sourcePlan, forceResync){
   if(!sourcePlan||!sourcePlan.tasks)return;
@@ -16453,11 +16453,10 @@ function submitWPWeekSummary(){
   p.summarySubmittedAt=new Date().toISOString();
   p.updatedAt=new Date().toISOString();
   saveWP(p.year,p.month,p.week,p);
-  // ★ V0.1.43: 员工完成小结后，自动将未完成任务顺延到下周（首次转入）
-  _carryTasksToNextWeek(p, false);
+  // ★ V0.1.45: 完成小结不再触发顺延 — 仅上级完成评价后才自动转入下周
   _calcWeekScore(p);
   renderWPTable(p);
-  showToast('✅ 工作小结已完成，未完成任务已自动转入下周');
+  showToast('✅ 工作小结已完成');
 }
 
 // ★ V0.1.35: 计算本周截止时间（周六12:00）
