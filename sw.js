@@ -1,6 +1,6 @@
 // Service Worker for HWM HR App PWA
-// V0.1.40 — bump cache name to force refresh
-const CACHE_NAME = 'hwm-hr-v0.1.40';
+// V0.1.44 — bump cache name to force refresh
+const CACHE_NAME = 'hwm-hr-v0.1.44';
 
 // On install, cache essential assets
 self.addEventListener('install', (event) => {
