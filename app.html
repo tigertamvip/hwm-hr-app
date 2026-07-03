@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.53">
+<meta name="version" content="V0.1.54">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -16597,8 +16597,15 @@ function _calcWeekScore(plan){
         // 逾期但完成 → 扣一半
         pts=-(base/2);
       }else{
-        // 未完成 → 全扣
-        pts=-base;
+        // 未完成 → 检查截止日期是否已到
+        var _today=new Date().toISOString().slice(0,10); // YYYY-MM-DD
+        if(_today<tt.plannedDate){
+          // ★ V0.1.54: 截止日期未到，不扣分（推进中/待开始都合理）
+          pts=0;
+        }else{
+          // 已逾期未完成 → 全扣
+          pts=-base;
+        }
       }
       taskScore+=pts;
       _taskScores.push(pts);
