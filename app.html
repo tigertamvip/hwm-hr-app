@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.45">
+<meta name="version" content="V0.1.46">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -15303,7 +15303,8 @@ function _carryTasksToNextWeek(sourcePlan, forceResync){
 function createEmptyPlan(y,m,w){
   var emp=getViewedUserEmp();
   var tasks=[];
-  for(var i=0;i<2;i++)tasks.push({seq:i+1,work:'',goal:'',plannedDate:'',actualDate:'',estimatedHours:'',status:'',supporters:'',problems:'',problemType:'',needBoss:'',bossFeedback:'',aiSuggestion:''});
+  // ★ V0.1.45: 新建周计划默认8行空表单（之前是2行）
+  for(var i=0;i<8;i++)tasks.push({seq:i+1,work:'',goal:'',plannedDate:'',actualDate:'',estimatedHours:'',status:'',supporters:'',problems:'',problemType:'',needBoss:'',bossFeedback:'',aiSuggestion:''});
   return {year:y,month:m,week:w,name:emp.name,dept:emp.dept,position:emp.position,tasks:tasks,bossEvaluated:false,bossEvaluatedAt:null,bossEvaluatedBy:'',bossOverallFeedback:'',createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};
 }
 
@@ -16679,13 +16680,25 @@ function _formatDateTime(isoStr){
 
 function deleteCurrentWPPlan(){
   var p=_wpCurrent.plan;if(!p){alert('请先选择一个周计划');return;}
-  if(!confirm('确定删除 '+p.year+'年'+p.month+'月第'+p.week+'周计划？不可恢复。'))return;
-  deleteWP(p.year,p.month,p.week);
-  _wpCurrent={year:null,month:null,week:null,plan:null};
-  showWPEmpty();
-  var yEl=document.getElementById('wpYear');
-  var mEl=document.getElementById('wpMonth');
-  renderWPPlanList(yEl?parseInt(yEl.value):new Date().getFullYear(),mEl?parseInt(mEl.value):(new Date().getMonth()+1));
+  if(!confirm('确定清空 '+p.year+'年'+p.month+'月第'+p.week+'周计划内容？\n\n将保留空白表单（8行空行），仅清除已填写的内容。'))return;
+  // ★ V0.1.45: 不再真正删除计划，而是重置为空白表单（保留 name/dept/position）
+  var y=p.year, m=p.month, w=p.week;
+  var tasks=[];
+  for(var i=0;i<8;i++)tasks.push({seq:i+1,work:'',goal:'',plannedDate:'',actualDate:'',estimatedHours:'',status:'',supporters:'',problems:'',problemType:'',needBoss:'',bossFeedback:'',aiSuggestion:''});
+  p.tasks=tasks;
+  p.weekSummary='';
+  p.bossEvaluated=false;
+  p.bossEvaluatedAt=null;
+  p.bossEvaluatedBy='';
+  p.bossOverallFeedback='';
+  p.firstSubmittedAt=null;
+  p.summarySubmittedAt=null;
+  p.bossReviewedAt=null;
+  p.updatedAt=new Date().toISOString();
+  saveWP(y,m,w,p);
+  _calcWeekScore(p);
+  renderWPTable(p);
+  showToast('🗑 周计划已重置为空白表单');
 }
 
 function exportCurrentWP(){
