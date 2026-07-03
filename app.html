@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.38">
+<meta name="version" content="V0.1.39">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -15189,10 +15189,63 @@ function getWP(y,m,w){return _wpData[makeWPId(y,m,w)]||null;}
 function saveWP(y,m,w,plan){_wpData[makeWPId(y,m,w)]=plan;saveWPData();}
 function deleteWP(y,m,w){delete _wpData[makeWPId(y,m,w)];saveWPData();}
 
+function _getPrevWeek(y,m,w){
+  // 计算上一周的 (year, month, week)
+  if(w>1)return {year:y,month:m,week:w-1};
+  if(m>1)return {year:y,month:m-1,week:4};
+  return {year:y-1,month:12,week:4};
+}
+function _autoCarryTasks(plan,y,m,w){
+  // 仅对自有计划执行自动顺延（上级查看下属时不触发）
+  if(_wpViewingSubordinate||_wpViewingDeptMember)return;
+  // 防重复：如果已有 carriedFrom 标记的任务，说明已执行过
+  if(plan.tasks.some(function(t){return t.carriedFrom;}))return;
+  var pwk=_getPrevWeek(y,m,w);
+  var prevPlan=getWP(pwk.year,pwk.month,pwk.week);
+  if(!prevPlan||!prevPlan.tasks)return;
+  // 仅当上周已完成提交时才自动顺延
+  if(!prevPlan.firstSubmittedAt)return;
+  var carried=[];
+  for(var i=0;i<prevPlan.tasks.length;i++){
+    var t=prevPlan.tasks[i];
+    if(!t.work || !t.work.trim())continue;   // 空任务不转
+    if(t.status==='✓完成')continue;           // 已完成不转
+    if(t.collab_from)continue;                // 协同任务不转
+    // 去重：同一工作内容只转一次
+    var dup=carried.some(function(c){return c.work===t.work;});
+    if(dup)continue;
+    carried.push({
+      work:t.work, goal:t.goal||'', plannedDate:t.plannedDate||'',
+      actualDate:'', status:'', supporters:t.supporters||'',
+      problems:'', problemType:'', needBoss:'',
+      bossFeedback:'', aiSuggestion:'',
+      carriedFrom:{year:pwk.year,month:pwk.month,week:pwk.week}
+    });
+  }
+  if(!carried.length)return;
+  // 去重：避免与本周已有任务重复
+  for(var ci=carried.length-1;ci>=0;ci--){
+    var dup2=plan.tasks.some(function(t2){return t2.work===carried[ci].work;});
+    if(dup2)carried.splice(ci,1);
+  }
+  if(!carried.length)return;
+  // 清除末尾的空行，给转入任务腾位置（保留max(2, plan.tasks中已有实际内容数)个空行）
+  var keep=2,hasContent=0;
+  for(var k=0;k<plan.tasks.length;k++){if(plan.tasks[k].work&&plan.tasks[k].work.trim())hasContent++;}
+  keep=Math.max(2,hasContent);
+  while(plan.tasks.length>keep&&!plan.tasks[plan.tasks.length-1].work){plan.tasks.pop();}
+  // 转入任务插到数组头部（本周新增在下面）
+  for(var j=carried.length-1;j>=0;j--){
+    plan.tasks.unshift(carried[j]);
+  }
+  plan.updatedAt=new Date().toISOString();
+  saveWP(y,m,w,plan);
+}
+
 function createEmptyPlan(y,m,w){
   var emp=getViewedUserEmp();
   var tasks=[];
-  for(var i=0;i<8;i++)tasks.push({seq:i+1,work:'',goal:'',plannedDate:'',actualDate:'',estimatedHours:'',status:'',supporters:'',problems:'',problemType:'',needBoss:'',bossFeedback:'',aiSuggestion:''});
+  for(var i=0;i<2;i++)tasks.push({seq:i+1,work:'',goal:'',plannedDate:'',actualDate:'',estimatedHours:'',status:'',supporters:'',problems:'',problemType:'',needBoss:'',bossFeedback:'',aiSuggestion:''});
   return {year:y,month:m,week:w,name:emp.name,dept:emp.dept,position:emp.position,tasks:tasks,bossEvaluated:false,bossEvaluatedAt:null,bossEvaluatedBy:'',bossOverallFeedback:'',createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};
 }
 
@@ -15442,6 +15495,8 @@ function selectWP(y,m,w){
     if(correctPos) newPlan.position = correctPos;
     saveWP(y,m,w,newPlan);
     _wpCurrent.plan=newPlan;
+    // ★ V0.1.39: 自动从上周转入未完成的任务
+    _autoCarryTasks(newPlan,y,m,w);
     renderWPTable(newPlan);
   }
   renderWPPlanList(y,m);
@@ -15459,6 +15514,8 @@ function createNewWP(){
   var plan=createEmptyPlan(y,m,w);
   saveWP(y,m,w,plan);
   _wpCurrent={year:y,month:m,week:w,plan:plan};
+  // ★ V0.1.39: 自动从上周转入未完成的任务
+  _autoCarryTasks(plan,y,m,w);
   renderWPPlanList(y,m);
   renderWPTable(plan);
   renderWPUserInfo();
@@ -16029,18 +16086,57 @@ function renderWPTable(plan){
   html+='<th class="col-num">序号</th><th class="col-work">本周重点工作</th><th class="col-goal">优先级</th><th class="col-hours">计划完成<br>日期</th><th class="col-hours">实际完成<br>日期</th><th class="col-status">完成情况</th><th class="col-supporters">协同人</th><th class="col-wide">遇到的问题/困难</th><th class="col-problemtype">问题类型</th><th class="col-needboss">需上级<br>介入</th><th class="col-boss">直属上级建议</th><th class="col-ai">AI分析建议</th>';
   html+='</tr></thead><tbody>';
 
+  // ★ V0.1.39: 区分「上周转入」和「本周新增」
+  var carriedTasks=[], newTasks=[];
   for(var j=0;j<plan.tasks.length;j++){
+    if(plan.tasks[j].carriedFrom)carriedTasks.push(j);
+    else newTasks.push(j);
+  }
+  var seq=0;
+
+  // 上周转入区块
+  if(carriedTasks.length>0){
+    html+='<tr class="wp-section-header" style="background:#FFF8E7"><td colspan="12" style="padding:6px 12px;font-size:12px;font-weight:600;color:#8B6914;border-bottom:2px solid #E8D5A3">📥 上周转入（'+carriedTasks.length+'项）</td></tr>';
+    for(var ci=0;ci<carriedTasks.length;ci++){
+      var jj=carriedTasks[ci]; seq++;
+      var tt=plan.tasks[jj];
+      var cf=tt.carriedFrom;
+      var cfTag=cf?'<span style="font-size:9px;color:#8B6914;background:#FFF8E7;padding:1px 4px;border-radius:3px;margin-left:4px">来源:'+cf.year+'年'+cf.month+'月第'+cf.week+'周</span>':'';
+      html+='<tr style="background:#FFFDF5">';
+      html+='<td class="col-num" style="color:#8B6914">'+seq+'</td>';
+      html+='<td class="editable col-work" data-field="tasks.'+jj+'.work" data-type="textarea" onclick="startEditCell(this)">'+(tt.work?_h(tt.work):'<span style="color:var(--text-hint)">点击填写</span>')+cfTag+'</td>';
+      var __goalVal=(tt.goal||plan._revisions&&plan._revisions['tasks.'+jj+'.goal']?renderWPCellValue(plan,'tasks.'+jj+'.goal',tt.goal):(tt.goal?tt.goal:''));
+      var __goalPriClass=__goalVal==='重要紧急'?'pri-urgent':__goalVal==='重要'?'pri-important':__goalVal==='一般紧急'?'pri-normal-urgent':__goalVal==='一般'?'pri-normal':'';
+      html+='<td class="editable col-goal '+__goalPriClass+'" data-field="tasks.'+jj+'.goal" data-type="select" data-opts="'+WP_GOAL_OPTIONS.join(',')+'" onclick="startEditCell(this)">'+(__goalVal?_h(__goalVal):'<span style="color:var(--text-hint)">选择</span>')+'</td>';
+      var _pd=renderWPCellValue(plan,'tasks.'+jj+'.plannedDate',tt.plannedDate||'');
+      html+='<td class="editable col-hours" data-field="tasks.'+jj+'.plannedDate" data-type="date" onclick="startEditCell(this)">'+(_pd?_pd:'<span style="color:var(--text-hint)">点击选择日期</span>')+'</td>';
+      var _ad=renderWPCellValue(plan,'tasks.'+jj+'.actualDate',tt.actualDate||'');
+      html+='<td class="editable col-hours" data-field="tasks.'+jj+'.actualDate" data-type="date" onclick="startEditCell(this)">'+(_ad?_ad:'<span style="color:var(--text-hint)">点击选择日期</span>')+'</td>';
+      html+='<td class="editable col-status" data-field="tasks.'+jj+'.status" data-type="select" data-opts="'+WP_STATUS_OPTIONS.join(',')+'" onclick="startEditCell(this)">'+(tt.status||plan._revisions&&plan._revisions['tasks.'+jj+'.status']?renderWPCellValue(plan,'tasks.'+jj+'.status',tt.status):(tt.status?_h(tt.status):'<span style="color:var(--text-hint)">选择</span>'))+'</td>';
+      html+='<td class="editable col-supporters" data-field="tasks.'+jj+'.supporters" data-type="text" onclick="startEditCell(this)">'+(tt.supporters||plan._revisions&&plan._revisions['tasks.'+jj+'.supporters']?renderWPCellValue(plan,'tasks.'+jj+'.supporters',tt.supporters):_renderSupportersCell(plan,jj,tt.supporters))+'</td>';
+      html+='<td class="editable col-wide" data-field="tasks.'+jj+'.problems" data-type="text" onclick="startEditCell(this)">'+(tt.problems||plan._revisions&&plan._revisions['tasks.'+jj+'.problems']?renderWPCellValue(plan,'tasks.'+jj+'.problems',tt.problems):(tt.problems?_h(tt.problems):'<span style="color:var(--text-hint)">填写</span>'))+'</td>';
+      html+='<td class="editable col-problemtype" data-field="tasks.'+jj+'.problemType" data-type="select" data-opts="'+WP_PROBLEM_OPTIONS.join(',')+'" onclick="startEditCell(this)">'+(tt.problemType||plan._revisions&&plan._revisions['tasks.'+jj+'.problemType']?renderWPCellValue(plan,'tasks.'+jj+'.problemType',tt.problemType):(tt.problemType?_h(tt.problemType):'<span style="color:var(--text-hint)">选择</span>'))+'</td>';
+      html+='<td class="editable col-needboss" data-field="tasks.'+jj+'.needBoss" data-type="select" data-opts="'+WP_NEEDBOSS_OPTIONS.join(',')+'" onclick="startEditCell(this)">'+renderWPCellValue(plan,'tasks.'+jj+'.needBoss',tt.needBoss||'')+'</td>';
+      var bossCanEdit=isMySubordinate(plan.name) || !!_wpViewingDeptMember;
+      html+='<td class="col-boss'+(bossCanEdit?' editable':'')+'"'+(bossCanEdit?' data-field="tasks.'+jj+'.bossFeedback" data-type="textarea" onclick="startEditCell(this)"':'')+'>'+(tt.bossFeedback?_h(tt.bossFeedback):(plan._revisions&&plan._revisions['tasks.'+jj+'.bossFeedback']?renderWPCellValue(plan,'tasks.'+jj+'.bossFeedback',tt.bossFeedback):'<span style="color:var(--text-hint)">上级建议</span>'))+'</td>';
+      html+='<td class="col-ai">'+_h(tt.aiSuggestion||'')+'</td>';
+      html+='</tr>';
+    }
+    html+='<tr class="wp-section-header" style="background:#F0F9FF"><td colspan="12" style="padding:6px 12px;font-size:12px;font-weight:600;color:#0369A1;border-bottom:2px solid #BAE6FD">📝 本周新增（'+newTasks.length+'项）</td></tr>';
+  }
+
+  // 本周新增区块
+  for(var ni=0;ni<newTasks.length;ni++){
+    var j=newTasks[ni]; seq++;
     var t=plan.tasks[j];
-    html+='<tr>';
-    html+='<td class="col-num">'+(j+1)+'</td>';
     var _frozenCls=(plan.frozen&&!_wpViewingSubordinate&&!_wpViewingDeptMember?' wp-cell-frozen':'');
-    // ★ V0.1.30: 冻结蓝边框仅显示在「本周重点工作」列，其余列保持原样
+    html+='<tr>';
+    html+='<td class="col-num">'+seq+'</td>';
     html+='<td class="editable col-work'+_frozenCls+'" data-field="tasks.'+j+'.work" data-type="textarea" onclick="startEditCell(this)">'+(t.work||plan._revisions&&plan._revisions['tasks.'+j+'.work']?renderWPCellValue(plan,'tasks.'+j+'.work',t.work):(t.work?_h(t.work):'<span style="color:var(--text-hint)">点击填写</span>'))+'</td>';
     var _goalVal=(t.goal||plan._revisions&&plan._revisions['tasks.'+j+'.goal']?renderWPCellValue(plan,'tasks.'+j+'.goal',t.goal):(t.goal?t.goal:''));
     var _goalPriClass=_goalVal==='重要紧急'?'pri-urgent':_goalVal==='重要'?'pri-important':_goalVal==='一般紧急'?'pri-normal-urgent':_goalVal==='一般'?'pri-normal':'';
     html+='<td class="editable col-goal '+_goalPriClass+'" data-field="tasks.'+j+'.goal" data-type="select" data-opts="'+WP_GOAL_OPTIONS.join(',')+'" onclick="startEditCell(this)">'+(_goalVal?_h(_goalVal):'<span style="color:var(--text-hint)">选择</span>')+'</td>';
     var plannedDateDisplay=renderWPCellValue(plan,'tasks.'+j+'.plannedDate',t.plannedDate||'');
-    // ★ V0.1.30: 计划完成日期不加冻结蓝边框（仅本周重点工作保留）
     html+='<td class="editable col-hours" data-field="tasks.'+j+'.plannedDate" data-type="date" onclick="startEditCell(this)">'+(plannedDateDisplay?plannedDateDisplay:'<span style="color:var(--text-hint)">点击选择日期</span>')+'</td>';
     var actualDateDisplay=renderWPCellValue(plan,'tasks.'+j+'.actualDate',t.actualDate||'');
     html+='<td class="editable col-hours" data-field="tasks.'+j+'.actualDate" data-type="date" onclick="startEditCell(this)">'+(actualDateDisplay?actualDateDisplay:'<span style="color:var(--text-hint)">点击选择日期</span>')+'</td>';
