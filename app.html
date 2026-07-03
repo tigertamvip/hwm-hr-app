@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.47">
+<meta name="version" content="V0.1.48">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -16105,12 +16105,12 @@ function renderWPTable(plan){
     html+='<button onclick="openBossEval()">⭐ 完成评价</button>';
   }else{
     // 自己的计划：完整编辑功能（去掉新增+转发，左下角已有新建）
-    html+='<button onclick="submitWPPlan()" style="background:#059669;color:#fff">📋 提交计划</button>';
+    html+='<button onclick="submitWPPlan()" style="background:#059669;color:#fff">📋 提交本周工作计划</button>';
     // ★ V0.1.44: 撤销提交按钮（仅在已提交时显示）
     if(plan.firstSubmittedAt){
       html+='<button onclick="undoWPSubmit()" style="background:#f59e0b;color:#fff">↩ 撤销提交</button>';
     }
-    html+='<button onclick="submitWPWeekSummary()" style="background:#3b82f6;color:#fff">✅ 完成小结</button>';
+    html+='<button onclick="submitWPWeekSummary()" style="background:#3b82f6;color:#fff">✅ 提交本周工作小结</button>';
     html+='<button class="wp-btn-warn" onclick="deleteCurrentWPPlan()">🗑 删除周计划</button>';
     html+='<button onclick="exportCurrentWP()">📥 导出周计划</button>';
     if(plan.bossEvaluated){
