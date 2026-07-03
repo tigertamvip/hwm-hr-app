@@ -967,17 +967,18 @@ body{
 
 /* 未开工建设的模块：灰色底白字（覆盖 orange/special，放在最后确保优先级） */
 .portal-card.disabled{
-  background:#a5a5a5;
-  border-color:rgba(255,255,255,.1);
+  background:rgba(55,65,81,.82);
+  border-color:rgba(255,255,255,.12);
+  backdrop-filter: blur(1px);
 }
 .portal-card.disabled .portal-card-label{color:#ffffff}
 .portal-card.disabled .portal-card-en{color:rgba(255,255,255,.55)}
 .portal-card.disabled .portal-card-badge{background:rgba(255,255,255,.2);color:rgba(255,255,255,.85);border-color:rgba(255,255,255,.25)}
 .portal-card.disabled:hover{
   transform:none;
-  background:#a5a5a5;
-  border-color:rgba(255,255,255,.1);
-  box-shadow:0 1px 4px rgba(0,0,0,.08);
+  background:rgba(55,65,81,.92);
+  border-color:rgba(255,255,255,.15);
+  box-shadow:0 4px 16px rgba(0,0,0,.2);
 }
 .portal-card.disabled:hover .portal-card-label{color:#ffffff}
 .portal-card.disabled:hover .portal-card-en{color:rgba(255,255,255,.55)}
