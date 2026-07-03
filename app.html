@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.43">
+<meta name="version" content="V0.1.44">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -16100,6 +16100,10 @@ function renderWPTable(plan){
   }else{
     // 自己的计划：完整编辑功能（去掉新增+转发，左下角已有新建）
     html+='<button onclick="submitWPPlan()" style="background:#059669;color:#fff">📋 提交计划</button>';
+    // ★ V0.1.44: 撤销提交按钮（仅在已提交时显示）
+    if(plan.firstSubmittedAt){
+      html+='<button onclick="undoWPSubmit()" style="background:#f59e0b;color:#fff">↩ 撤销提交</button>';
+    }
     html+='<button onclick="submitWPWeekSummary()" style="background:#3b82f6;color:#fff">✅ 完成小结</button>';
     html+='<button class="wp-btn-warn" onclick="deleteCurrentWPPlan()">🗑 删除周计划</button>';
     html+='<button onclick="exportCurrentWP()">📥 导出周计划</button>';
@@ -16423,6 +16427,18 @@ function submitWPPlan(){
   _calcWeekScore(p);
   renderWPTable(p);
   showToast('✅ 已提交，时间已记录');
+}
+
+// ★ V0.1.44: 撤销提交 — 清除提交时间戳，允许员工重新提交
+function undoWPSubmit(){
+  var p=_wpCurrent.plan;if(!p){return;}
+  if(!confirm('确认撤销本次提交？\n\n撤销后首次提交时间将被清除，你可以重新修改计划后再次提交。最终提交时间以最后一次提交（且此后未撤销）为准。'))return;
+  p.firstSubmittedAt=null;
+  p.updatedAt=new Date().toISOString();
+  saveWP(p.year,p.month,p.week,p);
+  _calcWeekScore(p);
+  renderWPTable(p);
+  showToast('↩ 已撤销提交，可重新修改后再提交');
 }
 
 // ★ V0.1.41: 员工完成周工作小结（记录小结时间用于考勤积分）
