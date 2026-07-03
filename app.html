@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.42">
+<meta name="version" content="V0.1.43">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -15242,15 +15242,21 @@ function _autoCarryTasks(plan,y,m,w){
   saveWP(y,m,w,plan);
 }
 
-// ★ V0.1.41: 上级完成评价后，将未完成任务自动顺延到员工下周计划
-function _carryTasksToNextWeek(sourcePlan){
+// ★ V0.1.43: 员工完成小结 或 上级完成评价 后，将未完成任务顺延到下周
+// 上级评价时 forceResync=true，先清除旧转入再以上级修正状态重新 copy
+function _carryTasksToNextWeek(sourcePlan, forceResync){
   if(!sourcePlan||!sourcePlan.tasks)return;
   // 计算下周
   var y=sourcePlan.year, m=sourcePlan.month, w=sourcePlan.week+1;
   if(w>4){w=1;m++;if(m>12){m=1;y++;}}
-  // 保存当前 _wpData 引用（上级评价时 _wpData 包含被评价员工的数据）
   var empName=sourcePlan.name;
   var nextPlan=getWP(y,m,w);
+  // ★ 如果是上级评价后的修正同步，先清除下周所有旧转入任务
+  if(forceResync&&nextPlan){
+    nextPlan.tasks=nextPlan.tasks.filter(function(t){return !t.carriedFrom;});
+    saveWP(y,m,w,nextPlan);
+  }
+  // 收集源计划中未完成的任务
   var carried=[];
   for(var i=0;i<sourcePlan.tasks.length;i++){
     var t=sourcePlan.tasks[i];
@@ -15276,8 +15282,8 @@ function _carryTasksToNextWeek(sourcePlan){
     if(sourcePlan.position)nextPlan.position=sourcePlan.position;
     saveWP(y,m,w,nextPlan);
   }
-  // 防重复
-  if(nextPlan.tasks.some(function(t){return t.carriedFrom;}))return;
+  // 防重复（首次转入时跳过）
+  if(!forceResync&&nextPlan.tasks.some(function(t){return t.carriedFrom;}))return;
   // 去重本周已有
   for(var ci=carried.length-1;ci>=0;ci--){
     if(nextPlan.tasks.some(function(t2){return t2.work===carried[ci].work;}))carried.splice(ci,1);
@@ -16431,9 +16437,11 @@ function submitWPWeekSummary(){
   p.summarySubmittedAt=new Date().toISOString();
   p.updatedAt=new Date().toISOString();
   saveWP(p.year,p.month,p.week,p);
+  // ★ V0.1.43: 员工完成小结后，自动将未完成任务顺延到下周（首次转入）
+  _carryTasksToNextWeek(p, false);
   _calcWeekScore(p);
   renderWPTable(p);
-  showToast('✅ 工作小结已完成，时间已记录');
+  showToast('✅ 工作小结已完成，未完成任务已自动转入下周');
 }
 
 // ★ V0.1.35: 计算本周截止时间（周六12:00）
@@ -16878,8 +16886,8 @@ function submitBossEval(){
   p.bossReviewedAt=new Date().toISOString();
   p.updatedAt=new Date().toISOString();
   saveWP(p.year,p.month,p.week,p);
-  // ★ V0.1.41: 上级评价完成后，自动将未完成任务顺延到员工下周计划
-  _carryTasksToNextWeek(p);
+  // ★ V0.1.43: 上级评价完成后，以上级修正的状态重新同步下周转入任务
+  _carryTasksToNextWeek(p, true);
   closeBossEval();
   renderWPTable(p);
 }
