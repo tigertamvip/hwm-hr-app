@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.46">
+<meta name="version" content="V0.1.47">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -15543,6 +15543,11 @@ function selectWP(y,m,w){
     if(correctName && plan.name !== correctName){ plan.name = correctName; dirty=true; }
     if(correctDept && plan.dept !== correctDept){ plan.dept = correctDept; dirty=true; }
     if(correctPos && plan.position !== correctPos){ plan.position = correctPos; dirty=true; }
+    // ★ V0.1.46: 确保至少8行空行（旧数据可能只有2行）
+    while(plan.tasks.length<8){
+      plan.tasks.push({seq:plan.tasks.length+1,work:'',goal:'',plannedDate:'',actualDate:'',estimatedHours:'',status:'',supporters:'',problems:'',problemType:'',needBoss:'',bossFeedback:'',aiSuggestion:''});
+      dirty=true;
+    }
     if(dirty) saveWP(y,m,w,plan);
     _wpCurrent.plan=plan;
     renderWPTable(plan);
