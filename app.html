@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.57">
+<meta name="version" content="V0.1.58">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -873,9 +873,9 @@ body{
 }
 .portal-hero .portal-subtitle{
   font-family:"Microsoft YaHei Light","微软雅黑 Light",sans-serif;
-  font-size:18px;
+  font-size:22px;
   font-weight:300;
-  color:rgba(0,0,0,.4);
+  color:rgba(0,0,0,.45);
   margin-top:0;
 }
 
@@ -977,8 +977,8 @@ body{
 
 .portal-footer{
   text-align:center;
-  font-size:11px;
-  color:rgba(0,0,0,.3);
+  font-size:13px;
+  color:rgba(0,0,0,.4);
   line-height:2;
   margin-top:auto;
 }
@@ -1690,7 +1690,7 @@ body{
 .wp-empty-desc{font-size:13px;text-align:center;line-height:1.6}
 
 .wp-toolbar{display:flex;flex-wrap:wrap;gap:6px;padding:10px 0;margin-bottom:12px;border-bottom:1px solid var(--border);flex-shrink:0}
-.wp-toolbar button{padding:6px 14px;border:1px solid var(--border);border-radius:6px;background:#fff;color:var(--text);font-size:12px;cursor:pointer;transition:all .15s;white-space:nowrap;display:flex;align-items:center;gap:4px}
+.wp-toolbar button{padding:6px 14px;border:1px solid var(--border);border-radius:6px;background:#fff;color:var(--text);font-size:12px;cursor:pointer;transition:all .15s;white-space:nowrap;display:flex;align-items:center;gap:4px;min-width:140px;justify-content:center}
 .wp-toolbar button:hover{background:#F5F5F0;border-color:#B0ADA3}
 .wp-toolbar button.wp-btn-primary{background:var(--primary);color:#fff;border-color:var(--primary)}
 .wp-toolbar button.wp-btn-primary:hover{opacity:.9}
@@ -2238,7 +2238,7 @@ table.collab-table tbody tr:hover{background:#fffdf5}
         <button class="wp-btn-myplan" id="wpBtnMyPlan" onclick="switchToMyWP()" title="回到我的周计划">回到我的周计划</button>
       </div>
     </div>
-    <button class="wp-back-btn" onclick="goHome()">← 返回首页</button>
+    <button class="wp-back-btn" onclick="goHome()">💾 保存并返回首页</button>
   </div>
   <div class="wp-layout">
     <!-- 左侧导航：周计划定位 -->
