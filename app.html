@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.51">
+<meta name="version" content="V0.1.51b">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -16680,31 +16680,34 @@ function _renderTimeManagementPanel(plan){
 
   var html='';
   html+='<div id="wpTimeMgmtPanel" style="background:#f8f9fa;border:1px solid #e5e7eb;border-radius:10px;padding:14px 16px;margin:8px 0 14px 0;font-size:12px;display:flex;gap:0">';
-  // 三列布局
-  html+='<div style="flex:1;min-width:0;padding-right:16px;border-right:1px solid #e5e7eb;color:#6b7280;line-height:1.7;font-size:11px">';
-  html+='<div style="font-weight:600;color:#374151;margin-bottom:4px;font-size:12px">📋 管理规则</div>';
+  // ★ V0.1.51b: 四列布局 — 评分标准独立一列，完成时间压缩
+  // Col 1: 管理规则
+  html+='<div style="flex:1;min-width:0;padding-right:12px;border-right:1px solid #e5e7eb;color:#6b7280;line-height:1.65;font-size:10.5px">';
+  html+='<div style="font-weight:600;color:#374151;margin-bottom:3px;font-size:11.5px">📋 管理规则</div>';
   html+='• 员工每周六 12:00 前提交<br>';
   html+='• 上级周一 12:00 前完成评价<br>';
   html+='• 法定节假日顺延<br>';
   html+='• 未按时提交每迟12h扣-1分<br>';
   html+='• 超48h未提交：-5分<br>';
   html+='• 特殊情况可申请豁免（±0）<br>';
-  html+='• 年累计 ≤-20分 = 不能胜任<br>';
-  // ★ V0.1.51: 任务评分规则
-  html+='<div style="margin-top:6px;padding-top:5px;border-top:1px dashed #d1d5db">';
-  html+='<div style="font-weight:600;color:#374151;margin-bottom:3px;font-size:11px">📊 任务评分标准</div>';
-  html+='<table style="width:100%;font-size:10px;color:#6b7280;border-collapse:collapse">';
-  html+='<tr style="background:#f9fafb"><th style="text-align:left;padding:1px 2px;border-bottom:1px solid #e5e7eb">优先级</th><th style="text-align:center;padding:1px 2px;border-bottom:1px solid #e5e7eb">按时完成</th><th style="text-align:center;padding:1px 2px;border-bottom:1px solid #e5e7eb">逾期完成</th><th style="text-align:center;padding:1px 2px;border-bottom:1px solid #e5e7eb">未完成</th></tr>';
-  html+='<tr><td style="padding:1px 2px">🔴 重要紧急</td><td style="text-align:center;color:#059669;font-weight:600">+3</td><td style="text-align:center;color:#d97706">-1.5</td><td style="text-align:center;color:#dc2626;font-weight:600">-3</td></tr>';
-  html+='<tr style="background:#fafafa"><td style="padding:1px 2px">🟡 重要</td><td style="text-align:center;color:#059669;font-weight:600">+1.5</td><td style="text-align:center;color:#d97706">-0.75</td><td style="text-align:center;color:#dc2626;font-weight:600">-1.5</td></tr>';
-  html+='<tr><td style="padding:1px 2px">🟠 一般紧急</td><td style="text-align:center;color:#059669;font-weight:600">+1</td><td style="text-align:center;color:#d97706">-0.5</td><td style="text-align:center;color:#dc2626;font-weight:600">-1</td></tr>';
-  html+='<tr style="background:#fafafa"><td style="padding:1px 2px">⚪ 一般</td><td style="text-align:center;color:#059669;font-weight:600">+0.5</td><td style="text-align:center;color:#d97706">-0.25</td><td style="text-align:center;color:#dc2626;font-weight:600">-0.5</td></tr>';
-  html+='</table>';
-  html+='</div>';
+  html+='• 年累计 ≤-20分 = 不能胜任';
   html+='</div>';
 
-  html+='<div style="flex:1.2;min-width:0;padding:0 16px;border-right:1px solid #e5e7eb">';
-  html+='<div style="font-weight:600;color:#374151;margin-bottom:6px;font-size:12px">⏱ 本周完成时间</div>';
+  // Col 2: 任务评分标准（紧凑版）
+  html+='<div style="flex:0.95;min-width:0;padding:0 12px;border-right:1px solid #e5e7eb">';
+  html+='<div style="font-weight:600;color:#374151;margin-bottom:3px;font-size:11.5px">📊 任务评分标准</div>';
+  html+='<table style="width:100%;font-size:9.5px;color:#6b7280;border-collapse:collapse">';
+  html+='<tr style="background:#f9fafb"><th style="text-align:left;padding:1px 3px 1px 1px;border-bottom:1px solid #e5e7eb">优先级</th><th style="text-align:center;padding:1px 2px;border-bottom:1px solid #e5e7eb">按时</th><th style="text-align:center;padding:1px 2px;border-bottom:1px solid #e5e7eb">逾期</th><th style="text-align:center;padding:1px 2px;border-bottom:1px solid #e5e7eb">未完</th></tr>';
+  html+='<tr><td style="padding:1px 3px 1px 1px">🔴重要紧急</td><td style="text-align:center;color:#059669;font-weight:600">+3</td><td style="text-align:center;color:#d97706">-1.5</td><td style="text-align:center;color:#dc2626;font-weight:600">-3</td></tr>';
+  html+='<tr style="background:#fafafa"><td style="padding:1px 3px 1px 1px">🟡重要</td><td style="text-align:center;color:#059669;font-weight:600">+1.5</td><td style="text-align:center;color:#d97706">-.75</td><td style="text-align:center;color:#dc2626;font-weight:600">-1.5</td></tr>';
+  html+='<tr><td style="padding:1px 3px 1px 1px">🟠一般紧急</td><td style="text-align:center;color:#059669;font-weight:600">+1</td><td style="text-align:center;color:#d97706">-.5</td><td style="text-align:center;color:#dc2626;font-weight:600">-1</td></tr>';
+  html+='<tr style="background:#fafafa"><td style="padding:1px 3px 1px 1px">⚪一般</td><td style="text-align:center;color:#059669;font-weight:600">+.5</td><td style="text-align:center;color:#d97706">-.25</td><td style="text-align:center;color:#dc2626;font-weight:600">-.5</td></tr>';
+  html+='</table>';
+  html+='</div>';
+
+  // Col 3: 完成时间（压缩宽度）
+  html+='<div style="flex:0.7;min-width:0;padding:0 12px;border-right:1px solid #e5e7eb">';
+  html+='<div style="font-weight:600;color:#374151;margin-bottom:4px;font-size:11.5px">⏱ 完成时间</div>';
   html+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">';
   html+='<span style="color:#6b7280;font-size:11px">首次提交：</span>';
   html+='<span style="font-size:11px">'+subTime+'</span>';
