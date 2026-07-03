@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.61">
+<meta name="version" content="V0.1.62">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1714,7 +1714,7 @@ body{
 .wp-table td.editable:hover{background:#FFF9E6}
 .wp-table td.editable.editing{background:#FFFAEA;box-shadow:inset 0 0 0 2px var(--gold);padding:0}
 .wp-table th,.wp-table td{overflow:hidden;text-overflow:ellipsis}
-.wp-table td.col-num{color:var(--text-hint);font-size:11px;width:36px;max-width:36px}
+.wp-table td.col-num{color:var(--text-hint);font-size:11px;width:72px;min-width:72px}
 .wp-table td.col-work{text-align:left;width:220px;max-width:220px}
 .wp-table td.col-goal{text-align:center;width:100px;max-width:100px;font-size:12px;font-weight:600}
 /* 优先级配色：重要紧急-红 / 重要-深蓝 / 一般紧急-橙 / 一般-灰 */
@@ -16078,16 +16078,16 @@ function _renderTaskOpCell(taskIdx,seq,plan){
   if(isFrozen)return '<td class="col-num" style="text-align:center">'+seq+'</td>';
 
   var btns='';
-  // − 按钮：每行都显示（协同行除外），但至少保留1行 — 圆形红色按钮
+  // − 删除按钮：每行显示（协同行除外），至少保留1行 — 药丸形红色按钮
   if(!isCollab && total>1){
-    btns+=' <span onclick="event.stopPropagation();deleteTaskRow('+taskIdx+')" style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#c0392b;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:all .15s ease;vertical-align:middle;margin:0 2px" title="删除此行" onmouseover="this.style.transform=\'scale(1.15)\'" onmouseout="this.style.transform=\'scale(1)\'"><span style="color:#fff;font-size:16px;font-weight:300;line-height:1">−</span></span>';
+    btns+=' <span onclick="event.stopPropagation();deleteTaskRow('+taskIdx+')" style="display:inline-block;width:20px;height:20px;line-height:20px;text-align:center;border-radius:6px;background:#e74c3c;color:#fff;font-size:15px;font-weight:bold;cursor:pointer;vertical-align:middle;box-shadow:0 1px 2px rgba(0,0,0,.15);user-select:none" title="删除此行">−</span>';
   }
-  // + 按钮：只在最后一行显示，且总数<8，且非协同行 — 圆形蓝色按钮
+  // + 添加按钮：最后一行，总数<8，非协同 — 药丸形蓝色按钮
   if(isLast && total<8 && !isCollab){
-    btns+=' <span onclick="event.stopPropagation();addTaskRow('+taskIdx+')" style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#2980b9;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:all .15s ease;vertical-align:middle;margin:0 2px" title="在此后添加一行" onmouseover="this.style.transform=\'scale(1.15)\'" onmouseout="this.style.transform=\'scale(1)\'"><span style="color:#fff;font-size:18px;font-weight:300;line-height:1">+</span></span>';
+    btns+=' <span onclick="event.stopPropagation();addTaskRow('+taskIdx+')" style="display:inline-block;width:20px;height:20px;line-height:20px;text-align:center;border-radius:6px;background:#3498db;color:#fff;font-size:16px;font-weight:bold;cursor:pointer;vertical-align:middle;box-shadow:0 1px 2px rgba(0,0,0,.15);user-select:none" title="在此后添加一行">+</span>';
   }
 
-  return '<td class="col-num" style="text-align:center;font-size:11px;white-space:nowrap">'+seq+btns+'</td>';
+  return '<td class="col-num" style="text-align:center;font-size:11px;white-space:nowrap;padding:4px 2px">'+seq+btns+'</td>';
 }
 
 // ★ V0.1.59: 在指定行后新增一行
@@ -16223,7 +16223,7 @@ function renderWPTable(plan){
   }
   html+='</div>';
 
-  html+='<div class="wp-table-area"><div class="wp-table-wrap"><table class="wp-table"><colgroup><col style="width:40px"><col style="width:200px"><col style="width:90px"><col style="width:135px"><col style="width:135px"><col style="width:56px"><col style="width:84px"><col style="width:92px"><col style="width:160px"><col style="width:82px"><col style="width:62px"><col style="width:420px"><col style="width:500px"></colgroup><thead><tr>';
+  html+='<div class="wp-table-area"><div class="wp-table-wrap"><table class="wp-table"><colgroup><col style="width:72px"><col style="width:200px"><col style="width:90px"><col style="width:135px"><col style="width:135px"><col style="width:56px"><col style="width:84px"><col style="width:92px"><col style="width:160px"><col style="width:82px"><col style="width:62px"><col style="width:420px"><col style="width:500px"></colgroup><thead><tr>';
   html+='<th class="col-num">#</th><th class="col-work">本周重点工作</th><th class="col-goal">优先级</th><th class="col-hours">计划完成<br>日期</th><th class="col-hours">实际完成<br>日期</th><th class="col-score" style="color:#f59e0b;font-size:10px">得分</th><th class="col-status">完成情况</th><th class="col-supporters">协同人</th><th class="col-wide">遇到的问题/困难</th><th class="col-problemtype">问题类型</th><th class="col-needboss">需上级<br>介入</th><th class="col-boss">直属上级建议</th><th class="col-ai">AI分析建议</th>';
   html+='</tr></thead><tbody>';
 
