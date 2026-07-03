@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.56">
+<meta name="version" content="V0.1.57">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -16455,25 +16455,35 @@ function commitEditCell(el){
 // ★ V0.1.35: 「完成提交」按钮 — 记录首次提交时间并保存
 function submitWPPlan(){
   var p=_wpCurrent.plan;if(!p){alert('请先选择一个周计划');return;}
-  if(!confirm('确认提交本周计划？\n\n提交后将记录提交时间用于考勤积分计算。'))return;
+  if(!confirm('确认提交本周计划？\n\n提交后「本周重点工作」「优先级」「计划完成日期」将被锁定无法修改。\n如需修改请先点击「撤销提交」。'))return;
   p.firstSubmittedAt=new Date().toISOString();
+  // ★ V0.1.57: 提交即自动冻结三列（员工自己不能改），等同上级冻结效果
+  p.frozen=true;
+  p.frozenAt=new Date().toISOString();
+  p.frozenBy=(currentUser&&currentUser.name)||'';
   p.updatedAt=new Date().toISOString();
   saveWP(p.year,p.month,p.week,p);
   _calcWeekScore(p);
   renderWPTable(p);
-  showToast('✅ 已提交，时间已记录');
+  showToast('✅ 已提交并锁定，时间已记录');
 }
 
-// ★ V0.1.44: 撤销提交 — 清除提交时间戳，允许员工重新提交
+// ★ V0.1.44: 撤销提交 — 清除提交时间戳+解除冻结，允许员工重新提交
 function undoWPSubmit(){
   var p=_wpCurrent.plan;if(!p){return;}
-  if(!confirm('确认撤销本次提交？\n\n撤销后首次提交时间将被清除，你可以重新修改计划后再次提交。最终提交时间以最后一次提交（且此后未撤销）为准。'))return;
+  if(!confirm('确认撤销本次提交？\n\n撤销后：\n① 首次提交时间将被清除\n② 三列锁定将解除，可重新修改\n③ 最终提交时间以最后一次提交为准。'))return;
   p.firstSubmittedAt=null;
+  // ★ V0.1.57: 撤销同时解除冻结（仅限自己提交触发的冻结；不解除上级手动冻结）
+  var myName=(currentUser&&currentUser.name)||'';
+  if(p.frozen && (!p.frozenBy || p.frozenBy===myName)){
+    p.frozen=false;
+    p.frozenAt=null;
+  }
   p.updatedAt=new Date().toISOString();
   saveWP(p.year,p.month,p.week,p);
   _calcWeekScore(p);
   renderWPTable(p);
-  showToast('↩ 已撤销提交，可重新修改后再提交');
+  showToast('↩ 已撤销提交并解锁，可重新修改后再提交');
 }
 
 // ★ V0.1.41: 员工完成周工作小结（记录小结时间用于考勤积分）
