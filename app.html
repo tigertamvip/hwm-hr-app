@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.51d">
+<meta name="version" content="V0.1.52">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -17904,13 +17904,35 @@ function sysCloseModal(){
 }
 </script>
 <script>
-// PWA Service Worker Registration
+// PWA Service Worker Registration — V0.1.52 永久根治缓存
 if('serviceWorker' in navigator){
   window.addEventListener('load',function(){
-    navigator.serviceWorker.register('sw.js?v=V0.1.51d').then(function(reg){
+    navigator.serviceWorker.register('sw.js').then(function(reg){
       console.log('PWA SW registered:',reg.scope);
+      // ★ 版本自动检测：每5分钟检查一次新版本
+      setInterval(function(){
+        fetch(location.pathname+'?_v='+Date.now(),{cache:'no-store',headers:{'Cache-Control':'no-cache'}})
+          .then(function(r){return r.text();})
+          .then(function(html){
+            var m=html.match(/<meta\s+name="version"\s+content="([^"]+)"/);
+            if(m&&m[1]){
+              var cur=document.querySelector('meta[name="version"]');
+              if(cur&&cur.content!==m[1]){
+                var tip=document.getElementById('_verUpdateTip');
+                if(!tip){
+                  tip=document.createElement('div');
+                  tip.id='_verUpdateTip';
+                  tip.style.cssText='position:fixed;top:0;left:0;right:0;background:#02314D;color:white;text-align:center;padding:8px;font-size:13px;z-index:999999;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.3)';
+                  tip.innerHTML='🔄 发现新版本 '+m[1]+'，点击刷新页面';
+                  tip.onclick=function(){location.reload(true);};
+                  document.body.appendChild(tip);
+                }
+              }
+            }
+          }).catch(function(){});
+      },300000);
     }).catch(function(err){
-      console.log('PWA SW registration failed:',err);
+      console.log('PWA SW failed:',err);
     });
   });
 }

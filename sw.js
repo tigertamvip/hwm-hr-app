@@ -1,42 +1,36 @@
 // Service Worker for HWM HR App PWA
-// V0.1.51d — force SW reload (2026-07-03T18:08)
-const CACHE_NAME = 'hwm-hr-v0.1.51d';
+// V0.1.52 — 永久根治缓存问题：HTML 始终走网络，仅缓存静态资源
+const CACHE_NAME = 'hwm-hr-static-v2';
+const DYNAMIC_CACHE = 'hwm-hr-dynamic-v2';
 
-// On install, cache essential assets
-self.addEventListener('install', (event) => {
-  self.skipWaiting();
-});
-
-// On activate, clean old caches
-self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys().then((keys) => {
-      return Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)));
-    })
+self.addEventListener('install', (e) => self.skipWaiting());
+self.addEventListener('activate', (e) => {
+  e.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(keys.filter(k => k !== CACHE_NAME && k !== DYNAMIC_CACHE).map(k => caches.delete(k)))
+    )
   );
   self.clients.claim();
 });
 
-// Network-first strategy: try network, fallback to cache
-self.addEventListener('fetch', (event) => {
-  // Only handle GET for our own domain
-  if (event.request.method !== 'GET') return;
+self.addEventListener('fetch', (e) => {
+  if (e.request.method !== 'GET') return;
+  const url = new URL(e.request.url);
 
-  event.respondWith(
-    fetch(event.request)
-      .then((response) => {
-        // Cache successful responses for static assets
-        if (response.status === 200) {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, clone);
-          });
-        }
-        return response;
-      })
-      .catch(() => {
-        // Offline fallback
-        return caches.match(event.request);
-      })
+  // ★ HTML 文件永远不走缓存 — 直接从网络获取（根治版本不更新）
+  if (url.pathname.match(/\.html$/i) || url.pathname === '/' || !url.pathname.includes('.')) {
+    e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
+    return;
+  }
+
+  // ★ 静态资源：network-first + 缓存备用
+  e.respondWith(
+    fetch(e.request).then(res => {
+      if (res.status === 200) {
+        const clone = res.clone();
+        caches.open(DYNAMIC_CACHE).then(c => c.put(e.request, clone));
+      }
+      return res;
+    }).catch(() => caches.match(e.request))
   );
 });
