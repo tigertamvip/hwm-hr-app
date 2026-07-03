@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.41">
+<meta name="version" content="V0.1.42">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -15242,6 +15242,58 @@ function _autoCarryTasks(plan,y,m,w){
   saveWP(y,m,w,plan);
 }
 
+// ★ V0.1.41: 上级完成评价后，将未完成任务自动顺延到员工下周计划
+function _carryTasksToNextWeek(sourcePlan){
+  if(!sourcePlan||!sourcePlan.tasks)return;
+  // 计算下周
+  var y=sourcePlan.year, m=sourcePlan.month, w=sourcePlan.week+1;
+  if(w>4){w=1;m++;if(m>12){m=1;y++;}}
+  // 保存当前 _wpData 引用（上级评价时 _wpData 包含被评价员工的数据）
+  var empName=sourcePlan.name;
+  var nextPlan=getWP(y,m,w);
+  var carried=[];
+  for(var i=0;i<sourcePlan.tasks.length;i++){
+    var t=sourcePlan.tasks[i];
+    if(!t.work||!t.work.trim())continue;
+    if(t.status==='✓完成')continue;
+    if(t.collab_from)continue;
+    var dup=carried.some(function(c){return c.work===t.work;});
+    if(dup)continue;
+    carried.push({
+      work:t.work, goal:t.goal||'', plannedDate:'',
+      actualDate:'', status:'', supporters:t.supporters||'',
+      problems:'', problemType:'', needBoss:'',
+      bossFeedback:'', aiSuggestion:'',
+      carriedFrom:{year:sourcePlan.year,month:sourcePlan.month,week:sourcePlan.week}
+    });
+  }
+  if(!carried.length)return;
+  if(!nextPlan){
+    // 创建下周空白计划
+    nextPlan=createEmptyPlan(y,m,w);
+    nextPlan.name=empName||'';
+    if(sourcePlan.dept)nextPlan.dept=sourcePlan.dept;
+    if(sourcePlan.position)nextPlan.position=sourcePlan.position;
+    saveWP(y,m,w,nextPlan);
+  }
+  // 防重复
+  if(nextPlan.tasks.some(function(t){return t.carriedFrom;}))return;
+  // 去重本周已有
+  for(var ci=carried.length-1;ci>=0;ci--){
+    if(nextPlan.tasks.some(function(t2){return t2.work===carried[ci].work;}))carried.splice(ci,1);
+  }
+  if(!carried.length)return;
+  // 清空末尾空行
+  var keep=2,hasContent=0;
+  for(var k=0;k<nextPlan.tasks.length;k++){if(nextPlan.tasks[k].work&&nextPlan.tasks[k].work.trim())hasContent++;}
+  keep=Math.max(2,hasContent);
+  while(nextPlan.tasks.length>keep&&!nextPlan.tasks[nextPlan.tasks.length-1].work){nextPlan.tasks.pop();}
+  // 插入头部
+  for(var j=carried.length-1;j>=0;j--){nextPlan.tasks.unshift(carried[j]);}
+  nextPlan.updatedAt=new Date().toISOString();
+  saveWP(y,m,w,nextPlan);
+}
+
 function createEmptyPlan(y,m,w){
   var emp=getViewedUserEmp();
   var tasks=[];
@@ -15486,8 +15538,6 @@ function selectWP(y,m,w){
     if(correctPos && plan.position !== correctPos){ plan.position = correctPos; dirty=true; }
     if(dirty) saveWP(y,m,w,plan);
     _wpCurrent.plan=plan;
-    // ★ V0.1.39 fix: 已存在的周计划也需要尝试顺延（防止旧版本已创建空计划的情况）
-    _autoCarryTasks(plan,y,m,w);
     renderWPTable(plan);
   }else{
     // ★ 自动创建空白周计划并渲染表单（用户无需手动点「新建周计划」）
@@ -15497,8 +15547,6 @@ function selectWP(y,m,w){
     if(correctPos) newPlan.position = correctPos;
     saveWP(y,m,w,newPlan);
     _wpCurrent.plan=newPlan;
-    // ★ V0.1.39: 自动从上周转入未完成的任务
-    _autoCarryTasks(newPlan,y,m,w);
     renderWPTable(newPlan);
   }
   renderWPPlanList(y,m);
@@ -15516,8 +15564,6 @@ function createNewWP(){
   var plan=createEmptyPlan(y,m,w);
   saveWP(y,m,w,plan);
   _wpCurrent={year:y,month:m,week:w,plan:plan};
-  // ★ V0.1.39: 自动从上周转入未完成的任务
-  _autoCarryTasks(plan,y,m,w);
   renderWPPlanList(y,m);
   renderWPTable(plan);
   renderWPUserInfo();
@@ -16832,6 +16878,8 @@ function submitBossEval(){
   p.bossReviewedAt=new Date().toISOString();
   p.updatedAt=new Date().toISOString();
   saveWP(p.year,p.month,p.week,p);
+  // ★ V0.1.41: 上级评价完成后，自动将未完成任务顺延到员工下周计划
+  _carryTasksToNextWeek(p);
   closeBossEval();
   renderWPTable(p);
 }
