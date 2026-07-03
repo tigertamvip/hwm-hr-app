@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.40">
+<meta name="version" content="V0.1.41">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -16047,7 +16047,8 @@ function renderWPTable(plan){
     html+='<button onclick="openBossEval()">⭐ 完成评价</button>';
   }else{
     // 自己的计划：完整编辑功能（去掉新增+转发，左下角已有新建）
-    html+='<button onclick="submitWPPlan()" style="background:#059669;color:#fff">✅ 完成提交</button>';
+    html+='<button onclick="submitWPPlan()" style="background:#059669;color:#fff">📋 提交计划</button>';
+    html+='<button onclick="submitWPWeekSummary()" style="background:#3b82f6;color:#fff">✅ 完成小结</button>';
     html+='<button class="wp-btn-warn" onclick="deleteCurrentWPPlan()">🗑 删除周计划</button>';
     html+='<button onclick="exportCurrentWP()">📥 导出周计划</button>';
     if(plan.bossEvaluated){
@@ -16370,6 +16371,23 @@ function submitWPPlan(){
   _calcWeekScore(p);
   renderWPTable(p);
   showToast('✅ 已提交，时间已记录');
+}
+
+// ★ V0.1.41: 员工完成周工作小结（记录小结时间用于考勤积分）
+function submitWPWeekSummary(){
+  var p=_wpCurrent.plan;if(!p){alert('请先选择一个周计划');return;}
+  // 检查是否已填写小结
+  if(!p.weekSummary||!p.weekSummary.trim()){
+    alert('请先在下方「一周工作小结」区域填写本周工作总结后再点击「完成小结」。');
+    return;
+  }
+  if(!confirm('确认完成本周工作小结？\n\n提交后将记录完成时间用于考勤积分计算。'))return;
+  p.summarySubmittedAt=new Date().toISOString();
+  p.updatedAt=new Date().toISOString();
+  saveWP(p.year,p.month,p.week,p);
+  _calcWeekScore(p);
+  renderWPTable(p);
+  showToast('✅ 工作小结已完成，时间已记录');
 }
 
 // ★ V0.1.35: 计算本周截止时间（周六12:00）
