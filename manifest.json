@@ -1,0 +1,23 @@
+{
+  "name": "幸福工场人力资源管理系统",
+  "short_name": "HR系统",
+  "description": "AI辅助人力资源信息管理系统",
+  "start_url": "/hwm-hr-app/",
+  "scope": "/hwm-hr-app/",
+  "display": "standalone",
+  "orientation": "any",
+  "theme_color": "#02314D",
+  "background_color": "#F2F4F5",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
