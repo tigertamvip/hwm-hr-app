@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.67">
+<meta name="version" content="V0.1.68">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -14977,7 +14977,7 @@ var _wpLastRenderKey='';
 var _wpRevisionMode=false;
 
 // 下拉选项
-var WP_GOAL_OPTIONS=['重要紧急','重要','一般紧急','一般'];
+var WP_GOAL_OPTIONS=['重要紧急','重要','一般紧急','其他'];
 var WP_STATUS_OPTIONS=['✓完成','⚙推进中','⏸暂停','❌未完成'];
 var WP_PROBLEM_OPTIONS=['无','资源不足','跨部门协调','技术瓶颈','时间紧张','其他原因'];
 var WP_NEEDBOSS_OPTIONS=['否','是'];
@@ -16248,7 +16248,7 @@ function renderWPTable(plan){
       html+='<td class="col-num" style="text-align:center;color:#8B6914">'+seq+'</td>';
       html+='<td class="editable col-work" data-field="tasks.'+jj+'.work" data-type="textarea" onclick="startEditCell(this)">'+(tt.work?_h(tt.work):'<span style="color:var(--text-hint)">点击填写</span>')+cfTag+'</td>';
       var __goalVal=(tt.goal||plan._revisions&&plan._revisions['tasks.'+jj+'.goal']?renderWPCellValue(plan,'tasks.'+jj+'.goal',tt.goal):(tt.goal?tt.goal:''));
-      var __goalPriClass=__goalVal==='重要紧急'?'pri-urgent':__goalVal==='重要'?'pri-important':__goalVal==='一般紧急'?'pri-normal-urgent':__goalVal==='一般'?'pri-normal':'';
+      var __goalPriClass=__goalVal==='重要紧急'?'pri-urgent':__goalVal==='重要'?'pri-important':__goalVal==='一般紧急'?'pri-normal-urgent':__goalVal==='其他'?'pri-normal':'';
       html+='<td class="editable col-goal '+__goalPriClass+'" data-field="tasks.'+jj+'.goal" data-type="select" data-opts="'+WP_GOAL_OPTIONS.join(',')+'" onclick="startEditCell(this)">'+(__goalVal?_h(__goalVal):'<span style="color:var(--text-hint)">选择</span>')+'</td>';
       var _pd=renderWPCellValue(plan,'tasks.'+jj+'.plannedDate',tt.plannedDate||'');
       html+='<td class="editable col-hours" data-field="tasks.'+jj+'.plannedDate" data-type="date" onclick="startEditCell(this)">'+(_pd?_pd:'<span style="color:var(--text-hint)">点击选择日期</span>')+'</td>';
@@ -16279,7 +16279,7 @@ function renderWPTable(plan){
     html+=_renderTaskOpCell(j,seq,plan);
     html+='<td class="editable col-work'+_frozenCls+'" data-field="tasks.'+j+'.work" data-type="textarea" onclick="startEditCell(this)">'+(t.work||plan._revisions&&plan._revisions['tasks.'+j+'.work']?renderWPCellValue(plan,'tasks.'+j+'.work',t.work):(t.work?_h(t.work):'<span style="color:var(--text-hint)">点击填写</span>'))+'</td>';
     var _goalVal=(t.goal||plan._revisions&&plan._revisions['tasks.'+j+'.goal']?renderWPCellValue(plan,'tasks.'+j+'.goal',t.goal):(t.goal?t.goal:''));
-    var _goalPriClass=_goalVal==='重要紧急'?'pri-urgent':_goalVal==='重要'?'pri-important':_goalVal==='一般紧急'?'pri-normal-urgent':_goalVal==='一般'?'pri-normal':'';
+    var _goalPriClass=_goalVal==='重要紧急'?'pri-urgent':_goalVal==='重要'?'pri-important':_goalVal==='一般紧急'?'pri-normal-urgent':_goalVal==='其他'?'pri-normal':'';
     html+='<td class="editable col-goal '+_goalPriClass+'" data-field="tasks.'+j+'.goal" data-type="select" data-opts="'+WP_GOAL_OPTIONS.join(',')+'" onclick="startEditCell(this)">'+(_goalVal?_h(_goalVal):'<span style="color:var(--text-hint)">选择</span>')+'</td>';
     var plannedDateDisplay=renderWPCellValue(plan,'tasks.'+j+'.plannedDate',t.plannedDate||'');
     html+='<td class="editable col-hours" data-field="tasks.'+j+'.plannedDate" data-type="date" onclick="startEditCell(this)">'+(plannedDateDisplay?plannedDateDisplay:'<span style="color:var(--text-hint)">点击选择日期</span>')+'</td>';
@@ -16649,7 +16649,7 @@ function _calcWeekScore(plan){
       if(tt.collab_from){_taskScores.push(0);continue;}
       if(!tt.goal||!tt.plannedDate){_taskScores.push(0);continue;}
 
-      var base=tt.goal==='重要紧急'?3:tt.goal==='重要'?1.5:tt.goal==='一般紧急'?1:tt.goal==='一般'?0.5:0;
+      var base=tt.goal==='重要紧急'?3:tt.goal==='重要'?1.5:tt.goal==='一般紧急'?1:tt.goal==='其他'?0.5:0;
       if(base===0){_taskScores.push(0);continue;}
 
       var isDone=tt.status==='✓完成';
