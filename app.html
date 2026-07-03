@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.48">
+<meta name="version" content="V0.1.49">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -16053,6 +16053,20 @@ async function _collabRespondSyncToCloud(ct,newStatus,fromUid,reqId){
   }
 }
 
+// ★ V0.1.49: 渲染任务得分单元格
+function _renderTaskScoreCell(plan,taskIdx){
+  var pts=plan._taskScores?plan._taskScores[taskIdx]:0;
+  if(!pts)return '<td class="col-score" style="text-align:center;font-size:10px;color:#9ca3af">—</td>';
+  var scColor=pts>0?'#059669':pts<0?'#dc2626':'#6b7280';
+  var scBg=pts>0?'#ECFDF5':pts<0?'#FEF2F2':'#F9FAFB';
+  var scLabel=pts>0?'+'+pts:''+pts;
+  // 检测是否逾期但完成（扣一半分的情况）
+  var tt=plan.tasks[taskIdx];
+  var isDelayedDone=tt&&tt.status==='✓完成'&&tt.actualDate&&tt.plannedDate&&tt.actualDate>tt.plannedDate;
+  if(isDelayedDone)scLabel+=(' (逾期)');
+  return '<td class="col-score" style="text-align:center;font-size:10px;font-weight:700;color:'+scColor+';background:'+scBg+';border-radius:3px;padding:2px 4px">'+scLabel+'</td>';
+}
+
 function renderWPTable(plan){
   if(!plan)return;
   var content=document.getElementById('wpContent');
@@ -16138,6 +16152,9 @@ function renderWPTable(plan){
     var ad=t.actualDate||'';
     if(ad)hasActual++;
   }
+  // ★ V0.1.49: 任务得分合计
+  var _taskTotal=0;if(plan._taskScores){for(var tsi=0;tsi<plan._taskScores.length;tsi++)_taskTotal+=plan._taskScores[tsi]||0;}
+  var taskScoreDisplay='';if(_taskTotal!==0||plan.bossEvaluated){taskScoreDisplay=(_taskTotal>0?'+':'')+_taskTotal;}
 
   html+='<div class="wp-summary-bar">';
   html+='<div class="wp-summary-item"><span class="wp-summary-label">✅完成：</span><span class="wp-summary-value">'+completed+'</span></div>';
@@ -16145,10 +16162,16 @@ function renderWPTable(plan){
   html+='<div class="wp-summary-item"><span class="wp-summary-label">📅 已排期：</span><span class="wp-summary-value">'+hasPlan+'</span></div>';
   html+='<div class="wp-summary-item"><span class="wp-summary-label">🏁 已完成：</span><span class="wp-summary-value">'+hasActual+'</span></div>';
   html+='<div class="wp-summary-item"><span class="wp-summary-label">⚠️ 逾期：</span><span class="wp-summary-value" style="color:'+(overdue>0?'var(--danger)':'var(--success)')+'">'+overdue+'</span></div>';
+  // ★ V0.1.49: 任务完成积分
+  if(_taskTotal!==0||plan.bossEvaluated){
+    var tsColor=_taskTotal>=0?'var(--success)':'var(--danger)';
+    var tsSign=_taskTotal>0?'+':'';
+    html+='<div class="wp-summary-item"><span class="wp-summary-label">📊 任务得分：</span><span class="wp-summary-value" style="color:'+tsColor+'">'+tsSign+_taskTotal+'</span></div>';
+  }
   html+='</div>';
 
-  html+='<div class="wp-table-area"><div class="wp-table-wrap"><table class="wp-table"><colgroup><col style="width:36px"><col style="width:220px"><col style="width:100px"><col style="width:120px"><col style="width:120px"><col style="width:92px"><col style="width:104px"><col style="width:180px"><col style="width:92px"><col style="width:69px"><col style="width:450px"><col style="width:520px"></colgroup><thead><tr>';
-  html+='<th class="col-num">序号</th><th class="col-work">本周重点工作</th><th class="col-goal">优先级</th><th class="col-hours">计划完成<br>日期</th><th class="col-hours">实际完成<br>日期</th><th class="col-status">完成情况</th><th class="col-supporters">协同人</th><th class="col-wide">遇到的问题/困难</th><th class="col-problemtype">问题类型</th><th class="col-needboss">需上级<br>介入</th><th class="col-boss">直属上级建议</th><th class="col-ai">AI分析建议</th>';
+  html+='<div class="wp-table-area"><div class="wp-table-wrap"><table class="wp-table"><colgroup><col style="width:36px"><col style="width:200px"><col style="width:90px"><col style="width:110px"><col style="width:110px"><col style="width:56px"><col style="width:84px"><col style="width:92px"><col style="width:160px"><col style="width:82px"><col style="width:62px"><col style="width:420px"><col style="width:500px"></colgroup><thead><tr>';
+  html+='<th class="col-num">序号</th><th class="col-work">本周重点工作</th><th class="col-goal">优先级</th><th class="col-hours">计划完成<br>日期</th><th class="col-hours">实际完成<br>日期</th><th class="col-score" style="color:#f59e0b;font-size:10px">得分</th><th class="col-status">完成情况</th><th class="col-supporters">协同人</th><th class="col-wide">遇到的问题/困难</th><th class="col-problemtype">问题类型</th><th class="col-needboss">需上级<br>介入</th><th class="col-boss">直属上级建议</th><th class="col-ai">AI分析建议</th>';
   html+='</tr></thead><tbody>';
 
   // ★ V0.1.39: 区分「上周转入」和「本周新增」
@@ -16161,7 +16184,7 @@ function renderWPTable(plan){
 
   // 上周转入区块
   if(carriedTasks.length>0){
-    html+='<tr class="wp-section-header" style="background:#FFF8E7"><td colspan="12" style="padding:6px 12px;font-size:12px;font-weight:600;color:#8B6914;border-bottom:2px solid #E8D5A3">📥 上周转入（'+carriedTasks.length+'项）</td></tr>';
+    html+='<tr class="wp-section-header" style="background:#FFF8E7"><td colspan="13" style="padding:6px 12px;font-size:12px;font-weight:600;color:#8B6914;border-bottom:2px solid #E8D5A3">📥 上周转入（'+carriedTasks.length+'项）</td></tr>';
     for(var ci=0;ci<carriedTasks.length;ci++){
       var jj=carriedTasks[ci]; seq++;
       var tt=plan.tasks[jj];
@@ -16177,6 +16200,8 @@ function renderWPTable(plan){
       html+='<td class="editable col-hours" data-field="tasks.'+jj+'.plannedDate" data-type="date" onclick="startEditCell(this)">'+(_pd?_pd:'<span style="color:var(--text-hint)">点击选择日期</span>')+'</td>';
       var _ad=renderWPCellValue(plan,'tasks.'+jj+'.actualDate',tt.actualDate||'');
       html+='<td class="editable col-hours" data-field="tasks.'+jj+'.actualDate" data-type="date" onclick="startEditCell(this)">'+(_ad?_ad:'<span style="color:var(--text-hint)">点击选择日期</span>')+'</td>';
+      // ★ V0.1.49: 每行任务得分
+      html+=_renderTaskScoreCell(plan,jj);
       html+='<td class="editable col-status" data-field="tasks.'+jj+'.status" data-type="select" data-opts="'+WP_STATUS_OPTIONS.join(',')+'" onclick="startEditCell(this)">'+(tt.status||plan._revisions&&plan._revisions['tasks.'+jj+'.status']?renderWPCellValue(plan,'tasks.'+jj+'.status',tt.status):(tt.status?_h(tt.status):'<span style="color:var(--text-hint)">选择</span>'))+'</td>';
       html+='<td class="editable col-supporters" data-field="tasks.'+jj+'.supporters" data-type="text" onclick="startEditCell(this)">'+(tt.supporters||plan._revisions&&plan._revisions['tasks.'+jj+'.supporters']?renderWPCellValue(plan,'tasks.'+jj+'.supporters',tt.supporters):_renderSupportersCell(plan,jj,tt.supporters))+'</td>';
       html+='<td class="editable col-wide" data-field="tasks.'+jj+'.problems" data-type="text" onclick="startEditCell(this)">'+(tt.problems||plan._revisions&&plan._revisions['tasks.'+jj+'.problems']?renderWPCellValue(plan,'tasks.'+jj+'.problems',tt.problems):(tt.problems?_h(tt.problems):'<span style="color:var(--text-hint)">填写</span>'))+'</td>';
@@ -16187,7 +16212,7 @@ function renderWPTable(plan){
       html+='<td class="col-ai">'+_h(tt.aiSuggestion||'')+'</td>';
       html+='</tr>';
     }
-    html+='<tr class="wp-section-header" style="background:#F0F9FF"><td colspan="12" style="padding:6px 12px;font-size:12px;font-weight:600;color:#0369A1;border-bottom:2px solid #BAE6FD">📝 本周新增（'+newTasks.length+'项）</td></tr>';
+    html+='<tr class="wp-section-header" style="background:#F0F9FF"><td colspan="13" style="padding:6px 12px;font-size:12px;font-weight:600;color:#0369A1;border-bottom:2px solid #BAE6FD">📝 本周新增（'+newTasks.length+'项）</td></tr>';
   }
 
   // 本周新增区块
@@ -16205,6 +16230,8 @@ function renderWPTable(plan){
     html+='<td class="editable col-hours" data-field="tasks.'+j+'.plannedDate" data-type="date" onclick="startEditCell(this)">'+(plannedDateDisplay?plannedDateDisplay:'<span style="color:var(--text-hint)">点击选择日期</span>')+'</td>';
     var actualDateDisplay=renderWPCellValue(plan,'tasks.'+j+'.actualDate',t.actualDate||'');
     html+='<td class="editable col-hours" data-field="tasks.'+j+'.actualDate" data-type="date" onclick="startEditCell(this)">'+(actualDateDisplay?actualDateDisplay:'<span style="color:var(--text-hint)">点击选择日期</span>')+'</td>';
+    // ★ V0.1.49: 每行任务得分
+    html+=_renderTaskScoreCell(plan,j);
     html+='<td class="editable col-status" data-field="tasks.'+j+'.status" data-type="select" data-opts="'+WP_STATUS_OPTIONS.join(',')+'" onclick="startEditCell(this)">'+(t.status||plan._revisions&&plan._revisions['tasks.'+j+'.status']?renderWPCellValue(plan,'tasks.'+j+'.status',t.status):(t.status?_h(t.status):'<span style="color:var(--text-hint)">选择</span>'))+'</td>';
     html+='<td class="editable col-supporters" data-field="tasks.'+j+'.supporters" data-type="text" onclick="startEditCell(this)">'+(t.supporters||plan._revisions&&plan._revisions['tasks.'+j+'.supporters']?renderWPCellValue(plan,'tasks.'+j+'.supporters',t.supporters):_renderSupportersCell(plan,j,t.supporters))+'</td>';
     html+='<td class="editable col-wide" data-field="tasks.'+j+'.problems" data-type="text" onclick="startEditCell(this)">'+(t.problems||plan._revisions&&plan._revisions['tasks.'+j+'.problems']?renderWPCellValue(plan,'tasks.'+j+'.problems',t.problems):(t.problems?_h(t.problems):'<span style="color:var(--text-hint)">填写</span>'))+'</td>';
@@ -16220,9 +16247,10 @@ function renderWPTable(plan){
   html+='<td colspan="3" style="text-align:right;padding-right:12px;background:#F5F6F8">📊 本周合计</td>';
   html+='<td class="wp-total-num">'+hasPlan+' 项排期</td>';
   html+='<td class="wp-total-num">'+hasActual+' 项完成</td>';
+  html+='<td style="text-align:center;background:#F5F6F8;font-weight:600;font-size:10px">'+(taskScoreDisplay||'')+'</td>';
   html+='<td colspan="2" style="text-align:right;padding-right:12px;background:#F5F6F8">逾期任务</td>';
   html+='<td class="wp-total-num" style="color:'+(overdue>0?'var(--danger)':'var(--success)')+'">'+overdue+' 项</td>';
-  html+='<td colspan="5" style="background:#F5F6F8"></td>';
+  html+='<td colspan="4" style="background:#F5F6F8"></td>';
   html+='</tr>';
   html+='</tbody></table></div></div>';
 
@@ -16414,6 +16442,7 @@ function commitEditCell(el){
       }
       _wpCurrent.plan.updatedAt=new Date().toISOString();
       saveWP(_wpCurrent.plan.year,_wpCurrent.plan.month,_wpCurrent.plan.week,_wpCurrent.plan);
+      _calcWeekScore(_wpCurrent.plan); // ★ V0.1.49: 编辑单元格后实时更新任务得分
     }
   }catch(e){
     if(cell)cell.classList.remove('editing');
@@ -16534,28 +16563,58 @@ function _calcWeekScore(plan){
   else if(subStatus==='late'&&plan.firstSubmittedAt){
     var deadline=_getWeekDeadline(plan.year,plan.month,plan.week);
     var diffHrs=(new Date(plan.firstSubmittedAt)-deadline)/(1000*3600);
-    // ★ V0.1.35 修订: 每12h扣-1分，>48h未提交=-5分
-    if(subStatus==='late'&&plan.firstSubmittedAt){
-      var deadline=_getWeekDeadline(plan.year,plan.month,plan.week);
-      var diffHrs=(new Date(plan.firstSubmittedAt)-deadline)/(1000*3600);
-      if(diffHrs>48)weekScore-=5;
-      else weekScore-=Math.ceil(diffHrs/12);
-      // 扣分上限为-5
-      if(weekScore<-5)weekScore=-5;
-    }
+    if(diffHrs>48)weekScore-=5;
+    else weekScore-=Math.ceil(diffHrs/12);
+    // 扣分上限为-5
+    if(weekScore<-5)weekScore=-5;
   }
 
   // 评价奖励（仅上级按时完成时给下属加分）
   if(revStatus==='on_time')weekScore+=2;
 
+  // ★ V0.1.49: 任务完成评分
+  var taskScore=0;
+  var _taskScores=[];
+  if(plan.tasks){
+    for(var ti=0;ti<plan.tasks.length;ti++){
+      var tt=plan.tasks[ti];
+      var pts=0;
+      // 跳过：空行、协同任务（非责任人）、无优先级、无计划日期
+      if(!tt.work||!tt.work.trim()){_taskScores.push(0);continue;}
+      if(tt.collab_from){_taskScores.push(0);continue;}
+      if(!tt.goal||!tt.plannedDate){_taskScores.push(0);continue;}
+
+      var base=tt.goal==='重要紧急'?3:tt.goal==='重要'?1.5:tt.goal==='一般紧急'?1:tt.goal==='一般'?0.5:0;
+      if(base===0){_taskScores.push(0);continue;}
+
+      var isDone=tt.status==='✓完成';
+      var actualDate=tt.actualDate||'';
+
+      if(isDone && actualDate && actualDate<=tt.plannedDate){
+        // 按时完成 → 加分
+        pts=base;
+      }else if(isDone && actualDate && actualDate>tt.plannedDate){
+        // 逾期但完成 → 扣一半
+        pts=-(base/2);
+      }else{
+        // 未完成 → 全扣
+        pts=-base;
+      }
+      taskScore+=pts;
+      _taskScores.push(pts);
+    }
+  }
+  plan._taskScores=_taskScores;
+  weekScore+=taskScore;
+
   // 豁免时归零
   if(plan.exempted)weekScore=0;
 
   // 记录本周
-  var oldWeekScore=scores.weeks[weekId]?scores.weeks[weekId].score:0;
   scores.weeks[weekId]={
     submittedStatus:subStatus, reviewedStatus:revStatus,
-    exempted:!!plan.exempted, score:weekScore
+    exempted:!!plan.exempted, score:weekScore,
+    taskScore:taskScore
   };
 
   // 重新汇总
@@ -16919,6 +16978,7 @@ function submitBossEval(){
   p.bossReviewedAt=new Date().toISOString();
   p.updatedAt=new Date().toISOString();
   saveWP(p.year,p.month,p.week,p);
+  _calcWeekScore(p); // ★ V0.1.49: 上级评价后重新计算任务得分
   // ★ V0.1.43: 上级评价完成后，以上级修正的状态重新同步下周转入任务
   _carryTasksToNextWeek(p, true);
   closeBossEval();
