@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.105">
+<meta name="version" content="V0.1.106">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -4237,6 +4237,24 @@ function buildFilterMeta(){
 }
 
 // ===== Inline Filter Logic =====
+// 学历原始值 → 分组名称映射（与学历分布图一致）
+function _mapEduToGroup(raw){
+  if(!raw) return raw;
+  var m={
+    '博士':['博士'],
+    '硕士':['硕士','MBA','EMBA'],
+    '本科':['本科'],
+    '大专':['大专'],
+    '中专及高中':['高中','中专','中技','职高'],
+    '初中及以下':['初中','中学','小学','其他','未知']
+  };
+  for(var group in m){
+    if(m[group].indexOf(raw)>=0) return group;
+  }
+  // 在校大学实习生等特殊值原样返回
+  return raw;
+}
+
 var _lastCenterVal='';
 
 function populateInlineFilters(){
@@ -4263,6 +4281,15 @@ function populateInlineFilters(){
   // 部门下拉（初始显示全部，选中中心后由 onInlineFilterChange 级联刷新）
   _lastCenterVal='';
   refreshDeptDropdown('');
+  // 学历下拉（固定顺序，与学历分布图一致 + 博士 + 在校大学实习生）
+  var eduSel=document.getElementById('filterEducation');
+  if(eduSel){
+    var eduOrder=['博士','硕士','本科','大专','中专及高中','初中及以下','在校大学实习生'];
+    eduSel.innerHTML='<option value="">学历：全部</option>';
+    for(var i=0;i<eduOrder.length;i++){
+      eduSel.innerHTML+='<option value="'+esc(eduOrder[i])+'">'+esc(eduOrder[i])+'</option>';
+    }
+  }
 }
 
 // 级联刷新部门下拉：根据选中的中心，只显示该中心下在职员工涉及的部门
@@ -5234,8 +5261,13 @@ function doSearch(){
     if(realVals.length===0)continue;
     filtered=filtered.filter(function(e){
       var raw=(e[dimKey]||'').trim();
-      var norm=normalizeVal(dimKey,raw);
-      return realVals.indexOf(norm)>=0;
+      // 学历筛选：原始值→分组名称映射（与学历分布图一致）
+      if(dimKey==='education'){
+        raw=_mapEduToGroup(raw);
+      }else{
+        raw=normalizeVal(dimKey,raw);
+      }
+      return realVals.indexOf(raw)>=0;
     });
   }
   // Keyword search
