@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.120">
+<meta name="version" content="V0.1.121">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -5352,15 +5352,19 @@ function doSearch(){
       }
     }else if(_drillFilter.type==='newHire'){
       // ★ 今年以来新增人员：入职日期在当年1月1日~今天
+      var _ny=new Date(),_nY=_ny.getFullYear();
+      var _nStart=new Date(_nY,0,1),_nEnd=new Date(_nY,_ny.getMonth(),_ny.getDate());
       filtered=filtered.filter(function(e){
         var d=parseD(e.entryDate);
-        return d&&d>=new Date(Y,0,1)&&d<=today;
+        return d&&d>=_nStart&&d<=_nEnd;
       });
     }else if(_drillFilter.type==='resigned'){
       // ★ 今年以来离职人员：离职日期在当年1月1日~今天
+      var _ry=new Date(),_rY=_ry.getFullYear();
+      var _rStart=new Date(_rY,0,1),_rEnd=new Date(_rY,_ry.getMonth(),_ry.getDate());
       filtered=filtered.filter(function(e){
         var d=parseD(e.resignDate);
-        return d&&d>=new Date(Y,0,1)&&d<=today;
+        return d&&d>=_rStart&&d<=_rEnd;
       });
     }
   }
