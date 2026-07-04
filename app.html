@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.90">
+<meta name="version" content="V0.1.91">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -16092,7 +16092,7 @@ async function _collabRespondSyncToCloud(ct,newStatus,fromUid,reqId){
   }
 }
 
-// ★ V0.1.49: 渲染任务得分单元格
+// ★ V0.1.49: 渲染任务积分单元格
 function _renderTaskScoreCell(plan,taskIdx){
   var pts=plan._taskScores?plan._taskScores[taskIdx]:0;
   if(!pts)return '<td class="col-score" style="text-align:center;font-size:12px;color:#9ca3af">—</td>';
@@ -16259,12 +16259,12 @@ function renderWPTable(plan){
   if(_taskTotal!==0||plan.bossEvaluated){
     var tsColor=_taskTotal>=0?'var(--success)':'var(--danger)';
     var tsSign=_taskTotal>0?'+':'';
-    html+='<div class="wp-summary-item"><span class="wp-summary-label">📊 任务得分：</span><span class="wp-summary-value" style="color:'+tsColor+'">'+tsSign+_taskTotal+'</span></div>';
+    html+='<div class="wp-summary-item"><span class="wp-summary-label">📊 任务积分：</span><span class="wp-summary-value" style="color:'+tsColor+'">'+tsSign+_taskTotal+'</span></div>';
   }
   html+='</div>';
 
-  html+='<div class="wp-table-area"><div class="wp-table-wrap"><table class="wp-table"><colgroup><col style="width:72px"><col style="width:200px"><col style="width:90px"><col style="width:135px"><col style="width:135px"><col style="width:56px"><col style="width:84px"><col style="width:92px"><col style="width:160px"><col style="width:82px"><col style="width:62px"><col style="width:420px"><col style="width:500px"></colgroup><thead><tr>';
-  html+='<th class="col-num">#</th><th class="col-work">本周重点工作</th><th class="col-goal">优先级</th><th class="col-hours">计划完成<br>日期</th><th class="col-hours">实际完成<br>日期</th><th class="col-score" style="color:#f59e0b">得分</th><th class="col-status">完成情况</th><th class="col-supporters">协同人</th><th class="col-wide">遇到的问题/困难</th><th class="col-problemtype">问题类型</th><th class="col-needboss">需上级<br>介入</th><th class="col-boss">直属上级建议</th><th class="col-ai">AI分析建议</th>';
+  html+='<div class="wp-table-area"><div class="wp-table-wrap"><table class="wp-table"><colgroup><col style="width:72px"><col style="width:200px"><col style="width:90px"><col style="width:135px"><col style="width:135px"><col style="width:84px"><col style="width:56px"><col style="width:92px"><col style="width:160px"><col style="width:82px"><col style="width:62px"><col style="width:420px"><col style="width:500px"></colgroup><thead><tr>';
+  html+='<th class="col-num">#</th><th class="col-work">本周重点工作</th><th class="col-goal">优先级</th><th class="col-hours">计划完成<br>日期</th><th class="col-hours">实际完成<br>日期</th><th class="col-status">完成状态</th><th class="col-score" style="color:#f59e0b">积分</th><th class="col-supporters">协同人</th><th class="col-wide">遇到的问题/困难</th><th class="col-problemtype">问题类型</th><th class="col-needboss">需上级<br>介入</th><th class="col-boss">直属上级建议</th><th class="col-ai">AI分析建议</th>';
   html+='</tr></thead><tbody>';
 
   // ★ V0.1.39: 区分「上周转入」和「本周新增」
@@ -16330,9 +16330,9 @@ function renderWPTable(plan){
     html+='<td class="editable col-hours" data-field="tasks.'+j+'.plannedDate" data-type="date" onclick="startEditCell(this)">'+(plannedDateDisplay?plannedDateDisplay:'<span style="color:var(--text-hint)">点击选择日期</span>')+'</td>';
     var actualDateDisplay=renderWPCellValue(plan,'tasks.'+j+'.actualDate',t.actualDate||'');
     html+='<td class="editable col-hours" data-field="tasks.'+j+'.actualDate" data-type="date" onclick="startEditCell(this)">'+(actualDateDisplay?actualDateDisplay:'<span style="color:var(--text-hint)">点击选择日期</span>')+'</td>';
-    // ★ V0.1.49: 每行任务得分
-    html+=_renderTaskScoreCell(plan,j);
+    // ★ V0.1.49: 每行任务积分
     html+='<td class="editable col-status" data-field="tasks.'+j+'.status" data-type="select" data-opts="'+WP_STATUS_OPTIONS.join(',')+'" onclick="startEditCell(this)">'+(t.status||plan._revisions&&plan._revisions['tasks.'+j+'.status']?renderWPCellValue(plan,'tasks.'+j+'.status',t.status):(t.status?_h(t.status):'<span style="color:var(--text-hint)">选择</span>'))+'</td>';
+    html+=_renderTaskScoreCell(plan,j);
     html+='<td class="editable col-supporters" data-field="tasks.'+j+'.supporters" data-type="text" onclick="startEditCell(this)">'+(t.supporters||plan._revisions&&plan._revisions['tasks.'+j+'.supporters']?renderWPCellValue(plan,'tasks.'+j+'.supporters',t.supporters):_renderSupportersCell(plan,j,t.supporters))+'</td>';
     html+='<td class="editable col-wide" data-field="tasks.'+j+'.problems" data-type="text" onclick="startEditCell(this)">'+(t.problems||plan._revisions&&plan._revisions['tasks.'+j+'.problems']?renderWPCellValue(plan,'tasks.'+j+'.problems',t.problems):(t.problems?_h(t.problems):'<span style="color:var(--text-hint)">填写</span>'))+'</td>';
     html+='<td class="editable col-problemtype" data-field="tasks.'+j+'.problemType" data-type="select" data-opts="'+WP_PROBLEM_OPTIONS.join(',')+'" onclick="startEditCell(this)">'+(t.problemType||plan._revisions&&plan._revisions['tasks.'+j+'.problemType']?renderWPCellValue(plan,'tasks.'+j+'.problemType',t.problemType):(t.problemType?_h(t.problemType):'<span style="color:var(--text-hint)">选择</span>'))+'</td>';
@@ -16347,6 +16347,7 @@ function renderWPTable(plan){
   html+='<td colspan="3" style="text-align:right;padding-right:12px;background:#F5F6F8">📊 本周合计</td>';
   html+='<td class="wp-total-num">'+hasPlan+' 项排期</td>';
   html+='<td class="wp-total-num">'+hasActual+' 项完成</td>';
+  html+='<td style="text-align:center;background:#F5F6F8"></td>';
   html+='<td style="text-align:center;background:#F5F6F8;font-weight:600;font-size:10px">'+(taskScoreDisplay||'')+'</td>';
   html+='<td colspan="2" style="text-align:right;padding-right:12px;background:#F5F6F8">逾期任务</td>';
   html+='<td class="wp-total-num" style="color:'+(overdue>0?'var(--danger)':'var(--success)')+'">'+overdue+' 项</td>';
@@ -16927,7 +16928,7 @@ function exportCurrentWP(){
     var AL_LT={alignment:{horizontal:'left',vertical:'top',wrapText:true}};
 
     var title=p.name+' '+p.year+'年'+p.month+'月 第'+p.week+'周 工作计划';
-    var hdrs=['姓名','部门','岗位','序号','本周重点工作','优先级','计划完成日期','实际完成日期','完成情况','协同人','遇到的问题/困难','问题类型','是否需要上级介入','直属上级建议','AI分析建议'];
+    var hdrs=['姓名','部门','岗位','序号','本周重点工作','优先级','计划完成日期','实际完成日期','完成状态','协同人','遇到的问题/困难','问题类型','是否需要上级介入','直属上级建议','AI分析建议'];
     
     // 构建数据行
     var rows=[[title],[hdrs]];
