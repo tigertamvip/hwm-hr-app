@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.113">
+<meta name="version" content="V0.1.114">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -5422,8 +5422,8 @@ var DEMOGRAPHICS_CONFIG = {
     {name:'研发中心', depts:['研发部','苏州研发中心','研发中心','工程技术部']},
     {name:'制造中心（职能）', depts:['摩祖生产部','生产管理部'], filter:function(e){return (e.dept==='摩祖生产部'||e.dept==='生产管理部')&&e.position!=='员工';}},
     {name:'制造中心（工人）', depts:['摩祖生产部','生产管理部'], filter:function(e){return (e.dept==='摩祖生产部'||e.dept==='生产管理部')&&e.position==='员工';}},
-    {name:'质量中心（职能）', depts:['质量管理部','摩祖质量管理部','摩祖质量部'], filter:function(e){return (e.dept==='质量管理部'||e.dept==='摩祖质量管理部'||e.dept==='摩祖质量区')&&!(e.position==='检验员'||e.position==='质检组长');}},
-    {name:'质量中心（检验）', depts:['质量管理部','摩祖质量管理部','摩祖质量部'], filter:function(e){return (e.dept==='质量管理部'||e.dept==='摩祖质量管理部'||e.dept==='摩祖质量区')&&(e.position==='检验员'||e.position==='质检组长');}},
+    {name:'质量中心（职能）', depts:['质量管理部','摩祖质量管理部','摩祖质量部'], filter:function(e){return (e.dept==='质量管理部'||e.dept==='摩祖质量管理部'||e.dept==='摩祖质量部')&&!(e.position==='检验员'||e.position==='质检组长');}},
+    {name:'质量中心（检验）', depts:['质量管理部','摩祖质量管理部','摩祖质量部'], filter:function(e){return (e.dept==='质量管理部'||e.dept==='摩祖质量管理部'||e.dept==='摩祖质量部')&&(e.position==='检验员'||e.position==='质检组长');}},
     {name:'营销中心', depts:['国内销售','海外销售','商务部','医学市场部','销售行政部']},
     {name:'人力行政', depts:['人力资源部','行政管理部','人事行政部','行政部']},
     {name:'财务', depts:['财务部']}
