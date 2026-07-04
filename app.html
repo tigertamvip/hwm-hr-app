@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.99b">
+<meta name="version" content="V0.1.99c">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -925,11 +925,19 @@ body{
   margin-bottom:98px;
 }
 .portal-hero h1{
-  font-size:32px;
-  font-weight:700;
+  font-size:24px;
+  font-weight:400;
   color:#181E20;
   line-height:1.5;
-  letter-spacing:1.5px;
+  letter-spacing:0.5px;
+  margin:8px 0 0;
+}
+.portal-hero .portal-cn-title{
+  font-size:18px;
+  font-weight:300;
+  color:rgba(0,0,0,.55);
+  line-height:1.6;
+  letter-spacing:2px;
   margin:0;
 }
 .portal-hero .portal-divider{
@@ -2000,6 +2008,7 @@ table.collab-table tbody tr:hover{background:#fffdf5}
 <!-- 门户首页 -->
 <div id="portalView" class="portal-view" style="display:none">
   <div class="portal-hero">
+    <div class="portal-cn-title">欢迎进入HWM-AI辅助信息管理系统</div>
     <h1>AI-Assisted Information Management System</h1>
   </div>
   <div class="portal-grid">
