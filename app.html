@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.99u">
+<meta name="version" content="V0.1.99v">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -102,10 +102,12 @@ body{
 .stats-box{
   flex:1 1 0;
   min-width:0;
-  background:var(--card);
+  background:rgba(255,255,255,.72);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
   border-radius:10px;
   padding:10px 9px;
-  border:1px solid var(--border);
+  border:1px solid rgba(255,255,255,.4);
 }
 .stats-box-title{
   font-size:11px;
@@ -136,10 +138,12 @@ body{
   margin:6px 14px 0;
 }
 .demo-card{
-  background:var(--card);
+  background:rgba(255,255,255,.72);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
   border-radius:10px;
   padding:10px 9px;
-  border:1px solid var(--border);
+  border:1px solid rgba(255,255,255,.4);
   position:relative;
   overflow:hidden;
 }
