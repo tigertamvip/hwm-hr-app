@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.99l">
+<meta name="version" content="V0.1.99m">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -518,26 +518,29 @@ body{
 .modal-overlay{
   position:fixed;
   inset:0;
-  background:rgba(0,0,0,.4);
+  background:rgba(0,0,0,.35);
   z-index:200;
   display:flex;
-  align-items:flex-end;
+  align-items:center;
   justify-content:center;
 }
 .modal{
-  background:var(--card);
+  background:rgba(255,255,255,.82);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
   width:100%;
   max-width:64vw;
   min-width:340px;
   max-height:85vh;
-  border-radius:20px 20px 0 0;
+  border-radius:16px;
   overflow-y:auto;
   padding:0 0 24px;
-  animation:slideUp .25s ease;
+  box-shadow:0 20px 60px rgba(0,0,0,.18);
+  animation:modalFadeIn .25s ease;
 }
-@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes modalFadeIn{from{opacity:0;transform:translateY(16px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
 .modal-handle{width:36px;height:5px;background:var(--border);border-radius:3px;margin:12px auto 0}
-.modal-header{padding:16px 20px 12px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:var(--card);z-index:1}
+.modal-header{padding:16px 20px 12px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:rgba(255,255,255,.82);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);z-index:1}
 .modal-header h2{font-size:17px;font-weight:600}
 .modal-close{width:32px;height:32px;border-radius:50%;border:1px solid var(--border);background:var(--card);font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary)}
 .modal-body{padding:0 20px}
