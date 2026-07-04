@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.109">
+<meta name="version" content="V0.1.110">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -5481,7 +5481,7 @@ function renderDemographics(){
       '<span style="color:#666;font-size:11px">请检查员工花名册中"学历"字段是否正确填写</span></div>'+
       '<div style="text-align:center;padding-bottom:8px">'+
       '<button onclick="_showDemogUnmatched(\'edu\')" style="padding:6px 16px;border:1px solid #dc2626;color:#dc2626;background:#fff;border-radius:6px;cursor:pointer;font-size:12px">🔍 点击查询可能误差人员（'+eduUnmatched.length+'人）</button>'+
-      '<div id="demog-unmatch-edu" style="display:none;text-align:left;margin-top:8px;padding:10px;background:#fef2f2;border-radius:8px"></div></div>';
+      '<div id="demog-unmatch-edu" style="display:none;text-align:left;margin-top:8px;padding:10px;background:#fef2f2;border-radius:8px;color:#1f2937"></div></div>';
   }
 
   // --- 3. 部门人数条形图（业务分组排序） ---
@@ -5540,7 +5540,7 @@ function renderDemographics(){
       '<span style="color:#666;font-size:11px">请检查员工花名册中"部门"字段是否正确填写</span></div>'+
       '<div style="text-align:center;padding-bottom:8px">'+
       '<button onclick="_showDemogUnmatched(\'dept\')" style="padding:6px 16px;border:1px solid #dc2626;color:#dc2626;background:#fff;border-radius:6px;cursor:pointer;font-size:12px">🔍 点击查询可能误差人员（'+deptUnmatched.length+'人）</button>'+
-      '<div id="demog-unmatch-dept" style="display:none;text-align:left;margin-top:8px;padding:10px;background:#fef2f2;border-radius:8px"></div></div>';
+      '<div id="demog-unmatch-dept" style="display:none;text-align:left;margin-top:8px;padding:10px;background:#fef2f2;border-radius:8px;color:#1f2937"></div></div>';
   } else {
   var deptColors = ['#5D9B85','#73AD98','#8ABFAB','#A0D1BE','#B7E3D1','#CDECE0','#CAE2F3','#C0D8EC'];
   var deptHTML = '';
@@ -5619,17 +5619,17 @@ function _showDemogUnmatched(type){
   if(unmatched.length === 0){
     container.innerHTML = '<div style="padding:8px;color:#059669;font-size:12px">✅ 当前无异常，所有员工均已正确归组</div>';
   } else {
-    var html = '<div style="font-size:11px;color:#666;margin-bottom:6px">共 '+unmatched.length+' 人未能归入分组：</div>';
-    html += '<table style="width:100%;border-collapse:collapse;font-size:12px">';
+    var html = '<div style="font-size:11px;color:#374151;margin-bottom:6px">共 '+unmatched.length+' 人未能归入分组：</div>';
+    html += '<table style="width:100%;border-collapse:collapse;font-size:12px;color:#1f2937">';
     html += '<tr style="background:#fee2e2;color:#991b1b"><th style="padding:5px 8px;text-align:left;border-bottom:2px solid #fca5a5">#</th>';
     html += '<th style="padding:5px 8px;text-align:left;border-bottom:2px solid #fca5a5">工号</th><th style="padding:5px 8px;text-align:left;border-bottom:2px solid #fca5a5">姓名</th>';
     html += '<th style="padding:5px 8px;text-align:left;border-bottom:2px solid #fca5a5">'+fieldLabel+'</th></tr>';
     unmatched.forEach(function(e, idx){
       var val = e[fieldKey] || '(空)';
-      html += '<tr style="cursor:pointer" onmouseover="this.style.background=\'#fef2f2\'" onmouseout="this.style.background=\'\'" onclick="showDetail(\''+(e.empId||'')+'\')">';
-      html += '<td style="padding:4px 8px;border-bottom:1px solid #fecaca;color:#999">'+(idx+1)+'</td>';
-      html += '<td style="padding:4px 8px;border-bottom:1px solid #fecaca">'+esc(e.empId||'')+'</td>';
-      html += '<td style="padding:4px 8px;border-bottom:1px solid #fecaca;font-weight:500">'+esc(e.name||'')+'</td>';
+      html += '<tr style="cursor:pointer" onmouseover="this.style.background=\'#fee2e2\'" onmouseout="this.style.background=\'\'" onclick="showDetail(\''+(e.empId||'')+'\')">';
+      html += '<td style="padding:4px 8px;border-bottom:1px solid #fecaca;color:#6b7280">'+(idx+1)+'</td>';
+      html += '<td style="padding:4px 8px;border-bottom:1px solid #fecaca;color:#1f2937">'+esc(e.empId||'')+'</td>';
+      html += '<td style="padding:4px 8px;border-bottom:1px solid #fecaca;font-weight:500;color:#1f2937">'+esc(e.name||'')+'</td>';
       html += '<td style="padding:4px 8px;border-bottom:1px solid #fecaca;color:#dc2626;font-weight:600">'+esc(val)+'</td></tr>';
     });
     html += '</table>';
