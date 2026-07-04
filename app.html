@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.99s">
+<meta name="version" content="V0.1.99t">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -157,7 +157,7 @@ body{
   margin-bottom:8px;
 }
 .demo-ring{
-  width:100px;height:100px;
+  width:120px;height:120px;
   border-radius:50%;
   position:relative;
 }
@@ -165,7 +165,7 @@ body{
   position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
   text-align:center;
 }
-.demo-ring-total{font-size:24px;font-weight:700;color:var(--primary);line-height:1}
+.demo-ring-total{font-size:28px;font-weight:700;color:var(--primary);line-height:1}
 .demo-ring-label{font-size:9px;color:var(--text-hint);margin-top:2px}
 .demo-legend{
   display:flex;gap:8px;justify-content:center;flex-wrap:wrap;
@@ -5353,7 +5353,7 @@ function renderDemographics(){
   // CSS conic-gradient 环形图
   var ring = document.getElementById('demoRingGender');
   ring.style.background = 'conic-gradient(#4A90C4 0deg '+ (male/total*360).toFixed(1) +'deg, #E87B9A '+ (male/total*360).toFixed(1) +'deg 360deg)';
-  ring.style.cssText += '-webkit-mask:radial-gradient(transparent 34px,#000 38px);mask:radial-gradient(transparent 34px,#000 38px)';
+  ring.style.cssText += '-webkit-mask:radial-gradient(transparent 42px,#000 46px);mask:radial-gradient(transparent 42px,#000 46px)';
   document.getElementById('demoGenderLegend').innerHTML =
     '<div class="demo-legend-item"><span class="demo-legend-dot" style="background:#4A90C4"></span>男 '+male+'人 ('+malePct+'%)</div>'+
     '<div class="demo-legend-item"><span class="demo-legend-dot" style="background:#E87B9A"></span>女 '+female+'人 ('+femalePct+'%)</div>';
