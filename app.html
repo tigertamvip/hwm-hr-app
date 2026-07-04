@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.114">
+<meta name="version" content="V0.1.115">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -5551,7 +5551,7 @@ function renderDemographics(){
   var deptColors = DEMOGRAPHICS_CONFIG.deptColors;
   var deptHTML = '';
   mergedDepts.forEach(function(item, i){
-    var pct = (item[1]/total*100).toFixed(1);
+    var pct = (item.count/total*100).toFixed(1);
     deptHTML += '<div class="demo-bar-row">'+
       '<div class="demo-bar-label" title="'+item.name+'">'+item.name+'</div>'+
       '<div class="demo-bar-track"><div class="demo-bar-fill" style="width:'+pct+'%;background:'+deptColors[i]+'"></div></div>'+
