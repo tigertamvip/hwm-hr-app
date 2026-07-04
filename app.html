@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.99q">
+<meta name="version" content="V0.1.99r">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -157,7 +157,7 @@ body{
   margin-bottom:8px;
 }
 .demo-ring{
-  width:72px;height:72px;
+  width:100px;height:100px;
   border-radius:50%;
   position:relative;
 }
@@ -165,7 +165,7 @@ body{
   position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
   text-align:center;
 }
-.demo-ring-total{font-size:18px;font-weight:700;color:var(--primary);line-height:1}
+.demo-ring-total{font-size:24px;font-weight:700;color:var(--primary);line-height:1}
 .demo-ring-label{font-size:9px;color:var(--text-hint);margin-top:2px}
 .demo-legend{
   display:flex;gap:8px;justify-content:center;flex-wrap:wrap;
@@ -174,12 +174,12 @@ body{
 .demo-legend-item{display:flex;align-items:center;gap:3px;font-size:10px;color:var(--text)}
 .demo-legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 /* Bar charts */
-.demo-bars{display:flex;flex-direction:column;gap:5px}
+.demo-bars{display:flex;flex-direction:column;gap:5px;padding-left:4px}
 .demo-bar-row{display:flex;align-items:center;gap:6px}
 .demo-bar-label{font-size:10px;color:var(--text);width:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right}
-.demo-bar-track{flex:2;background:#E8EDF1;border-radius:3px;height:14px;overflow:hidden}
+.demo-bar-track{flex:2;background:#E8EDF1;border-radius:3px;height:14px;overflow:hidden;margin-right:6px}
 .demo-bar-fill{height:100%;border-radius:3px;transition:width .5s ease}
-.demo-bar-num{font-size:10px;color:var(--text-hint);width:52px;text-align:right;flex-shrink:0}
+.demo-bar-num{font-size:10px;color:var(--text-hint);width:60px;text-align:right;flex-shrink:0;padding-right:2px}
 /* Worker card */
 .demo-card-worker{}
 .demo-two-rows{display:flex;flex-direction:column;gap:8px;padding:0 4px}
@@ -5353,25 +5353,39 @@ function renderDemographics(){
   // CSS conic-gradient 环形图
   var ring = document.getElementById('demoRingGender');
   ring.style.background = 'conic-gradient(#4A90C4 0deg '+ (male/total*360).toFixed(1) +'deg, #E87B9A '+ (male/total*360).toFixed(1) +'deg 360deg)';
-  ring.style.cssText += '-webkit-mask:radial-gradient(transparent 26px,#000 28px);mask:radial-gradient(transparent 26px,#000 28px)';
+  ring.style.cssText += '-webkit-mask:radial-gradient(transparent 34px,#000 38px);mask:radial-gradient(transparent 34px,#000 38px)';
   document.getElementById('demoGenderLegend').innerHTML =
     '<div class="demo-legend-item"><span class="demo-legend-dot" style="background:#4A90C4"></span>男 '+male+'人 ('+malePct+'%)</div>'+
     '<div class="demo-legend-item"><span class="demo-legend-dot" style="background:#E87B9A"></span>女 '+female+'人 ('+femalePct+'%)</div>';
 
-  // --- 2. 学历分布条形图 (Top 6 + 其他) ---
+  // --- 2. 学历分布条形图 (自定义排序 + Top N) ---
   var eduMap = {};
   active.forEach(function(e){ var v = e.education || '未知'; eduMap[v] = (eduMap[v] || 0) + 1; });
-  var eduList = Object.entries(eduMap).sort(function(a,b){ return b[1] - a[1]; });
-  var topEdu = eduList.slice(0, 6);
-  var eduOthers = eduList.slice(6).reduce(function(s, x){ return s + x[1]; }, 0);
-  if(eduOthers > 0) topEdu.push(['其他', eduOthers]);
+  var eduOrder = ['硕士','本科','大专','高中','中专','初中及以下','中技','中学','小学','职高','EMBA','MBA','其他','未知'];
+  var eduList = eduOrder.filter(function(k){ return eduMap[k]; }).map(function(k){ return [k, eduMap[k]]; });
+  // 合并中专+中技为"中专及高中"组
+  var mergedEdu = [];
+  var highSchoolSum = 0;
+  for(var ei=0;ei<eduList.length;ei++){
+    if(eduList[ei][0]==='高中'||eduList[ei][0]==='中专'||eduList[ei][0]==='中技'){
+      highSchoolSum += eduList[ei][1];
+    } else {
+      mergedEdu.push(eduList[ei]);
+    }
+  }
+  if(highSchoolSum > 0) {
+    // Insert "中专及高中" after 大专
+    for(var mi=0;mi<mergedEdu.length;mi++){
+      if(mergedEdu[mi][0]==='大专'){mergedEdu.splice(mi+1,0,['中专及高中',highSchoolSum]);break;}
+    }
+  }
   var eduColors = ['#3B6FA5','#5A8EC5','#73A3D4','#8CB9E3','#CAE2F3','#A8CDEA','#C0D8EC'];
   var eduHTML = '';
-  topEdu.forEach(function(item, i){
+  mergedEdu.forEach(function(item, i){
     var pct = (item[1]/total*100).toFixed(1);
     eduHTML += '<div class="demo-bar-row">'+
       '<div class="demo-bar-label" title="'+item[0]+'">'+item[0]+'</div>'+
-      '<div class="demo-bar-track"><div class="demo-bar-fill" style="width:'+pct+'%;background:'+eduColors[i]+'"></div></div>'+
+      '<div class="demo-bar-track"><div class="demo-bar-fill" style="width:'+pct+'%;background:'+eduColors[i%eduColors.length]+'"></div></div>'+
       '<div class="demo-bar-num">'+item[1]+' <span style="color:var(--text-secondary);font-weight:400">('+pct+'%)</span></div></div>';
   });
   document.getElementById('demoEduBars').innerHTML = eduHTML;
