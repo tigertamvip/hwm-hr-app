@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.88">
+<meta name="version" content="V0.1.89">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -16121,7 +16121,7 @@ function _renderTaskOpCell(taskIdx,seq,plan){
   if(!isCollab && total>1){
     btns+=' <span onclick="event.stopPropagation();deleteTaskRow('+taskIdx+')" style="display:inline-block;width:20px;height:20px;line-height:20px;text-align:center;border-radius:6px;background:#e74c3c;color:#fff;font-size:15px;font-weight:bold;cursor:pointer;vertical-align:middle;box-shadow:0 1px 2px rgba(0,0,0,.15);user-select:none" title="删除此行">−</span>';
   }
-  // + 添加按钮：最后一行，总数<8，非协同 — 药丸形蓝色按钮
+  // + 添加按钮：最后一行，总数<15，非协同 — 药丸形蓝色按钮
   if(isLast && total<15 && !isCollab){
     btns+=' <span onclick="event.stopPropagation();addTaskRow('+taskIdx+')" style="display:inline-block;width:20px;height:20px;line-height:20px;text-align:center;border-radius:6px;background:#3498db;color:#fff;font-size:16px;font-weight:bold;cursor:pointer;vertical-align:middle;box-shadow:0 1px 2px rgba(0,0,0,.15);user-select:none" title="在此后添加一行">+</span>';
   }
@@ -16133,7 +16133,8 @@ function _renderTaskOpCell(taskIdx,seq,plan){
 function addTaskRow(afterIdx){
   var p=_wpCurrent.plan;if(!p)return;
   var tasks=p.tasks;
-  if(tasks.length>=8){showToast('⚠️ 最多8项工作任务');return;}
+  // ★ V0.1.89: 上限从8改为15，与 _renderTaskOpCell 中的显示逻辑一致
+  if(tasks.length>=15){showToast('⚠️ 最多15项工作任务');return;}
   tasks.splice(afterIdx+1,0,{seq:0,work:'',goal:'',plannedDate:'',actualDate:'',estimatedHours:'',status:'',supporters:'',problems:'',problemType:'',needBoss:'',bossFeedback:'',aiSuggestion:''});
   // 重新编号
   for(var i=0;i<tasks.length;i++)tasks[i].seq=i+1;
