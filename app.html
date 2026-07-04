@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.99j">
+<meta name="version" content="V0.1.99k">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1814,16 +1814,19 @@ body{
 .wp-empty-desc{font-size:13px;text-align:center;line-height:1.6}
 
 .wp-toolbar{display:flex;flex-wrap:wrap;gap:6px;padding:10px 0;margin-bottom:12px;border-bottom:1px solid var(--border);flex-shrink:0}
-.wp-toolbar button{padding:6px 14px;border:1px solid var(--border);border-radius:6px;background:#fff;color:var(--text);font-size:12px;cursor:pointer;transition:all .15s;white-space:nowrap;display:flex;align-items:center;gap:4px;min-width:140px;justify-content:center}
-.wp-toolbar button:hover{background:#F5F5F0;border-color:#B0ADA3}
-.wp-toolbar button.wp-btn-primary{background:var(--primary);color:#fff;border-color:var(--primary)}
-.wp-toolbar button.wp-btn-primary:hover{opacity:.9}
-.wp-toolbar button.wp-btn-warn{background:#9A6060;color:#fff;border-color:#9A6060}
-.wp-toolbar button.wp-btn-warn:hover{opacity:.85}
-.wp-toolbar button.wp-btn-accent{background:#FFBB1C;color:var(--primary);border-color:#FFBB1C}
-.wp-toolbar button.wp-btn-ai{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border-color:transparent}
-.wp-toolbar button.wp-btn-freeze{background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;border-color:transparent;font-weight:600}
-.wp-toolbar button.wp-btn-freeze:hover{opacity:.85}
+.wp-toolbar button{padding:6px 14px;border:1px solid #C8C9CC;border-radius:6px;background:#fff;color:#3D4852;font-size:12px;cursor:pointer;transition:all .15s ease;white-space:nowrap;display:flex;align-items:center;gap:4px;min-width:140px;justify-content:center}
+.wp-toolbar button:hover{background:#F0F1F3;border-color:#A0A2A8}
+.wp-toolbar button.wp-btn-primary{background:#f0fdf4;color:#166534;border-color:#86efac}
+.wp-toolbar button.wp-btn-primary:hover{background:#dcfce7}
+.wp-toolbar button.wp-btn-warn{background:#fef2f2;color:#991b1b;border-color:#fca5a5}
+.wp-toolbar button.wp-btn-warn:hover{background:#fee2e2}
+.wp-toolbar button.wp-btn-accent{background:#fffbeb;color:#854d0e;border-color:#fde047}
+.wp-toolbar button.wp-btn-accent:hover{background:#fef9c3}
+.wp-toolbar button.wp-btn-ai{background:#faf5ff;color:#6b21a8;border-color:#d8b4fe;font-weight:500}
+.wp-toolbar button.wp-btn-ai:hover{background:#f3e8ff}
+.wp-toolbar button.wp-btn-freeze{background:#eff6ff;color:#1e40af;border-color:#93c5fd}
+.wp-toolbar button.wp-btn-freeze:hover{background:#dbeafe}
+.wp-toolbar button:disabled,.wp-toolbar button.wp-btn-disabled{background:#f3f4f6;color:#9ca3af;border-color:#e5e7eb;cursor:not-allowed;opacity:.8}
 /* ★ V0.1.30: 冻结视觉提示 — 仅本周重点工作列显示左侧蓝边框+锁图标 */
 .wp-table td.wp-cell-frozen{border-left:3px solid #3b82f6!important;border-right:none!important;position:relative}
 .wp-table td.wp-cell-frozen::after{content:'🔒';position:absolute;top:2px;right:4px;font-size:9px;opacity:.5}
@@ -16371,12 +16374,12 @@ function renderWPTable(plan){
     html+='<button onclick="openBossEval()">⭐ 完成评价</button>';
   }else{
     // 自己的计划：完整编辑功能（去掉新增+转发，左下角已有新建）
-    html+='<button onclick="submitWPPlan()" style="background:'+(plan.firstSubmittedAt?'#9ca3af':'#3A7B63')+';color:#fff'+(plan.firstSubmittedAt?';cursor:not-allowed;opacity:.75':'')+'" '+(plan.firstSubmittedAt?'disabled':'')+'>📋 提交本周工作计划</button>';
+    html+='<button onclick="submitWPPlan()" '+(plan.firstSubmittedAt?'disabled':'')+' class="'+(plan.firstSubmittedAt?'wp-btn-disabled':'wp-btn-primary')+'">📋 提交本周工作计划</button>';
     // ★ V0.1.44: 撤销提交按钮（仅在已提交时显示）
     if(plan.firstSubmittedAt){
-      html+='<button onclick="undoWPSubmit()" style="background:#5D656D;color:#fff">↩ 撤销提交</button>';
+      html+='<button class="wp-btn-accent" onclick="undoWPSubmit()">↩ 撤销提交</button>';
     }
-    html+='<button onclick="submitWPWeekSummary()" style="background:'+(plan.summarySubmittedAt?'#9ca3af':'#5D656D')+';color:#fff'+(plan.summarySubmittedAt?';cursor:not-allowed;opacity:.75':'')+'" '+(plan.summarySubmittedAt?'disabled':'')+'>✅ 提交本周工作小结</button>';
+    html+='<button onclick="submitWPWeekSummary()" '+(plan.summarySubmittedAt?'disabled':'')+' class="'+(plan.summarySubmittedAt?'wp-btn-disabled':'')+'">✅ 提交本周工作小结</button>';
     html+='<button class="wp-btn-warn" onclick="deleteCurrentWPPlan()">🗑 删除周计划</button>';
     html+='<button onclick="exportCurrentWP()">📥 导出周计划</button>';
     if(plan.bossEvaluated){
