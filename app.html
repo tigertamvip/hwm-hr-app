@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.99r">
+<meta name="version" content="V0.1.99s">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -5361,25 +5361,26 @@ function renderDemographics(){
   // --- 2. 学历分布条形图 (自定义排序 + Top N) ---
   var eduMap = {};
   active.forEach(function(e){ var v = e.education || '未知'; eduMap[v] = (eduMap[v] || 0) + 1; });
-  var eduOrder = ['硕士','本科','大专','高中','中专','初中及以下','中技','中学','小学','职高','EMBA','MBA','其他','未知'];
+  var eduOrder = ['硕士','本科','大专','中专及高中','初中及以下'];
   var eduList = eduOrder.filter(function(k){ return eduMap[k]; }).map(function(k){ return [k, eduMap[k]]; });
-  // 合并中专+中技为"中专及高中"组
+  // 合并归类：硕士=含MBA/EMBA, 本科=本科, 大专=大专, 中专及高中=高中+中专+中技+职高, 初中及以下=初中+中学+小学+其他+未知
+  var eduGroups = {
+    '硕士': ['硕士','MBA','EMBA'],
+    '本科': ['本科'],
+    '大专': ['大专'],
+    '中专及高中': ['高中','中专','中技','职高'],
+    '初中及以下': ['初中','中学','小学','其他','未知']
+  };
   var mergedEdu = [];
-  var highSchoolSum = 0;
-  for(var ei=0;ei<eduList.length;ei++){
-    if(eduList[ei][0]==='高中'||eduList[ei][0]==='中专'||eduList[ei][0]==='中技'){
-      highSchoolSum += eduList[ei][1];
-    } else {
-      mergedEdu.push(eduList[ei]);
+  Object.keys(eduGroups).forEach(function(groupName){
+    var groupKeys = eduGroups[groupName];
+    var sum = 0;
+    for(var gi=0;gi<groupKeys.length;gi++){
+      sum += (eduMap[groupKeys[gi]] || 0);
     }
-  }
-  if(highSchoolSum > 0) {
-    // Insert "中专及高中" after 大专
-    for(var mi=0;mi<mergedEdu.length;mi++){
-      if(mergedEdu[mi][0]==='大专'){mergedEdu.splice(mi+1,0,['中专及高中',highSchoolSum]);break;}
-    }
-  }
-  var eduColors = ['#3B6FA5','#5A8EC5','#73A3D4','#8CB9E3','#CAE2F3','#A8CDEA','#C0D8EC'];
+    if(sum > 0) mergedEdu.push([groupName, sum]);
+  });
+  var eduColors = ['#3B6FA5','#5A8EC5','#73A3D4','#8CB9E3','#C0D8EC'];
   var eduHTML = '';
   mergedEdu.forEach(function(item, i){
     var pct = (item[1]/total*100).toFixed(1);
