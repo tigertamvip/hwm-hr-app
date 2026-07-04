@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.99c">
+<meta name="version" content="V0.1.99d">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1010,6 +1010,50 @@ body{
   transition:color .25s;
 }
 .portal-card:hover .portal-card-en{color:rgba(255,255,255,.65)}
+
+/* ★ V0.1.99d: MBO模块悬停弹窗 */
+.mbo-hover-tip{
+  display:none;
+  position:absolute;
+  left:calc(100% + 20px);
+  top:50%;
+  transform:translateY(-50%);
+  background:rgba(255,255,255,.95);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  border-radius:12px;
+  box-shadow:0 12px 40px rgba(0,0,0,.18);
+  padding:20px 24px;
+  width:420px;
+  max-width:90vw;
+  z-index:100;
+  pointer-events:none;
+  white-space:normal;
+}
+.portal-card:hover .mbo-hover-tip{display:block}
+.mbo-hover-tip .tip-head{
+  font-size:14px;
+  font-weight:600;
+  color:#034870;
+  margin-bottom:12px;
+  padding-bottom:10px;
+  border-bottom:1px solid #E8EEF2;
+}
+.mbo-hover-tip .tip-cn{
+  font-size:13px;
+  color:#333;
+  line-height:1.8;
+  margin-bottom:10px;
+}
+.mbo-hover-tip .tip-en{
+  font-size:12px;
+  color:#888;
+  line-height:1.7;
+  font-style:italic;
+}
+@media (max-width:1024px){
+  .mbo-hover-tip{display:none!important}
+}
 .portal-card-badge{
   position:absolute;
   top:8px;
@@ -2009,7 +2053,7 @@ table.collab-table tbody tr:hover{background:#fffdf5}
 <div id="portalView" class="portal-view" style="display:none">
   <div class="portal-hero">
     <div class="portal-cn-title">欢迎进入HWM-AI辅助信息管理系统</div>
-    <h1>AI-Assisted Information Management System</h1>
+    <h1>Welcome to the HWM-AI Assisted Information Management System</h1>
   </div>
   <div class="portal-grid">
     <div id="portalCard_hr" class="portal-card" data-module="hr" style="display:none" onclick="enterModule('hr')">
@@ -2019,6 +2063,11 @@ table.collab-table tbody tr:hover{background:#fffdf5}
     <div id="portalCard_mbo" class="portal-card" data-module="mbo" style="display:none" onclick="enterModule('workplan')">
       <div class="portal-card-label">MBO</div>
       <div class="portal-card-en">MBO</div>
+      <div class="mbo-hover-tip">
+        <div class="tip-head">MBO 模块上线序言</div>
+        <div class="tip-cn">把团队目标和计划管理好，绩效管理才有扎实根基。信息化系统内嵌管理规则与约束机制，自动追踪机制，将有效帮助管理者和员工提升目标一致性及进步力度。我们相信一个人如果周计划长期落实不到位，其绩效表现大概率不会理想。</div>
+        <div class="tip-en">Proper team goal and plan management underpins sound performance management. Built-in rules, controls and auto-tracking in this system align goals and boost progress for managers and staff. Persistently unfulfilled weekly plans usually lead to poor performance results.</div>
+      </div>
     </div>
     <div id="portalCard_kpi" class="portal-card" data-module="kpi" style="display:none" onclick="enterModule('kpi')">
       <div class="portal-card-label">KPI</div>
