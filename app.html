@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.119">
+<meta name="version" content="V0.1.120">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -129,6 +129,8 @@ body{
 .stats-row-num{font-size:15px;font-weight:700;color:var(--primary);white-space:nowrap}
 .stats-row-num.small{font-size:12px;font-weight:600}
 .stats-row-num.tbd{font-size:12px;font-weight:600;color:var(--text-hint)}
+.stats-row-clickable{cursor:pointer;border-radius:4px;transition:background .15s}
+.stats-row-clickable:hover{background:rgba(59,111,165,.08)}
 
 /* ★ V0.1.99n: 人员结构数据看板 */
 .demographics-bar{
@@ -4248,6 +4250,18 @@ function _drillDownDemog(type, groupName){
   doSearch();
 }
 
+// ★ V0.1.120: 统计卡片下钻（新增/离职人数）
+function _drillDownStat(statType){
+  if(_drillFilter && _drillFilter.type===statType){
+    _drillFilter = null; // 再次点击同一行 → 取消下钻
+  } else {
+    var label=statType==='newHire'?'今年新增人员':'今年离职人员';
+    _drillFilter = {type:statType, groupName:label};
+  }
+  renderActiveFilterChips();
+  doSearch();
+}
+
 function _clearDrillFilter(){
   _drillFilter = null;
   renderActiveFilterChips();
@@ -5172,7 +5186,12 @@ function renderActiveFilterChips(){
   // 数据看板下钻筛选芯片
   if(_drillFilter){
     totalActive++;
-    var drillLabel=_drillFilter.type==='edu'?'学历':'部门';
+    var drillLabel;
+    if(_drillFilter.type==='edu') drillLabel='学历';
+    else if(_drillFilter.type==='dept') drillLabel='部门';
+    else if(_drillFilter.type==='newHire') drillLabel='📥 新增';
+    else if(_drillFilter.type==='resigned') drillLabel='📤 离职';
+    else drillLabel=_drillFilter.type;
     chips.push({dim:'__drill__',label:drillLabel,value:_drillFilter.groupName});
   }
   if(totalActive===0){
@@ -5331,6 +5350,18 @@ function doSearch(){
           });
         }
       }
+    }else if(_drillFilter.type==='newHire'){
+      // ★ 今年以来新增人员：入职日期在当年1月1日~今天
+      filtered=filtered.filter(function(e){
+        var d=parseD(e.entryDate);
+        return d&&d>=new Date(Y,0,1)&&d<=today;
+      });
+    }else if(_drillFilter.type==='resigned'){
+      // ★ 今年以来离职人员：离职日期在当年1月1日~今天
+      filtered=filtered.filter(function(e){
+        var d=parseD(e.resignDate);
+        return d&&d>=new Date(Y,0,1)&&d<=today;
+      });
     }
   }
   // 默认按工号排序（无工号放最后）
@@ -5471,8 +5502,8 @@ function updateStats(){
   }
   var b3='<div class="stats-box-title">今年以来</div>';
   b3+='<div class="stats-row"><span class="stats-row-label">月均在职人数</span><span class="stats-row-num">'+monthlyAvg+'</span></div>';
-  b3+='<div class="stats-row"><span class="stats-row-label">新增人数</span><span class="stats-row-num small">'+yn+'</span></div>';
-  b3+='<div class="stats-row"><span class="stats-row-label">离职人数</span><span class="stats-row-num small">'+yr+'</span></div>';
+  b3+='<div class="stats-row stats-row-clickable" onclick="_drillDownStat(\'newHire\')" title="点击筛选今年以来新增人员"><span class="stats-row-label">📥 新增人数</span><span class="stats-row-num small">'+yn+'</span></div>';
+  b3+='<div class="stats-row stats-row-clickable" onclick="_drillDownStat(\'resigned\')" title="点击筛选今年以来离职人员"><span class="stats-row-label">📤 离职人数</span><span class="stats-row-num small">'+yr+'</span></div>';
   b3+='<div class="stats-row"><span class="stats-row-label" style="color:#dc2626">离职率</span><span class="stats-row-num small" style="color:#dc2626">'+((active.length>0?(yr/active.length*100).toFixed(1):'0.0')+'%')+'</span></div>';
   document.getElementById('statsBox3').innerHTML=b3;
   // ★ V0.1.99n: 渲染人员结构数据看板
