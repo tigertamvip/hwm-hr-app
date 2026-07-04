@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.123">
+<meta name="version" content="V0.1.124">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -5289,11 +5289,13 @@ function doSearch(){
   // 状态筛选：用户选择"已离职"则只显示离职；选择"已转正"/"试用期"则只显示在职；未选择则默认隐藏离职
   var hasStatusFilter=activeFilters['__resigned__']||(activeFilters.status&&activeFilters.status.length>0);
   var isResignedDrill=_drillFilter&&_drillFilter.type==='resigned';
-  if(!hasStatusFilter && !isResignedDrill){
-    // 未做状态筛选，默认隐藏离职员工（但离职下钻时跳过，需要显示离职人员）
+  var isNewHireDrill=_drillFilter&&_drillFilter.type==='newHire';
+  var isDateDrill=isResignedDrill||isNewHireDrill; // 新增/离职下钻都需要看全部人员（含已离职）
+  if(!hasStatusFilter && !isDateDrill){
+    // 未做状态筛选，默认隐藏离职员工（但新增/离职下钻时跳过）
     filtered=filtered.filter(isActive);
-  }else if(isResignedDrill && !hasStatusFilter){
-    // ★ 离职下钻：不隐藏离职员工（保留全部非删除员工）
+  }else if(isDateDrill && !hasStatusFilter){
+    // ★ 新增/离职下钻：不隐藏离职员工（保留全部非删除员工）
   }else{
     // 已做状态筛选，按选择过滤
     if(activeFilters['__resigned__']){
@@ -5388,8 +5390,6 @@ function doSearch(){
     if(isNaN(nb))return -1;
     return na-nb;
   });
-  // ★ Debug: 下钻过滤结果
-  if(_drillFilter) console.log('[DrillDebug] type='+_drillFilter.type+' filtered='+filtered.length,filtered.map(function(e){return e.empId+' '+e.name+' '+e.entryDate;}));
   document.getElementById('resultCount').textContent='共 '+filtered.length+' 条结果';
   document.getElementById('resultCount').style.display='block';
   var list=document.getElementById('listSection');
