@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.99m">
+<meta name="version" content="V0.1.99n">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -127,6 +127,72 @@ body{
 .stats-row-num{font-size:15px;font-weight:700;color:var(--primary);white-space:nowrap}
 .stats-row-num.small{font-size:12px;font-weight:600}
 .stats-row-num.tbd{font-size:12px;font-weight:600;color:var(--text-hint)}
+
+/* ★ V0.1.99n: 人员结构数据看板 */
+.demographics-bar{
+  display:grid;
+  grid-template-columns:1fr 1.3fr 1.5fr 1fr;
+  gap:6px;
+  margin:6px 14px 0;
+}
+.demo-card{
+  background:var(--card);
+  border-radius:10px;
+  padding:10px 9px;
+  border:1px solid var(--border);
+  position:relative;
+  overflow:hidden;
+}
+.demo-card-title{
+  font-size:10px;
+  font-weight:600;
+  color:var(--text-secondary);
+  margin-bottom:8px;
+  text-align:left;
+}
+/* Gender ring */
+.demo-ring-wrap{
+  display:flex;align-items:center;justify-content:center;
+  position:relative;
+  margin-bottom:8px;
+}
+.demo-ring{
+  width:72px;height:72px;
+  border-radius:50%;
+  position:relative;
+}
+.demo-ring-center{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  text-align:center;
+}
+.demo-ring-total{font-size:18px;font-weight:700;color:var(--primary);line-height:1}
+.demo-ring-label{font-size:9px;color:var(--text-hint);margin-top:2px}
+.demo-legend{
+  display:flex;gap:8px;justify-content:center;flex-wrap:wrap;
+  font-size:10px;
+}
+.demo-legend-item{display:flex;align-items:center;gap:3px}
+.demo-legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+/* Bar charts */
+.demo-bars{display:flex;flex-direction:column;gap:5px}
+.demo-bar-row{display:flex;align-items:center;gap:6px}
+.demo-bar-label{font-size:10px;color:var(--text);width:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right}
+.demo-bar-track{flex:2;background:#E8EDF1;border-radius:3px;height:14px;overflow:hidden}
+.demo-bar-fill{height:100%;border-radius:3px;transition:width .5s ease}
+.demo-bar-num{font-size:10px;color:var(--text-hint);width:36px;text-align:right;flex-shrink:0}
+/* Worker card */
+.demo-card-worker{text-align:center}
+.demo-big-num{font-size:36px;font-weight:700;color:#DC6B2C;line-height:1}
+.demo-big-sub{font-size:11px;color:var(--text-secondary);margin:2px 0 8px}
+.demo-big-bar{height:6px;background:#E8EDF1;border-radius:3px;overflow:hidden;margin-top:8px}
+.demo-big-bar-fill{height:100%;border-radius:3px;background:#DC6B2C;transition:width .5s ease}
+
+@media (max-width:900px){
+  .demographics-bar{grid-template-columns:1fr 1fr}
+}
+@media (max-width:600px){
+  .demographics-bar{grid-template-columns:1fr;margin:6px 8px 0}
+}
 
 .search-section{
   margin:0;
@@ -2156,7 +2222,36 @@ table.collab-table tbody tr:hover{background:#fffdf5}
     <div class="stats-box" id="statsBox2"><div style="padding:10px;text-align:center;color:var(--text-hint);font-size:12px">加载中…</div></div>
     <div class="stats-box" id="statsBox3"><div style="padding:10px;text-align:center;color:var(--text-hint);font-size:12px">加载中…</div></div>
   </div>
-
+  <!-- ★ V0.1.99n: 人员结构数据看板 -->
+  <div class="demographics-bar" id="demographicsBar">
+    <div class="demo-card" id="demoGender">
+      <div class="demo-card-title">👥 性别分布</div>
+      <div class="demo-ring-wrap">
+        <div class="demo-ring" id="demoRingGender"></div>
+        <div class="demo-ring-center">
+          <div class="demo-ring-total" id="demoGenderTotal">0</div>
+          <div class="demo-ring-label">总人数</div>
+        </div>
+      </div>
+      <div class="demo-legend" id="demoGenderLegend"></div>
+    </div>
+    <div class="demo-card" id="demoEdu">
+      <div class="demo-card-title">🎓 学历分布</div>
+      <div class="demo-bars" id="demoEduBars"></div>
+    </div>
+    <div class="demo-card" id="demoDept">
+      <div class="demo-card-title">🏢 部门人数 (Top 5)</div>
+      <div class="demo-bars" id="demoDeptBars"></div>
+    </div>
+    <div class="demo-card demo-card-worker" id="demoWorker">
+      <div class="demo-card-title">🏭 一线生产工人</div>
+      <div class="demo-big-num" id="demoWorkerNum">0</div>
+      <div class="demo-big-sub">人 · 占比 <span id="demoWorkerPct">0%</span></div>
+      <div class="demo-big-bar">
+        <div class="demo-big-bar-fill" id="demoWorkerBar" style="width:0%"></div>
+      </div>
+    </div>
+  </div>
 
 <div id="importArea" class="import-zone" style="display:none" onclick="document.getElementById('fileInput').click()">
   <div class="import-zone-icon">📂</div>
@@ -5225,9 +5320,78 @@ function updateStats(){
   b3+='<div class="stats-row"><span class="stats-row-label">离职人数</span><span class="stats-row-num small">'+yr+'</span></div>';
   b3+='<div class="stats-row"><span class="stats-row-label" style="color:#dc2626">离职率</span><span class="stats-row-num small" style="color:#dc2626">'+((active.length>0?(yr/active.length*100).toFixed(1):'0.0')+'%')+'</span></div>';
   document.getElementById('statsBox3').innerHTML=b3;
+  // ★ V0.1.99n: 渲染人员结构数据看板
+  renderDemographics();
 }
 
-// 编辑统计面板的月份标签（仅 admin/data_admin 可调用）
+// ★ V0.1.99n: 人员结构数据看板渲染
+function renderDemographics(){
+  var active = allEmployees.filter(function(e){ return e.status && e.status !== '已离职' && !e.deleted; });
+  var total = active.length;
+  if(total === 0) return;
+
+  // --- 1. 性别环形图 ---
+  var male = active.filter(function(e){ return e.gender === '男'; }).length;
+  var female = active.filter(function(e){ return e.gender === '女'; }).length;
+  var malePct = (male / total * 100).toFixed(0);
+  var femalePct = (female / total * 100).toFixed(0);
+  document.getElementById('demoGenderTotal').textContent = total;
+  // CSS conic-gradient 环形图
+  var ring = document.getElementById('demoRingGender');
+  ring.style.background = 'conic-gradient(#4A90C4 0deg '+ (male/total*360).toFixed(1) +'deg, #E87B9A '+ (male/total*360).toFixed(1) +'deg 360deg)';
+  ring.style.cssText += '-webkit-mask:radial-gradient(transparent 26px,#000 28px);mask:radial-gradient(transparent 26px,#000 28px)';
+  document.getElementById('demoGenderLegend').innerHTML =
+    '<div class="demo-legend-item"><span class="demo-legend-dot" style="background:#4A90C4"></span>男 '+male+'人 ('+malePct+'%)</div>'+
+    '<div class="demo-legend-item"><span class="demo-legend-dot" style="background:#E87B9A"></span>女 '+female+'人 ('+femalePct+'%)</div>';
+
+  // --- 2. 学历分布条形图 (Top 6 + 其他) ---
+  var eduMap = {};
+  active.forEach(function(e){ var v = e.education || '未知'; eduMap[v] = (eduMap[v] || 0) + 1; });
+  var eduList = Object.entries(eduMap).sort(function(a,b){ return b[1] - a[1]; });
+  var topEdu = eduList.slice(0, 6);
+  var eduOthers = eduList.slice(6).reduce(function(s, x){ return s + x[1]; }, 0);
+  if(eduOthers > 0) topEdu.push(['其他', eduOthers]);
+  var eduColors = ['#3B6FA5','#5A8EC5','#73A3D4','#8CB9E3','#CAE2F3','#A8CDEA','#C0D8EC'];
+  var eduHTML = '';
+  topEdu.forEach(function(item, i){
+    eduHTML += '<div class="demo-bar-row">'+
+      '<div class="demo-bar-label" title="'+item[0]+'">'+item[0]+'</div>'+
+      '<div class="demo-bar-track"><div class="demo-bar-fill" style="width:'+(item[1]/total*100).toFixed(1)+'%;background:'+eduColors[i]+'"></div></div>'+
+      '<div class="demo-bar-num">'+item[1]+'</div></div>';
+  });
+  document.getElementById('demoEduBars').innerHTML = eduHTML;
+
+  // --- 3. 部门人数条形图 (Top 5 + 其他) ---
+  var deptMap = {};
+  active.forEach(function(e){ var v = e.dept || '未设置'; deptMap[v] = (deptMap[v] || 0) + 1; });
+  var deptList = Object.entries(deptMap).sort(function(a,b){ return b[1] - a[1]; });
+  var topDept = deptList.slice(0, 5);
+  var deptOthers = deptList.slice(5).reduce(function(s, x){ return s + x[1]; }, 0);
+  if(deptOthers > 0) topDept.push(['其他部门', deptOthers]);
+  var deptColors = ['#5D9B85','#73AD98','#8ABFAB','#A0D1BE','#B7E3D1','#CDECE0'];
+  var deptHTML = '';
+  topDept.forEach(function(item, i){
+    deptHTML += '<div class="demo-bar-row">'+
+      '<div class="demo-bar-label" title="'+item[0]+'">'+item[0]+'</div>'+
+      '<div class="demo-bar-track"><div class="demo-bar-fill" style="width:'+(item[1]/total*100).toFixed(1)+'%;background:'+deptColors[i]+'"></div></div>'+
+      '<div class="demo-bar-num">'+item[1]+'</div></div>';
+  });
+  document.getElementById('demoDeptBars').innerHTML = deptHTML;
+
+  // --- 4. 一线生产工人 ---
+  var workerDepts = ['摩祖生产部', '生产管理部'];
+  var workerPositions = ['员工'];
+  var workerCount = active.filter(function(e){
+    if(workerDepts.indexOf(e.dept) === -1) return false;
+    return workerPositions.indexOf(e.position) >= 0;
+  }).length;
+  var workerPct = (workerCount / total * 100).toFixed(1);
+  document.getElementById('demoWorkerNum').textContent = workerCount;
+  document.getElementById('demoWorkerPct').textContent = workerPct + '%';
+  document.getElementById('demoWorkerBar').style.width = workerPct + '%';
+}
+
+// ★ V0.1.99n: 编辑统计面板的月份标签（仅 admin/data_admin 可调用）
 function editStatsMonth(e){
   e.stopPropagation();
   if(currentUser.role!=='admin'&&currentUser.role!=='data_admin')return;
