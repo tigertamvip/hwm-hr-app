@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.124">
+<meta name="version" content="V0.1.125">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1901,8 +1901,8 @@ body{
 .wp-toolbar button.wp-btn-warn:hover{background:#fee2e2}
 .wp-toolbar button.wp-btn-accent{background:#fffbeb;color:#854d0e;border-color:#fde047}
 .wp-toolbar button.wp-btn-accent:hover{background:#fef9c3}
-.wp-toolbar button.wp-btn-ai{background:#faf5ff;color:#6b21a8;border-color:#d8b4fe;font-weight:500}
-.wp-toolbar button.wp-btn-ai:hover{background:#f3e8ff}
+.wp-toolbar button.wp-btn-ai{background:#E8622A;color:#fff;border-color:#E8622A;font-weight:600}
+.wp-toolbar button.wp-btn-ai:hover{background:#d45119;border-color:#d45119}
 .wp-toolbar button.wp-btn-freeze{background:#eff6ff;color:#1e40af;border-color:#93c5fd}
 .wp-toolbar button.wp-btn-freeze:hover{background:#dbeafe}
 .wp-toolbar button:disabled,.wp-toolbar button.wp-btn-disabled{background:#f3f4f6;color:#9ca3af;border-color:#e5e7eb;cursor:not-allowed;opacity:.8}
@@ -16913,7 +16913,7 @@ function renderWPTable(plan){
     if(plan.bossEvaluated){
       html+='<button onclick="viewBossEval()">📋 查看上级评价</button>';
     }
-    html+='<button class="wp-btn-ai" onclick="aiAssessWP()" style="margin-left:auto">🤖 AI辅助评估与建议</button>';
+    html+='<button class="wp-btn-ai" onclick="aiAssessWP()" style="margin-left:auto">🤖 AI分析与建议</button>';
   }
   // 安全兜底：确保工具栏至少有一个可见按钮（防止所有分支都未命中导致空白）
   if(html.indexOf('<button', html.lastIndexOf('wpToolbar')) < 0){
