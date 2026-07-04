@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.101">
+<meta name="version" content="V0.1.102">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -4237,6 +4237,8 @@ function buildFilterMeta(){
 }
 
 // ===== Inline Filter Logic =====
+var _lastCenterVal='';
+
 function populateInlineFilters(){
   // 中心下拉
   var centerSel=document.getElementById('filterCenter');
@@ -4258,9 +4260,19 @@ function populateInlineFilters(){
       centerSel.innerHTML+='<option value="'+esc(c)+'">'+esc(c)+'</option>';
     }
   }
-  // 部门下拉
+  // 部门下拉（初始显示全部，选中中心后由 onInlineFilterChange 级联刷新）
+  _lastCenterVal='';
+  refreshDeptDropdown('');
+}
+
+// 级联刷新部门下拉：根据选中的中心，只显示该中心下在职员工涉及的部门
+function refreshDeptDropdown(centerValue){
   var deptSel=document.getElementById('filterDept');
-  if(deptSel && allFilterMeta.dept){
+  if(!deptSel) return;
+  var prevVal=deptSel.value; // 保存当前选中值
+
+  if(!centerValue){
+    // 未选中中心 → 显示所有部门
     var depts=allFilterMeta.dept.items;
     deptSel.innerHTML='<option value="">部门：全部</option>';
     for(var i=0;i<depts.length;i++){
@@ -4268,10 +4280,39 @@ function populateInlineFilters(){
       if(d==='已删除员工') continue;
       deptSel.innerHTML+='<option value="'+esc(d)+'">'+esc(d)+'</option>';
     }
+  }else{
+    // 选中中心 → 只显示该中心下在职员工的部门
+    var deptSet={};
+    for(var i=0;i<allEmployees.length;i++){
+      var e=allEmployees[i];
+      if(e.center===centerValue && !isResigned(e) && e.dept){
+        deptSet[e.dept.trim()]=true;
+      }
+    }
+    var filteredDepts=Object.keys(deptSet).sort();
+    deptSel.innerHTML='<option value="">部门：全部</option>';
+    for(var i=0;i<filteredDepts.length;i++){
+      deptSel.innerHTML+='<option value="'+esc(filteredDepts[i])+'">'+esc(filteredDepts[i])+'</option>';
+    }
+  }
+
+  // 如果之前选中的部门在新列表中仍然存在，则保留；否则自动回归"全部"
+  if(prevVal){
+    var found=false;
+    for(var i=0;i<deptSel.options.length;i++){
+      if(deptSel.options[i].value===prevVal){found=true;break;}
+    }
+    if(found) deptSel.value=prevVal;
   }
 }
 
 function onInlineFilterChange(){
+  // 中心变化 → 级联刷新部门下拉
+  var centerVal=document.getElementById('filterCenter').value;
+  if(centerVal!==_lastCenterVal){
+    _lastCenterVal=centerVal;
+    refreshDeptDropdown(centerVal);
+  }
   // Visual feedback - highlight selects with active filters
   var selects=document.querySelectorAll('.inline-filter-select select');
   for(var i=0;i<selects.length;i++){
