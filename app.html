@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.112">
+<meta name="version" content="V0.1.113">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -4279,10 +4279,10 @@ function populateInlineFilters(){
   // 部门下拉（初始显示全部，选中中心后由 onInlineFilterChange 级联刷新）
   _lastCenterVal='';
   refreshDeptDropdown('');
-  // 学历下拉（固定顺序，与学历分布图一致 + 博士 + 在校大学实习生）
+  // 学历下拉（使用统一配置 + 在校大学实习生）
   var eduSel=document.getElementById('filterEducation');
   if(eduSel){
-    var eduOrder=['博士','硕士','本科','大专','中专及高中','初中及以下','在校大学实习生'];
+    var eduOrder=DEMOGRAPHICS_CONFIG.eduGroups.concat(['在校大学实习生']);
     eduSel.innerHTML='<option value="">学历：全部</option>';
     for(var i=0;i<eduOrder.length;i++){
       eduSel.innerHTML+='<option value="'+esc(eduOrder[i])+'">'+esc(eduOrder[i])+'</option>';
@@ -5415,6 +5415,55 @@ function updateStats(){
   renderDemographics();
 }
 
+// ★ V0.1.113: 人员结构统计核心配置（统一数据源，防止统计不一致）
+var DEMOGRAPHICS_CONFIG = {
+  // 部门业务分组定义（按顺序渲染）
+  deptGroups: [
+    {name:'研发中心', depts:['研发部','苏州研发中心','研发中心','工程技术部']},
+    {name:'制造中心（职能）', depts:['摩祖生产部','生产管理部'], filter:function(e){return (e.dept==='摩祖生产部'||e.dept==='生产管理部')&&e.position!=='员工';}},
+    {name:'制造中心（工人）', depts:['摩祖生产部','生产管理部'], filter:function(e){return (e.dept==='摩祖生产部'||e.dept==='生产管理部')&&e.position==='员工';}},
+    {name:'质量中心（职能）', depts:['质量管理部','摩祖质量管理部','摩祖质量部'], filter:function(e){return (e.dept==='质量管理部'||e.dept==='摩祖质量管理部'||e.dept==='摩祖质量区')&&!(e.position==='检验员'||e.position==='质检组长');}},
+    {name:'质量中心（检验）', depts:['质量管理部','摩祖质量管理部','摩祖质量部'], filter:function(e){return (e.dept==='质量管理部'||e.dept==='摩祖质量管理部'||e.dept==='摩祖质量区')&&(e.position==='检验员'||e.position==='质检组长');}},
+    {name:'营销中心', depts:['国内销售','海外销售','商务部','医学市场部','销售行政部']},
+    {name:'人力行政', depts:['人力资源部','行政管理部','人事行政部','行政部']},
+    {name:'财务', depts:['财务部']}
+  ],
+  // 学历分组定义的顺序（与学历分布图一致）
+  eduGroups: ['博士','硕士','本科','大专','中专及高中','初中及以下'],
+  // 部门颜色
+  deptColors: ['#5D9B85','#73AD98','#8ABFAB','#A0D1BE','#B7E3D1','#CDECE0','#CAE2F3','#C0D8EC'],
+  // 学历颜色
+  eduColors: ['#3B6FA5','#5A8EC5','#73A3D4','#8CB9E3','#C0D8EC'],
+  // 一线工人部门
+  workerDepts: ['摩祖生产部','生产管理部'],
+  // 一线检验员部门+岗位
+  inspectorDepts: ['摩祖质量部','质量管理部'],
+  inspectorPositions: ['检验员','质检组长']
+};
+
+// 按预设分组对在职员工进行去重分配，返回 {members, assigned, unmatched}
+function _classifyDeptEmployees(active){
+  var assigned={};
+  var members=[];
+  var cfg=DEMOGRAPHICS_CONFIG;
+  for(var gi=0;gi<cfg.deptGroups.length;gi++){
+    var g=cfg.deptGroups[gi];
+    var mem=[];
+    if(g.filter){
+      mem=active.filter(function(e){return g.filter(e)&&!assigned[e.empId+'::'+(e.name||'')];});
+    }else{
+      mem=active.filter(function(e){return g.depts.indexOf(e.dept)>=0&&!assigned[e.empId+'::'+(e.name||'')];});
+    }
+    mem.forEach(function(e){assigned[e.empId+'::'+(e.name||'')]=true;});
+    members.push({name:g.name,count:mem.length});
+  }
+  // "其他部门" = 未分配员工
+  var others=active.filter(function(e){return !assigned[e.empId+'::'+(e.name||'')];});
+  others.forEach(function(e){assigned[e.empId+'::'+(e.name||'')]=true;});
+  if(others.length>0) members.push({name:'其他部门',count:others.length});
+  return {members:members, assigned:assigned, unmatched:others};
+}
+
 // ★ V0.1.99n: 人员结构数据看板渲染
 function renderDemographics(){
   var active = allEmployees.filter(function(e){ return e.status && e.status !== '已离职' && !e.deleted; });
@@ -5435,8 +5484,8 @@ function renderDemographics(){
     '<div class="demo-legend-item"><span class="demo-legend-dot" style="background:#4A90C4"></span>男 '+male+'人 ('+malePct+'%)</div>'+
     '<div class="demo-legend-item"><span class="demo-legend-dot" style="background:#E87B9A"></span>女 '+female+'人 ('+femalePct+'%)</div>';
 
-  // --- 2. 学历分布条形图 (自定义排序 + 模糊分组) ---
-  var eduOrder = ['博士','硕士','本科','大专','中专及高中','初中及以下'];
+  // --- 2. 学历分布条形图 (使用统一配置) ---
+  var eduOrder = DEMOGRAPHICS_CONFIG.eduGroups;
   var eduGroupCounts = {};
   for(var ei=0;ei<eduOrder.length;ei++) eduGroupCounts[eduOrder[ei]] = 0;
   active.forEach(function(e){
@@ -5444,7 +5493,6 @@ function renderDemographics(){
     if(eduGroupCounts.hasOwnProperty(v)){
       eduGroupCounts[v]++;
     }else{
-      // 不在预设分组的（如在校大学实习生）单独记录
       eduGroupCounts[v] = (eduGroupCounts[v] || 0) + 1;
     }
   });
@@ -5456,7 +5504,7 @@ function renderDemographics(){
   for(var k in eduGroupCounts){
     if(eduOrder.indexOf(k)<0 && eduGroupCounts[k]>0) mergedEdu.push([k, eduGroupCounts[k]]);
   }
-  var eduColors = ['#3B6FA5','#5A8EC5','#73A3D4','#8CB9E3','#C0D8EC'];
+  var eduColors = DEMOGRAPHICS_CONFIG.eduColors;
   var eduHTML = '';
   mergedEdu.forEach(function(item, i){
     var pct = (item[1]/total*100).toFixed(1);
@@ -5470,11 +5518,10 @@ function renderDemographics(){
   // ★ 校验：各学历分组人数之和必须等于在职总人数
   var eduCheckTotal = 0;
   for(var ei=0;ei<mergedEdu.length;ei++) eduCheckTotal += mergedEdu[ei][1];
-  var eduUnmatched = []; // 未归入任何分组的员工
+  var eduUnmatched = [];
   if(eduCheckTotal !== total){
     console.warn('[Demographics] 学历校验失败: 各组合计='+eduCheckTotal+' 在职总人数='+total+' 差值='+(total-eduCheckTotal));
-    var eduGroups = ['博士','硕士','本科','大专','中专及高中','初中及以下'];
-    eduUnmatched = active.filter(function(e){ return eduGroups.indexOf(_mapEduToGroup(e.education||'未知'))<0; });
+    eduUnmatched = active.filter(function(e){ return DEMOGRAPHICS_CONFIG.eduGroups.indexOf(_mapEduToGroup(e.education||'未知'))<0; });
     document.getElementById('demoEduBars').innerHTML =
       '<div style="padding:12px;text-align:center;color:#dc2626;font-size:12px">'+
       '⚠️ 学历分布存在异常：各分组合计 '+eduCheckTotal+' 人 ≠ 在职总人数 '+total+' 人（差 '+(total-eduCheckTotal)+' 人）<br>'+
@@ -5484,42 +5531,11 @@ function renderDemographics(){
       '<div id="demog-unmatch-edu" style="display:none;text-align:left;margin-top:8px;padding:10px;background:#fef2f2;border-radius:8px;color:#1f2937"></div></div>';
   }
 
-  // --- 3. 部门人数条形图（业务分组排序） ---
-  var deptMap = {};
-  active.forEach(function(e){ var v = e.dept || '未设置'; deptMap[v] = (deptMap[v] || 0) + 1; });
-  var deptGroups = [
-    {name:'研发中心', depts:['研发部','苏州研发中心','研发中心','工程技术部']},
-    {name:'制造中心（职能）', depts:['摩祖生产部','生产管理部'], filter:function(e){return (e.dept==='摩祖生产部'||e.dept==='生产管理部')&&e.position!=='员工';}},
-    {name:'制造中心（工人）', depts:['摩祖生产部','生产管理部'], filter:function(e){return (e.dept==='摩祖生产部'||e.dept==='生产管理部')&&e.position==='员工';}},
-    {name:'质量中心（职能）', depts:['质量管理部','摩祖质量管理部','摩祖质量部'], filter:function(e){return (e.dept==='质量管理部'||e.dept==='摩祖质量管理部'||e.dept==='摩祖质量区')&&!(e.position==='检验员'||e.position==='质检组长');}},
-    {name:'质量中心（检验）', depts:['质量管理部','摩祖质量管理部','摩祖质量部'], filter:function(e){return (e.dept==='质量管理部'||e.dept==='摩祖质量管理部'||e.dept==='摩祖质量区')&&(e.position==='检验员'||e.position==='质检组长');}},
-    {name:'营销中心', depts:['国内销售','海外销售','商务部','医学市场部','销售行政部']},
-    {name:'人力行政', depts:['人力资源部','行政管理部','人事行政部','行政部']},
-    {name:'财务', depts:['财务部']},
-    {name:'其他部门', depts:[], filter:null} // 占位，后面填充
-  ];
-  // ★ 用员工去重方式计算各分组，避免 filter 分组和 depts 分组重复计数
-  var _assignedEmps = {}; // empId::name → true
-  var mergedDepts = [];
-  for(var gi=0;gi<deptGroups.length-1;gi++){ // 遍历除"其他部门"外的预设分组
-    var g=deptGroups[gi];
-    var members=[];
-    if(g.filter){
-      members=active.filter(function(e){return g.filter(e)&&!_assignedEmps[e.empId+'::'+(e.name||'')];});
-    }else if(g.depts){
-      members=active.filter(function(e){return g.depts.indexOf(e.dept)>=0&&!_assignedEmps[e.empId+'::'+(e.name||'')];});
-    }
-    members.forEach(function(e){_assignedEmps[e.empId+'::'+(e.name||'')]=true;});
-    if(members.length>0) mergedDepts.push([g.name, members.length]);
-  }
-  // "其他部门" = 所有未被上述分组覆盖的在职员工
-  var othersMembers = active.filter(function(e){return !_assignedEmps[e.empId+'::'+(e.name||'')];});
-  othersMembers.forEach(function(e){_assignedEmps[e.empId+'::'+(e.name||'')]=true;});
-  if(othersMembers.length>0) mergedDepts.push(['其他部门', othersMembers.length]);
-
-  var deptCheckTotal = Object.keys(_assignedEmps).length;
-  // 未匹配员工 = 不在任何预设分组中的（即"其他部门"成员）
-  var deptUnmatched = othersMembers;
+  // --- 3. 部门人数条形图（使用统一配置） ---
+  var deptResult = _classifyDeptEmployees(active);
+  var mergedDepts = deptResult.members;
+  var deptUnmatched = deptResult.unmatched;
+  var deptCheckTotal = Object.keys(deptResult.assigned).length;
 
   // ★ 校验：已分配人数必须等于在职总人数
   if(deptCheckTotal !== total){
@@ -5532,20 +5548,20 @@ function renderDemographics(){
       '<button onclick="_showDemogUnmatched(\'dept\')" style="padding:6px 16px;border:1px solid #dc2626;color:#dc2626;background:#fff;border-radius:6px;cursor:pointer;font-size:12px">🔍 点击查询可能误差人员（'+deptUnmatched.length+'人）</button>'+
       '<div id="demog-unmatch-dept" style="display:none;text-align:left;margin-top:8px;padding:10px;background:#fef2f2;border-radius:8px;color:#1f2937"></div></div>';
   } else {
-  var deptColors = ['#5D9B85','#73AD98','#8ABFAB','#A0D1BE','#B7E3D1','#CDECE0','#CAE2F3','#C0D8EC'];
+  var deptColors = DEMOGRAPHICS_CONFIG.deptColors;
   var deptHTML = '';
   mergedDepts.forEach(function(item, i){
     var pct = (item[1]/total*100).toFixed(1);
     deptHTML += '<div class="demo-bar-row">'+
-      '<div class="demo-bar-label" title="'+item[0]+'">'+item[0]+'</div>'+
+      '<div class="demo-bar-label" title="'+item.name+'">'+item.name+'</div>'+
       '<div class="demo-bar-track"><div class="demo-bar-fill" style="width:'+pct+'%;background:'+deptColors[i]+'"></div></div>'+
-      '<div class="demo-bar-num">'+item[1]+' <span style="color:var(--text-secondary);font-weight:400">('+pct+'%)</span></div></div>';
+      '<div class="demo-bar-num">'+item.count+' <span style="color:var(--text-secondary);font-weight:400">('+pct+'%)</span></div></div>';
   });
   document.getElementById('demoDeptBars').innerHTML = deptHTML;
   }
 
   // --- 4. 一线生产工人 + 一线检验员 ---
-  var workerDepts = ['摩祖生产部', '生产管理部'];
+  var workerDepts = DEMOGRAPHICS_CONFIG.workerDepts;
   var workerCount = active.filter(function(e){
     if(workerDepts.indexOf(e.dept) === -1) return false;
     return e.position === '员工';
@@ -5556,9 +5572,9 @@ function renderDemographics(){
   var wBar = document.getElementById('demoWorkerBar');
   if(wBar){wBar.style.width = workerPct + '%';wBar.style.background='#DC6B2C';}
 
-  // 一线检验人员：摩祖质量部+质量管理部的检验员+质检组长
-  var inspectorDepts = ['摩祖质量部', '质量管理部'];
-  var inspectorPositions = ['检验员', '质检组长'];
+  // 一线检验人员
+  var inspectorDepts = DEMOGRAPHICS_CONFIG.inspectorDepts;
+  var inspectorPositions = DEMOGRAPHICS_CONFIG.inspectorPositions;
   var inspectorCount = active.filter(function(e){
     return inspectorDepts.indexOf(e.dept) >= 0 && inspectorPositions.indexOf(e.position) >= 0;
   }).length;
@@ -5581,32 +5597,13 @@ function _showDemogUnmatched(type){
   if(type === 'dept'){
     fieldLabel = '部门';
     fieldKey = 'dept';
-    // 与 renderDemographics 中相同的去重逻辑
-    var _assigned={};
-    var presetGroups=[
-      {depts:['研发部','苏州研发中心','研发中心','工程技术部']},
-      {depts:['摩祖生产部','生产管理部'],filter:function(e){return(e.dept==='摩祖生产部'||e.dept==='生产管理部')&&e.position!=='员工';}},
-      {depts:['摩祖生产部','生产管理部'],filter:function(e){return(e.dept==='摩祖生产部'||e.dept==='生产管理部')&&e.position==='员工';}},
-      {depts:['质量管理部','摩祖质量管理部','摩祖质量部'],filter:function(e){return(e.dept==='质量管理部'||e.dept==='摩祖质量管理部'||e.dept==='摩祖质量区')&&!(e.position==='检验员'||e.position==='质检组长');}},
-      {depts:['质量管理部','摩祖质量管理部','摩祖质量部'],filter:function(e){return(e.dept==='质量管理部'||e.dept==='摩祖质量管理部'||e.dept==='摩祖质量区')&&(e.position==='检验员'||e.position==='质检组长');}},
-      {depts:['国内销售','海外销售','商务部','医学市场部','销售行政部']},
-      {depts:['人力资源部','行政管理部','人事行政部','行政部']},
-      {depts:['财务部']}
-    ];
-    for(var i=0;i<presetGroups.length;i++){
-      var g=presetGroups[i];
-      active.forEach(function(e){
-        if(_assigned[e.empId+'::'+(e.name||'')]) return;
-        if(g.filter && g.filter(e)) _assigned[e.empId+'::'+(e.name||'')]=true;
-        else if(g.depts && g.depts.indexOf(e.dept)>=0) _assigned[e.empId+'::'+(e.name||'')]=true;
-      });
-    }
-    unmatched=active.filter(function(e){return !_assigned[e.empId+'::'+(e.name||'')];});
+    // 使用统一配置 _classifyDeptEmployees
+    var deptResult = _classifyDeptEmployees(active);
+    unmatched = deptResult.unmatched;
   } else if(type === 'edu'){
     fieldLabel = '学历';
     fieldKey = 'education';
-    var eduGroups = ['博士','硕士','本科','大专','中专及高中','初中及以下'];
-    unmatched = active.filter(function(e){ return eduGroups.indexOf(_mapEduToGroup(e.education||'未知'))<0; });
+    unmatched = active.filter(function(e){ return DEMOGRAPHICS_CONFIG.eduGroups.indexOf(_mapEduToGroup(e.education||'未知'))<0; });
   }
   if(unmatched.length === 0){
     container.innerHTML = '<div style="padding:8px;color:#059669;font-size:12px">✅ 当前无异常，所有员工均已正确归组</div>';
