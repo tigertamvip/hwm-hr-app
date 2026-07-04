@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.128">
+<meta name="version" content="V0.1.129">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -17490,25 +17490,26 @@ function _renderTimeManagementPanel(plan){
 
   var html='';
   html+='<div id="wpTimeMgmtPanel" style="background:#f9fafb;border:1px solid #e8ecf0;border-radius:10px;padding:18px 22px;margin:12px 0 18px 0;font-size:12px;display:flex;gap:0">';
-  // Col 1: 周计划提交积分标准
+  // Col 1: 周计划提交积分标准 — 精简文字颜色，统一灰调（参考豆包稿）
   html+='<div style="flex:1;min-width:0;padding-right:16px;border-right:1px solid #eef2f6">';
   html+='<div style="font-weight:600;color:#374151;margin-bottom:10px;font-size:12px">📋 计划提交积分分析</div>';
   html+='<table style="width:100%;font-size:11px;border-collapse:collapse">';
-  html+='<tr><td style="padding:4px 6px;color:#374151">✅ 每周六 12:00 前提交计划</td><td style="text-align:right;width:28px;color:#059669;font-weight:600">✓</td></tr>';
-  html+='<tr><td style="padding:4px 6px;color:#374151">✅ 上级周一 12:00 前完成评价</td><td style="text-align:right;color:#059669;font-weight:600">✓</td></tr>';
-  html+='<tr><td style="padding:4px 6px;color:#6b7280">📅 法定节假日顺延</td><td style="text-align:right;color:#9ca3af;font-weight:500">—</td></tr>';
-  html+='<tr><td style="padding:4px 6px;color:#374151">❌ 未按时提交每迟12h</td><td style="text-align:right;color:#dc2626;font-weight:600">-1</td></tr>';
-  html+='<tr><td style="padding:4px 6px;color:#374151">❌ 超48h未提交</td><td style="text-align:right;color:#dc2626;font-weight:700">-3</td></tr>';
-  html+='<tr><td style="padding:4px 6px;color:#6b7280">🔖 特殊情况申请豁免</td><td style="text-align:right;color:#059669;font-style:italic;font-weight:500">±0</td></tr>';
+  html+='<tr><td colspan=2 style="padding:3px 6px;color:#6b7280;font-weight:500;border-bottom:1px solid #eef2f6">规则</td></tr>';
+  html+='<tr><td style="padding:4px 6px;color:#374151"><span style="color:#059669;margin-right:4px">✓</span>每周六 12:00 前提交计划</td><td style="text-align:right;width:24px;color:#059669;font-weight:600">✓</td></tr>';
+  html+='<tr><td style="padding:4px 6px;color:#374151"><span style="color:#059669;margin-right:4px">✓</span>上级周一 12:00 前完成评价</td><td style="text-align:right;color:#059669;font-weight:600">✓</td></tr>';
+  html+='<tr><td style="padding:4px 6px;color:#6b7280"><span style="margin-right:4px">—</span>法定节假日顺延</td><td style="text-align:right;color:#9ca3af">—</td></tr>';
+  html+='<tr><td style="padding:4px 6px;color:#374151"><span style="color:#dc2626;margin-right:4px">✕</span>未按时提交每迟12h</td><td style="text-align:right;color:#dc2626;font-weight:600">-1</td></tr>';
+  html+='<tr><td style="padding:4px 6px;color:#374151"><span style="color:#dc2626;margin-right:4px">✕</span>超48h未提交</td><td style="text-align:right;color:#dc2626;font-weight:700">-3</td></tr>';
+  html+='<tr><td style="padding:4px 6px;color:#6b7280"><span style="margin-right:4px">±</span>特殊情况申请豁免</td><td style="text-align:right;color:#6b7280">±0</td></tr>';
   html+='</table>';
-  html+='<div style="padding-top:8px;text-align:right;color:#d97706;font-size:10px"><span style="color:#dc2626">年累计≤ -20</span> → 不能胜任</div>';
+  html+='<div style="padding-top:8px;text-align:right;color:#d97706;font-size:10px"><span style="color:#dc2626">年累计≤ -20</span> <span style="color:#6b7280">→ 不能胜任</span></div>';
   html+='</div>';
 
-  // Col 2: 任务评分标准
+  // Col 2: 任务评分标准 — 统一灰色label + 彩色数值
   html+='<div style="flex:0.95;min-width:0;padding:0 16px;border-right:1px solid #eef2f6">';
   html+='<div style="font-weight:600;color:#374151;margin-bottom:10px;font-size:12px">📊 任务评分标准</div>';
   html+='<table style="width:100%;font-size:11px;border-collapse:collapse">';
-  html+='<tr style="border-bottom:1px solid #eef2f6"><td style="padding:4px 6px;color:#6b7280;font-size:10px">优先级</td><td style="text-align:center;padding:4px 6px;color:#6b7280;font-size:10px;width:20%">按时</td><td style="text-align:center;padding:4px 6px;color:#6b7280;font-size:10px;width:20%">逾期</td><td style="text-align:center;padding:4px 6px;color:#6b7280;font-size:10px;width:20%">未完</td></tr>';
+  html+='<tr style="border-bottom:1px solid #eef2f6"><td style="padding:4px 6px;color:#6b7280;font-size:10px">状态/优先级</td><td style="text-align:center;padding:4px 6px;color:#6b7280;font-size:10px;width:20%">按时</td><td style="text-align:center;padding:4px 6px;color:#6b7280;font-size:10px;width:20%">逾期</td><td style="text-align:center;padding:4px 6px;color:#6b7280;font-size:10px;width:20%">未完</td></tr>';
   html+='<tr><td style="padding:4px 6px;color:#374151">● 重要紧急</td><td style="text-align:center;color:#059669;font-weight:700">+3</td><td style="text-align:center;color:#d97706;font-weight:600">-1.5</td><td style="text-align:center;color:#dc2626;font-weight:700">-3</td></tr>';
   html+='<tr><td style="padding:4px 6px;color:#374151">● 重要</td><td style="text-align:center;color:#059669;font-weight:700">+1.5</td><td style="text-align:center;color:#d97706;font-weight:600">-.75</td><td style="text-align:center;color:#dc2626;font-weight:700">-1.5</td></tr>';
   html+='<tr><td style="padding:4px 6px;color:#374151">● 一般紧急</td><td style="text-align:center;color:#059669;font-weight:700">+1</td><td style="text-align:center;color:#d97706;font-weight:600">-.5</td><td style="text-align:center;color:#dc2626;font-weight:700">-1</td></tr>';
@@ -17516,40 +17517,40 @@ function _renderTimeManagementPanel(plan){
   html+='</table>';
   html+='</div>';
 
-  // Col 3: 完成时间
+  // Col 3: 完成时间 — 极简风格
   html+='<div style="flex:0.72;min-width:0;padding:0 16px;border-right:1px solid #eef2f6">';
   html+='<div style="font-weight:600;color:#374151;margin-bottom:10px;font-size:12px">⏱ 完成期间</div>';
-  html+='<div style="margin-bottom:8px">';
+  html+='<div style="margin-bottom:10px">';
   html+='<span style="color:#6b7280;font-size:11px;display:inline-block;width:56px">首次提交：</span>';
   html+='<span style="color:#374151;font-size:11px">'+subTime+'</span>';
   html+='</div>';
-  html+='<div style="margin-bottom:10px;display:flex;align-items:center;gap:6px">';
-  html+='<span class="wp-tag-pill" style="background:'+subBg+';color:'+subColor+';border-radius:10px;padding:2px 12px;font-size:11px;font-weight:600">'+subText+'</span>';
+  html+='<div style="margin-bottom:12px;display:flex;align-items:center;gap:6px">';
+  html+='<span class="wp-tag-pill" style="background:'+subBg+';color:'+subColor+';border-radius:10px;padding:2px 12px;font-size:11px;font-weight:500">'+subText+'</span>';
   html+='</div>';
-  html+='<div style="margin-bottom:8px">';
+  html+='<div style="margin-bottom:10px">';
   html+='<span style="color:#6b7280;font-size:11px;display:inline-block;width:56px">上级评价：</span>';
   html+='<span style="color:#9ca3af;font-size:11px">—</span>';
   html+='</div>';
   html+='<div>';
-  html+='<span class="wp-tag-pill" style="background:'+revBg+';color:'+revColor+';border-radius:10px;padding:2px 12px;font-size:11px;font-weight:600">'+revText+'</span>';
+  html+='<span class="wp-tag-pill" style="background:'+revBg+';color:'+revColor+';border-radius:10px;padding:2px 12px;font-size:11px;font-weight:500">'+revText+'</span>';
   html+='</div>';
   html+=exemptionBtn;
   html+='</div>';
 
-  // Col 4: 年度积分
+  // Col 4: 年度积分 — 大数字简洁风
   html+='<div style="flex:0.82;min-width:0;padding-left:20px">';
   html+='<div style="font-weight:600;color:#374151;margin-bottom:10px;font-size:12px">📊 '
   +year+'年积分</div>';
-  html+='<div style="line-height:2.2">';
-  html+='<div style="display:flex;justify-content:space-between"><span style="color:#6b7280;font-size:11px">累计计分：</span><span style="color:#059669;font-family:\'Arial Black\',sans-serif;font-size:20px">+'
+  html+='<div style="line-height:2.3">';
+  html+='<div style="display:flex;justify-content:space-between"><span style="color:#6b7280;font-size:11px">累计计分：</span><span style="color:#059669;font-family:\'Arial Black\',sans-serif;font-size:22px">+'
   +(scores.total||0)+'</span></div>';
-  html+='<div style="display:flex;justify-content:space-between"><span style="color:#6b7280;font-size:11px">扣除积分：</span><span style="color:#dc2626;font-family:\'Arial Black\',sans-serif;font-size:20px">'
+  html+='<div style="display:flex;justify-content:space-between"><span style="color:#6b7280;font-size:11px">扣除积分：</span><span style="color:#dc2626;font-family:\'Arial Black\',sans-serif;font-size:22px">'
   +(scores.deducted||0)+'</span></div>';
-  html+='<div style="border-top:1px solid #eef2f6;margin:6px 0;padding-top:6px;display:flex;justify-content:space-between"><span style="color:#374151;font-size:11px;font-weight:500">净积分：</span><span style="font-weight:800;color:'
-  +((scores.net||0)>=0?'#059669':'#dc2626')+';font-family:\'Arial Black\',sans-serif;font-size:22px">'
+  html+='<div style="border-top:1px solid #eef2f6;margin:8px 0;padding-top:8px;display:flex;justify-content:space-between"><span style="color:#374151;font-size:11px;font-weight:500">净积分：</span><span style="font-weight:800;color:'
+  +((scores.net||0)>=0?'#059669':'#dc2626')+';font-family:\'Arial Black\',sans-serif;font-size:24px">'
   +(scores.net||0)+'</span></div>';
   if((scores.net||0)<=-20){
-    html+='<div style="color:#dc2626;font-weight:600;font-size:10px;margin-top:4px">⚠️ 不能胜任</div>';
+    html+='<div style="color:#dc2626;font-size:10px;margin-top:4px">⚠️ 不能胜任</div>';
   }
   html+='</div></div>';
   html+='</div>';
