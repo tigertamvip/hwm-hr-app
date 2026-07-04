@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.122">
+<meta name="version" content="V0.1.123">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -5388,6 +5388,8 @@ function doSearch(){
     if(isNaN(nb))return -1;
     return na-nb;
   });
+  // ★ Debug: 下钻过滤结果
+  if(_drillFilter) console.log('[DrillDebug] type='+_drillFilter.type+' filtered='+filtered.length,filtered.map(function(e){return e.empId+' '+e.name+' '+e.entryDate;}));
   document.getElementById('resultCount').textContent='共 '+filtered.length+' 条结果';
   document.getElementById('resultCount').style.display='block';
   var list=document.getElementById('listSection');
