@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.99p">
+<meta name="version" content="V0.1.99q">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -171,7 +171,7 @@ body{
   display:flex;gap:8px;justify-content:center;flex-wrap:wrap;
   font-size:10px;
 }
-.demo-legend-item{display:flex;align-items:center;gap:3px}
+.demo-legend-item{display:flex;align-items:center;gap:3px;font-size:10px;color:var(--text)}
 .demo-legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 /* Bar charts */
 .demo-bars{display:flex;flex-direction:column;gap:5px}
@@ -179,7 +179,7 @@ body{
 .demo-bar-label{font-size:10px;color:var(--text);width:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right}
 .demo-bar-track{flex:2;background:#E8EDF1;border-radius:3px;height:14px;overflow:hidden}
 .demo-bar-fill{height:100%;border-radius:3px;transition:width .5s ease}
-.demo-bar-num{font-size:10px;color:var(--text-hint);width:36px;text-align:right;flex-shrink:0}
+.demo-bar-num{font-size:10px;color:var(--text-hint);width:52px;text-align:right;flex-shrink:0}
 /* Worker card */
 .demo-card-worker{}
 .demo-two-rows{display:flex;flex-direction:column;gap:8px;padding:0 4px}
@@ -5368,10 +5368,11 @@ function renderDemographics(){
   var eduColors = ['#3B6FA5','#5A8EC5','#73A3D4','#8CB9E3','#CAE2F3','#A8CDEA','#C0D8EC'];
   var eduHTML = '';
   topEdu.forEach(function(item, i){
+    var pct = (item[1]/total*100).toFixed(1);
     eduHTML += '<div class="demo-bar-row">'+
       '<div class="demo-bar-label" title="'+item[0]+'">'+item[0]+'</div>'+
-      '<div class="demo-bar-track"><div class="demo-bar-fill" style="width:'+(item[1]/total*100).toFixed(1)+'%;background:'+eduColors[i]+'"></div></div>'+
-      '<div class="demo-bar-num">'+item[1]+'</div></div>';
+      '<div class="demo-bar-track"><div class="demo-bar-fill" style="width:'+pct+'%;background:'+eduColors[i]+'"></div></div>'+
+      '<div class="demo-bar-num">'+item[1]+' <span style="color:var(--text-secondary);font-weight:400">('+pct+'%)</span></div></div>';
   });
   document.getElementById('demoEduBars').innerHTML = eduHTML;
 
@@ -5385,10 +5386,11 @@ function renderDemographics(){
   var deptColors = ['#5D9B85','#73AD98','#8ABFAB','#A0D1BE','#B7E3D1','#CDECE0'];
   var deptHTML = '';
   topDept.forEach(function(item, i){
+    var pct = (item[1]/total*100).toFixed(1);
     deptHTML += '<div class="demo-bar-row">'+
       '<div class="demo-bar-label" title="'+item[0]+'">'+item[0]+'</div>'+
-      '<div class="demo-bar-track"><div class="demo-bar-fill" style="width:'+(item[1]/total*100).toFixed(1)+'%;background:'+deptColors[i]+'"></div></div>'+
-      '<div class="demo-bar-num">'+item[1]+'</div></div>';
+      '<div class="demo-bar-track"><div class="demo-bar-fill" style="width:'+pct+'%;background:'+deptColors[i]+'"></div></div>'+
+      '<div class="demo-bar-num">'+item[1]+' <span style="color:var(--text-secondary);font-weight:400">('+pct+'%)</span></div></div>';
   });
   document.getElementById('demoDeptBars').innerHTML = deptHTML;
 
