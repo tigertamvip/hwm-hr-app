@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.80">
+<meta name="version" content="V0.1.81">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -43,8 +43,10 @@ body{
 
 /* ─── Sticky Header：确保整条父链路 overflow:visible，body 是唯一滚动容器 ─── */
 #appView{display:none}
-/* V0.1.80: appView不再overflow:visible，让page-container成为滚动边界 */
-.page-container{height:100vh;display:flex;flex-direction:column;overflow:hidden} /* V0.1.80: 固定高度+溢出隐藏=sticky生效 */
+/* V0.1.81: 仅对appView内的page-container限制高度(不影响其他模块的page-container) */
+.page-container{min-height:100vh}
+/* 档案中心专用：固定高度+内部滚动=sticky表头生效 */
+#appView .page-container{height:100vh;display:flex;flex-direction:column;overflow:hidden}
 
 .sticky-header{
   position:-webkit-sticky;
