@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.103">
+<meta name="version" content="V0.1.104">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -4271,29 +4271,20 @@ function refreshDeptDropdown(centerValue){
   if(!deptSel) return;
   var prevVal=deptSel.value; // 保存当前选中值
 
-  if(!centerValue){
-    // 未选中中心 → 显示所有部门
-    var depts=allFilterMeta.dept.items;
-    deptSel.innerHTML='<option value="">部门：全部</option>';
-    for(var i=0;i<depts.length;i++){
-      var d=depts[i];
-      if(d==='已删除员工') continue;
-      deptSel.innerHTML+='<option value="'+esc(d)+'">'+esc(d)+'</option>';
-    }
-  }else{
-    // 选中中心 → 只显示该中心下在职员工的部门
-    var deptSet={};
-    for(var i=0;i<allEmployees.length;i++){
-      var e=allEmployees[i];
-      if(e.center===centerValue && !isResigned(e) && e.dept){
-        deptSet[e.dept.trim()]=true;
-      }
-    }
-    var filteredDepts=Object.keys(deptSet).sort();
-    deptSel.innerHTML='<option value="">部门：全部</option>';
-    for(var i=0;i<filteredDepts.length;i++){
-      deptSel.innerHTML+='<option value="'+esc(filteredDepts[i])+'">'+esc(filteredDepts[i])+'</option>';
-    }
+  // 统一逻辑：从在职员工中提取部门，自动排除空部门
+  var deptSet={};
+  for(var i=0;i<allEmployees.length;i++){
+    var e=allEmployees[i];
+    if(isResigned(e)) continue;
+    if(!e.dept) continue;
+    // 若指定了中心，只取该中心的部门
+    if(centerValue && e.center!==centerValue) continue;
+    deptSet[e.dept.trim()]=true;
+  }
+  var filteredDepts=Object.keys(deptSet).sort();
+  deptSel.innerHTML='<option value="">部门：全部</option>';
+  for(var i=0;i<filteredDepts.length;i++){
+    deptSel.innerHTML+='<option value="'+esc(filteredDepts[i])+'">'+esc(filteredDepts[i])+'</option>';
   }
 
   // 如果之前选中的部门在新列表中仍然存在，则保留；否则自动回归"全部"
