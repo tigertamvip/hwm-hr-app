@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.99z">
+<meta name="version" content="V0.1.100">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -4246,6 +4246,15 @@ function populateInlineFilters(){
     for(var i=0;i<centers.length;i++){
       var c=centers[i];
       if(c==='已删除员工') continue;
+      // 跳过没有在职员工的中心（仅存在于离职员工数据中的空中心）
+      var hasActive=false;
+      for(var j=0;j<allEmployees.length;j++){
+        if(allEmployees[j].center===c && !isResigned(allEmployees[j])){
+          hasActive=true;
+          break;
+        }
+      }
+      if(!hasActive) continue;
       centerSel.innerHTML+='<option value="'+esc(c)+'">'+esc(c)+'</option>';
     }
   }
