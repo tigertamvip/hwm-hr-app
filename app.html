@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.107">
+<meta name="version" content="V0.1.108">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -5466,6 +5466,17 @@ function renderDemographics(){
       '<div class="demo-bar-num">'+item[1]+' <span style="color:var(--text-secondary);font-weight:400">('+pct+'%)</span></div></div>';
   });
   document.getElementById('demoEduBars').innerHTML = eduHTML;
+
+  // ★ 校验：各学历分组人数之和必须等于在职总人数
+  var eduCheckTotal = 0;
+  for(var ei=0;ei<mergedEdu.length;ei++) eduCheckTotal += mergedEdu[ei][1];
+  if(eduCheckTotal !== total){
+    console.warn('[Demographics] 学历校验失败: 各组合计='+eduCheckTotal+' 在职总人数='+total+' 差值='+(total-eduCheckTotal));
+    document.getElementById('demoEduBars').innerHTML =
+      '<div style="padding:12px;text-align:center;color:#dc2626;font-size:12px">'+
+      '⚠️ 学历分布存在异常：各分组合计 '+eduCheckTotal+' 人 ≠ 在职总人数 '+total+' 人（差 '+(total-eduCheckTotal)+' 人）<br>'+
+      '<span style="color:#666;font-size:11px">请检查员工花名册中"学历"字段是否正确填写</span></div>';
+  }
 
   // --- 3. 部门人数条形图（业务分组排序） ---
   var deptMap = {};
