@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.108">
+<meta name="version" content="V0.1.109">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -5470,12 +5470,18 @@ function renderDemographics(){
   // ★ 校验：各学历分组人数之和必须等于在职总人数
   var eduCheckTotal = 0;
   for(var ei=0;ei<mergedEdu.length;ei++) eduCheckTotal += mergedEdu[ei][1];
+  var eduUnmatched = []; // 未归入任何分组的员工
   if(eduCheckTotal !== total){
     console.warn('[Demographics] 学历校验失败: 各组合计='+eduCheckTotal+' 在职总人数='+total+' 差值='+(total-eduCheckTotal));
+    var eduGroups = ['博士','硕士','本科','大专','中专及高中','初中及以下'];
+    eduUnmatched = active.filter(function(e){ return eduGroups.indexOf(_mapEduToGroup(e.education||'未知'))<0; });
     document.getElementById('demoEduBars').innerHTML =
       '<div style="padding:12px;text-align:center;color:#dc2626;font-size:12px">'+
       '⚠️ 学历分布存在异常：各分组合计 '+eduCheckTotal+' 人 ≠ 在职总人数 '+total+' 人（差 '+(total-eduCheckTotal)+' 人）<br>'+
-      '<span style="color:#666;font-size:11px">请检查员工花名册中"学历"字段是否正确填写</span></div>';
+      '<span style="color:#666;font-size:11px">请检查员工花名册中"学历"字段是否正确填写</span></div>'+
+      '<div style="text-align:center;padding-bottom:8px">'+
+      '<button onclick="_showDemogUnmatched(\'edu\')" style="padding:6px 16px;border:1px solid #dc2626;color:#dc2626;background:#fff;border-radius:6px;cursor:pointer;font-size:12px">🔍 点击查询可能误差人员（'+eduUnmatched.length+'人）</button>'+
+      '<div id="demog-unmatch-edu" style="display:none;text-align:left;margin-top:8px;padding:10px;background:#fef2f2;border-radius:8px"></div></div>';
   }
 
   // --- 3. 部门人数条形图（业务分组排序） ---
@@ -5519,10 +5525,22 @@ function renderDemographics(){
   // ★ 校验：各部门人数之和必须等于在职总人数
   if(deptCheckTotal !== total){
     console.warn('[Demographics] 部门归属校验失败: 各组合计='+deptCheckTotal+' 在职总人数='+total+' 差值='+(total-deptCheckTotal));
+    // 收集未归入任何分组的员工
+    var deptUnmatched = active.filter(function(e){
+      for(var di=0;di<deptGroups.length;di++){
+        var g=deptGroups[di];
+        if(g.depts && g.depts.indexOf(e.dept)>=0) return false;
+        if(g.filter && g.filter(e)) return false;
+      }
+      return true;
+    });
     document.getElementById('demoDeptBars').innerHTML =
       '<div style="padding:12px;text-align:center;color:#dc2626;font-size:12px">'+
       '⚠️ 部门归属设置存在异常：各分组合计 '+deptCheckTotal+' 人 ≠ 在职总人数 '+total+' 人（差 '+(total-deptCheckTotal)+' 人）<br>'+
-      '<span style="color:#666;font-size:11px">请检查员工花名册中"部门"字段是否正确填写</span></div>';
+      '<span style="color:#666;font-size:11px">请检查员工花名册中"部门"字段是否正确填写</span></div>'+
+      '<div style="text-align:center;padding-bottom:8px">'+
+      '<button onclick="_showDemogUnmatched(\'dept\')" style="padding:6px 16px;border:1px solid #dc2626;color:#dc2626;background:#fff;border-radius:6px;cursor:pointer;font-size:12px">🔍 点击查询可能误差人员（'+deptUnmatched.length+'人）</button>'+
+      '<div id="demog-unmatch-dept" style="display:none;text-align:left;margin-top:8px;padding:10px;background:#fef2f2;border-radius:8px"></div></div>';
   } else {
   var deptColors = ['#5D9B85','#73AD98','#8ABFAB','#A0D1BE','#B7E3D1','#CDECE0','#CAE2F3','#C0D8EC'];
   var deptHTML = '';
@@ -5559,6 +5577,65 @@ function renderDemographics(){
   document.getElementById('demoInspectorPct').textContent = inspectorPct + '%';
   var iBar = document.getElementById('demoInspectorBar');
   if(iBar){iBar.style.width = inspectorPct + '%';iBar.style.background='#5D9B85';}
+}
+
+// ★ V0.1.109: 显示未归入分组的误差人员列表
+function _showDemogUnmatched(type){
+  var container = document.getElementById('demog-unmatch-'+type);
+  if(!container) return;
+  if(container.style.display !== 'none') {container.style.display='none'; return;}
+  // 重新计算未匹配员工（确保与当前渲染数据一致）
+  var active = allEmployees.filter(function(e){ return e.status && e.status !== '已离职' && !e.deleted; });
+  var unmatched = [];
+  var fieldLabel = '';
+  var fieldKey = '';
+  if(type === 'dept'){
+    fieldLabel = '部门';
+    fieldKey = 'dept';
+    var deptGroups = [
+      {name:'研发中心', depts:['研发部','苏州研发中心','研发中心','工程技术部']},
+      {name:'制造中心（职能）', depts:['摩祖生产部','生产管理部'], filter:function(e){return (e.dept==='摩祖生产部'||e.dept==='生产管理部')&&e.position!=='员工';}},
+      {name:'制造中心（工人）', depts:['摩祖生产部','生产管理部'], filter:function(e){return (e.dept==='摩祖生产部'||e.dept==='生产管理部')&&e.position==='员工';}},
+      {name:'质量中心（职能）', depts:['质量管理部','摩祖质量管理部','摩祖质量部'], filter:function(e){return (e.dept==='质量管理部'||e.dept==='摩祖质量管理部'||e.dept==='摩祖质量区')&&!(e.position==='检验员'||e.position==='质检组长');}},
+      {name:'质量中心（检验）', depts:['质量管理部','摩祖质量管理部','摩祖质量部'], filter:function(e){return (e.dept==='质量管理部'||e.dept==='摩祖质量管理部'||e.dept==='摩祖质量区')&&(e.position==='检验员'||e.position==='质检组长');}},
+      {name:'营销中心', depts:['国内销售','海外销售','商务部','医学市场部','销售行政部']},
+      {name:'人力行政', depts:['人力资源部','行政管理部','人事行政部']},
+      {name:'财务', depts:['财务部']}
+    ];
+    unmatched = active.filter(function(e){
+      for(var di=0;di<deptGroups.length;di++){
+        var g=deptGroups[di];
+        if(g.depts && g.depts.indexOf(e.dept)>=0) return false;
+        if(g.filter && g.filter(e)) return false;
+      }
+      return true;
+    });
+  } else if(type === 'edu'){
+    fieldLabel = '学历';
+    fieldKey = 'education';
+    var eduGroups = ['博士','硕士','本科','大专','中专及高中','初中及以下'];
+    unmatched = active.filter(function(e){ return eduGroups.indexOf(_mapEduToGroup(e.education||'未知'))<0; });
+  }
+  if(unmatched.length === 0){
+    container.innerHTML = '<div style="padding:8px;color:#059669;font-size:12px">✅ 当前无异常，所有员工均已正确归组</div>';
+  } else {
+    var html = '<div style="font-size:11px;color:#666;margin-bottom:6px">共 '+unmatched.length+' 人未能归入分组：</div>';
+    html += '<table style="width:100%;border-collapse:collapse;font-size:12px">';
+    html += '<tr style="background:#fee2e2;color:#991b1b"><th style="padding:5px 8px;text-align:left;border-bottom:2px solid #fca5a5">#</th>';
+    html += '<th style="padding:5px 8px;text-align:left;border-bottom:2px solid #fca5a5">工号</th><th style="padding:5px 8px;text-align:left;border-bottom:2px solid #fca5a5">姓名</th>';
+    html += '<th style="padding:5px 8px;text-align:left;border-bottom:2px solid #fca5a5">'+fieldLabel+'</th></tr>';
+    unmatched.forEach(function(e, idx){
+      var val = e[fieldKey] || '(空)';
+      html += '<tr style="cursor:pointer" onmouseover="this.style.background=\'#fef2f2\'" onmouseout="this.style.background=\'\'" onclick="showDetail(\''+(e.empId||'')+'\')">';
+      html += '<td style="padding:4px 8px;border-bottom:1px solid #fecaca;color:#999">'+(idx+1)+'</td>';
+      html += '<td style="padding:4px 8px;border-bottom:1px solid #fecaca">'+esc(e.empId||'')+'</td>';
+      html += '<td style="padding:4px 8px;border-bottom:1px solid #fecaca;font-weight:500">'+esc(e.name||'')+'</td>';
+      html += '<td style="padding:4px 8px;border-bottom:1px solid #fecaca;color:#dc2626;font-weight:600">'+esc(val)+'</td></tr>';
+    });
+    html += '</table>';
+    container.innerHTML = html;
+  }
+  container.style.display = 'block';
 }
 
 // ★ V0.1.99n: 编辑统计面板的月份标签（仅 admin/data_admin 可调用）
