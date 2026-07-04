@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.2.36">
+<meta name="version" content="V0.2.37">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -16877,7 +16877,7 @@ function renderWPTable(plan){
   else if(_wpViewingDeptMember)html+='<span style="color:#E8622A;font-weight:500;margin-left:8px">（查看更多下属周计划）</span>';
   if(plan.frozen && !_wpViewingSubordinate && !_wpViewingDeptMember){
     html+='<span style="color:#3b82f6;font-weight:600;margin-left:8px">❄️ 已被上级冻结（本周重点/优先级/计划完成日期不可修改）</span>';
-    if(plan.frozenBy)html+='<span style="color:#6b7280;margin-left:4px;font-size:10px">by '+_h(plan.frozenBy)+'</span>';
+    if(plan.frozenBy)/* removed by attribution */;
   }
   if(_wpRevisionMode)html+='<span style="color:#e53e3e;font-weight:500;margin-left:8px">🔴 修订模式</span>';
   if(plan.bossEvaluated)html+='<span style="color:#059669;margin-left:8px">✓ 上级已评价</span>';
