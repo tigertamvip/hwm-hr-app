@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.93">
+<meta name="version" content="V0.1.94">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1815,6 +1815,17 @@ table.collab-table tbody tr:hover{background:#fffdf5}
 .wp-eval-header h3{font-size:15px;font-weight:600}
 .wp-eval-close{width:28px;height:28px;border:none;border-radius:50%;background:#F2F2F2;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center}
 .wp-eval-close:hover{background:#E0E0E0}
+
+/* ★ V0.1.94: 自定义居中确认弹窗 */
+._confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:9999;display:flex;align-items:center;justify-content:center}
+._confirm-card{background:#fff;border-radius:12px;width:400px;max-width:90vw;box-shadow:0 12px 40px rgba(0,0,0,.2);overflow:hidden}
+._confirm-title{padding:16px 20px 8px;font-size:15px;font-weight:600;color:var(--text)}
+._confirm-body{padding:8px 20px 20px;font-size:14px;color:var(--text-secondary);line-height:1.6;white-space:pre-line}
+._confirm-actions{padding:12px 20px 18px;display:flex;justify-content:flex-end;gap:10px}
+._confirm-btn-cancel{padding:8px 22px;border:1px solid var(--border);border-radius:8px;background:#fff;color:var(--text-secondary);font-size:13px;cursor:pointer}
+._confirm-btn-cancel:hover{background:#F5F5F5}
+._confirm-btn-ok{padding:8px 22px;border:none;border-radius:8px;background:#3B6FA5;color:#fff;font-size:13px;font-weight:500;cursor:pointer}
+._confirm-btn-ok:hover{background:#2d5a8b}
 .wp-eval-body{padding:16px 18px}
 .wp-eval-row{margin-bottom:12px}
 .wp-eval-row label{display:block;font-size:12px;font-weight:500;margin-bottom:4px;color:var(--text-secondary)}
@@ -5488,6 +5499,21 @@ function showToast(msg){
   t.textContent=msg;
   document.body.appendChild(t);
   setTimeout(()=>t.remove(),2000);
+}
+
+// ★ V0.1.94: 自定义居中确认弹窗（替代原生 confirm）
+function _showConfirm(message,title){
+  return new Promise(function(resolve){
+    var overlay=document.createElement('div');
+    overlay.className='_confirm-overlay';
+    overlay.innerHTML='<div class="_confirm-card"><div class="_confirm-title">'+(title||'请注意：')+'</div><div class="_confirm-body">'+message+'</div><div class="_confirm-actions"><button class="_confirm-btn-cancel">取消</button><button class="_confirm-btn-ok">确定</button></div></div>';
+    document.body.appendChild(overlay);
+    var okBtn=overlay.querySelector('._confirm-btn-ok');
+    var cancelBtn=overlay.querySelector('._confirm-btn-cancel');
+    function cleanup(){document.body.removeChild(overlay);}
+    okBtn.addEventListener('click',function(){cleanup();resolve(true);});
+    cancelBtn.addEventListener('click',function(){cleanup();resolve(false);});
+  });
 }
 
 function resetDatabase(){
@@ -16144,13 +16170,14 @@ function addTaskRow(afterIdx){
 }
 
 // ★ V0.1.59: 删除指定行
-function deleteTaskRow(idx){
+async function deleteTaskRow(idx){
   var p=_wpCurrent.plan;if(!p)return;
   var tasks=p.tasks;
   if(tasks.length<=1){showToast('⚠️ 至少保留一行工作计划');return;}
   var t=tasks[idx];
   if(t.collab_from){showToast('⚠️ 协同任务不能删除');return;}
-  if(!confirm('确定要删除第'+(idx+1)+'项工作计划的所有信息吗？\n\n⚠️ 此操作不可恢复'))return;
+  var ok=await _showConfirm('确定要删除第'+(idx+1)+'项工作计划的所有信息吗？\n\n⚠️ 此操作不可恢复');
+  if(!ok)return;
   tasks.splice(idx,1);
   // 重新编号
   for(var i=0;i<tasks.length;i++)tasks[i].seq=i+1;
