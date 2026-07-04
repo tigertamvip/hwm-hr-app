@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.87">
+<meta name="version" content="V0.1.87b">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -15565,6 +15565,7 @@ function selectWP(y,m,w){
     }
     if(dirty) saveWP(y,m,w,plan);
     _wpCurrent.plan=plan;
+    _autoCarryTasks(plan,y,m,w); // ★ V0.1.87b: 已有计划也尝试顺延(防旧代码空壳+首次部署遗漏)
     renderWPTable(plan);
   }else{
     // ★ 自动创建空白周计划并渲染表单（用户无需手动点「新建周计划」）
@@ -15587,8 +15588,29 @@ function createNewWP(){
   var y=yEl?parseInt(yEl.value):new Date().getFullYear();
   var m=mEl?parseInt(mEl.value):(new Date().getMonth()+1);
   var w;
+  // ★ V0.1.87b: 先找完全不存在的周
   for(w=1;w<=4;w++){if(!getWP(y,m,w))break;}
-  if(w>4){alert('该月4周计划已全部创建，请先删除不需要的');return;}
+  // 如果4周都存在，找第一个空壳周（无实质内容）
+  if(w>4){
+    var emptyW=0;
+    for(var ew=1;ew<=4;ew++){
+      var ep=getWP(y,m,ew);
+      if(ep&&ep.tasks){
+        var hasContent=false;
+        for(var ti=0;ti<ep.tasks.length;ti++){if(ep.tasks[ti].work&&ep.tasks[ti].work.trim()){hasContent=true;break;}}
+        if(!hasContent){emptyW=ew;break;}
+      }
+    }
+    if(!emptyW){alert('该月4周计划已全部创建且有内容，请先删除不需要的');return;}
+    w=emptyW;
+    // 对空壳周运行顺延（相当于"激活"这周的转入任务）
+    _autoCarryTasks(getWP(y,m,w),y,m,w);
+    _wpCurrent={year:y,month:m,week:w,plan:getWP(y,m,w)};
+    renderWPPlanList(y,m);
+    renderWPTable(getWP(y,m,w));
+    renderWPUserInfo();
+    return;
+  }
   var plan=createEmptyPlan(y,m,w);
   saveWP(y,m,w,plan);
   _autoCarryTasks(plan,y,m,w); // ★ V0.1.87: 从上周自动顺延未完成任务
