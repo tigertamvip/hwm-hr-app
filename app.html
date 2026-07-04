@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.99n">
+<meta name="version" content="V0.1.99o">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -181,11 +181,15 @@ body{
 .demo-bar-fill{height:100%;border-radius:3px;transition:width .5s ease}
 .demo-bar-num{font-size:10px;color:var(--text-hint);width:36px;text-align:right;flex-shrink:0}
 /* Worker card */
-.demo-card-worker{text-align:center}
-.demo-big-num{font-size:36px;font-weight:700;color:#DC6B2C;line-height:1}
-.demo-big-sub{font-size:11px;color:var(--text-secondary);margin:2px 0 8px}
-.demo-big-bar{height:6px;background:#E8EDF1;border-radius:3px;overflow:hidden;margin-top:8px}
-.demo-big-bar-fill{height:100%;border-radius:3px;background:#DC6B2C;transition:width .5s ease}
+.demo-card-worker{}
+.demo-two-rows{display:flex;flex-direction:column;gap:8px;padding:0 4px}
+.demo-row-item{text-align:center;position:relative}
+.demo-row-label{font-size:11px;color:var(--text-secondary);margin-bottom:2px}
+.demo-row-num{font-size:26px;font-weight:700;color:#DC6B2C;line-height:1}
+.demo-row-pct{font-size:10px;color:var(--text-hint);margin-bottom:4px}
+.demo-row-divider{height:1px;background:#EBEEF0;margin:0 -4px}
+.demo-row-bar{height:5px;background:#E8EDF1;border-radius:3px;overflow:hidden}
+.demo-row-bar-fill{height:100%;border-radius:3px;transition:width .5s ease}
 
 @media (max-width:900px){
   .demographics-bar{grid-template-columns:1fr 1fr}
@@ -2244,11 +2248,21 @@ table.collab-table tbody tr:hover{background:#fffdf5}
       <div class="demo-bars" id="demoDeptBars"></div>
     </div>
     <div class="demo-card demo-card-worker" id="demoWorker">
-      <div class="demo-card-title">🏭 一线生产工人</div>
-      <div class="demo-big-num" id="demoWorkerNum">0</div>
-      <div class="demo-big-sub">人 · 占比 <span id="demoWorkerPct">0%</span></div>
-      <div class="demo-big-bar">
-        <div class="demo-big-bar-fill" id="demoWorkerBar" style="width:0%"></div>
+      <div class="demo-card-title">🏭 一线人员</div>
+      <div class="demo-two-rows">
+        <div class="demo-row-item">
+          <div class="demo-row-label">生产工人</div>
+          <div class="demo-row-num" id="demoWorkerNum">0</div>
+          <div class="demo-row-pct"><span id="demoWorkerPct">0%</span></div>
+          <div class="demo-row-bar"><div class="demo-row-bar-fill" id="demoWorkerBar"></div></div>
+        </div>
+        <div class="demo-row-divider"></div>
+        <div class="demo-row-item">
+          <div class="demo-row-label">一线检验员</div>
+          <div class="demo-row-num" id="demoInspectorNum">0</div>
+          <div class="demo-row-pct"><span id="demoInspectorPct">0%</span></div>
+          <div class="demo-row-bar"><div class="demo-row-bar-fill" id="demoInspectorBar"></div></div>
+        </div>
       </div>
     </div>
   </div>
@@ -5378,17 +5392,28 @@ function renderDemographics(){
   });
   document.getElementById('demoDeptBars').innerHTML = deptHTML;
 
-  // --- 4. 一线生产工人 ---
+  // --- 4. 一线生产工人 + 一线检验员 ---
   var workerDepts = ['摩祖生产部', '生产管理部'];
-  var workerPositions = ['员工'];
   var workerCount = active.filter(function(e){
     if(workerDepts.indexOf(e.dept) === -1) return false;
-    return workerPositions.indexOf(e.position) >= 0;
+    return e.position === '员工';
   }).length;
   var workerPct = (workerCount / total * 100).toFixed(1);
   document.getElementById('demoWorkerNum').textContent = workerCount;
   document.getElementById('demoWorkerPct').textContent = workerPct + '%';
-  document.getElementById('demoWorkerBar').style.width = workerPct + '%';
+  var wBar = document.getElementById('demoWorkerBar');
+  if(wBar){wBar.style.width = workerPct + '%';wBar.style.background='#DC6B2C';}
+
+  // 一线检验员：摩祖质量部+质量管理部的检验员
+  var inspectorDepts = ['摩祖质量部', '质量管理部'];
+  var inspectorCount = active.filter(function(e){
+    return inspectorDepts.indexOf(e.dept) >= 0 && e.position === '检验员';
+  }).length;
+  var inspectorPct = (inspectorCount / total * 100).toFixed(1);
+  document.getElementById('demoInspectorNum').textContent = inspectorCount;
+  document.getElementById('demoInspectorPct').textContent = inspectorPct + '%';
+  var iBar = document.getElementById('demoInspectorBar');
+  if(iBar){iBar.style.width = inspectorPct + '%';iBar.style.background='#5D9B85';}
 }
 
 // ★ V0.1.99n: 编辑统计面板的月份标签（仅 admin/data_admin 可调用）
