@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.99h">
+<meta name="version" content="V0.1.99i">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1818,7 +1818,7 @@ body{
 .wp-toolbar button:hover{background:#F5F5F0;border-color:#B0ADA3}
 .wp-toolbar button.wp-btn-primary{background:var(--primary);color:#fff;border-color:var(--primary)}
 .wp-toolbar button.wp-btn-primary:hover{opacity:.9}
-.wp-toolbar button.wp-btn-warn{background:#C08C8C;color:#fff;border-color:#C08C8C}
+.wp-toolbar button.wp-btn-warn{background:#B87A7A;color:#fff;border-color:#B87A7A}
 .wp-toolbar button.wp-btn-warn:hover{opacity:.85}
 .wp-toolbar button.wp-btn-accent{background:#FFBB1C;color:var(--primary);border-color:#FFBB1C}
 .wp-toolbar button.wp-btn-ai{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border-color:transparent}
@@ -16371,12 +16371,12 @@ function renderWPTable(plan){
     html+='<button onclick="openBossEval()">⭐ 完成评价</button>';
   }else{
     // 自己的计划：完整编辑功能（去掉新增+转发，左下角已有新建）
-    html+='<button onclick="submitWPPlan()" style="background:'+(plan.firstSubmittedAt?'#9ca3af':'#5D9B85')+';color:#fff'+(plan.firstSubmittedAt?';cursor:not-allowed;opacity:.75':'')+'" '+(plan.firstSubmittedAt?'disabled':'')+'>📋 提交本周工作计划</button>';
+    html+='<button onclick="submitWPPlan()" style="background:'+(plan.firstSubmittedAt?'#9ca3af':'#4A8B73')+';color:#fff'+(plan.firstSubmittedAt?';cursor:not-allowed;opacity:.75':'')+'" '+(plan.firstSubmittedAt?'disabled':'')+'>📋 提交本周工作计划</button>';
     // ★ V0.1.44: 撤销提交按钮（仅在已提交时显示）
     if(plan.firstSubmittedAt){
-      html+='<button onclick="undoWPSubmit()" style="background:#C9A86C;color:#fff">↩ 撤销提交</button>';
+      html+='<button onclick="undoWPSubmit()" style="background:#B89655;color:#fff">↩ 撤销提交</button>';
     }
-    html+='<button onclick="submitWPWeekSummary()" style="background:'+(plan.summarySubmittedAt?'#9ca3af':'#6B8CA8')+';color:#fff'+(plan.summarySubmittedAt?';cursor:not-allowed;opacity:.75':'')+'" '+(plan.summarySubmittedAt?'disabled':'')+'>✅ 提交本周工作小结</button>';
+    html+='<button onclick="submitWPWeekSummary()" style="background:'+(plan.summarySubmittedAt?'#9ca3af':'#5A7B97')+';color:#fff'+(plan.summarySubmittedAt?';cursor:not-allowed;opacity:.75':'')+'" '+(plan.summarySubmittedAt?'disabled':'')+'>✅ 提交本周工作小结</button>';
     html+='<button class="wp-btn-warn" onclick="deleteCurrentWPPlan()">🗑 删除周计划</button>';
     html+='<button onclick="exportCurrentWP()">📥 导出周计划</button>';
     if(plan.bossEvaluated){
