@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.2.40">
+<meta name="version" content="V0.2.41">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2031,15 +2031,15 @@ table.collab-table tbody tr:hover{background:#fffdf5}
 .wp-eval-cancel{background:#F5F5F0;color:var(--text);border:1px solid var(--border)}
 .wp-eval-cancel:hover{background:#E8E8E0}
 
-/* 下属选择下拉 */
+/* 下属选择下拉 — 毛玻璃风格 */
 .wp-sub-select{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:12px}
 .wp-custom-select{position:relative}
 .wp-custom-trigger{padding:4px 8px;border-radius:2px;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.12);color:#fff;font-size:13px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;user-select:none}
 .wp-custom-trigger:hover{background:rgba(255,255,255,.2)}
-.wp-custom-dropdown{position:absolute;top:100%;left:0;right:0;margin-top:0;background:#fff;border:1px solid #d1d5db;border-radius:2px;box-shadow:0 4px 12px rgba(0,0,0,.12);max-height:240px;overflow-y:auto;z-index:2000;min-width:180px}
-.wp-custom-option{padding:6px 12px;font-size:13px;color:var(--text);cursor:pointer;white-space:nowrap}
-.wp-custom-option:hover{background:#f3f4f6}
-.wp-custom-option.active{background:#e5e7eb;font-weight:500}
+.wp-custom-dropdown{position:absolute;top:100%;left:0;right:0;margin-top:0;background:rgba(255,255,255,.72);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(200,205,215,.6);border-radius:3px;box-shadow:0 8px 24px rgba(0,0,0,.14);max-height:240px;overflow-y:auto;z-index:2000;width:max-content;min-width:100%}
+.wp-custom-option{padding:5px 14px;font-size:13px;color:#374151;cursor:pointer;white-space:nowrap;border-bottom:none;line-height:1.5}
+.wp-custom-option:hover{background:rgba(59,130,246,.08)}
+.wp-custom-option.active{background:rgba(59,130,246,.12);font-weight:500;color:#1d4ed8}
 .wp-btn-myplan{padding:4px 10px;border:1px solid #E8622A;border-radius:2px;background:#E8622A;color:#fff;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .15s}
 .wp-btn-myplan:hover{background:#d45119;border-color:#d45119}
 
@@ -2521,9 +2521,13 @@ table.collab-table tbody tr:hover{background:#fffdf5}
           </div>
           <div class="wp-custom-dropdown" id="wpSubDropdown" style="display:none"></div>
         </div>
-        <select id="wpDeptMember" onchange="onWPDeptMemberChange()" style="margin-left:6px;display:none">
-          <option value="">-- 查看更多下属计划 --</option>
-        </select>
+        <div class="wp-custom-select" id="wpDeptCustom" style="position:relative;display:none">
+          <div class="wp-custom-trigger" id="wpDeptTrigger" onclick="toggleWPDeptDropdown()">
+            <span id="wpDeptTriggerText">-- 查看更多下属计划 --</span>
+            <span style="font-size:10px;margin-left:4px">▾</span>
+          </div>
+          <div class="wp-custom-dropdown" id="wpDeptDropdown" style="display:none"></div>
+        </div>
         <button class="wp-btn-myplan" id="wpBtnMyPlan" onclick="switchToMyWP()" title="回到我的周计划">回到我的周计划</button>
       </div>
     </div>
@@ -16130,28 +16134,35 @@ function renderWPSubSelect(){
     dd.innerHTML=ddHtml;
   }
 
-  // 部门成员下拉（排除直属下属和当前用户）
+  // 部门成员下拉（排除直属下属和当前用户）— 自定义下拉
   var deptMembers=getAllIndirectSubordinates(currentUser._uid);
   var nonDirect=[];
   for(var i=0;i<deptMembers.length;i++){
     if(subs.indexOf(deptMembers[i])<0)nonDirect.push(deptMembers[i]);
   }
-  var deptSel=document.getElementById('wpDeptMember');
-  if(deptSel){
-    if(nonDirect.length>0){
-      deptSel.innerHTML='<option value="">-- 查看更多下属计划 --</option>';
-      deptSel.style.display='inline-block';
-      for(var i=0;i<nonDirect.length;i++){
-        deptSel.innerHTML+='<option value="'+nonDirect[i]+'">'+nonDirect[i]+'</option>';
-      }
-      if(_wpViewingDeptMember){
-        for(var i=0;i<deptSel.options.length;i++){
-          if(deptSel.options[i].value===_wpViewingDeptMember){deptSel.selectedIndex=i;break;}
-        }
-      }
+  var deptCustom=document.getElementById('wpDeptCustom');
+  var ddDept=document.getElementById('wpDeptDropdown');
+  var triggerDeptText=document.getElementById('wpDeptTriggerText');
+  _wpDeptData.options=nonDirect;
+  if(deptCustom&&nonDirect.length>0){
+    deptCustom.style.display='';
+    if(_wpViewingDeptMember){
+      if(triggerDeptText)triggerDeptText.textContent=_wpViewingDeptMember;
+      _wpDeptData.selected=_wpViewingDeptMember;
     }else{
-      deptSel.style.display='none';
+      if(triggerDeptText){triggerDeptText.textContent='-- 查看更多下属计划 --';}
+      _wpDeptData.selected='';
     }
+    if(ddDept){
+      var dddHtml='<div class="wp-custom-option" onclick="selectWPDeptOption(\'\')" style="color:#9ca3af">-- 查看更多下属计划 --</div>';
+      for(var i=0;i<nonDirect.length;i++){
+        var isActive=(nonDirect[i]===_wpViewingDeptMember)?' active':'';
+        dddHtml+='<div class="wp-custom-option'+isActive+'" onclick="selectWPDeptOption(\''+nonDirect[i]+'\',\''+nonDirect[i]+'\')"><span style="margin-right:6px;color:#6366f1">○</span>'+nonDirect[i]+'</div>';
+      }
+      ddDept.innerHTML=dddHtml;
+    }
+  }else if(deptCustom){
+    deptCustom.style.display='none';
   }
 
   // 「回到我的周计划」按钮：有下属时始终显示
@@ -16168,8 +16179,9 @@ function switchToMyWP(){
   _wpSubData.selected='';
   var triggerText=document.getElementById('wpSubTriggerText');
   if(triggerText){triggerText.textContent='-- 查看直属下属周计划 --';triggerText.style.color='';}
-  var s2=document.getElementById('wpDeptMember');
-  if(s2)s2.value='';
+  _wpDeptData.selected='';
+  var triggerDeptText=document.getElementById('wpDeptTriggerText');
+  if(triggerDeptText){triggerDeptText.textContent='-- 查看更多下属计划 --';}
   loadWPData();
   renderWPUserInfo();
   renderWPSubSelect();
@@ -16211,6 +16223,40 @@ function selectWPSubOption(val,name){
   onWPSubordinateChange(val);
 }
 
+// 部门成员自定义下拉
+var _wpDeptData={options:[],selected:''};
+function toggleWPDeptDropdown(){
+  var dd=document.getElementById('wpDeptDropdown');
+  if(!dd)return;
+  var isOpen=dd.style.display==='block';
+  if(isOpen){dd.style.display='none';return;}
+  dd.style.display='block';
+  setTimeout(function(){
+    document.addEventListener('click',_wpCloseDeptDropdown);
+  },50);
+}
+function _wpCloseDeptDropdown(e){
+  var trigger=document.getElementById('wpDeptTrigger');
+  var dd=document.getElementById('wpDeptDropdown');
+  if(!dd)return;
+  if(trigger&&trigger.contains(e.target))return;
+  if(dd.contains(e.target))return;
+  dd.style.display='none';
+  document.removeEventListener('click',_wpCloseDeptDropdown);
+}
+function selectWPDeptOption(val,name){
+  var dd=document.getElementById('wpDeptDropdown');
+  if(dd)dd.style.display='none';
+  document.removeEventListener('click',_wpCloseDeptDropdown);
+  _wpDeptData.selected=val;
+  var triggerText=document.getElementById('wpDeptTriggerText');
+  if(triggerText){
+    if(!val){triggerText.textContent='-- 查看更多下属计划 --';}
+    else{triggerText.textContent=name||val;}
+  }
+  onWPDeptMemberChange(val);
+}
+
 function onWPSubordinateChange(val){
   var v=(typeof val==='string')?val:_wpSubData.selected;
   var myName=(currentUser&&currentUser.name)||'';
@@ -16243,13 +16289,12 @@ function onWPMonthChange(){
   renderWPPlanList(year,month);
 }
 
-function onWPDeptMemberChange(){
-  var sel=document.getElementById('wpDeptMember');
-  if(!sel)return;
-  var val=sel.value||'';
+function onWPDeptMemberChange(val){
+  var v=(typeof val==='string')?val:_wpDeptData.selected;
+  if(!v){switchToMyWP();return;}
   if(!val){switchToMyWP();return;}
   _wpViewingSubordinate=null;
-  _wpViewingDeptMember=val;
+  _wpViewingDeptMember=v;
   _wpRevisionMode=false;
   _wpCurrent={year:null,month:null,week:null,plan:null};
   loadWPData();
