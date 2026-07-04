@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.82">
+<meta name="version" content="V0.1.83">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -41,17 +41,23 @@ body{
   padding-bottom:env(safe-area-inset-bottom);
 }
 
-/* ─── V0.1.82: Sticky Header — body自然滚动，sticky祖先链无overflow限制 ─── */
+/* ─── V0.1.83: JS动态fixed表头 — 正常流 + scroll监听自动吸附 ─── */
 #appView{display:none}
 .page-container{}
 
 .sticky-header{
-  position:-webkit-sticky;
-  position:sticky;
-  top:0;
   z-index:100;
-  box-shadow:0 1px 3px rgba(0,0,0,.1);
 }
+.sticky-header.is-fixed{
+  position:fixed;
+  top:0;
+  left:0;
+  right:0;
+  z-index:100;
+  box-shadow:0 2px 8px rgba(0,0,0,.15);
+}
+.sticky-header-spacer{display:none}
+.sticky-header-spacer.active{display:block}
 
 .scrollable-content{}
 .header{
@@ -2036,6 +2042,7 @@ table.collab-table tbody tr:hover{background:#fffdf5}
 <div class="active-filters" id="activeFilters"></div>
 </div>
 </div><!-- /sticky-header -->
+<div class="sticky-header-spacer" id="stickyHeaderSpacer"></div>
 <div class="scrollable-content"><div class="list-section" id="listSection"><div class="emp-empty"><div class="emp-empty-icon">⏳</div><h3>正在加载档案数据...</h3></div></div></div><!-- /scrollable-content -->
 
 <div class="filter-panel-overlay" id="filterPanelOverlay" onclick="if(event.target===this)closeFilterPanel()">
@@ -3001,7 +3008,45 @@ function applyRoleUI(){
   updateStats();
 }
 
+// ==== V0.1.83: JS动态fixed表头 ====
+var _hdrPinned=false;
+
+function _hdrScrollHandler(){
+  var st=document.querySelector('#appView .sticky-header');
+  var sp=document.getElementById('stickyHeaderSpacer');
+  if(!st||!sp)return;
+  var sy=window.scrollY||window.pageYOffset;
+  if(sy>0&&!_hdrPinned){
+    st.classList.add('is-fixed');
+    sp.classList.add('active');
+    _hdrPinned=true;
+  }else if(sy<=0&&_hdrPinned){
+    st.classList.remove('is-fixed');
+    sp.classList.remove('active');
+    _hdrPinned=false;
+  }
+}
+
+function _hdrPin(){
+  _hdrUnpin();
+  var sp=document.getElementById('stickyHeaderSpacer');
+  var st=document.querySelector('#appView .sticky-header');
+  if(sp&&st){sp.style.height=st.offsetHeight+'px';}
+  window.addEventListener('scroll',_hdrScrollHandler,{passive:true});
+  _hdrScrollHandler(); // 初始检查
+}
+
+function _hdrUnpin(){
+  window.removeEventListener('scroll',_hdrScrollHandler,{passive:true});
+  _hdrPinned=false;
+  var st=document.querySelector('#appView .sticky-header');
+  var sp=document.getElementById('stickyHeaderSpacer');
+  if(st){st.classList.remove('is-fixed');}
+  if(sp){sp.classList.remove('active');sp.style.height='';}
+}
+
 function goHome(){
+  _hdrUnpin(); // V0.1.83: 离开档案中心时清理scroll监听
   closeModal();
   sysCloseModal(); // ★ 清理系统维护弹窗
   document.getElementById('appView').style.display='none';
@@ -3036,6 +3081,7 @@ function enterModule(mod){
     document.getElementById('kpiView').style.display='none';
     document.getElementById('workPlanView').style.display='none';
     document.getElementById('appView').style.display='block';
+    _hdrPin(); // V0.1.83: 注册scroll监听动态固定表头
     activeFilters={};
     pendingFilters={};
     document.getElementById('searchInput').value='';
@@ -3047,6 +3093,7 @@ function enterModule(mod){
   }else if(mod==='policies'){
     console.log('HWM: enterModule(policies) START');
     try{
+      _hdrUnpin(); // V0.1.83
       document.getElementById('portalView').style.display='none';
       document.getElementById('kpiView').style.display='none';
       document.getElementById('workPlanView').style.display='none';
@@ -3069,6 +3116,7 @@ function enterModule(mod){
     }
   }else if(mod==='kpi'){
     try{
+      _hdrUnpin(); // V0.1.83
       document.getElementById('portalView').style.display='none';
       document.getElementById('hrPoliciesView').style.display='none';
       document.getElementById('appView').style.display='none';
@@ -3086,6 +3134,7 @@ function enterModule(mod){
     }
   }else if(mod==='workplan'){
     try{
+      _hdrUnpin(); // V0.1.83
       document.getElementById('portalView').style.display='none';
       document.getElementById('hrPoliciesView').style.display='none';
       document.getElementById('appView').style.display='none';
@@ -3885,6 +3934,7 @@ function logout(){
   } catch(e) {}
   window.__HWM_AUTH = null;
   currentUser=null;
+  _hdrUnpin(); // V0.1.83
   document.getElementById('passwordGate').style.display='flex';
   document.getElementById('portalView').style.display='none';
   document.getElementById('appView').style.display='none';
