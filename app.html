@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.81">
+<meta name="version" content="V0.1.81b">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -41,11 +41,10 @@ body{
   padding-bottom:env(safe-area-inset-bottom);
 }
 
-/* ─── Sticky Header：确保整条父链路 overflow:visible，body 是唯一滚动容器 ─── */
-#appView{display:none}
-/* V0.1.81: 仅对appView内的page-container限制高度(不影响其他模块的page-container) */
+/* ─── V0.1.81b: 档案中心滚动架构：appView→page-container(固定) →scrollable-content(内部滚动) ─── */
+#appView{display:none;height:100vh;overflow:hidden}
 .page-container{min-height:100vh}
-/* 档案中心专用：固定高度+内部滚动=sticky表头生效 */
+/* 档案中心专用：固定高度+内部滚动=sticky表头+列表滚动 */
 #appView .page-container{height:100vh;display:flex;flex-direction:column;overflow:hidden}
 
 .sticky-header{
@@ -57,7 +56,7 @@ body{
   background:var(--bg);
 }
 
-.scrollable-content{flex:1;min-height:0;overflow-y:auto} /* V0.1.80: 员工列表独立滚动区 */
+.scrollable-content{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain} /* V0.1.81b: 员工列表独立滚动区 */
 .header{
   /* ★ V0.1.80: 加大头部内边距(更大气)+深蓝遮罩(与登录页统一) */
   /* ★ V0.1.80: 减淡遮罩让风景图透出 */
