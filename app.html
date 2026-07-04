@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.83">
+<meta name="version" content="V0.1.84">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -3008,36 +3008,47 @@ function applyRoleUI(){
   updateStats();
 }
 
-// ==== V0.1.83: JS动态fixed表头 ====
-var _hdrPinned=false;
+// ==== V0.1.84: JS动态fixed表头（修复闪烁：先spacer后fixed+rAF批处理）====
+var _hdrPinned=false, _hdrHeight=0, _hdrRAF=0;
 
 function _hdrScrollHandler(){
-  var st=document.querySelector('#appView .sticky-header');
-  var sp=document.getElementById('stickyHeaderSpacer');
-  if(!st||!sp)return;
-  var sy=window.scrollY||window.pageYOffset;
-  if(sy>0&&!_hdrPinned){
-    st.classList.add('is-fixed');
-    sp.classList.add('active');
-    _hdrPinned=true;
-  }else if(sy<=0&&_hdrPinned){
-    st.classList.remove('is-fixed');
-    sp.classList.remove('active');
-    _hdrPinned=false;
-  }
+  if(_hdrRAF)return;
+  _hdrRAF=requestAnimationFrame(function(){
+    _hdrRAF=0;
+    var st=document.querySelector('#appView .sticky-header');
+    var sp=document.getElementById('stickyHeaderSpacer');
+    if(!st||!sp)return;
+    var sy=window.scrollY||window.pageYOffset;
+    if(sy>0&&!_hdrPinned){
+      // 先设占位高度，再固定，避免布局跳动
+      sp.style.height=_hdrHeight+'px';
+      sp.classList.add('active');
+      st.classList.add('is-fixed');
+      _hdrPinned=true;
+    }else if(sy<=0&&_hdrPinned){
+      // 先解除固定，再移除占位
+      st.classList.remove('is-fixed');
+      sp.classList.remove('active');
+      sp.style.height='';
+      _hdrPinned=false;
+    }
+  });
 }
 
 function _hdrPin(){
   _hdrUnpin();
   var sp=document.getElementById('stickyHeaderSpacer');
   var st=document.querySelector('#appView .sticky-header');
-  if(sp&&st){sp.style.height=st.offsetHeight+'px';}
+  if(!st||!sp)return;
+  _hdrHeight=st.offsetHeight;
+  sp.style.height=_hdrHeight+'px'; // 预设占位，避免闪烁
   window.addEventListener('scroll',_hdrScrollHandler,{passive:true});
   _hdrScrollHandler(); // 初始检查
 }
 
 function _hdrUnpin(){
   window.removeEventListener('scroll',_hdrScrollHandler,{passive:true});
+  if(_hdrRAF){cancelAnimationFrame(_hdrRAF);_hdrRAF=0;}
   _hdrPinned=false;
   var st=document.querySelector('#appView .sticky-header');
   var sp=document.getElementById('stickyHeaderSpacer');
@@ -3046,7 +3057,7 @@ function _hdrUnpin(){
 }
 
 function goHome(){
-  _hdrUnpin(); // V0.1.83: 离开档案中心时清理scroll监听
+  _hdrUnpin(); // V0.1.84: 离开档案中心时清理scroll监听
   closeModal();
   sysCloseModal(); // ★ 清理系统维护弹窗
   document.getElementById('appView').style.display='none';
