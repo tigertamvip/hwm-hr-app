@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.99k">
+<meta name="version" content="V0.1.99l">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -3173,7 +3173,7 @@ function enterModule(mod){
   // 权限检查
   var permKey=mod==='workplan'?'mbo':(mod==='system'?'maintenance':mod);
   if(!hasPermission(permKey)){
-    alert('您没有访问此模块的权限，请联系系统管理员。');
+    _showAlert('您没有访问此模块的权限，请联系系统管理员。');
     return;
   }
   // ★ 清理任何残留的系统维护弹窗（防止串模块）
@@ -3213,7 +3213,7 @@ function enterModule(mod){
       document.getElementById('portalView').style.display='flex';
       var pv2=document.getElementById('hrPoliciesView');
       if(pv2)pv2.style.display='none';
-      alert('人力资源制度模块加载失败：'+e.message);
+      _showAlert('人力资源制度模块加载失败：'+e.message);
     }
   }else if(mod==='kpi'){
     try{
@@ -3230,7 +3230,7 @@ function enterModule(mod){
       loadKPIModule();
     }catch(e){
       console.error('KPI enterModule error:',e);
-      alert('KPI模块加载失败：'+e.message);
+      _showAlert('KPI模块加载失败：'+e.message);
     }
   }else if(mod==='workplan'){
     try{
@@ -3248,7 +3248,7 @@ function enterModule(mod){
       initWPModule();
     }catch(e){
       console.error('WorkPlan enterModule error:',e);
-      alert('MBO模块加载失败：'+e.message);
+      _showAlert('MBO模块加载失败：'+e.message);
     }
   }else if(mod==='system'){
     console.log('HWM: enterModule(system) START');
@@ -3284,7 +3284,7 @@ function enterModule(mod){
         sysInitModule();
       }catch(ie){
         console.error('HWM: sysInitModule error:',ie);
-        alert('系统维护模块初始化失败：'+ie.message);
+        _showAlert('系统维护模块初始化失败：'+ie.message);
       }
     }catch(e){
       console.error('HWM: SysMaintenance enterModule error:',e);
@@ -3292,13 +3292,13 @@ function enterModule(mod){
       if(sv){
         try{sv.style.setProperty('display','block','important');}catch(ex){}
       }
-      alert('系统维护模块加载失败：'+e.message);
+      _showAlert('系统维护模块加载失败：'+e.message);
     }
   }
 }
 
 function moduleBuilding(){
-  alert('该模块建设中，敬请期待');
+  _showAlert('该模块建设中，敬请期待');
 }
 
 // ===== KPI 模块 =====
@@ -3340,7 +3340,7 @@ function onKPITemplateChange(){
 function onKPITimeChange(){ renderKPI(); }
 
 function createNewKPI(){
-  if(_kpiViewingSubordinate){alert('请先退出下属查看模式再新建KPI');return;}
+  if(_kpiViewingSubordinate){_showAlert('请先退出下属查看模式再新建KPI');return;}
   _kpiEditMode=true;
   var sidebar=document.getElementById('kpiSidebar');
   if(sidebar) sidebar.classList.add('kpi-edit-mode');
@@ -3364,7 +3364,7 @@ function reviseKPI(){
   var emp=getCurrentEmployee();
   var msg='已进入「'+emp.name+'」'+info.year+'年'+info.periodLabel+' KPI修订模式';
   if(typeof showToast==='function') showToast(msg);
-  else alert(msg);
+  else _showAlert(msg);
   // P1迭代：加载该期KPI数据进入编辑模式
 }
 
@@ -3381,7 +3381,7 @@ function startKPISelfEval(){
   var emp=getCurrentEmployee();
   var msg='已启动「'+emp.name+'」'+info.year+'年'+info.periodLabel+' KPI自评';
   if(typeof showToast==='function') showToast(msg);
-  else alert(msg);
+  else _showAlert(msg);
   // P1迭代：加载KPI数据，开放自评列编辑
 }
 
@@ -3625,7 +3625,7 @@ function submitNewKPI(templateType){
     if(val) hasContent=true;
   }
   if(!hasContent){
-    alert('请至少填写一项 KPI 内容再提交');
+    _showAlert('请至少填写一项 KPI 内容再提交');
     return;
   }
   // 退出编辑模式，切回只读
@@ -3636,7 +3636,7 @@ function submitNewKPI(templateType){
   // P1 迭代：保存到 Supabase
   var msg='✅ KPI 考核表已提交并保存成功！';
   if(typeof showToast==='function') showToast(msg);
-  else alert(msg);
+  else _showAlert(msg);
   console.log('KPI submitted:',data);
 }
 
@@ -3727,7 +3727,7 @@ function getKPISubordinateEmployee(){
 
 function openKPIBossEval(){
   var emp=getKPISubordinateEmployee();
-  if(!_kpiViewingSubordinate){alert('请先选择下属');return;}
+  if(!_kpiViewingSubordinate){_showAlert('请先选择下属');return;}
   var comment=prompt('请输入对「'+emp.name+'」的 KPI 评价意见：',(_kpiCurrentData&&_kpiCurrentData.bossComment)||'');
   if(comment===null)return;
   if(!_kpiCurrentData)_kpiCurrentData={};
@@ -3740,14 +3740,14 @@ function openKPIBossEval(){
 
 function viewKPIBossEval(){
   if(!_kpiCurrentData){
-    alert('暂无上级评价。');
+    _showAlert('暂无上级评价。');
     return;
   }
   var comment=_kpiCurrentData.bossComment||'';
   var evalBy=_kpiCurrentData.bossEvalBy||'';
   var evalAt=(_kpiCurrentData.bossEvalAt||'').substring(0,10);
-  if(!comment){alert('暂无上级评价。');return;}
-  alert('上级评价（'+evalBy+'，'+evalAt+'）：\n\n'+comment);
+  if(!comment){_showAlert('暂无上级评价。');return;}
+  _showAlert('上级评价（'+evalBy+'，'+evalAt+'）：\n\n'+comment);
 }
 
 function renderSeniorKPI(container){
@@ -5232,7 +5232,7 @@ function editStatsMonth(e){
   var input=prompt('请输入月份（格式：2026年5月）：',current);
   if(!input)return;
   input=input.trim();
-  if(!/^\d{4}年\d{1,2}月$/.test(input)){alert('格式不正确，请使用「2026年5月」格式');return;}
+  if(!/^\d{4}年\d{1,2}月$/.test(input)){_showAlert('格式不正确，请使用「2026年5月」格式');return;}
   localStorage.setItem('stats_month_label',input);
   updateStats();
 }
@@ -5648,6 +5648,19 @@ function _showConfirm(message,title){
     function cleanup(){document.body.removeChild(overlay);}
     okBtn.addEventListener('click',function(){cleanup();resolve(true);});
     cancelBtn.addEventListener('click',function(){cleanup();resolve(false);});
+  });
+}
+
+/* ★ V0.1.99l: 统一alert弹窗为居中毛玻璃样式 */
+function _showAlert(message,title){
+  return new Promise(function(resolve){
+    var overlay=document.createElement('div');
+    overlay.className='_confirm-overlay';
+    overlay.innerHTML='<div class="_confirm-card"><div class="_confirm-title">'+(title||'提示')+'</div><div class="_confirm-body">'+message+'</div><div class="_confirm-actions" style="justify-content:center"><button class="_confirm-btn-ok">确定</button></div></div>';
+    document.body.appendChild(overlay);
+    var okBtn=overlay.querySelector('._confirm-btn-ok');
+    function cleanup(){document.body.removeChild(overlay);}
+    okBtn.addEventListener('click',function(){cleanup();resolve();});
   });
 }
 
@@ -13847,7 +13860,7 @@ function renderJobDetailHTML(job){
     +(editable?'<button class="policies-action-btn policies-action-btn--save" onclick="saveCurrentJobDesc()">💾 保存修改</button>':'')
     +(editable?'<label class="policies-action-btn" style="cursor:pointer;margin:0">📄 单文件导入<input type="file" accept=".txt,.md,.docx,.pdf" id="singleFileInput" style="display:none"></label>':'')
     +(editable?'<label class="policies-action-btn" style="cursor:pointer;margin:0 0 0 4px">📚 批量导入<input type="file" accept=".txt,.md,.docx,.pdf" id="batchFileInput" multiple style="display:none"></label>':'')
-    +'<button class="policies-action-btn" onclick="alert(\'导出功能开发中，敬请期待\')">📥 导出PDF</button>'
+    +'<button class="policies-action-btn" onclick="_showAlert(\'导出功能开发中，敬请期待\')">📥 导出PDF</button>'
     +'</div></div>';
   html+='<div class="policies-meta-card">'
     +'<div class="policies-meta-item"><span class="meta-label">文件编号：</span><span class="meta-value">'+escHtml(job.code)+'</span></div>'
@@ -13961,7 +13974,7 @@ function renderPolicyContent(catId){
       +'<div class="policies-doc-actions">'
       +'<button class="policies-action-btn'+(favd?' favorited':'')+'" id="favBtn_'+catId+'" onclick="toggleFavorite(\''+catId+'\')">'+(favd?'⭐ 已收藏':'☆ 收藏')+'</button>';
     if(data){
-      titleBar+='<button class="policies-action-btn" onclick="alert(\'导出功能开发中，敬请期待\')">📥 导出PDF</button>';
+      titleBar+='<button class="policies-action-btn" onclick="_showAlert(\'导出功能开发中，敬请期待\')">📥 导出PDF</button>';
     }
     if(canUpload){
       titleBar+='<label class="policies-upload-btn" id="uploadBtn_'+catId+'">'
@@ -14502,7 +14515,7 @@ function openAIAssistant(field,jobId){
   // 根据具体职位获取 AI 建议，无则回退通用数据
   var roleData=AI_ASSIST_DATA[jobId]||AI_ASSIST_DATA['jd-001'];
   var suggestions=roleData[field]||[];
-  if(suggestions.length===0){alert('暂无 '+getFieldLabel(field)+' 的 AI 建议');return;}
+  if(suggestions.length===0){_showAlert('暂无 '+getFieldLabel(field)+' 的 AI 建议');return;}
   var job=getJobById(jobId);
   var jobTitle=(job&&job.title)||'当前岗位';
   // 渲染 AI 面板
@@ -14675,7 +14688,7 @@ function saveCurrentJobDesc(){
   saveJobDescToDB(job,function(err){
     if(err){
       console.error('HWM: saveCurrentJobDesc: save FAILED',err);
-      alert('保存失败：'+(err.message||'未知错误'));
+      _showAlert('保存失败：'+(err.message||'未知错误'));
       return;
     }
     console.log('HWM: saveCurrentJobDesc: save SUCCESS for',job.id);
@@ -14683,11 +14696,11 @@ function saveCurrentJobDesc(){
     verifyJobDescSaved(job.id, function(verifyErr, savedData){
       if(verifyErr){
         console.error('HWM: verify FAILED',verifyErr);
-        alert('⚠️ 保存可能失败，请检查控制台(HWM日志)');
+        _showAlert('⚠️ 保存可能失败，请检查控制台(HWM日志)');
       }else{
         console.log('HWM: verify SUCCESS, saved data requirements=',JSON.stringify(savedData.requirements));
         var verifyOk=(JSON.stringify(savedData.requirements)===JSON.stringify(job.requirements));
-        alert('✅ 修改已保存'+(verifyOk?'（已验证）':'（验证未通过，请刷新页面确认）'));
+        _showAlert('✅ 修改已保存'+(verifyOk?'（已验证）':'（验证未通过，请刷新页面确认）'));
       }
       // 重新渲染
       var detailCol=document.getElementById('jdDetailCol');
@@ -14700,7 +14713,7 @@ function handlePolicyUpload(event,catId){
   var file=event.target.files[0];
   if(!file)return;
   if(file.type!=='application/pdf'&&!file.name.toLowerCase().endsWith('.pdf')){
-    alert('仅支持PDF格式文件');
+    _showAlert('仅支持PDF格式文件');
     return;
   }
   var reader=new FileReader();
@@ -14713,7 +14726,7 @@ function handlePolicyUpload(event,catId){
       updatedBy:currentUser?currentUser.name:''
     };
     savePolicyToDB(catId,data,function(err){
-      if(err){alert('保存失败，请重试');return;}
+      if(err){_showAlert('保存失败，请重试');return;}
       renderPolicyContent(catId);
     });
   };
@@ -15215,7 +15228,7 @@ function initWPModule(){
     }
   }catch(e){
     console.error('initWPModule error:',e);
-    alert('MBO模块初始化异常：'+e.message+'\n请尝试清除浏览器缓存后刷新页面。');
+    _showAlert('MBO模块初始化异常：'+e.message+'\n请尝试清除浏览器缓存后刷新页面。');
   }
 }
 
@@ -15762,7 +15775,7 @@ function createNewWP(){
         if(!hasContent){emptyW=ew;break;}
       }
     }
-    if(!emptyW){alert('该月4周计划已全部创建且有内容，请先删除不需要的');return;}
+    if(!emptyW){_showAlert('该月4周计划已全部创建且有内容，请先删除不需要的');return;}
     w=emptyW;
     // 对空壳周运行顺延（相当于"激活"这周的转入任务）
     _autoCarryTasks(getWP(y,m,w),y,m,w);
@@ -16593,7 +16606,7 @@ function renderWPTable(plan){
 
 // ★ V0.1.23: 审核并冻结 — 上级冻结下属周计划的核心三列
 function toggleWPFreeze(){
-  if(!_wpCurrent||!_wpCurrent.plan){alert('请先选择一个周计划');return;}
+  if(!_wpCurrent||!_wpCurrent.plan){_showAlert('请先选择一个周计划');return;}
   var plan=_wpCurrent.plan;
   plan.frozen=!plan.frozen;
   if(plan.frozen){
@@ -16717,7 +16730,7 @@ function commitEditCell(el){
 // ========== 工具栏操作 ==========
 // ★ V0.1.35: 「完成提交」按钮 — 记录首次提交时间并保存
 function submitWPPlan(){
-  var p=_wpCurrent.plan;if(!p){alert('请先选择一个周计划');return;}
+  var p=_wpCurrent.plan;if(!p){_showAlert('请先选择一个周计划');return;}
   if(!confirm('确认提交本周计划？\n\n提交后「本周重点工作」「优先级」「计划完成日期」将被锁定无法修改。\n如需修改请先点击「撤销提交」。'))return;
   p.firstSubmittedAt=new Date().toISOString();
   // ★ V0.1.57: 提交即自动冻结三列（员工自己不能改），等同上级冻结效果
@@ -16751,10 +16764,10 @@ function undoWPSubmit(){
 
 // ★ V0.1.41: 员工完成周工作小结（记录小结时间用于考勤积分）
 function submitWPWeekSummary(){
-  var p=_wpCurrent.plan;if(!p){alert('请先选择一个周计划');return;}
+  var p=_wpCurrent.plan;if(!p){_showAlert('请先选择一个周计划');return;}
   // 检查是否已填写小结
   if(!p.weekSummary||!p.weekSummary.trim()){
-    alert('请先在下方「一周工作小结」区域填写本周工作总结后再点击「完成小结」。');
+    _showAlert('请先在下方「一周工作小结」区域填写本周工作总结后再点击「完成小结」。');
     return;
   }
   if(!confirm('确认完成本周工作小结？\n\n提交后将记录完成时间用于考勤积分计算。'))return;
@@ -16913,7 +16926,7 @@ function _calcWeekScore(plan){
 function toggleWPExemption(){
   var p=_wpCurrent.plan;if(!p)return;
   if(!_wpViewingSubordinate&&!_wpViewingDeptMember){
-    alert('仅上级可操作豁免');
+    _showAlert('仅上级可操作豁免');
     return;
   }
   p.exempted=!p.exempted;
@@ -17040,7 +17053,7 @@ function _formatDateTime(isoStr){
 }
 
 function deleteCurrentWPPlan(){
-  var p=_wpCurrent.plan;if(!p){alert('请先选择一个周计划');return;}
+  var p=_wpCurrent.plan;if(!p){_showAlert('请先选择一个周计划');return;}
   if(!confirm('确定清空 '+p.year+'年'+p.month+'月第'+p.week+'周计划内容？\n\n将保留空白表单，仅清除已填写的内容。'))return;
   // ★ V0.1.59: 重置为1行空白表单（保留 name/dept/position）
   var y=p.year, m=p.month, w=p.week;
@@ -17063,11 +17076,11 @@ function deleteCurrentWPPlan(){
 }
 
 function exportCurrentWP(){
-  var p=_wpCurrent.plan;if(!p){alert('请先选择一个周计划');return;}
+  var p=_wpCurrent.plan;if(!p){_showAlert('请先选择一个周计划');return;}
   
   // 检查 XLSX 是否可用
   if(typeof XLSX==='undefined'||typeof XLSX.utils==='undefined'){
-    alert('Excel导出库未加载完成，请稍后重试');return;
+    _showAlert('Excel导出库未加载完成，请稍后重试');return;
   }
 
   try{
@@ -17186,11 +17199,11 @@ function exportCurrentWP(){
     var wb=XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb,ws,p.year+'-'+p.month+'-'+p.week);
     XLSX.writeFile(wb,'周工作计划_'+p.name+'_'+p.year+'_'+p.month+'_W'+p.week+'.xlsx');
-  }catch(e){alert('导出失败：'+e.message+'\n\n如果反复出现此错误请联系管理员');}
+  }catch(e){_showAlert('导出失败：'+e.message+'\n\n如果反复出现此错误请联系管理员');}
 }
 
 function emailToSuperior(){
-  var p=_wpCurrent.plan;if(!p){alert('请先选择一个周计划');return;}
+  var p=_wpCurrent.plan;if(!p){_showAlert('请先选择一个周计划');return;}
   var emp=getCurrentEmployee();
   var subj=encodeURIComponent('周工作计划 - '+emp.name+' '+p.year+'年'+p.month+'月第'+p.week+'周');
   var body='上级您好，以下是本周工作计划：%0D%0A%0D%0A';
@@ -17204,7 +17217,7 @@ function emailToSuperior(){
 
 // ========== 查看上级评价（只读，下属用）==========
 function viewBossEval(){
-  var p=_wpCurrent.plan;if(!p){alert('请先选择一个周计划');return;}
+  var p=_wpCurrent.plan;if(!p){_showAlert('请先选择一个周计划');return;}
 
   var m=document.getElementById('wpEvalModal');
   if(m)m.remove();
@@ -17231,9 +17244,9 @@ function viewBossEval(){
 
 // ========== 上级评价 ==========
 function openBossEval(){
-  var p=_wpCurrent.plan;if(!p){alert('请先选择一个周计划');return;}
+  var p=_wpCurrent.plan;if(!p){_showAlert('请先选择一个周计划');return;}
   var sub=_wpViewingSubordinate;
-  if(!sub){alert('请先从顶部选择下属查看其周计划，再填写评价');return;}
+  if(!sub){_showAlert('请先从顶部选择下属查看其周计划，再填写评价');return;}
 
   var m=document.getElementById('wpEvalModal');
   if(m)m.remove();
@@ -17495,7 +17508,7 @@ function calcAverage(arr) {
 // 增强版 AI 评估（异步，加载历史数据）
 async function aiAssessWP() {
   var p = _wpCurrent.plan;
-  if (!p) { alert('请先选择一个周计划'); return; }
+  if (!p) { _showAlert('请先选择一个周计划'); return; }
 
   var btn = document.getElementById('wpAiAssessBtn');
   if (btn) { btn.disabled = true; btn.textContent = 'AI 分析中...'; }
@@ -17687,9 +17700,9 @@ async function aiAssessWP() {
     renderWPTable(p);
 
     if (btn) { btn.disabled = false; btn.textContent = '🤖 AI 辅助评估'; }
-    alert('AI 分析完成！已结合历史数据进行分析。');
+    _showAlert('AI 分析完成！已结合历史数据进行分析。');
   } catch (e) {
-    alert('AI 分析失败：' + e.message);
+    _showAlert('AI 分析失败：' + e.message);
     if (btn) { btn.disabled = false; btn.textContent = '🤖 AI 辅助评估'; }
   }
 }
@@ -17762,7 +17775,7 @@ function sysTogglePerm(uid,mod){
   u.permissions[mod]=!u.permissions[mod];
   saveUserSettings();
   if(currentUser&&currentUser._uid===uid&&mod==='maintenance'&&!u.permissions[mod]){
-    alert('⚠️ 您已关闭自己的系统维护权限，保存后将无法再进入此模块。');
+    _showAlert('⚠️ 您已关闭自己的系统维护权限，保存后将无法再进入此模块。');
   }
   sysRenderUserTable();
 }
@@ -17897,7 +17910,7 @@ function sysOpenAddUser(){
     document.getElementById('sysUserModal').style.display='flex';
   }catch(e){
     console.error('HWM: sysOpenAddUser error:',e);
-    alert('打开新增用户失败：'+e.message);
+    _showAlert('打开新增用户失败：'+e.message);
   }
 }
 
@@ -17948,7 +17961,7 @@ function sysOpenEditUser(uid){
     }
   }catch(e){
     console.error('HWM: sysOpenEditUser error:',e);
-    alert('编辑用户失败：'+e.message);
+    _showAlert('编辑用户失败：'+e.message);
   }
 }
 
@@ -17979,13 +17992,13 @@ function sysSaveUser(){
   var pwd=document.getElementById('sysFormPwd').value.trim();
   var dept=document.getElementById('sysFormDept').value.trim();
   var role=document.getElementById('sysFormRole').value;
-  if(!uid){alert('请输入登录用户名');return;}
-  if(!name){alert('请输入姓名');return;}
-  if(!position){alert('请输入职务');return;}
-  if(!pwd){alert('请输入登录密码');return;}
-  if(!_sysEditingUid&&USERS[uid]){alert('用户名 "'+uid+'" 已存在，请换一个');return;}
+  if(!uid){_showAlert('请输入登录用户名');return;}
+  if(!name){_showAlert('请输入姓名');return;}
+  if(!position){_showAlert('请输入职务');return;}
+  if(!pwd){_showAlert('请输入登录密码');return;}
+  if(!_sysEditingUid&&USERS[uid]){_showAlert('用户名 "'+uid+'" 已存在，请换一个');return;}
   if(_sysEditingUid&&_sysEditingUid!==uid){
-    if(USERS[uid]){alert('用户名 "'+uid+'" 已存在');return;}
+    if(USERS[uid]){_showAlert('用户名 "'+uid+'" 已存在');return;}
     delete USERS[_sysEditingUid];
   }
   var items=document.querySelectorAll('#sysPermGrid .sys-perm-item');
@@ -18153,7 +18166,7 @@ function sysSaveSubs(){
   }
   sysCloseSubPanel();
   sysRenderUserTable();
-  alert('下属关系已保存！');
+  _showAlert('下属关系已保存！');
 }
 
 // 获取某用户的所有下属姓名列表（用于 MBO/KPI）
