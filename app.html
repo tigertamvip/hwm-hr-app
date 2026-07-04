@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.99o">
+<meta name="version" content="V0.1.99p">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2258,7 +2258,7 @@ table.collab-table tbody tr:hover{background:#fffdf5}
         </div>
         <div class="demo-row-divider"></div>
         <div class="demo-row-item">
-          <div class="demo-row-label">一线检验员</div>
+          <div class="demo-row-label">一线检验人员（含质检组长）</div>
           <div class="demo-row-num" id="demoInspectorNum">0</div>
           <div class="demo-row-pct"><span id="demoInspectorPct">0%</span></div>
           <div class="demo-row-bar"><div class="demo-row-bar-fill" id="demoInspectorBar"></div></div>
@@ -5404,10 +5404,11 @@ function renderDemographics(){
   var wBar = document.getElementById('demoWorkerBar');
   if(wBar){wBar.style.width = workerPct + '%';wBar.style.background='#DC6B2C';}
 
-  // 一线检验员：摩祖质量部+质量管理部的检验员
+  // 一线检验人员：摩祖质量部+质量管理部的检验员+质检组长
   var inspectorDepts = ['摩祖质量部', '质量管理部'];
+  var inspectorPositions = ['检验员', '质检组长'];
   var inspectorCount = active.filter(function(e){
-    return inspectorDepts.indexOf(e.dept) >= 0 && e.position === '检验员';
+    return inspectorDepts.indexOf(e.dept) >= 0 && inspectorPositions.indexOf(e.position) >= 0;
   }).length;
   var inspectorPct = (inspectorCount / total * 100).toFixed(1);
   document.getElementById('demoInspectorNum').textContent = inspectorCount;
