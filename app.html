@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.1.106">
+<meta name="version" content="V0.1.107">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -4237,22 +4237,20 @@ function buildFilterMeta(){
 }
 
 // ===== Inline Filter Logic =====
-// 学历原始值 → 分组名称映射（与学历分布图一致）
+// 学历原始值 → 分组名称映射（与学历分布图一致，模糊匹配）
 function _mapEduToGroup(raw){
   if(!raw) return raw;
-  var m={
-    '博士':['博士'],
-    '硕士':['硕士','MBA','EMBA'],
-    '本科':['本科'],
-    '大专':['大专'],
-    '中专及高中':['高中','中专','中技','职高'],
-    '初中及以下':['初中','中学','小学','其他','未知']
-  };
-  for(var group in m){
-    if(m[group].indexOf(raw)>=0) return group;
-  }
-  // 在校大学实习生等特殊值原样返回
-  return raw;
+  var r=raw;
+  // 按优先级从高到低匹配关键字
+  if(r.indexOf('博士')>=0) return '博士';
+  if(r.indexOf('硕士')>=0 || r.indexOf('MBA')>=0 || r.indexOf('EMBA')>=0) return '硕士';
+  if(r.indexOf('本科')>=0) return '本科';
+  if(r.indexOf('大专')>=0 || r.indexOf('专科')>=0) return '大专';
+  if(r.indexOf('高中')>=0 || r.indexOf('中专')>=0 || r.indexOf('中技')>=0 || r.indexOf('职高')>=0) return '中专及高中';
+  if(r.indexOf('初中')>=0 || r.indexOf('中学')>=0 || r.indexOf('小学')>=0) return '初中及以下';
+  // 在校大学实习生等特殊值原样返回；未知/其他归入最低组
+  if(r.indexOf('未知')>=0 || r.indexOf('其他')>=0) return '初中及以下';
+  return r; // 未命中的原样返回（如在校大学实习生）
 }
 
 var _lastCenterVal='';
@@ -5437,28 +5435,27 @@ function renderDemographics(){
     '<div class="demo-legend-item"><span class="demo-legend-dot" style="background:#4A90C4"></span>男 '+male+'人 ('+malePct+'%)</div>'+
     '<div class="demo-legend-item"><span class="demo-legend-dot" style="background:#E87B9A"></span>女 '+female+'人 ('+femalePct+'%)</div>';
 
-  // --- 2. 学历分布条形图 (自定义排序 + Top N) ---
-  var eduMap = {};
-  active.forEach(function(e){ var v = e.education || '未知'; eduMap[v] = (eduMap[v] || 0) + 1; });
-  var eduOrder = ['硕士','本科','大专','中专及高中','初中及以下'];
-  var eduList = eduOrder.filter(function(k){ return eduMap[k]; }).map(function(k){ return [k, eduMap[k]]; });
-  // 合并归类：硕士=含MBA/EMBA, 本科=本科, 大专=大专, 中专及高中=高中+中专+中技+职高, 初中及以下=初中+中学+小学+其他+未知
-  var eduGroups = {
-    '硕士': ['硕士','MBA','EMBA'],
-    '本科': ['本科'],
-    '大专': ['大专'],
-    '中专及高中': ['高中','中专','中技','职高'],
-    '初中及以下': ['初中','中学','小学','其他','未知']
-  };
-  var mergedEdu = [];
-  Object.keys(eduGroups).forEach(function(groupName){
-    var groupKeys = eduGroups[groupName];
-    var sum = 0;
-    for(var gi=0;gi<groupKeys.length;gi++){
-      sum += (eduMap[groupKeys[gi]] || 0);
+  // --- 2. 学历分布条形图 (自定义排序 + 模糊分组) ---
+  var eduOrder = ['博士','硕士','本科','大专','中专及高中','初中及以下'];
+  var eduGroupCounts = {};
+  for(var ei=0;ei<eduOrder.length;ei++) eduGroupCounts[eduOrder[ei]] = 0;
+  active.forEach(function(e){
+    var v = _mapEduToGroup(e.education || '未知');
+    if(eduGroupCounts.hasOwnProperty(v)){
+      eduGroupCounts[v]++;
+    }else{
+      // 不在预设分组的（如在校大学实习生）单独记录
+      eduGroupCounts[v] = (eduGroupCounts[v] || 0) + 1;
     }
-    if(sum > 0) mergedEdu.push([groupName, sum]);
   });
+  var mergedEdu = [];
+  for(var ei=0;ei<eduOrder.length;ei++){
+    if(eduGroupCounts[eduOrder[ei]] > 0) mergedEdu.push([eduOrder[ei], eduGroupCounts[eduOrder[ei]]]);
+  }
+  // 追加不在预设顺序中的组（如在校大学实习生）
+  for(var k in eduGroupCounts){
+    if(eduOrder.indexOf(k)<0 && eduGroupCounts[k]>0) mergedEdu.push([k, eduGroupCounts[k]]);
+  }
   var eduColors = ['#3B6FA5','#5A8EC5','#73A3D4','#8CB9E3','#C0D8EC'];
   var eduHTML = '';
   mergedEdu.forEach(function(item, i){
