@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.2.56">
+<meta name="version" content="V0.2.57">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1948,10 +1948,10 @@ body{
 .wp-total-row td.wp-total-num{color:var(--primary);font-size:13px}
 
 /* ===== 协同任务表格 ===== */
-.collab-section{margin-top:20px;margin-bottom:20px;border:2px solid #f59e0b;border-radius:10px;background:#fffbeb;flex-shrink:0;min-height:60px;display:block;box-sizing:border-box}
-.collab-section-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#fef3c7;border-bottom:2px solid #f59e0b;min-height:44px;box-sizing:border-box}
-.collab-section-title{font-size:14px;font-weight:600;color:#92400e;display:flex;align-items:center;gap:6px;line-height:1.4}
-.collab-section-count{font-size:12px;color:#b45309;background:#fde68a;padding:2px 8px;border-radius:10px;font-weight:600}
+.collab-section{margin-top:20px;margin-bottom:20px;border:1px solid #e5e7eb;border-radius:8px;background:#fafafa;flex-shrink:0;min-height:60px;display:block;box-sizing:border-box}
+.collab-section-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#f3f4f6;border-bottom:1px solid #e5e7eb;min-height:44px;box-sizing:border-box}
+.collab-section-title{font-size:14px;font-weight:600;color:#374151;display:flex;align-items:center;gap:6px;line-height:1.4}
+.collab-section-count{font-size:12px;color:#6b7280;background:#e5e7eb;padding:2px 8px;border-radius:10px;font-weight:600}
 .collab-empty{padding:24px;text-align:center;color:#92400e;font-size:14px;font-weight:500;min-height:40px;line-height:1.5;display:block}
 table.collab-table{width:100%;border-collapse:collapse;font-size:12px;background:#fff}
 table.collab-table thead th{background:#fef3c7;color:#92400e;font-weight:600;padding:8px 6px;border-bottom:1px solid #fde68a;text-align:left;font-size:11px;white-space:nowrap}
@@ -16462,7 +16462,7 @@ function _renderCollabTasksSection(plan){
   // header 行
   html+='<tr><td style="padding:12px 16px;background:#fef3c7;border-bottom:2px solid #f59e0b">';
   html+='<div style="display:flex;align-items:center;justify-content:space-between">';
-  html+='<span style="font-size:14px;color:#92400e;font-weight:600">🤝 协同任务</span>';
+  html+='<span style="font-size:14px;color:#374151;font-weight:600">🤝 协同任务</span>';
   if(collabTasks.length>0){
     html+='<span style="font-size:12px;color:#b45309;background:#fde68a;padding:2px 8px;border-radius:10px;font-weight:600">'+collabTasks.length+' 项</span>';
   }
@@ -16471,7 +16471,7 @@ function _renderCollabTasksSection(plan){
   // 内容行
   html+='<tr><td style="padding:0">';
   if(collabTasks.length===0){
-    html+='<div style="padding:28px;text-align:center;color:#92400e;font-size:14px;font-weight:500">📭 本周暂无协同任务</div>';
+    html+='<div style="padding:28px;text-align:center;color:#9ca3af;font-size:14px;font-weight:500">📭 本周暂无协同任务</div>';
   }else{
     html+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr style="background:#fff">';
     html+='<th style="padding:10px 8px;text-align:left;color:#92400e;font-weight:600;font-size:11px;white-space:nowrap;border-bottom:1px solid #f59e0b">序号</th>';
