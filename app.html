@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.2.90">
+<meta name="version" content="V0.2.91">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -17224,6 +17224,16 @@ function renderWPTable(plan){
   html+='</div>';
 
   content.insertAdjacentHTML('beforeend',html);
+  // ★ V0.2.91: 将下属切换控件从顶栏移到工具栏右侧（完整DOM移动，含下拉列表）
+  var subSelect=document.getElementById('wpSubSelect');
+  var toolbar=content.querySelector('#wpToolbar');
+  if(subSelect&&toolbar&&subSelect.style.display!=='none'&&subSelect.style.display!==''){
+    toolbar.insertAdjacentElement('afterend',subSelect);
+    // 调整样式：与工具栏同行对齐
+    subSelect.style.marginLeft='16px';
+    subSelect.style.paddingTop='10px';
+    subSelect.style.alignItems='center';
+  }
 }
 
 // ★ V0.1.23: 审核并冻结 — 上级冻结下属周计划的核心三列
