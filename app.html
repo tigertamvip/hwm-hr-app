@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.2.46">
+<meta name="version" content="V0.2.47">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2015,9 +2015,9 @@ table.collab-table tbody tr:hover{background:#fffdf5}
 ._confirm-title{padding:16px 20px 8px;font-size:15px;font-weight:600;color:var(--text)}
 ._confirm-body{padding:8px 20px 20px;font-size:14px;color:var(--text-secondary);line-height:1.6;white-space:pre-line}
 ._confirm-actions{padding:12px 20px 18px;display:flex;justify-content:flex-end;gap:10px}
-._confirm-btn-cancel{padding:8px 22px;border:1px solid var(--border);border-radius:8px;background:#fff;color:var(--text-secondary);font-size:13px;cursor:pointer}
+._confirm-btn-cancel{padding:10px 32px;border:1px solid var(--border);border-radius:8px;background:#fff;color:var(--text-secondary);font-size:14px;cursor:pointer;min-width:90px}
 ._confirm-btn-cancel:hover{background:#F5F5F5}
-._confirm-btn-ok{padding:8px 22px;border:none;border-radius:8px;background:#3B6FA5;color:#fff;font-size:13px;font-weight:500;cursor:pointer}
+._confirm-btn-ok{padding:10px 32px;border:none;border-radius:8px;background:#3B6FA5;color:#fff;font-size:14px;font-weight:500;cursor:pointer;min-width:90px}
 ._confirm-btn-ok:hover{background:#2d5a8b}
 .wp-eval-body{padding:16px 18px}
 .wp-eval-row{margin-bottom:12px}
@@ -6186,7 +6186,7 @@ function _showAlert(message,title){
   return new Promise(function(resolve){
     var overlay=document.createElement('div');
     overlay.className='_confirm-overlay';
-    overlay.innerHTML='<div class="_confirm-card"><div class="_confirm-title">'+(title||'提示')+'</div><div class="_confirm-body">'+message+'</div><div class="_confirm-actions" style="justify-content:center"><button class="_confirm-btn-ok">确定</button></div></div>';
+    overlay.innerHTML='<div class="_confirm-card"><div class="_confirm-title">'+(title||'提示')+'</div><div class="_confirm-body">'+message+'</div><div class="_confirm-actions" style="justify-content:center"><button class="_confirm-btn-ok" style="min-width:90px;padding:10px 32px;font-size:14px">确定</button></div></div>';
     document.body.appendChild(overlay);
     var okBtn=overlay.querySelector('._confirm-btn-ok');
     function cleanup(){document.body.removeChild(overlay);}
