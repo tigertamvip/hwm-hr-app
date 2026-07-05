@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.3.04">
+<meta name="version" content="V0.3.05">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2531,7 +2531,6 @@ table.collab-table tbody tr:hover{background:#fffdf5}
         <button class="wp-btn-myplan" id="wpBtnMyPlan" onclick="switchToMyWP()" title="回到我的周计划">回到我的周计划</button>
       </div>
     </div>
-    <button class="wp-back-btn" id="wpBackToMyPlanBtn" onclick="switchToMyWP()" style="display:none;margin-right:10px">↩ 回到我的周计划</button>
     <button class="wp-back-btn" onclick="goHome()">💾 保存并返回首页</button>
   </div>
   <div class="wp-layout">
@@ -16102,8 +16101,9 @@ function renderWPSubSelect(){
     return;
   }
 
-  // ★ V0.2.99: 顶栏不显示subSelect（保持干净），功能由工具栏内联按钮替代
-  div.style.display='none';
+  // ★ V0.3.05: 顶栏显示subSelect（靠右，靠近保存按钮）
+  div.style.display='flex';
+  div.style.marginLeft='auto';
 
   // ★ 自定义直属下属下拉
   _wpSubData.options=[];
@@ -16177,10 +16177,7 @@ function switchToMyWP(){
   _wpViewingDeptMember=null;
   _wpRevisionMode=false;
   _wpCurrent={year:null,month:null,week:null,plan:null};
-  // ★ V0.3.02: 回到自己的周计划，隐藏顶栏"回到我的"按钮
-  var _btmp=document.getElementById('wpBackToMyPlanBtn');
-  if(_btmp)_btmp.style.display='none';
-  // 清空两个下拉框的选中状态
+  // 清空两个下拉框的选中状态  // 清空两个下拉框的选中状态
   _wpSubData.selected='';
   var triggerText=document.getElementById('wpSubTriggerText');
   if(triggerText){triggerText.textContent='直属下属周计划';triggerText.style.color='';}
@@ -16270,9 +16267,6 @@ function onWPSubordinateChange(val){
   _wpViewingSubordinate=v;
   _wpRevisionMode=false;
   _wpCurrent={year:null,month:null,week:null,plan:null};
-  // ★ V0.3.02: 查看下属时，显示顶栏"回到我的周计划"按钮
-  var _btmp=document.getElementById('wpBackToMyPlanBtn');
-  if(_btmp)_btmp.style.display=v?'inline-flex':'none';
   loadWPData();
   renderWPUserInfo();
   renderWPSubSelect();
@@ -16305,9 +16299,6 @@ function onWPDeptMemberChange(val){
   _wpViewingDeptMember=v;
   _wpRevisionMode=false;
   _wpCurrent={year:null,month:null,week:null,plan:null};
-  // ★ V0.3.02: 查看部门成员时，显示顶栏"回到我的周计划"按钮
-  var _btmp=document.getElementById('wpBackToMyPlanBtn');
-  if(_btmp)_btmp.style.display='inline-flex';
   loadWPData();
   renderWPUserInfo();
   renderWPSubSelect();
@@ -16979,12 +16970,6 @@ function renderWPTable(plan){
   var sb=content.querySelector('.wp-summary-bar');
   var fb=content.querySelector('.wp-feedback-sections');
   var cb=content.querySelector('#collabTaskArea');
-  // ★ V0.3.00: 重渲染前保存subSelect到body（防止随旧toolbar被删）
-  var _savedSS=document.getElementById('wpSubSelect');
-  if(_savedSS&&_savedSS.parentNode){
-    _savedSS.parentNode.removeChild(_savedSS);
-    document.body.appendChild(_savedSS);
-  }
   if(tb)tb.remove();if(ta)ta.remove();if(ib)ib.remove();if(sb)sb.remove();if(fb)fb.remove();if(cb)cb.remove();
   var mp=content.querySelector('#wpTimeMgmtPanel');if(mp)mp.remove();
   if(dd)dd.style.display='none';
@@ -17241,25 +17226,6 @@ function renderWPTable(plan){
   html+='</div>';
 
   content.insertAdjacentHTML('beforeend',html);
-  // ★ V0.3.00: 将subSelect移入工具栏（所有视图都显示）
-  var _newTb=content.querySelector('#wpToolbar');
-  if(_newTb && _savedSS){
-    // 重置为工具栏风格
-    _savedSS.style.display='flex';
-    _savedSS.style.marginLeft='12px';
-    _savedSS.style.gap='8px';
-    _savedSS.style.paddingTop='0';
-    var _triggers=_savedSS.querySelectorAll('.wp-custom-trigger');
-    for(var _ti=0;_ti<_triggers.length;_ti++){
-      var _tr=_triggers[_ti];
-      _tr.style.background='#D6E4F0';_tr.style.color='#1f2937';
-      _tr.style.border='1px solid #c4ccd2';_tr.style.padding='7px 12px';
-      _tr.style.borderRadius='4px';_tr.style.fontSize='12px';
-    }
-    var _mpb=_savedSS.querySelector('.wp-btn-myplan');
-    if(_mpb){_mpb.style.background='#ff9a47';_mpb.style.padding='7px 14px';}
-    _newTb.appendChild(_savedSS);
-  }
 }
 
 // ★ V0.1.23: 审核并冻结 — 上级冻结下属周计划的核心三列
