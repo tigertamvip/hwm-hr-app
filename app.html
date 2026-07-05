@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.2.89">
+<meta name="version" content="V0.2.90">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -15691,7 +15691,6 @@ var _wpCurrent={year:null,month:null,week:null,plan:null};
 var _wpData={};
 var _wpViewingSubordinate=null;
 var _wpViewingDeptMember=null;
-var _wpHasSubSelect=false; // ★ V0.2.88: 是否有下属切换控件
 var _wpEditCell=null;
 var _wpLastRenderKey='';
 var _wpRevisionMode=false;
@@ -16099,13 +16098,10 @@ function renderWPSubSelect(){
   // 只有有直属下属的用户，才显示管理功能
   if(subs.length===0){
     div.style.display='none';
-    _wpHasSubSelect=false;
     return;
   }
 
-  // ★ V0.2.88: 下属切换控件移到工具栏，顶栏保持隐藏
-  div.style.display='none';
-  _wpHasSubSelect=true;
+  div.style.display='flex';
 
   // ★ 自定义直属下属下拉
   _wpSubData.options=[];
@@ -17023,16 +17019,6 @@ function renderWPTable(plan){
     html+='<button onclick="exportCurrentWP()">📥 导出周计划</button>';
     if(plan.bossEvaluated){
       html+='<button onclick="viewBossEval()">📋 查看上级评价</button>';
-    }
-    // ★ V0.2.88: 下属切换控件移入工具栏
-    if(typeof _wpHasSubSelect !== 'undefined' && _wpHasSubSelect){
-      html+='<div id="wpSubSelectToolbar" style="display:flex;align-items:center;gap:8px;margin-left:12px">';
-      html+='<div class="wp-custom-select" style="position:relative"><div class="wp-custom-trigger" onclick="toggleWPSubDropdown()" style="padding:6px 12px;border:1px solid #c4ccd2;border-radius:4px;background:#D6E4F0;color:#1f2937;font-size:12px;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:4px">';
-      html+='<span id="wpSubTriggerText">直属下属周计划</span><span style="font-size:10px;margin-left:4px">▾</span></div></div>';
-      html+='<div class="wp-custom-select" id="wpDeptCustomToolbar" style="position:relative;display:none"><div class="wp-custom-trigger" onclick="toggleWPDeptDropdown()" style="padding:6px 12px;border:1px solid #c4ccd2;border-radius:4px;background:#D6E4F0;color:#1f2937;font-size:12px;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:4px">';
-      html+='<span id="wpDeptTriggerText">更多下属周计划</span><span style="font-size:10px;margin-left:4px">▾</span></div></div>';
-      html+='<button class="wp-btn-myplan" onclick="switchToMyWP()" title="回到我的周计划" style="padding:6px 14px;border:1px solid #c4ccd2;border-radius:4px;background:#ff9a47;color:#fff;font-size:12px;cursor:pointer;white-space:nowrap">回到我的周计划</button>';
-      html+='</div>';
     }
     html+='<button class="wp-btn-ai" onclick="aiAssessWP()" style="margin-left:auto">🤖 AI-分析建议</button>';
   }
