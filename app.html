@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.2.60">
+<meta name="version" content="V0.2.61">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -16945,7 +16945,7 @@ async function deleteTaskRow(idx){
   if(tasks.length<=1){showToast('⚠️ 至少保留一行工作计划');return;}
   var t=tasks[idx];
   if(t.collab_from){showToast('⚠️ 协同任务不能删除');return;}
-  var ok=await _showConfirm('确定要删除第'+(idx+1)+'项工作计划的所有信息吗？\n\n⚠️ 此操作不可恢复');
+  var ok=await _showConfirm('确定要删除第'+(idx+1)+'项工作计划的所有信息吗？\n\n⚠️ 此操作不可恢复'+'\n\n—\n\n'+'Are you sure you want to delete row '+(idx+1)+' of this work plan?\n\n⚠️ This action cannot be undone.','注意 / Attention');
   if(!ok)return;
   tasks.splice(idx,1);
   // 重新编号
