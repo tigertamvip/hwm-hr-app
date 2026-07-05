@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.2.72">
+<meta name="version" content="V0.2.73">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1047,7 +1047,7 @@ body{
 #portalCard_rd{grid-column:3;grid-row:3} /* V0.1.77: 与仪表盘对调 */
 #portalCard_maintenance{grid-column:4;grid-row:3}
 .portal-card{
-  background:#0062AB;
+  background:#003472;
   border:1px solid rgba(255,255,255,.08);
   border-radius:12px;
   padding:28px 14px;
@@ -1066,7 +1066,7 @@ body{
 }
 .portal-card:hover{
   transform:translateY(-4px);
-  background:#005496;
+  background:#002a5c;
   border-color:rgba(255,255,255,.15);
   box-shadow:0 4px 20px rgba(0,0,0,.15);
   z-index:10;
@@ -1074,7 +1074,7 @@ body{
 .portal-card:active{transform:scale(.97)}
 .portal-card-label{
   font-family:"Microsoft YaHei","微软雅黑",sans-serif;
-  font-size:19px;
+  font-size:16px;
   font-weight:700;
   color:#ffffff;
   line-height:1.3;
@@ -1163,12 +1163,15 @@ body{
   background:#D9D9D9;
   border-color:rgba(0,0,0,.06);
 }
-.portal-card.disabled .portal-card-label{color:#1f2937}
-.portal-card.disabled .portal-card-en{color:#5a6366}
-.portal-card.disabled .portal-card-badge{background:rgba(255,255,255,.6);color:#5a6366;border-color:rgba(0,0,0,.08)}
+.portal-card.disabled .portal-card-label{color:#ffffff}
+.portal-card.disabled .portal-card-en{color:rgba(255,255,255,.65)}
+.portal-card.disabled .portal-card-badge{background:rgba(0,0,0,.15);color:rgba(255,255,255,.85);border-color:rgba(0,0,0,.1)}
 .portal-card.disabled:hover{
   transform:none;
   background:#cccccc;
+}
+.portal-card.disabled:hover .portal-card-label{color:#ffffff}
+.portal-card.disabled:hover .portal-card-en{color:rgba(255,255,255,.65)}
   border-color:rgba(0,0,0,.12);
   box-shadow:0 4px 16px rgba(0,0,0,.1);
 }
