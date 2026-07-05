@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.3.14">
+<meta name="version" content="V0.3.15">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -17631,14 +17631,14 @@ function _renderTimeManagementPanel(plan){
   // Col 3: 完成时间 — 紧凑 + 统一字号
   html+='<div style="flex:0.72;min-width:0;padding:0 14px;border-right:1px solid #eef2f6">';
   html+='<div style="font-weight:600;color:#374151;margin-bottom:6px;font-size:13px;border-bottom:1px solid #eef2f6;padding-bottom:5px">⏱ 完成期间</div>';
-  html+='<table style="width:100%;border-collapse:collapse;font-size:12px;line-height:1.4">';
-  html+='<tr><td style="color:#6b7280;white-space:nowrap;padding:2px 8px 2px 0">首次提交：</td><td style="color:#374151">'+subTime+'</td></tr>';
+  html+='<table style="width:100%;border-collapse:collapse;font-size:12px;line-height:1.6">';
+  html+='<tr><td style="color:#6b7280;white-space:nowrap;padding:6px 8px 6px 0">首次提交：</td><td style="color:#374151">'+subTime+'</td></tr>';
   html+='</table>';
-  html+='<div style="margin-bottom:6px;display:flex;align-items:center;gap:6px">';
-  html+='<span class="wp-tag-pill" style="background:'+subBg+';color:'+subColor+';border-radius:10px;padding:2px 12px;font-size:12px;font-weight:500">'+subText+'</span>';
+  html+='<div style="margin-bottom:10px;display:flex;align-items:center;gap:6px">';
+  html+='<span class="wp-tag-pill" style="background:'+subBg+';color:'+subColor+';border-radius:10px;padding:3px 18px;font-size:12px;font-weight:500">'+subText+'</span>';
   html+='</div>';
-  html+='<table style="width:100%;border-collapse:collapse;font-size:12px;line-height:1.4">';
-  html+='<tr><td style="color:#6b7280;white-space:nowrap;padding:2px 8px 2px 0">上级评价：</td><td style="color:#9ca3af">—</td></tr>';
+  html+='<table style="width:100%;border-collapse:collapse;font-size:12px;line-height:1.6">';
+  html+='<tr><td style="color:#6b7280;white-space:nowrap;padding:6px 8px 6px 0">上级评价：</td><td style="color:#9ca3af">—</td></tr>';
   html+='</table>';
   html+='<div>';
   html+='<span class="wp-tag-pill" style="background:'+revBg+';color:'+revColor+';border-radius:10px;padding:2px 12px;font-size:12px;font-weight:500">'+revText+'</span>';
