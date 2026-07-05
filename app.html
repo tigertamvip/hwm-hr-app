@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.3.19">
+<meta name="version" content="V0.3.20">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2518,14 +2518,14 @@ table.collab-table tbody tr:hover{background:#fffdf5}
       <div class="wp-sub-select" id="wpSubSelect" style="display:none">
         <div class="wp-custom-select" id="wpSubCustom" style="position:relative">
           <div class="wp-custom-trigger" id="wpSubTrigger" onclick="toggleWPSubDropdown()">
-            <span id="wpSubTriggerText">查看直属下属周计划</span>
+            <span id="wpSubTriggerText">查阅直属下属周计划</span>
             <span style="font-size:10px;margin-left:4px">▾</span>
           </div>
           <div class="wp-custom-dropdown" id="wpSubDropdown" style="display:none"></div>
         </div>
         <div class="wp-custom-select" id="wpDeptCustom" style="position:relative;display:none">
           <div class="wp-custom-trigger" id="wpDeptTrigger" onclick="toggleWPDeptDropdown()">
-            <span id="wpDeptTriggerText">更多下属周计划</span>
+            <span id="wpDeptTriggerText">查阅更多下属周计划</span>
             <span style="font-size:10px;margin-left:4px">▾</span>
           </div>
           <div class="wp-custom-dropdown" id="wpDeptDropdown" style="display:none"></div>
@@ -16123,7 +16123,7 @@ function renderWPSubSelect(){
     if(triggerText)triggerText.textContent=_wpViewingSubordinate;
     _wpSubData.selected=_wpViewingSubordinate;
   }else{
-    if(triggerText){triggerText.textContent='查看直属下属周计划';triggerText.style.color='';}
+    if(triggerText){triggerText.textContent='查阅直属下属周计划';triggerText.style.color='';}
     _wpSubData.selected='';
   }
   if(dd){
@@ -16154,7 +16154,7 @@ function renderWPSubSelect(){
       if(triggerDeptText)triggerDeptText.textContent=_wpViewingDeptMember;
       _wpDeptData.selected=_wpViewingDeptMember;
     }else{
-      if(triggerDeptText){triggerDeptText.textContent='更多下属周计划';}
+      if(triggerDeptText){triggerDeptText.textContent='查阅更多下属周计划';}
       _wpDeptData.selected='';
     }
     if(ddDept){
@@ -16186,7 +16186,7 @@ function switchToMyWP(){
   if(triggerText){triggerText.textContent='直属下属周计划';triggerText.style.color='';}
   _wpDeptData.selected='';
   var triggerDeptText=document.getElementById('wpDeptTriggerText');
-  if(triggerDeptText){triggerDeptText.textContent='更多下属周计划';}
+  if(triggerDeptText){triggerDeptText.textContent='查阅更多下属周计划';}
   loadWPData();
   renderWPUserInfo();
   renderWPSubSelect();
