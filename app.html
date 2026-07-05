@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.2.44">
+<meta name="version" content="V0.2.45">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -17669,9 +17669,10 @@ function _formatDateTime(isoStr){
     +pad(d.getHours())+':'+pad(d.getMinutes())+'（周'+days[d.getDay()]+'）';
 }
 
-function deleteCurrentWPPlan(){
+async function deleteCurrentWPPlan(){
   var p=_wpCurrent.plan;if(!p){_showAlert('请先选择一个周计划');return;}
-  if(!confirm('确定清空 '+p.year+'年'+p.month+'月第'+p.week+'周计划内容？\n\n将保留空白表单，仅清除已填写的内容。'))return;
+  var ok=await _showConfirm('确定清空 '+p.year+'年'+p.month+'月第'+p.week+'周计划内容？\n\n将保留空白表单，仅清除已填写的内容。','注意：');
+  if(!ok)return;
   // ★ V0.1.59: 重置为1行空白表单（保留 name/dept/position）
   var y=p.year, m=p.month, w=p.week;
   var tasks=[];
