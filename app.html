@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.2.95">
+<meta name="version" content="V0.2.96">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -16968,15 +16968,6 @@ function renderWPTable(plan){
   var sb=content.querySelector('.wp-summary-bar');
   var fb=content.querySelector('.wp-feedback-sections');
   var cb=content.querySelector('#collabTaskArea');
-  // ★ V0.2.95: 重渲染前保存subSelect（防止随旧toolbar一起被删）
-  var _savedSubSelect=document.getElementById('wpSubSelect');
-  if(_savedSubSelect){
-    // 不管subSelect当前在哪里（toolbar内或顶栏），都先安全取出
-    var _ssParent=_savedSubSelect.parentNode;
-    if(_ssParent)_ssParent.removeChild(_savedSubSelect);
-    document.body.appendChild(_savedSubSelect); // 暂存body
-    _savedSubSelect.style.display='none';
-  }
   if(tb)tb.remove();if(ta)ta.remove();if(ib)ib.remove();if(sb)sb.remove();if(fb)fb.remove();if(cb)cb.remove();
   var mp=content.querySelector('#wpTimeMgmtPanel');if(mp)mp.remove();
   if(dd)dd.style.display='none';
@@ -17005,6 +16996,8 @@ function renderWPTable(plan){
     html+=isFrozen?'❄️ 解除冻结':'❄️ 审核并冻结';
     html+='</button>';
     html+='<button onclick="openBossEval()">⭐ 完成评价</button>';
+    // ★ V0.2.96: 部门成员视图 - 回到我的周计划
+    html+='<button onclick="switchToMyWP()" style="padding:7px 14px;border:1px solid #c4ccd2;border-radius:4px;background:#ff9a47;color:#fff;font-size:12px;cursor:pointer;white-space:nowrap;margin-left:auto">↩ 回到我的周计划</button>';
   }else if(_wpViewingSubordinate){
     // 查看下属：修订模式 + 审核冻结 + 上级评价编辑
     html+='<button class="' + (_wpRevisionMode?'wp-btn-warn':'') + '" onclick="toggleWPRevisionMode()" title="开启后可修改下属计划内容，修改将以红色标注">';
@@ -17016,6 +17009,8 @@ function renderWPTable(plan){
     html+=isFrozen?'❄️ 解除冻结':'❄️ 审核并冻结';
     html+='</button>';
     html+='<button onclick="openBossEval()">⭐ 完成评价</button>';
+    // ★ V0.2.96: 下属视图 - 回到我的周计划
+    html+='<button onclick="switchToMyWP()" style="padding:7px 14px;border:1px solid #c4ccd2;border-radius:4px;background:#ff9a47;color:#fff;font-size:12px;cursor:pointer;white-space:nowrap;margin-left:auto">↩ 回到我的周计划</button>';
   }else{
     // 自己的计划：完整编辑功能（去掉新增+转发，左下角已有新建）
     html+='<button onclick="submitWPPlan()" '+(plan.firstSubmittedAt?'disabled':'')+' class="'+(plan.firstSubmittedAt?'wp-btn-disabled':'wp-btn-primary')+'">📋 提交周计划</button>';
@@ -17233,33 +17228,6 @@ function renderWPTable(plan){
   html+='</div>';
 
   content.insertAdjacentHTML('beforeend',html);
-  // ★ V0.2.95: 下属切换控件移入工具栏内部（任何视图都显示，含下属/部门成员/自己）
-  var toolbar=content.querySelector('#wpToolbar');
-  if(toolbar){
-    var subSelect=_savedSubSelect||document.getElementById('wpSubSelect');
-    // 只要有subSelect节点就挂载（不管display状态，由renderWPSubSelect控制可见性）
-    if(subSelect){
-      // 重置容器样式，匹配工具栏按钮风格
-      subSelect.style.marginLeft='16px';
-      subSelect.style.gap='8px';
-      subSelect.style.display='flex'; // 确保在工具栏中可见（renderWPSubSelect已确认用户有下属）
-      // 重置 trigger 样式
-      var triggers=subSelect.querySelectorAll('.wp-custom-trigger');
-      for(var ti=0;ti<triggers.length;ti++){
-        var tr=triggers[ti];
-        tr.style.background='#D6E4F0';
-        tr.style.color='#1f2937';
-        tr.style.border='1px solid #c4ccd2';
-        tr.style.padding='7px 12px';
-        tr.style.borderRadius='4px';
-        tr.style.fontSize='12px';
-      }
-      // 回到我的周计划按钮
-      var myplanBtn=subSelect.querySelector('.wp-btn-myplan');
-      if(myplanBtn){myplanBtn.style.background='#ff9a47';myplanBtn.style.padding='7px 14px';}
-      toolbar.appendChild(subSelect);
-    }
-  }
 }
 
 // ★ V0.1.23: 审核并冻结 — 上级冻结下属周计划的核心三列
