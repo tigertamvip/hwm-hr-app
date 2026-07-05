@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.2.94">
+<meta name="version" content="V0.2.95">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -16968,12 +16968,14 @@ function renderWPTable(plan){
   var sb=content.querySelector('.wp-summary-bar');
   var fb=content.querySelector('.wp-feedback-sections');
   var cb=content.querySelector('#collabTaskArea');
-  // ★ V0.2.94: 重渲染前保存subSelect（它被appendChild进了toolbar），防止被tb.remove()一起删掉
+  // ★ V0.2.95: 重渲染前保存subSelect（防止随旧toolbar一起被删）
   var _savedSubSelect=document.getElementById('wpSubSelect');
-  if(_savedSubSelect&&_savedSubSelect.parentNode===tb){
-    tb.removeChild(_savedSubSelect);
-    document.body.appendChild(_savedSubSelect); // 暂存到body，避免被GC
-    _savedSubSelect.style.display='none'; // 隐藏，等新toolbar建好再放回去
+  if(_savedSubSelect){
+    // 不管subSelect当前在哪里（toolbar内或顶栏），都先安全取出
+    var _ssParent=_savedSubSelect.parentNode;
+    if(_ssParent)_ssParent.removeChild(_savedSubSelect);
+    document.body.appendChild(_savedSubSelect); // 暂存body
+    _savedSubSelect.style.display='none';
   }
   if(tb)tb.remove();if(ta)ta.remove();if(ib)ib.remove();if(sb)sb.remove();if(fb)fb.remove();if(cb)cb.remove();
   var mp=content.querySelector('#wpTimeMgmtPanel');if(mp)mp.remove();
@@ -17231,17 +17233,17 @@ function renderWPTable(plan){
   html+='</div>';
 
   content.insertAdjacentHTML('beforeend',html);
-  // ★ V0.2.94: 下属切换控件移入工具栏内部（支持重渲染不丢失）
+  // ★ V0.2.95: 下属切换控件移入工具栏内部（任何视图都显示，含下属/部门成员/自己）
   var toolbar=content.querySelector('#wpToolbar');
   if(toolbar){
-    // 优先用保存的节点（重渲染场景），否则从DOM找（首次渲染）
     var subSelect=_savedSubSelect||document.getElementById('wpSubSelect');
-    if(subSelect && (subSelect.style.display==='flex'||subSelect.parentNode===document.body)){
+    // 只要有subSelect节点就挂载（不管display状态，由renderWPSubSelect控制可见性）
+    if(subSelect){
       // 重置容器样式，匹配工具栏按钮风格
       subSelect.style.marginLeft='16px';
       subSelect.style.gap='8px';
-      subSelect.style.display='flex'; // 恢复显示
-      // 重置 trigger 样式：从顶栏白色毛玻璃 → 工具栏浅蓝底深字
+      subSelect.style.display='flex'; // 确保在工具栏中可见（renderWPSubSelect已确认用户有下属）
+      // 重置 trigger 样式
       var triggers=subSelect.querySelectorAll('.wp-custom-trigger');
       for(var ti=0;ti<triggers.length;ti++){
         var tr=triggers[ti];
@@ -17252,7 +17254,7 @@ function renderWPTable(plan){
         tr.style.borderRadius='4px';
         tr.style.fontSize='12px';
       }
-      // 回到我的周计划按钮也统一工具栏风格
+      // 回到我的周计划按钮
       var myplanBtn=subSelect.querySelector('.wp-btn-myplan');
       if(myplanBtn){myplanBtn.style.background='#ff9a47';myplanBtn.style.padding='7px 14px';}
       toolbar.appendChild(subSelect);
