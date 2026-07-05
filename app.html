@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.2.92">
+<meta name="version" content="V0.2.93">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -17224,6 +17224,26 @@ function renderWPTable(plan){
   html+='</div>';
 
   content.insertAdjacentHTML('beforeend',html);
+  // ★ V0.2.93: 下属切换控件完整移入工具栏内部（appendChild，保留DOM引用+事件）
+  var subSelect=document.getElementById('wpSubSelect');
+  var toolbar=content.querySelector('#wpToolbar');
+  if(subSelect && toolbar && subSelect.style.display==='flex'){
+    // 重置容器样式，匹配工具栏按钮风格
+    subSelect.style.marginLeft='16px';
+    subSelect.style.gap='8px';
+    // 重置 trigger 样式：从顶栏白色毛玻璃 → 工具栏浅蓝底深字
+    var triggers=subSelect.querySelectorAll('.wp-custom-trigger');
+    for(var ti=0;ti<triggers.length;ti++){
+      var tr=triggers[ti];
+      tr.style.background='#D6E4F0';
+      tr.style.color='#1f2937';
+      tr.style.border='1px solid #c4ccd2';
+      tr.style.padding='7px 12px';
+      tr.style.borderRadius='4px';
+      tr.style.fontSize='12px';
+    }
+    toolbar.appendChild(subSelect);
+  }
 }
 
 // ★ V0.1.23: 审核并冻结 — 上级冻结下属周计划的核心三列
