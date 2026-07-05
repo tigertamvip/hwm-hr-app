@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.2.80">
+<meta name="version" content="V0.2.81">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1151,9 +1151,9 @@ body{
 }
 .portal-card.disabled:active{transform:none}
 
-/* 系统维护特殊卡片 */
+/* 系统维护特殊卡片 — hover行为与已开发模块一致 */
 .portal-card-special{background:#132843}
-.portal-card-special:hover{background:#0d1e30;box-shadow:0 8px 28px rgba(19,40,67,.35)}
+.portal-card-special:hover{transform:translateY(-4px);background:#004a8d;border-color:rgba(255,255,255,.15);box-shadow:0 4px 20px rgba(0,0,0,.15);z-index:10}
 .portal-card-special .portal-card-label{color:#ffffff;font-weight:400}
 .portal-card-special .portal-card-en{color:rgba(255,255,255,.7)}
 .portal-card-special .portal-card-badge{background:rgba(255,255,255,.15);color:rgba(255,255,255,.9)}
