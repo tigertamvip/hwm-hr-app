@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.3.01">
+<meta name="version" content="V0.3.02">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2531,6 +2531,7 @@ table.collab-table tbody tr:hover{background:#fffdf5}
         <button class="wp-btn-myplan" id="wpBtnMyPlan" onclick="switchToMyWP()" title="回到我的周计划">回到我的周计划</button>
       </div>
     </div>
+    <button class="wp-back-btn" id="wpBackToMyPlanBtn" onclick="switchToMyWP()" style="display:none;margin-right:10px">↩ 回到我的周计划</button>
     <button class="wp-back-btn" onclick="goHome()">💾 保存并返回首页</button>
   </div>
   <div class="wp-layout">
@@ -16176,6 +16177,9 @@ function switchToMyWP(){
   _wpViewingDeptMember=null;
   _wpRevisionMode=false;
   _wpCurrent={year:null,month:null,week:null,plan:null};
+  // ★ V0.3.02: 回到自己的周计划，隐藏顶栏"回到我的"按钮
+  var _btmp=document.getElementById('wpBackToMyPlanBtn');
+  if(_btmp)_btmp.style.display='none';
   // 清空两个下拉框的选中状态
   _wpSubData.selected='';
   var triggerText=document.getElementById('wpSubTriggerText');
@@ -16266,6 +16270,9 @@ function onWPSubordinateChange(val){
   _wpViewingSubordinate=v;
   _wpRevisionMode=false;
   _wpCurrent={year:null,month:null,week:null,plan:null};
+  // ★ V0.3.02: 查看下属时，显示顶栏"回到我的周计划"按钮
+  var _btmp=document.getElementById('wpBackToMyPlanBtn');
+  if(_btmp)_btmp.style.display=v?'inline-flex':'none';
   loadWPData();
   renderWPUserInfo();
   renderWPSubSelect();
@@ -16298,6 +16305,9 @@ function onWPDeptMemberChange(val){
   _wpViewingDeptMember=v;
   _wpRevisionMode=false;
   _wpCurrent={year:null,month:null,week:null,plan:null};
+  // ★ V0.3.02: 查看部门成员时，显示顶栏"回到我的周计划"按钮
+  var _btmp=document.getElementById('wpBackToMyPlanBtn');
+  if(_btmp)_btmp.style.display='inline-flex';
   loadWPData();
   renderWPUserInfo();
   renderWPSubSelect();
