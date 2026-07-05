@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.2.70">
+<meta name="version" content="V0.2.71">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1047,8 +1047,8 @@ body{
 #portalCard_rd{grid-column:3;grid-row:3} /* V0.1.77: 与仪表盘对调 */
 #portalCard_maintenance{grid-column:4;grid-row:3}
 .portal-card{
-  background:#02314D;
-  border:1px solid rgba(255,255,255,.06);
+  background:#4a6580;
+  border:1px solid rgba(255,255,255,.08);
   border-radius:12px;
   padding:28px 14px;
   text-align:center;
@@ -1066,8 +1066,8 @@ body{
 }
 .portal-card:hover{
   transform:translateY(-4px);
-  background:#034870;
-  border-color:rgba(255,255,255,.12);
+  background:#3d566e;
+  border-color:rgba(255,255,255,.15);
   box-shadow:0 4px 20px rgba(0,0,0,.15);
   z-index:10;
 }
@@ -1152,29 +1152,28 @@ body{
 .portal-card.disabled:active{transform:none}
 
 /* 系统维护特殊卡片 */
-.portal-card-orange{background:linear-gradient(135deg,#7c2d12,#9a3412)}
-.portal-card-orange:hover{background:linear-gradient(135deg,#9a3412,#c2410c);box-shadow:0 8px 28px rgba(154,52,18,.4)}
-.portal-card-special{background:linear-gradient(135deg,#6B4E16,#8B6914)}
-.portal-card-special:hover{background:linear-gradient(135deg,#8B6914,#A07828);box-shadow:0 8px 28px rgba(107,78,22,.35)}
-.portal-card-special .portal-card-badge{background:rgba(255,255,255,.18);color:rgba(255,255,255,.8)}
+.portal-card-special{background:#d94352}
+.portal-card-special:hover{background:#c73d4b;box-shadow:0 8px 28px rgba(217,67,82,.35)}
+.portal-card-special .portal-card-label{color:#ffffff}
+.portal-card-special .portal-card-en{color:rgba(255,255,255,.75)}
+.portal-card-special .portal-card-badge{background:rgba(255,255,255,.2);color:rgba(255,255,255,.9)}
 
-/* 未开工建设的模块：灰色底白字（覆盖 orange/special，放在最后确保优先级） */
+/* 未开工建设的模块：浅灰底深色字 */
 .portal-card.disabled{
-  background:rgba(105,105,105,.78); /* V0.1.77: 纯灰替代蓝灰 */
-  border-color:rgba(255,255,255,.12);
-  backdrop-filter: blur(1px);
+  background:#cbd2d9;
+  border-color:rgba(0,0,0,.08);
 }
-.portal-card.disabled .portal-card-label{color:#ffffff}
-.portal-card.disabled .portal-card-en{color:rgba(255,255,255,.55)}
-.portal-card.disabled .portal-card-badge{background:rgba(255,255,255,.2);color:rgba(255,255,255,.85);border-color:rgba(255,255,255,.25)}
+.portal-card.disabled .portal-card-label{color:#1f2937}
+.portal-card.disabled .portal-card-en{color:#5a6366}
+.portal-card.disabled .portal-card-badge{background:rgba(255,255,255,.5);color:#5a6366;border-color:rgba(0,0,0,.1)}
 .portal-card.disabled:hover{
   transform:none;
-  background:rgba(105,105,105,.90);
-  border-color:rgba(255,255,255,.15);
-  box-shadow:0 4px 16px rgba(0,0,0,.2);
+  background:#b8c2c9;
+  border-color:rgba(0,0,0,.12);
+  box-shadow:0 4px 16px rgba(0,0,0,.1);
 }
-.portal-card.disabled:hover .portal-card-label{color:#ffffff}
-.portal-card.disabled:hover .portal-card-en{color:rgba(255,255,255,.55)}
+.portal-card.disabled:hover .portal-card-label{color:#1f2937}
+.portal-card.disabled:hover .portal-card-en{color:#5a6366}
 
 .portal-footer{
   text-align:center;
