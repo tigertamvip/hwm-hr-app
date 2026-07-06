@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.3.64">
+<meta name="version" content="V0.3.65">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -185,7 +185,7 @@ body{
 .demo-bar-label{font-size:10px;color:var(--text);width:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right}
 .demo-bar-track{flex:2;background:#E8EDF1;border-radius:3px;height:14px;overflow:hidden;margin-right:6px}
 .demo-bar-fill{height:100%;border-radius:3px;transition:width .5s ease}
-.demo-bar-num{font-size:10px;color:var(--text-hint);width:60px;text-align:right;flex-shrink:0;padding-right:2px}
+.demo-bar-num{font-size:10px;color:#1B6EC4;width:60px;text-align:right;flex-shrink:0;padding-right:2px}
 /* Worker card */
 .demo-card-worker{}
 .demo-two-rows{display:flex;flex-direction:column;gap:8px;padding:0 4px}
@@ -3627,6 +3627,7 @@ function kpiSelect(name,opts,sel){
 function _h(v){return (v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 // V0.3.63: 合并连续换行为单个，防止粘贴内容撑大行高
 // V0.3.64: 统计数字颜色从#02314D改为#1B6EC4科技蓝，提升可读性
+// V0.3.65: 人口统计条形图数字(.demo-bar-num)从--text-hint(#C8C8C8)改为#1B6EC4科技蓝
 function _hWork(v){return _h((v||'').replace(/\n{2,}/g,'\n'));}
 
 // ===== KPI 可编辑渲染 =====
