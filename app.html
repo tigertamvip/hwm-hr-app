@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.3.50">
+<meta name="version" content="V0.3.51">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1918,7 +1918,7 @@ body{
 .wp-table{width:100%;border-collapse:collapse;font-size:12px;min-width:0;table-layout:fixed}
 .wp-table th{background:#E2E4E7;color:#1f2937;font-weight:600;padding:8px 6px;border-bottom:2px solid #fff;white-space:nowrap;position:sticky;top:0;z-index:1;font-size:11px;text-align:center}
 .wp-table th.col-fixed{background:#d5d8db}
-.wp-table td{padding:6px;border-bottom:1px solid #F0F0F0;vertical-align:top;text-align:center}
+.wp-table td{padding:7px;border-bottom:1px solid #F0F0F0;vertical-align:top;text-align:center}
 .wp-table td.editable{cursor:pointer;transition:background .15s;position:relative}
 .wp-table td.editable:hover{background:#FFF9E6}
 .wp-table td.editable.editing{background:#FFFAEA;box-shadow:inset 0 0 0 2px var(--gold);padding:0}
@@ -17619,24 +17619,24 @@ function _renderTimeManagementPanel(plan){
   var html='';
   html+='<div id="wpTimeMgmtPanel" style="background:#fafbfc;border:none;padding:14px 20px;margin:5px 0 7px 0;font-size:13px;display:flex;gap:16px;align-items:stretch">';
 
-  // Col 1: 提交规则 — 保持表格结构，柔和化视觉
+  // Col 1: 提交规则 — 统一字体/颜色
   html+='<div style="flex:1;min-width:140px;border-right:1px solid #eef2f6">';
-  html+='<div style="font-weight:600;color:#1f2937;margin-bottom:8px;font-size:12px;letter-spacing:.2px">提交规则</div>';
-  html+='<table style="width:100%;font-size:11px;border-collapse:collapse;line-height:1.7">';
-  html+='<tr><td colspan=2 style="padding-bottom:3px;color:#9ca3af;font-size:10px"></td></tr>';
-  html+='<tr><td style="padding:3px 4px;color:#374151"><span style="color:#059669;margin-right:8px">✓</span>周六12:00前提交</td><td style="text-align:left;padding-left:2px;color:#059669;font-size:11px">✓</td></tr>';
-  html+='<tr><td style="padding:3px 4px;color:#374151"><span style="color:#059669;margin-right:8px">✓</span>上级周一12:00评价</td><td style="text-align:left;padding-left:2px;color:#059669;font-size:11px">✓</td></tr>';
-  html+='<tr><td style="padding:3px 4px;color:#9ca3af"><span style="margin-right:8px">—</span>法定节假日顺延</td><td style="text-align:left;padding-left:2px;color:#9ca3af;font-size:11px">—</td></tr>';
-  html+='<tr><td style="padding:3px 4px;color:#6b7280"><span style="margin-right:8px">○</span>每迟12h</td><td style="text-align:left;padding-left:2px;color:#6b7280;font-weight:500;font-size:11px">−1</td></tr>';
-  html+='<tr><td style="padding:3px 4px;color:#6b7280"><span style="margin-right:8px">○</span>超48h未交</td><td style="text-align:left;padding-left:2px;color:#6b7280;font-weight:600;font-size:11px">−3</td></tr>';
+  html+='<div style="font-weight:600;color:#1f2937;margin-bottom:8px;font-size:12px">提交规则</div>';
+  html+='<table style="width:100%;font-size:11px;border-collapse:collapse;line-height:1.8">';
+  html+='<tr><td colspan=2 style="padding-bottom:3px"></td></tr>';
+  html+='<tr><td style="padding:3px 4px;color:#374151"><span style="color:#059669;margin-right:6px">✓</span>周六12:00前提交</td><td style="text-align:left;padding-left:2px;color:#059669">✓</td></tr>';
+  html+='<tr><td style="padding:3px 4px;color:#374151"><span style="color:#059669;margin-right:6px">✓</span>上级周一12:00评价</td><td style="text-align:left;padding-left:2px;color:#059669">✓</td></tr>';
+  html+='<tr><td style="padding:3px 4px;color:#6b7280"><span style="margin-right:6px">—</span>法定节假日顺延</td><td style="text-align:left;padding-left:2px;color:#6b7280">—</td></tr>';
+  html+='<tr><td style="padding:3px 4px;color:#6b7280"><span style="margin-right:6px">○</span>每迟12h</td><td style="text-align:left;padding-left:2px;color:#6b7280;font-weight:500">−1</td></tr>';
+  html+='<tr><td style="padding:3px 4px;color:#6b7280"><span style="margin-right:6px">○</span>超48h未交</td><td style="text-align:left;padding-left:2px;color:#6b7280;font-weight:500">−3</td></tr>';
   html+='</table>';
   html+='</div>';
 
-  // Col 2: 任务评分标准 — 柔和化
+  // Col 2: 任务评分标准 — 统一
   html+='<div style="flex:1;min-width:160px;padding:0 14px;border-right:1px solid #eef2f6">';
-  html+='<div style="font-weight:600;color:#1f2937;margin-bottom:8px;font-size:12px;letter-spacing:.2px">评分标准</div>';
-  html+='<table style="width:100%;font-size:11px;border-collapse:collapse;line-height:1.7">';
-  html+='<tr><td style="padding-bottom:3px;color:#9ca3af;font-size:10px"></td><td style="text-align:center;padding-bottom:3px;color:#9ca3af;font-size:10px;width:20%">按时</td><td style="text-align:center;padding-bottom:3px;color:#9ca3af;font-size:10px;width:20%">逾期</td><td style="text-align:center;padding-bottom:3px;color:#9ca3af;font-size:10px;width:20%">未完</td></tr>';
+  html+='<div style="font-weight:600;color:#1f2937;margin-bottom:8px;font-size:12px">评分标准</div>';
+  html+='<table style="width:100%;font-size:11px;border-collapse:collapse;line-height:1.8">';
+  html+='<tr><td style="padding-bottom:3px"></td><td style="text-align:center;padding-bottom:3px;color:#6b7280;width:20%">按时</td><td style="text-align:center;padding-bottom:3px;color:#6b7280;width:20%">逾期</td><td style="text-align:center;padding-bottom:3px;color:#6b7280;width:20%">未完</td></tr>';
   html+='<tr><td style="padding:3px 4px;color:#374151"><span style="display:inline-block;width:.6em"></span>重要紧急</td><td style="text-align:center;color:#059669;font-weight:600">+3</td><td style="text-align:center;color:#6b7280">−1.5</td><td style="text-align:center;color:#6b7280;font-weight:600">−3</td></tr>';
   html+='<tr><td style="padding:3px 4px;color:#374151"><span style="display:inline-block;width:.6em"></span>重要</td><td style="text-align:center;color:#059669;font-weight:500">+1.5</td><td style="text-align:center;color:#6b7280">−.75</td><td style="text-align:center;color:#6b7280">−1.5</td></tr>';
   html+='<tr><td style="padding:3px 4px;color:#374151"><span style="display:inline-block;width:.6em"></span>一般紧急</td><td style="text-align:center;color:#059669;font-weight:500">+1</td><td style="text-align:center;color:#6b7280">−.5</td><td style="text-align:center;color:#6b7280">−1</td></tr>';
@@ -17644,17 +17644,17 @@ function _renderTimeManagementPanel(plan){
   html+='</table>';
   html+='</div>';
 
-  // Col 3: 完成状态 — 柔和化
+  // Col 3: 完成状态 — 统一
   html+='<div style="flex:.8;min-width:130px;padding:0 14px;border-right:1px solid #eef2f6">';
-  html+='<div style="font-weight:600;color:#1f2937;margin-bottom:8px;font-size:12px;letter-spacing:.2px">完成状态</div>';
+  html+='<div style="font-weight:600;color:#1f2937;margin-bottom:8px;font-size:12px">完成状态</div>';
   html+='<table style="width:100%;border-collapse:collapse;font-size:11px;line-height:1.8">';
-  html+='<tr><td style="color:#9ca3af;white-space:nowrap;padding:4px 6px">提交</td><td style="color:#374151">'+subTime+'</td></tr>';
+  html+='<tr><td style="color:#6b7280;white-space:nowrap;padding:4px 6px">提交</td><td style="color:#374151">'+subTime+'</td></tr>';
   html+='</table>';
   html+='<div style="margin-bottom:10px;padding-top:4px">';
   html+='<span class="wp-tag-pill" style="display:inline-block;background:'+subBg+';color:'+subColor+';border-radius:12px;padding:4px 14px;font-size:11px;font-weight:500">'+subText+'</span>';
   html+='</div>';
   html+='<table style="width:100%;border-collapse:collapse;font-size:11px;line-height:1.8">';
-  html+='<tr><td style="color:#9ca3af;white-space:nowrap;padding:4px 6px">评价</td><td style="color:#9ca3af">—</td></tr>';
+  html+='<tr><td style="color:#6b7280;white-space:nowrap;padding:4px 6px">评价</td><td style="color:#6b7280">—</td></tr>';
   html+='</table>';
   html+='<div>';
   html+='<span class="wp-tag-pill" style="background:'+revBg+';color:'+revColor+';border-radius:10px;padding:2px 12px;font-size:12px;font-weight:500">'+revText+'</span>';
@@ -17666,16 +17666,16 @@ function _renderTimeManagementPanel(plan){
   var netVal=scores.net||0;
   var netColor=netVal>=0?'#059669':'#6b7280';
   html+='<div style="flex:.7;min-width:110px;padding-left:16px">';
-  html+='<div style="font-weight:600;color:#1f2937;margin-bottom:8px;font-size:12px;letter-spacing:.2px">'+year+'年积分</div>';
+  html+='<div style="font-weight:600;color:#1f2937;margin-bottom:8px;font-size:12px">'+year+'年积分</div>';
   html+='<div style="line-height:2">';
-  html+='<div style="display:flex;justify-content:space-between"><span style="color:#9ca3af;font-size:11px">累计</span><span style="color:#374151;font-family:system-ui;font-size:16px">'
+  html+='<div style="display:flex;justify-content:space-between"><span style="color:#6b7280;font-size:11px">累计</span><span style="color:#374151;font-family:system-ui;font-size:16px">'
   +((scores.total||0)>=0?'+':'')+(scores.total||0)+'</span></div>';
-  html+='<div style="display:flex;justify-content:space-between"><span style="color:#6b7280;font-size:12px">扣除</span><span style="color:#374151;font-family:system-ui;font-size:16px">'
+  html+='<div style="display:flex;justify-content:space-between"><span style="color:#6b7280;font-size:11px">扣除</span><span style="color:#374151;font-family:system-ui;font-size:16px">'
   +(scores.deducted||0)+'</span></div>';
   html+='<div style="border-top:1px solid #eef2f6;margin:6px 0;padding-top:6px;display:flex;justify-content:space-between"><span style="color:#374151;font-size:12px;font-weight:500">净积分</span><span style="font-weight:800;color:'+netColor+';font-family:system-ui;font-size:18px">'
   +(netVal>=0?'+':'')+netVal+'</span></div>';
   if((scores.net||0)<=-20){
-    html+='<div style="color:#9ca3af;font-size:10px;margin-top:4px">⚠️ 不能胜任</div>';
+    html+='<div style="color:#6b7280;font-size:11px;margin-top:4px">⚠️ 不能胜任</div>';
   }
   html+='</div></div>';
   html+='</div>';
