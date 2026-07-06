@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.3.43">
+<meta name="version" content="V0.3.44">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1937,8 +1937,10 @@ body{
 .wp-table td.col-wide{text-align:left;width:180px;max-width:180px;word-wrap:break-word;overflow-wrap:break-word}
 .wp-table td.col-problemtype{width:110px;max-width:110px}
 .wp-table td.col-needboss{width:69px;max-width:69px}
-.wp-table td.col-boss{background:#FFFDF5;width:auto;text-align:left;border-left:2px solid #FFBB1C}
+.wp-table td.col-boss{background:#FFFDF5;text-align:left;border-left:2px solid #FFBB1C}
 .wp-table td.col-remarks{width:110px;max-width:110px;text-align:left;word-break:break-all;white-space:normal;overflow-wrap:break-word}
+/* 让最后一列(col-boss)自动填满表格剩余宽度 */
+.wp-table tr>td:last-child,.wp-table tr>th:last-child{width:1%!important}
 .wp-table td.col-readonly{background:#FAFAFA;color:var(--text-hint);cursor:default}
 .wp-table input.wp-cell-input{width:100%;max-width:100%;border:1px solid var(--gold);border-radius:3px;padding:5px 6px;font-size:12px;outline:none;box-sizing:border-box;background:#fff}
 .wp-table input.wp-cell-input:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba(24,90,165,.12)}
@@ -1978,7 +1980,7 @@ table.collab-table tbody tr:hover{background:#fffdf5}
 /* ===== Weekly Feedback Sections ===== */
 .wp-feedback-sections{margin-top:20px;display:flex;flex-direction:column;gap:16px;padding:20px;background:var(--card);border-radius:8px;border:1px solid var(--border)}
 .wp-feedback-section{border:1px solid var(--border);border-radius:8px;overflow:hidden}
-.ai-section-collapsed{border:none!important;border-radius:0!important;margin-bottom:-16px!important;background:transparent!important}
+.ai-section-collapsed{border:none!important;border-radius:0!important;padding:0!important;margin-bottom:-16px!important;background:transparent!important;height:auto!important;min-height:0!important;overflow:visible!important}
 .ai-section-collapsed .ai-header-bar{border-bottom:none!important}
 .wp-feedback-header{display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--card-alt);border-bottom:1px solid var(--border)}
 .wp-feedback-title{font-size:14px;font-weight:600;color:var(--text)}
