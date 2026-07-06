@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.3.117">
+<meta name="version" content="V0.3.118">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -16663,19 +16663,16 @@ function _renderSupportersCell(plan,taskIndex,rawSupporters){
     revPrefix='<span style="color:#e53e3e" title="原值：'+_h(rawSupporters||'')+'&#10;修订人：'+_h(rev.by||'')+'&#10;时间：'+_h(rev.at||'')+'">';
   }
   var revSuffix=revPrefix?'</span>':'';
-  if(!hasStatuses){
-    // 无状态信息时，每个姓名独占一行（用<br>分隔）
-    var names=[];
-    for(var i=0;i<sups.length;i++){names.push(_h(sups[i].name));}
-    return revPrefix+names.join('<br>')+revSuffix;
-  }
-  // 有状态：每个协同人独占一行，带徽章（用<br>分隔）
+  // ★ V0.3.118: 始终显示协同状态徽章（无状态数据时默认"待响应"）
   var html='';
   for(var i=0;i<sups.length;i++){
     if(i>0)html+='<br>';
     var s=sups[i];
-    var statusKey=taskIndex+'_'+s.uid;
-    var st=plan._collab_statuses[statusKey]||'pending';
+    var st='pending';
+    if(hasStatuses){
+      var statusKey=taskIndex+'_'+s.uid;
+      st=plan._collab_statuses[statusKey]||'pending';
+    }
     var badgeColor='',badgeIcon='',badgeText='';
     if(st==='accepted'){badgeColor='#16a34a';badgeIcon='✅';badgeText='已接受';}
     else if(st==='rejected'){badgeColor='#dc2626';badgeIcon='❌';badgeText='已拒绝';}
