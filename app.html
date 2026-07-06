@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.3.45">
+<meta name="version" content="V0.3.46">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1915,7 +1915,7 @@ body{
 .wp-toolbar-sep{width:1px;background:var(--border);margin:0 4px;display:inline-block}
 
 .wp-table-wrap{flex:1;overflow-x:auto;background:var(--card);border-radius:8px;border:1px solid var(--border)}
-.wp-table{width:100%;border-collapse:collapse;font-size:12px;min-width:1500px;table-layout:fixed}
+.wp-table{width:100%;border-collapse:collapse;font-size:12px;min-width:0;table-layout:fixed}
 .wp-table th{background:#E2E4E7;color:#1f2937;font-weight:600;padding:8px 6px;border-bottom:2px solid #fff;white-space:nowrap;position:sticky;top:0;z-index:1;font-size:11px;text-align:center}
 .wp-table th.col-fixed{background:#d5d8db}
 .wp-table td{padding:6px;border-bottom:1px solid #F0F0F0;vertical-align:top;text-align:center}
@@ -17179,7 +17179,7 @@ function renderWPTable(plan){
     html+='<button type="button" onclick="toggleAIAnalysis()" id="aiAnalysisToggleBtn" style="padding:3px 12px;border:1px solid #d4c8f0;border-radius:14px;background:#fff;color:#6b5b95;font-size:11px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:3px;transition:all .25s ease;white-space:nowrap"><span id="aiToggleIcon">▼</span><span id="aiToggleText">展开</span></button>';
     html+='</div>';
   if(plan.aiAnalysis && plan.aiAnalysis.trim()){
-    html+='<div class="wp-feedback-textarea" id="aiAnalysisContent" style="background:#F4F0FF;border:1px solid #d4c8f0;font-size:13px;line-height:1.7;white-space:pre-wrap;transition:max-height .35s ease,opacity .25s ease,padding .25s ease;overflow:hidden;max-height:0;opacity:0;padding:0">'+_h(plan.aiAnalysis)+'</div>';
+    html+='<div class="wp-feedback-textarea" id="aiAnalysisContent" style="background:#F4F0FF;border:1px solid #d4c8f0;font-size:13px;line-height:2.2;white-space:pre-wrap;transition:max-height .35s ease,opacity .25s ease,padding .25s ease;overflow:hidden;max-height:0;opacity:0;padding:0">'+_h(plan.aiAnalysis)+'</div>';
   }else{
     html+='<div class="wp-feedback-empty" id="aiAnalysisContent" style="background:#F4F0FF;border:1px dashed #d4c8f0;transition:max-height .35s ease,opacity .25s ease,padding .25s ease;max-height:0;opacity:0;padding:0">点击上方「AI-分析建议」按钮，生成本周整体分析报告</div>';
   }
@@ -18158,7 +18158,7 @@ function toggleAIAnalysis(){
   if(!el) return;
   if(_aiExpanded){
     section.classList.remove('ai-section-collapsed');
-    el.style.maxHeight = '600px';
+    el.style.maxHeight = '800px';
     el.style.opacity = '1';
     el.style.paddingBottom = '';
     el.style.overflow = 'auto';
