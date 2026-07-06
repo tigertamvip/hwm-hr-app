@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.3.35">
+<meta name="version" content="V0.3.36">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1938,8 +1938,8 @@ body{
 .wp-table td.col-wide{text-align:left;width:180px;max-width:180px;word-wrap:break-word;overflow-wrap:break-word}
 .wp-table td.col-problemtype{width:110px;max-width:110px}
 .wp-table td.col-needboss{width:69px;max-width:69px}
-.wp-table td.col-boss{background:#FFFDF5;width:450px;max-width:450px;text-align:left;border-left:2px solid #FFBB1C}
-.wp-table td.col-ai{background:#F8F6FF;width:520px;max-width:520px;text-align:left;border-left:2px solid #667eea}
+.wp-table td.col-boss{background:#FFFDF5;width:320px;max-width:320px;text-align:left;border-left:2px solid #FFBB1C}
+.wp-table td.col-remarks{width:200px;max-width:200px;text-align:left}
 .wp-table td.col-readonly{background:#FAFAFA;color:var(--text-hint);cursor:default}
 .wp-table input.wp-cell-input{width:100%;max-width:100%;border:1px solid var(--gold);border-radius:3px;padding:5px 6px;font-size:12px;outline:none;box-sizing:border-box;background:#fff}
 .wp-table input.wp-cell-input:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba(24,90,165,.12)}
@@ -15939,7 +15939,7 @@ function _autoCarryTasks(plan,y,m,w){
       work:t.work, goal:t.goal||'', plannedDate:t.plannedDate||'',
       actualDate:'', status:'', supporters:t.supporters||'',
       problems:'', problemType:'', needBoss:'',
-      bossFeedback:'', aiSuggestion:'',
+      bossFeedback:'', remarks:'', aiSuggestion:'',
       carriedFrom:{year:pwk.year,month:pwk.month,week:pwk.week}
     });
   }
@@ -15990,7 +15990,7 @@ function _carryTasksToNextWeek(sourcePlan, forceResync){
       work:t.work, goal:t.goal||'', plannedDate:'',
       actualDate:'', status:'', supporters:t.supporters||'',
       problems:'', problemType:'', needBoss:'',
-      bossFeedback:'', aiSuggestion:'',
+      bossFeedback:'', remarks:'', aiSuggestion:'',
       carriedFrom:{year:sourcePlan.year,month:sourcePlan.month,week:sourcePlan.week}
     });
   }
@@ -16644,7 +16644,7 @@ async function _syncCollabTasks(plan,fromName,year,month,week){
             dept:s.dept||'',
             tasks:[],          // ★ 必须空数组，绝不引用发起方的 tasks！
             collab_tasks:[],
-            weekSummary:'',
+            aiAnalysis:'',weekSummary:'',
             createdAt:new Date().toISOString(),
             updatedAt:new Date().toISOString()
           };
@@ -17065,8 +17065,8 @@ function renderWPTable(plan){
   }
   html+='</div>';
 
-  html+='<div class="wp-table-area"><div class="wp-table-wrap"><table class="wp-table"><colgroup><col style="width:72px"><col style="width:200px"><col style="width:90px"><col style="width:135px"><col style="width:135px"><col style="width:84px"><col style="width:56px"><col style="width:92px"><col style="width:160px"><col style="width:82px"><col style="width:90px"><col style="width:420px"><col style="width:500px"></colgroup><thead><tr>';
-  html+='<th class="col-num" style="color:#0071E3">#</th><th class="col-work" style="color:#0071E3">本周重点工作</th><th class="col-goal" style="color:#0071E3">优先级</th><th class="col-hours" style="color:#0071E3">计划完成日期</th><th class="col-hours" style="color:#0071E3">实际完成日期</th><th class="col-status" style="color:#0071E3">完成状态</th><th class="col-score" style="color:#0071E3">积分</th><th class="col-supporters" style="color:#0071E3">协同人</th><th class="col-wide" style="color:#0071E3">遇到的问题/困难</th><th class="col-problemtype" style="color:#0071E3">问题类型</th><th class="col-needboss" style="color:#0071E3">需上级介入</th><th class="col-boss" style="color:#0071E3">直属上级建议</th><th class="col-ai" style="color:#0071E3">AI分析建议</th>';
+  html+='<div class="wp-table-area"><div class="wp-table-wrap"><table class="wp-table"><colgroup><col style="width:72px"><col style="width:200px"><col style="width:90px"><col style="width:135px"><col style="width:135px"><col style="width:84px"><col style="width:56px"><col style="width:92px"><col style="width:160px"><col style="width:82px"><col style="width:90px"><col style="width:200px"><col style="width:320px"></colgroup><thead><tr>';
+  html+='<th class="col-num" style="color:#0071E3">#</th><th class="col-work" style="color:#0071E3">本周重点工作</th><th class="col-goal" style="color:#0071E3">优先级</th><th class="col-hours" style="color:#0071E3">计划完成日期</th><th class="col-hours" style="color:#0071E3">实际完成日期</th><th class="col-status" style="color:#0071E3">完成状态</th><th class="col-score" style="color:#0071E3">积分</th><th class="col-supporters" style="color:#0071E3">协同人</th><th class="col-wide" style="color:#0071E3">遇到的问题/困难</th><th class="col-problemtype" style="color:#0071E3">问题类型</th><th class="col-needboss" style="color:#0071E3">需上级介入</th><th class="col-remarks" style="color:#0071E3">备注说明</th><th class="col-boss" style="color:#0071E3">直属上级建议</th>';
   html+='</tr></thead><tbody>';
 
   // ★ V0.1.39: 区分「上周转入」和「本周新增」
@@ -17107,9 +17107,10 @@ function renderWPTable(plan){
       html+='<td class="'+edCls+' col-wide" data-field="tasks.'+jj+'.problems" data-type="text"'+edClick+'>'+(tt.problems||plan._revisions&&plan._revisions['tasks.'+jj+'.problems']?renderWPCellValue(plan,'tasks.'+jj+'.problems',tt.problems):(tt.problems?_h(tt.problems):'<span style="color:var(--text-hint)">填写</span>'))+'</td>';
       html+='<td class="'+edCls+' col-problemtype" data-field="tasks.'+jj+'.problemType" data-type="select" data-opts="'+WP_PROBLEM_OPTIONS.join(',')+'"'+edClick+'>'+(tt.problemType||plan._revisions&&plan._revisions['tasks.'+jj+'.problemType']?renderWPCellValue(plan,'tasks.'+jj+'.problemType',tt.problemType):(tt.problemType?_h(tt.problemType):'<span style="color:var(--text-hint)">选择</span>'))+'</td>';
       html+='<td class="'+edCls+' col-needboss" data-field="tasks.'+jj+'.needBoss" data-type="select" data-opts="'+WP_NEEDBOSS_OPTIONS.join(',')+'"'+edClick+'>'+renderWPCellValue(plan,'tasks.'+jj+'.needBoss',tt.needBoss||'')+'</td>';
+      // ★ V0.3.36: 备注说明(员工自填，新列)
+      html+='<td class="'+edCls+' col-remarks" data-field="tasks.'+jj+'.remarks" data-type="text"'+edClick+'>'+(tt.remarks||plan._revisions&&plan._revisions['tasks.'+jj+'.remarks']?renderWPCellValue(plan,'tasks.'+jj+'.remarks',tt.remarks):(tt.remarks?_h(tt.remarks):'<span style="color:var(--text-hint)">备注</span>'))+'</td>';
       var bossCanEdit=isMySubordinate(plan.name) || !!_wpViewingDeptMember;
       html+='<td class="col-boss'+(bossCanEdit?' editable':'')+'"'+(bossCanEdit?' data-field="tasks.'+jj+'.bossFeedback" data-type="textarea" onclick="startEditCell(this)"':'')+'>'+(tt.bossFeedback?_h(tt.bossFeedback):(plan._revisions&&plan._revisions['tasks.'+jj+'.bossFeedback']?renderWPCellValue(plan,'tasks.'+jj+'.bossFeedback',tt.bossFeedback):'<span style="color:var(--text-hint)">上级建议</span>'))+'</td>';
-      html+='<td class="col-ai">'+_h(tt.aiSuggestion||'')+'</td>';
       html+='</tr>';
     }
     html+='<tr class="wp-section-header" style="background:#F0F9FF"><td colspan="13" style="padding:6px 12px;font-size:12px;font-weight:600;color:#0369A1;border-bottom:2px solid #BAE6FD">📝 本周新增（'+newTasks.length+'项）</td></tr>';
@@ -17139,9 +17140,10 @@ function renderWPTable(plan){
     html+='<td class="editable col-wide" data-field="tasks.'+j+'.problems" data-type="text" onclick="startEditCell(this)">'+(t.problems||plan._revisions&&plan._revisions['tasks.'+j+'.problems']?renderWPCellValue(plan,'tasks.'+j+'.problems',t.problems):(t.problems?_h(t.problems):'<span style="color:var(--text-hint)">填写</span>'))+'</td>';
     html+='<td class="editable col-problemtype" data-field="tasks.'+j+'.problemType" data-type="select" data-opts="'+WP_PROBLEM_OPTIONS.join(',')+'" onclick="startEditCell(this)">'+(t.problemType||plan._revisions&&plan._revisions['tasks.'+j+'.problemType']?renderWPCellValue(plan,'tasks.'+j+'.problemType',t.problemType):(t.problemType?_h(t.problemType):'<span style="color:var(--text-hint)">选择</span>'))+'</td>';
     html+='<td class="editable col-needboss" data-field="tasks.'+j+'.needBoss" data-type="select" data-opts="'+WP_NEEDBOSS_OPTIONS.join(',')+'" onclick="startEditCell(this)">'+renderWPCellValue(plan,'tasks.'+j+'.needBoss',t.needBoss||'')+'</td>';
+    // ★ V0.3.36: 备注说明(员工自填，新列)
+    html+='<td class="editable col-remarks" data-field="tasks.'+j+'.remarks" data-type="text" onclick="startEditCell(this)">'+(t.remarks||plan._revisions&&plan._revisions['tasks.'+j+'.remarks']?renderWPCellValue(plan,'tasks.'+j+'.remarks',t.remarks):(t.remarks?_h(t.remarks):'<span style="color:var(--text-hint)">备注</span>'))+'</td>';
     var bossCanEdit=isMySubordinate(plan.name) || !!_wpViewingDeptMember;
     html+='<td class="col-boss'+(bossCanEdit?' editable':'')+'"'+(bossCanEdit?' data-field="tasks.'+j+'.bossFeedback" data-type="textarea" onclick="startEditCell(this)"':'')+'>'+(t.bossFeedback?_h(t.bossFeedback):(plan._revisions&&plan._revisions['tasks.'+j+'.bossFeedback']?renderWPCellValue(plan,'tasks.'+j+'.bossFeedback',t.bossFeedback):'<span style="color:var(--text-hint)">上级建议</span>'))+'</td>';
-    html+='<td class="col-ai">'+_h(t.aiSuggestion||'')+'</td>';
     html+='</tr>';
   }
 
@@ -17169,6 +17171,17 @@ function renderWPTable(plan){
   var summaryContent = plan.weekSummary || '';
   var summaryUpdatedAt = plan.weekSummaryUpdatedAt || '';
   
+  html+='<div class="wp-feedback-section">';
+  html+='<div class="wp-feedback-header">';
+  html+='<span class="wp-feedback-title">🤖 AI 综合分析</span>';
+  html+='</div>';
+  if(plan.aiAnalysis && plan.aiAnalysis.trim()){
+    html+='<div class="wp-feedback-textarea" style="background:#F4F0FF;border:1px solid #d4c8f0;font-size:13px;line-height:1.7;white-space:pre-wrap">'+_h(plan.aiAnalysis)+'</div>';
+  }else{
+    html+='<div class="wp-feedback-empty" style="background:#F4F0FF;border:1px dashed #d4c8f0">点击上方「AI-分析建议」按钮，生成本周整体分析报告</div>';
+  }
+  html+='</div>';
+
   html+='<div class="wp-feedback-section">';
   html+='<div class="wp-feedback-header">';
   html+='<span class="wp-feedback-title">📝 一周工作小结</span>';
@@ -18140,195 +18153,118 @@ async function aiAssessWP() {
 
   try {
     var history = await loadWPHistory(p.name);
-    var taskDB = buildTaskDB(history);
+    var analysis = [];
+    var todayStr = new Date().toISOString().slice(0, 10);
 
-    var totalEst = 0, totalAct = 0, completed = 0, total = 0;
+    // === 整体数据统计 ===
+    var validTasks = [], completed = 0, inProgress = 0, overdue = 0;
+    var problemCount = 0, needBossCount = 0, paused = 0;
     for (var i = 0; i < p.tasks.length; i++) {
       var t = p.tasks[i];
-      if (t && t.work && t.work.trim()) {
-        total++;
-        totalEst += parseFloat(t.estimatedHours) || 0; // 保留旧字段兼容
-        if (t.status === '✓完成') completed++;
-      }
+      if (!t || !t.work || !t.work.trim()) continue;
+      validTasks.push(t);
+      if (t.status === '✓完成') completed++;
+      else if (t.status === '⚙推进中') inProgress++;
+      else if (t.status === '⏸暂停') paused++;
+      if (t.plannedDate && t.plannedDate < todayStr && t.status !== '✓完成') overdue++;
+      if (t.problems && t.problems.trim()) problemCount++;
+      if (t.needBoss === '是') needBossCount++;
     }
 
-    for (var j = 0; j < p.tasks.length; j++) {
-      var t = p.tasks[j];
+    var total = validTasks.length;
+    if (total === 0) {
+      analysis.push('📋 本周暂无有效工作任务，请先添加任务后再生成分析。');
+    } else {
+      // 📊 整体概览
+      analysis.push('【📊 整体概览】');
+      var compRate = total > 0 ? Math.round(completed / total * 100) : 0;
+      analysis.push('本周共 ' + total + ' 项任务：✓完成 ' + completed + ' 项(' + compRate + '%)，⚙推进中 ' + inProgress + ' 项，⏸暂停 ' + paused + ' 项。');
+      if (overdue > 0) analysis.push('⚠️ 有 ' + overdue + ' 项任务已逾期，建议优先处理。');
+      if (completed === total && total > 0) analysis.push('🎉 所有任务均已完成，表现优秀！');
 
-      // 判断是否为完全空行（无任务名、无日期、无状态、无问题）
-      var wk = (t && t.work) ? t.work.trim() : '';
-      var eh2 = parseFloat(t ? t.estimatedHours : 0) || 0;
-      var pd2 = (t && t.plannedDate) ? t.plannedDate : '';
-      var ad2 = (t && t.actualDate) ? t.actualDate : '';
-      var hasContent = !!(wk || eh2 > 0 || pd2 || ad2);
-      var st = t ? t.status || '' : '';
-      var hasStatus = !!st && st !== '选择' && st !== '填写' && st !== '请选择';
-      if (!hasContent && !hasStatus) {
-        p.tasks[j].aiSuggestion = '';  // 空行：AI 列留空
-        continue;  // 跳过分析
+      // 🔝 优先级分布
+      analysis.push('');
+      analysis.push('【🔝 优先级分布】');
+      var priStats = {};
+      for (var i = 0; i < validTasks.length; i++) {
+        var pri = validTasks[i].goal || '未标记';
+        priStats[pri] = (priStats[pri] || 0) + 1;
+      }
+      for (var pri in priStats) analysis.push(pri + '：' + priStats[pri] + ' 项');
+      if (!priStats['重要紧急'] || priStats['重要紧急'] === 0) {
+        analysis.push('✅ 无"重要紧急"任务，当前节奏可控。');
+      } else if (priStats['重要紧急'] >= 3) {
+        analysis.push('⚡ "重要紧急"任务较多(' + priStats['重要紧急'] + '项)，建议评估规划前瞻性。');
       }
 
-      var seg = '';
-      var workKey = wk;
-
-      if (t.status === '⚙推进中' && !t.problems) seg = '持续进行中，建议明确下阶段里程碑和完成时间节点';
-      else if (t.status === '⏸暂停') seg = '已暂停，建议明确暂停原因和恢复条件，避免长期搁置';
-      else if (t.status === '✓完成') seg = '已完成，建议总结关键产出和可复用经验';
-      else if (t.status === '❌未完成') seg = '未完成，建议分析根本原因并制定补救计划';
-      else if (!t.status) seg = '尚未标记完成状态，建议及时更新';
-
-      // ===== 困难分析（重点）=====
-      if (t.problems) {
-        var probText = t.problems.trim();
-        var pType = t.problemType || '';
-
-        // 根据困难类型给针对性建议
-        if (pType === '跨部门协调') {
-          seg += '。🚨【困难】跨部门协调问题：' + probText + ' → 建议：①明确各方职责和交付标准；②设协调截止时间；③必要时请上级介入推动';
-        } else if (pType === '资源不足') {
-          seg += '。🚨【困难】资源不足：' + probText + ' → 建议：评估是否可调优先级或申请额外资源，避免影响关键路径';
-        } else if (pType === '技术难点') {
-          seg += '。🚨【困难】技术难点：' + probText + ' → 建议：拆解难点、寻求专家支持或预留更多缓冲时间';
-        } else if (pType === '需求变更') {
-          seg += '。🚨【困难】需求变更：' + probText + ' → 建议：书面确认变更范围，评估对工时的影响并同步相关方';
-        } else if (probText) {
-          seg += '。🚨【困难】' + probText + ' → 建议主动与上级沟通，明确解决方案或申请支持';
+      // 🔥 困难分析
+      if (problemCount > 0) {
+        analysis.push('');
+        analysis.push('【🔥 困难与风险】');
+        var problemTypes = {};
+        for (var i = 0; i < validTasks.length; i++) {
+          if (validTasks[i].problems && validTasks[i].problems.trim()) {
+            var pt = validTasks[i].problemType || '其他';
+            problemTypes[pt] = (problemTypes[pt] || 0) + 1;
+          }
         }
-
-        // 历史对比：该任务是否持续报告相同困难
-        var similar = findSimilarTasks(workKey, taskDB);
-        var probHistory = similar.filter(function(x) { return x && x.problems && x.problems.trim(); });
-        if (probHistory.length >= 2) {
-          seg += '。⚠️该任务在过去' + probHistory.length + '次计划中均报告困难，建议深入分析原因并制定根本性解决方案';
-        }
+        for (var pt in problemTypes) analysis.push(pt + '：' + problemTypes[pt] + ' 项');
+        var s3 = problemCount >= total * 0.5 ? '，困难覆盖范围较大，建议与上级集中讨论' : '';
+        analysis.push('共 ' + problemCount + '/' + total + ' 项任务涉及困难/问题（' + Math.round(problemCount/total*100) + '%）' + s3);
       }
-      if (t.needBoss === '是') seg += '。已标记需上级介入，请主动沟通确认';
 
-      var eh = parseFloat(t.estimatedHours) || 0;
-      var ad = t.actualDate || '';
-      var pd = t.plannedDate || '';
-
-      // ===== 计划完成日期分析（新逻辑）=====
-      if (pd) {
-        var today = new Date();
-        var todayStr2 = today.toISOString().slice(0, 10);
-        var planDate = new Date(pd + 'T00:00:00');
-        var diffDays = Math.ceil((planDate - today) / (1000 * 60 * 60 * 24));
-
-        if (pd < todayStr2 && t.status !== '✓完成') {
-          seg += '。🔴【逾期】计划完成日期(' + pd + ')已过' + Math.abs(diffDays) + '天，当前状态"' + (t.status || '未标记') + '"，建议优先推进或调整计划';
-        } else if (diffDays >= 0 && diffDays <= 2 && t.status !== '✓完成') {
-          seg += '。⏰【即将到期】计划完成日期(' + pd + ')距今仅' + diffDays + '天，当前未完成，建议加快进度';
-        } else if (t.status === '✓完成' && ad && pd >= todayStr2) {
-          // 提前完成
-          seg += '。✅在计划日期(' + pd + ')前已完成（实际：' + ad + '），时间管理良好';
-        } else if (t.status === '✓完成' && ad && ad > pd) {
-          // 超期完成
-          seg += '。⚠️实际完成日期(' + ad + ')晚于计划(' + pd + ')，可复盘原因';
+      // 🕐 逾期预警
+      if (overdue > 0) {
+        analysis.push('');
+        analysis.push('【🕐 逾期预警】');
+        for (var i = 0; i < validTasks.length; i++) {
+          var ti = validTasks[i];
+          if (ti.plannedDate && ti.plannedDate < todayStr && ti.status !== '✓完成') {
+            analysis.push('🔴「' + ti.work + '」计划 ' + ti.plannedDate + ' 完成，已逾期。');
+          }
         }
       }
 
-      // 完成但未填实际完成日期
-      if (t.status === '✓完成' && !ad) {
-        seg += '。📋已标记完成，建议填写实际完成日期以便跟踪';
-      } else if (!t.work || !t.work.trim()) {
-        // empty row
-      } else if (!pd && !ad && !t.status) {
-        seg += '。📋建议设置计划和完成日期，便于跟踪进度';
+      // 🔔 需上级关注
+      if (needBossCount > 0) {
+        analysis.push('');
+        analysis.push('【🔔 需上级关注】');
+        analysis.push('共 ' + needBossCount + ' 项任务标记"需上级介入"（' + Math.round(needBossCount/total*100) + '%）');
+        if (needBossCount/total >= 0.5) analysis.push('建议主动与上级预约沟通讨论优先级和资源。');
       }
 
-      var similar = findSimilarTasks(workKey, taskDB);
-      if (similar.length > 0) {
-        var ests = similar.map(function(x) { return x.est; }).filter(function(x) { return x > 0; });
-        var acts = similar.map(function(x) { return x.act; }).filter(function(x) { return x > 0; });
-
-        if (ests.length > 0 && eh > 0) {
-          var avgEst = calcAverage(ests);
-          if (avgEst > 0) {
-            var ratio = eh / avgEst;
-            if (ratio > 1.5) {
-              seg += '。⚠️预计工时(' + eh + 'h)比历史平均(' + avgEst.toFixed(1) + 'h)高出' + Math.round(ratio * 100 - 100) + '%，请确认任务范围是否有变化或拆解不够细化';
-            } else if (ratio < 0.5 && eh >= 2) {
-              seg += '。⚠️预计工时(' + eh + 'h)比历史平均(' + avgEst.toFixed(1) + 'h)低' + Math.round(100 - ratio * 100) + '%，请确认是否遗漏子任务或过于乐观';
+      // 📈 历史对比
+      if (history.length > 0) {
+        analysis.push('');
+        analysis.push('【📈 历史对比】');
+        var histComp = 0, histTotal = 0;
+        for (var i = 0; i < history.length; i++) {
+          var hw = history[i];
+          if (hw && hw.tasks) {
+            for (var j = 0; j < hw.tasks.length; j++) {
+              if (hw.tasks[j].work && hw.tasks[j].work.trim()) { histTotal++; if (hw.tasks[j].status === '✓完成') histComp++; }
             }
           }
         }
-
-        if (ests.length >= 2) {
-          var maxEst = Math.max.apply(null, ests);
-          var minEst = Math.min.apply(null, ests);
-          if (maxEst > minEst * 2 && maxEst - minEst >= 4) {
-            seg += '。📊相同任务在不同周的预计工时差异较大(' + minEst + 'h~' + maxEst + 'h)，建议统一估算标准或说明差异原因';
-          }
-        }
-
-        if (acts.length > 0 && eh > 0) {
-          var avgAct = calcAverage(acts);
-          if (avgAct > eh * 1.3) {
-            seg += '。⏰该任务历史实际耗时平均(' + avgAct.toFixed(1) + 'h)比预计(' + eh + 'h)长' + Math.round((avgAct / eh - 1) * 100) + '%，建议预留缓冲时间';
-          } else if (avgAct < eh * 0.7 && avgAct > 0) {
-            seg += '。⏰该任务历史实际耗时平均(' + avgAct.toFixed(1) + 'h)比预计(' + eh + 'h)短' + Math.round((1 - avgAct / eh) * 100) + '%，预计工时可适当调低';
-          }
+        if (histTotal > 0) {
+          var histRate = Math.round(histComp / histTotal * 100);
+          analysis.push('过去 ' + history.length + ' 周平均完成率：' + histRate + '%（' + histComp + '/' + histTotal + '项）');
+          if (compRate < histRate - 20) analysis.push('⚠️ 本周完成率明显低于历史平均，需关注。');
         }
       }
-
-      // 全局逾期统计提示
-      var overdueCount = 0;
-      var todayStr3 = new Date().toISOString().slice(0, 10);
-      for (var k = 0; k < p.tasks.length; k++) {
-        var tk = p.tasks[k];
-        if (tk.plannedDate && tk.plannedDate < todayStr3 && tk.status !== '✓完成') overdueCount++;
-      }
-      if (overdueCount >= 2) {
-        seg += '。🚨本周共有' + overdueCount + '项任务已逾期，建议优先处理逾期任务或与上级沟通调整计划';
-      }
-
-      var needBossCount = 0;
-      for (var k = 0; k < p.tasks.length; k++) {
-        if (p.tasks[k].needBoss === '是') needBossCount++;
-      }
-      if (needBossCount >= 2 && total > 0 && needBossCount / total >= 0.5) {
-        seg += '。🔔本周有' + needBossCount + '项任务标记需上级介入，占比' + Math.round(needBossCount / total * 100) + '%，建议与上级集中沟通一次';
-      }
-
-      // 有内容但没触发任何分析 → 给默认提示
-      if (!seg) {
-        seg = '📝 已记录，建议关注执行进展';
-      }
-      p.tasks[j].aiSuggestion = seg;
     }
 
-    // 统计本周困难模式（跨任务分析）
-    var problemTasks = [];
-    for (var m = 0; m < p.tasks.length; m++) {
-      if (p.tasks[m] && p.tasks[m].problems && p.tasks[m].problems.trim()) {
-        problemTasks.push(p.tasks[m]);
-      }
-    }
-    if (problemTasks.length >= 2) {
-      var types = {};
-      problemTasks.forEach(function(t) { var pt = t.problemType || '其他'; types[pt] = (types[pt] || 0) + 1; });
-      var typeSummary = [];
-      for (var tp in types) typeSummary.push(tp + '(' + types[tp] + '项)');
-      // 把这条总结写到第一条困难任务的 aiSuggestion 里
-      var firstProb = -1;
-      for (var m = 0; m < p.tasks.length; m++) {
-        if (p.tasks[m] && p.tasks[m].problems && p.tasks[m].problems.trim()) { firstProb = m; break; }
-      }
-      if (firstProb >= 0) {
-        p.tasks[firstProb].aiSuggestion += '。【本周模式】共' + problemTasks.length + '项任务报告困难，类型：' + typeSummary.join('、') + '，建议与上级集中讨论一次';
-      }
-    }
-
+    p.aiAnalysis = analysis.join('\n');
     p.updatedAt = new Date().toISOString();
     saveWP(p.year, p.month, p.week, p);
     renderWPTable(p);
 
-    if (btn) { btn.disabled = false; btn.textContent = '🤖 AI 辅助评估'; }
-    _showAlert('AI 分析完成！已结合历史数据进行分析。');
+    if (btn) { btn.disabled = false; btn.textContent = '🤖 AI-分析建议'; }
+    _showAlert('AI 综合分析已生成，请查看下方「🤖 AI 综合分析」区域。');
   } catch (e) {
-    _showAlert('AI 分析失败：' + e.message);
-    if (btn) { btn.disabled = false; btn.textContent = '🤖 AI 辅助评估'; }
+    console.error('[AI] 分析失败:', e);
+    if (btn) { btn.disabled = false; btn.textContent = '🤖 AI-分析建议'; }
+    _showAlert('AI 分析失败：' + (e.message || '未知错误'));
   }
 }
 
