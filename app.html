@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.3.32">
+<meta name="version" content="V0.3.33">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -17100,9 +17100,9 @@ function renderWPTable(plan){
       html+='<td class="'+edCls+' col-hours" data-field="tasks.'+jj+'.plannedDate" data-type="date"'+edClick+'>'+(_pd?_pd:'<span style="color:var(--text-hint)">点击选择日期</span>')+'</td>';
       var _ad=renderWPCellValue(plan,'tasks.'+jj+'.actualDate',tt.actualDate||'');
       html+='<td class="'+edCls+' col-hours" data-field="tasks.'+jj+'.actualDate" data-type="date"'+edClick+'>'+(_ad?_ad:'<span style="color:var(--text-hint)">点击选择日期</span>')+'</td>';
-      // ★ V0.1.49: 每行任务得分
-      html+=_renderTaskScoreCell(plan,jj);
+      // ★ V0.1.49: 每行任务得分 — 完成状态在前，积分在后(与表头一致)
       html+='<td class="'+edCls+' col-status" data-field="tasks.'+jj+'.status" data-type="select" data-opts="'+WP_STATUS_OPTIONS.join(',')+'"'+edClick+'>'+(tt.status||plan._revisions&&plan._revisions['tasks.'+jj+'.status']?renderWPCellValue(plan,'tasks.'+jj+'.status',tt.status):(tt.status?_h(tt.status):'<span style="color:var(--text-hint)">选择</span>'))+'</td>';
+      html+=_renderTaskScoreCell(plan,jj);
       html+='<td class="'+edCls+' col-supporters" data-field="tasks.'+jj+'.supporters" data-type="text"'+edClick+'>'+(tt.supporters||plan._revisions&&plan._revisions['tasks.'+jj+'.supporters']?renderWPCellValue(plan,'tasks.'+jj+'.supporters',tt.supporters):_renderSupportersCell(plan,jj,tt.supporters))+'</td>';
       html+='<td class="'+edCls+' col-wide" data-field="tasks.'+jj+'.problems" data-type="text"'+edClick+'>'+(tt.problems||plan._revisions&&plan._revisions['tasks.'+jj+'.problems']?renderWPCellValue(plan,'tasks.'+jj+'.problems',tt.problems):(tt.problems?_h(tt.problems):'<span style="color:var(--text-hint)">填写</span>'))+'</td>';
       html+='<td class="'+edCls+' col-problemtype" data-field="tasks.'+jj+'.problemType" data-type="select" data-opts="'+WP_PROBLEM_OPTIONS.join(',')+'"'+edClick+'>'+(tt.problemType||plan._revisions&&plan._revisions['tasks.'+jj+'.problemType']?renderWPCellValue(plan,'tasks.'+jj+'.problemType',tt.problemType):(tt.problemType?_h(tt.problemType):'<span style="color:var(--text-hint)">选择</span>'))+'</td>';
