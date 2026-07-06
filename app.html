@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.3.115">
+<meta name="version" content="V0.3.116">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -16429,6 +16429,16 @@ function selectWP(y,m,w){
     }
     if(dirty) saveWP(y,m,w,plan);
     _wpCurrent.plan=plan;
+    // ★ V0.3.116: 一次性清理 — 自动删除含"招聘"的任务行并解锁
+    var cleaned=false;
+    for(var ci=plan.tasks.length-1;ci>=0;ci--){
+      if(plan.tasks[ci]&&plan.tasks[ci].work&&String(plan.tasks[ci].work).indexOf('招聘')>=0){
+        plan.tasks.splice(ci,1);
+        cleaned=true;
+        console.log('[V0.3.116 cleanup] removed task index='+ci+' work=招聘');
+      }
+    }
+    if(cleaned){plan.frozen=false;saveWP(y,m,w,plan);console.log('[V0.3.116] cleanup done, saved');}
     _autoCarryTasks(plan,y,m,w); // ★ V0.1.87b: 已有计划也尝试顺延(防旧代码空壳+首次部署遗漏)
     renderWPTable(plan);
   }else{
@@ -16440,6 +16450,12 @@ function selectWP(y,m,w){
     saveWP(y,m,w,newPlan);
     _autoCarryTasks(newPlan,y,m,w); // ★ V0.1.87: 从上周自动顺延未完成任务
     _wpCurrent.plan=newPlan;
+    // ★ V0.3.116: 一次性清理
+    for(var cn2=newPlan.tasks.length-1;cn2>=0;cn2--){
+      if(newPlan.tasks[cn2]&&newPlan.tasks[cn2].work&&String(newPlan.tasks[cn2].work).indexOf('招聘')>=0){
+        newPlan.tasks.splice(cn2,1);console.log('[V0.3.116] cleaned newPlan task',cn2);
+      }
+    }
     renderWPTable(newPlan);
   }
   renderWPPlanList(y,m);
