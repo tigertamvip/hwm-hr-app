@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.3.67">
+<meta name="version" content="V0.3.68">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1927,7 +1927,7 @@ body{
 .wp-table td.col-work{text-align:left;width:220px;max-width:220px}
 .wp-table td.col-goal{text-align:center;width:100px;max-width:100px;font-size:12px;font-weight:600}
 /* 优先级配色：重要紧急-红 / 重要-深蓝 / 一般紧急-橙 / 一般-灰 */
-.wp-table td.col-goal.pri-urgent{background:#dc2626;color:#fff;border-color:#b91c1c}
+.wp-table td.col-goal.pri-urgent{background:#D94352;color:#fff;border-color:#b83645}
 .wp-table td.col-goal.pri-important{background:#fef3c7;color:#92400e;border-color:#fde68a}
 .wp-table td.col-goal.pri-normal-urgent{background:#F97316;color:#fff;border-color:#c2410c}
 .wp-table td.col-goal.pri-normal{background:#9ca3af;color:#fff;border-color:#6b7280}
@@ -1971,7 +1971,7 @@ table.collab-table tbody tr:hover{background:#fffdf5}
 .collab-btn-reject:hover{background:#b91c1c}
 .collab-btn-pending{background:#f5f5f5;color:#666;border:1px solid var(--border)}
 .collab-btn-pending:hover{background:#e5e5e5}
-.collab-pri-urgent{background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:10px;font-weight:600}
+.collab-pri-urgent{background:#D94352;color:#fff;padding:1px 6px;border-radius:3px;font-size:10px;font-weight:600}
 .collab-pri-important{background:#fef3c7;color:#92400e;padding:1px 6px;border-radius:3px;font-size:10px;font-weight:600}
 .collab-pri-normal-urgent{background:#F97316;color:#fff;padding:1px 6px;border-radius:3px;font-size:10px;font-weight:600}
 .collab-pri-normal{background:#9ca3af;color:#fff;padding:1px 6px;border-radius:3px;font-size:10px;font-weight:600}
@@ -3630,6 +3630,7 @@ function _h(v){return (v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace
 // V0.3.65: 人口统计条形图数字(.demo-bar-num)从--text-hint(#C8C8C8)改为#1B6EC4科技蓝
 // V0.3.66: 协同人多人时每个姓名独占一行(用div替代逗号分隔)
 // V0.3.67: 协同人换行改用<br>方案——div在td内可能被CSS覆盖，<br>强制换行更可靠
+// V0.3.68: 重要紧急优先级红色从#dc2626改为#D94352(HWM品牌珊瑚红)，含CSS+JS+协同徽章三处同步
 function _hWork(v){return _h((v||'').replace(/\n{2,}/g,'\n'));}
 
 // ===== KPI 可编辑渲染 =====
@@ -16500,7 +16501,7 @@ function _renderCollabTasksSection(plan){
     for(var i=0;i<collabTasks.length;i++){
       var ct=collabTasks[i];
       var pri=ct.goal||'';
-      var priStyle=pri==='重要紧急'?'background:#dc2626;color:#fff':pri==='重要'?'background:#1E3A5F;color:#fff':pri==='一般紧急'?'background:#F97316;color:#fff':'background:#9ca3af;color:#fff';
+      var priStyle=pri==='重要紧急'?'background:#D94352;color:#fff':pri==='重要'?'background:#1E3A5F;color:#fff':pri==='一般紧急'?'background:#F97316;color:#fff':'background:#9ca3af;color:#fff';
       var st=ct.status||'pending';
       var stText=st==='accepted'?'已接受':st==='rejected'?'已拒绝':'待响应';
       var stColor=st==='accepted'?'#16a34a':st==='rejected'?'#dc2626':'#9ca3af';
