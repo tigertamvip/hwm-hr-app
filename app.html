@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.3.118">
+<meta name="version" content="V0.3.119">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -16449,24 +16449,6 @@ function selectWP(y,m,w){
     }
     if(dirty) saveWP(y,m,w,plan);
     _wpCurrent.plan=plan;
-    // ★ V0.3.117: 强制清空 2026年7月第1周 — 直接删除整个周计划（数据已在Supabase清除）
-    if(y===2026&&m===7&&w===1){
-      delete _wpData[makeWPId(2026,7,1)];
-      saveWPData();
-      _wpCurrent.plan=null;
-      // 重新创建空白计划
-      var newPlan=createEmptyPlan(2026,7,1);
-      if(correctName) newPlan.name=correctName;
-      if(correctDept) newPlan.dept=correctDept;
-      if(correctPos) newPlan.position=correctPos;
-      saveWP(2026,7,1,newPlan);
-      _wpCurrent.plan=newPlan;
-      renderWPTable(newPlan);
-      renderWPPlanList(y,m);
-      renderWPUserInfo();
-      console.log('[V0.3.117] Force-cleared 2026-07-W1 — replaced with empty plan');
-      return;
-    }
     _autoCarryTasks(plan,y,m,w); // ★ V0.1.87b: 已有计划也尝试顺延(防旧代码空壳+首次部署遗漏)
     renderWPTable(plan);
   }else{
