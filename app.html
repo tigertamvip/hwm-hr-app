@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.3.42">
+<meta name="version" content="V0.3.43">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2151,9 +2151,9 @@ table.collab-table tbody tr:hover{background:#fffdf5}
     <h1>Welcome to the HWM-AI Assisted Information Management System</h1>
   </div>
   <div class="portal-grid">
-    <div id="portalCard_hr" class="portal-card" data-module="hr" style="display:none" onclick="enterModule('hr')">
-      <div class="portal-card-label">员工档案</div>
-      <div class="portal-card-en">Employee Files</div>
+    <div id="portalCard_kpi" class="portal-card" data-module="kpi" style="display:none" onclick="enterModule('kpi')">
+      <div class="portal-card-label">KPI</div>
+      <div class="portal-card-en">KPI</div>
     </div>
     <div id="portalCard_mbo" class="portal-card" data-module="mbo" style="display:none;overflow:visible" onclick="enterModule('workplan')">
       <div class="portal-card-label">MBO</div>
@@ -2164,18 +2164,23 @@ table.collab-table tbody tr:hover{background:#fffdf5}
         <div class="tip-en">Proper team goal and plan management underpins sound performance management. Built-in rules, controls and auto-tracking in this system align goals and boost progress for managers and staff. Persistently unfulfilled weekly plans usually lead to poor performance results.</div>
       </div>
     </div>
-    <div id="portalCard_kpi" class="portal-card" data-module="kpi" style="display:none" onclick="enterModule('kpi')">
-      <div class="portal-card-label">KPI</div>
-      <div class="portal-card-en">KPI</div>
+    <div id="portalCard_rd" class="portal-card portal-card-orange disabled" data-module="rd" style="display:none" onclick="moduleBuilding()">
+      <div class="portal-card-label">研发PM</div>
+      <div class="portal-card-en">R&amp;D PM</div>
+      <div class="portal-card-badge">In Progress</div>
+    </div>
+    <div id="portalCard_decision" class="portal-card portal-card-orange disabled" data-module="decision" style="display:none" onclick="moduleBuilding()">
+      <div class="portal-card-label">决策数据链</div>
+      <div class="portal-card-en">Decision Data Chain</div>
+      <div class="portal-card-badge">In Progress</div>
+    </div>
+    <div id="portalCard_hr" class="portal-card" data-module="hr" style="display:none" onclick="enterModule('hr')">
+      <div class="portal-card-label">员工档案</div>
+      <div class="portal-card-en">Employee Files</div>
     </div>
     <div id="portalCard_talent" class="portal-card disabled" data-module="talent" style="display:none" onclick="moduleBuilding()">
       <div class="portal-card-label">人才盘点</div>
       <div class="portal-card-en">Talent Review</div>
-      <div class="portal-card-badge">In Progress</div>
-    </div>
-    <div id="portalCard_learning" class="portal-card disabled" data-module="learning" style="display:none" onclick="moduleBuilding()">
-      <div class="portal-card-label">学习中心</div>
-      <div class="portal-card-en">Learning Center</div>
       <div class="portal-card-badge">In Progress</div>
     </div>
     <div id="portalCard_payroll" class="portal-card disabled" data-module="payroll" style="display:none" onclick="moduleBuilding()">
@@ -2183,33 +2188,28 @@ table.collab-table tbody tr:hover{background:#fffdf5}
       <div class="portal-card-en">Payroll Management</div>
       <div class="portal-card-badge">In Progress</div>
     </div>
-    <div id="portalCard_ideas" class="portal-card portal-card-orange disabled" data-module="ideas" style="display:none" onclick="moduleBuilding()">
-      <div class="portal-card-label">合理化建议</div>
-      <div class="portal-card-en">Ideas</div>
+    <div id="portalCard_dashboard" class="portal-card portal-card-orange disabled" data-module="dashboard" style="display:none" onclick="moduleBuilding()">
+      <div class="portal-card-label">管理仪表盘</div>
+      <div class="portal-card-en">Management Dashboard</div>
+      <div class="portal-card-badge">In Progress</div>
+    </div>
+    <div id="portalCard_learning" class="portal-card disabled" data-module="learning" style="display:none" onclick="moduleBuilding()">
+      <div class="portal-card-label">学习中心</div>
+      <div class="portal-card-en">Learning Center</div>
       <div class="portal-card-badge">In Progress</div>
     </div>
     <div id="portalCard_policies" class="portal-card" data-module="policies" style="display:none" onclick="enterModule('policies')">
       <div class="portal-card-label">制度流程中心</div>
       <div class="portal-card-en">Policy Center</div>
     </div>
+    <div id="portalCard_ideas" class="portal-card portal-card-orange disabled" data-module="ideas" style="display:none" onclick="moduleBuilding()">
+      <div class="portal-card-label">合理化建议</div>
+      <div class="portal-card-en">Ideas</div>
+      <div class="portal-card-badge">In Progress</div>
+    </div>
     <div id="portalCard_maintenance" class="portal-card portal-card-special" data-module="maintenance" style="display:none" onclick="enterModule('system')">
       <div class="portal-card-label">系统维护</div>
       <div class="portal-card-en">System Maintenance</div>
-    </div>
-    <div id="portalCard_decision" class="portal-card portal-card-orange disabled" data-module="decision" style="display:none" onclick="moduleBuilding()">
-      <div class="portal-card-label">决策数据链</div>
-      <div class="portal-card-en">Decision Data Chain</div>
-      <div class="portal-card-badge">In Progress</div>
-    </div>
-    <div id="portalCard_dashboard" class="portal-card portal-card-orange disabled" data-module="dashboard" style="display:none" onclick="moduleBuilding()">
-      <div class="portal-card-label">管理仪表盘</div>
-      <div class="portal-card-en">Management Dashboard</div>
-      <div class="portal-card-badge">In Progress</div>
-    </div>
-    <div id="portalCard_rd" class="portal-card portal-card-orange disabled" data-module="rd" style="display:none" onclick="moduleBuilding()">
-      <div class="portal-card-label">研发PM</div>
-      <div class="portal-card-en">R&amp;D PM</div>
-      <div class="portal-card-badge">In Progress</div>
     </div>
   </div>
   <div class="portal-footer">
