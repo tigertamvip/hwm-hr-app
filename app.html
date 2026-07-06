@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.3.98">
+<meta name="version" content="V0.3.99">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1894,21 +1894,22 @@ body{
 .wp-empty-desc{font-size:13px;text-align:center;line-height:1.6}
 
 .wp-toolbar{display:flex;flex-wrap:wrap;gap:16px;padding:14px 0;margin-bottom:7px;border-bottom:1px solid var(--border);flex-shrink:0}
-/* ★ V0.3.98: 工具栏按钮底色统一#AFAFAF浅灰，删除按钮#7D8C9A */
-.wp-toolbar button{padding:8px 18px;border:1px solid #c4ccd2;border-radius:4px;background:#AFAFAF;color:#2A476A;font-size:12px;cursor:pointer;transition:all .15s ease;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:5px;font-weight:500;min-width:122px}
-.wp-toolbar button:hover{background:#9A9A9A;border-color:#a8b8c9;color:#F2F2F2}
-.wp-toolbar button.wp-btn-primary{background:#AFAFAF;color:#2A476A;border-color:#c4ccd2}
-.wp-toolbar button.wp-btn-primary:hover{background:#9A9A9A;color:#F2F2F2}
-.wp-toolbar button.wp-btn-primary:disabled,.wp-toolbar button.wp-btn-disabled{background:#AFAFAF;color:#9ca3af}
-.wp-toolbar button.wp-btn-warn{background:#7D8C9A;color:#2A476A;border-color:#6B7B89}
-.wp-toolbar button.wp-btn-warn:hover{background:#6B7B89;color:#F2F2F2}
-.wp-toolbar button.wp-btn-accent{background:#AFAFAF;color:#2A476A;border-color:#c4ccd2}
-.wp-toolbar button.wp-btn-accent:hover{background:#9A9A9A;color:#F2F2F2}
-.wp-toolbar button.wp-btn-ai{background:#0071E3;color:#fff;border-color:#0071E3;border-radius:6px;padding:8px 16px;font-size:13px}
-.wp-toolbar button.wp-btn-ai:hover{background:#0062B9}
-.wp-toolbar button.wp-btn-freeze{background:#AFAFAF;color:#2A476A;border-color:#c4ccd2}
-.wp-toolbar button.wp-btn-freeze:hover{background:#9A9A9A;color:#F2F2F2}
-.wp-toolbar button:disabled,.wp-toolbar button.wp-btn-disabled:not(.wp-btn-primary){background:#AFAFAF;color:#9ca3af;cursor:not-allowed}
+/* ★ V0.3.99: 毛玻璃胶囊按钮 — 全新设计 */
+.wp-toolbar button{padding:8px 20px;border:1px solid rgba(42,71,106,.15);border-radius:8px;background:rgba(255,255,255,.65);color:#2A476A;font-size:12px;cursor:pointer;transition:all .2s cubic-bezier(.4,0,.2,1);white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:6px;font-weight:500;min-width:120px;box-shadow:none}
+.wp-toolbar button:hover{background:rgba(255,255,255,.92);border-color:rgba(42,71,106,.28);box-shadow:0 2px 8px rgba(42,71,106,.10),0 1px 3px rgba(0,0,0,.06);transform:translateY(-1.5px)}
+.wp-toolbar button:active{transform:translateY(0);box-shadow:0 1px 3px rgba(42,71,106,.08);transition-duration:.08s}
+.wp-toolbar button.wp-btn-primary{background:rgba(255,255,255,.7);color:#2A476A;border-color:rgba(42,71,106,.18)}
+.wp-toolbar button.wp-btn-primary:hover{background:#fff;border-color:rgba(42,71,106,.32);color:#002D4E}
+.wp-toolbar button.wp-btn-primary:disabled,.wp-toolbar button.wp-btn-disabled{background:rgba(200,205,210,.45);color:#a0aab4;cursor:not-allowed;box-shadow:none;transform:none}
+.wp-toolbar button.wp-btn-warn{background:rgba(217,67,82,.07);color:#B83645;border-color:rgba(217,67,82,.22);font-weight:500}
+.wp-toolbar button.wp-btn-warn:hover{background:rgba(217,67,82,.14);border-color:rgba(217,67,82,.38);box-shadow:0 2px 8px rgba(217,67,82,.10),0 1px 3px rgba(0,0,0,.06);color:#D64352}
+.wp-toolbar button.wp-btn-accent{background:rgba(255,255,255,.65);color:#2A476A;border-color:rgba(42,71,106,.15)}
+.wp-toolbar button.wp-btn-accent:hover{background:rgba(255,255,255,.92);border-color:rgba(42,71,106,.28);box-shadow:0 2px 8px rgba(42,71,106,.10),0 1px 3px rgba(0,0,0,.06)}
+.wp-toolbar button.wp-btn-ai{background:#002D4E;color:#fff;border-color:#002D4E;border-radius:8px;padding:8px 18px;font-size:13px;font-weight:600;box-shadow:0 2px 6px rgba(0,45,78,.25)}
+.wp-toolbar button.wp-btn-ai:hover{background:#0A3D5F;box-shadow:0 4px 12px rgba(0,45,78,.35);transform:translateY(-1.5px)}
+.wp-toolbar button.wp-btn-freeze{background:rgba(255,255,255,.65);color:#2A476A;border-color:rgba(42,71,106,.15)}
+.wp-toolbar button.wp-btn-freeze:hover{background:rgba(255,255,255,.92);border-color:rgba(42,71,106,.28);box-shadow:0 2px 8px rgba(42,71,106,.10),0 1px 3px rgba(0,0,0,.06)}
+.wp-toolbar button:disabled,.wp-toolbar button.wp-btn-disabled:not(.wp-btn-primary){background:rgba(200,205,210,.45);color:#a0aab4;cursor:not-allowed;box-shadow:none;transform:none}
 /* ★ V0.1.30: 冻结视觉提示 — 仅本周重点工作列显示左侧蓝边框+锁图标 */
 .wp-table td.wp-cell-frozen{border-left:3px solid #3b82f6!important;border-right:none!important;position:relative}
 .wp-table td.wp-cell-frozen::after{content:'🔒';position:absolute;top:2px;right:4px;font-size:9px;opacity:.5}
@@ -17104,7 +17105,7 @@ function renderWPTable(plan){
       html+='<button class="wp-btn-accent" onclick="undoWPSubmit()"><span style="color:#2A476A">↩</span> 撤销提交</button>';
     }
     html+='<button onclick="submitWPWeekSummary()" '+(plan.summarySubmittedAt?'disabled':'')+' class="'+(plan.summarySubmittedAt?'wp-btn-disabled':'')+'"><span style="color:#2A476A">✅</span> 提交周小结</button>';
-    html+='<button class="wp-btn-warn" onclick="deleteCurrentWPPlan()"><span style="color:#2A476A">🗑</span> 删除周计划</button>';
+    html+='<button class="wp-btn-warn" onclick="deleteCurrentWPPlan()"><span style="color:#B83645">🗑</span> 删除周计划</button>';
     html+='<button onclick="exportCurrentWP()"><span style="color:#2A476A">📥</span> 导出周计划</button>';
     if(plan.bossEvaluated){
       html+='<button onclick="viewBossEval()"><span style="color:#2A476A">📋</span> 查看上级评价</button>';
