@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.3.126">
+<meta name="version" content="V0.3.127">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1914,7 +1914,6 @@ body{
 .wp-toolbar button:disabled,.wp-toolbar button.wp-btn-disabled:not(.wp-btn-primary){background:#F9FAFB;color:#a0aab4;border-color:#e5e7eb;cursor:not-allowed}
 /* ★ V0.1.30: 锁定视觉提示 — 本周重点工作/优先级/计划完成日期被锁定 */
 .wp-table td.wp-cell-frozen{border-left:3px solid #3b82f6!important;border-right:none!important;position:relative;background:rgba(59,130,246,.04);cursor:not-allowed!important}
-.wp-table td.wp-cell-frozen::after{content:'已锁定 🔒';position:absolute;top:2px;right:6px;font-size:9px;color:#3b82f6;font-weight:600;opacity:.7;white-space:nowrap}
 .wp-toolbar-sep{width:1px;background:var(--border);margin:0 4px;display:inline-block}
 
 .wp-table-wrap{flex:1;overflow-x:auto;background:var(--card);border-radius:8px;border:1px solid var(--border)}
@@ -17007,8 +17006,8 @@ function _renderTaskOpCell(taskIdx,seq,plan){
   var isLast=taskIdx===plan.tasks.length-1;
   var total=plan.tasks.length;
 
-  // 锁定状态：只显示序号
-  if(isFrozen)return '<td class="col-num" style="text-align:center">'+seq+'</td>';
+  // 锁定状态：序号前加🔒图标
+  if(isFrozen)return '<td class="col-num" style="text-align:center"><span style="display:inline-flex;align-items:center;gap:2px"><span style="font-size:11px;color:#3b82f6">🔒</span><span style="font-size:11px;line-height:1">'+seq+'</span></span></td>';
 
   var btns='';
   // + 添加按钮：最后一行，总数<15，非协同 — 圆形蓝色按钮
@@ -17401,7 +17400,8 @@ function isFieldFrozen(cell){
 function startEditCell(cell){
   // 查看间接下属时：只允许编辑 bossFeedback
   if(_wpViewingDeptMember && (!cell.dataset.field || cell.dataset.field.indexOf('bossFeedback')<0)){console.log('[startEditCell] blocked: dept member view, field='+(cell.dataset.field||''));return;}
-  // ★ V0.3.113: 移除锁定阻止逻辑 — 用户始终可以编辑自己的计划，锁定仅作为视觉标记
+  // ★ V0.3.127: 锁定保护 — 员工查看自己的计划时，锁定的三列（工作内容/优先级/计划完成日期）不可编辑
+  if(isFieldFrozen(cell)){showToast('⚠️ 该列已被锁定，无法修改');return;}
   // 查看下属时：只允许编辑 bossFeedback，除非开启了修订模式
   if(_wpViewingSubordinate&&cell.dataset.field&&cell.dataset.field.indexOf('bossFeedback')<0&&!_wpRevisionMode){console.log('[startEditCell] blocked: subordinate view without revision mode');return;}
   // 查看下属时且修订模式开启：允许编辑所有字段
