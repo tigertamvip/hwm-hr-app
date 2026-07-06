@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.3.33">
+<meta name="version" content="V0.3.34">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -16161,7 +16161,7 @@ function renderWPSubSelect(){
       var dddHtml='';
       for(var i=0;i<nonDirect.length;i++){
         var isActive=(nonDirect[i]===_wpViewingDeptMember)?' active':'';
-        dddHtml+='<div class="wp-custom-option'+isActive+'" onclick="selectWPDeptOption(\''+nonDirect[i]+'\',\''+nonDirect[i]+'\')"><span style="margin-right:6px;color:#ff9a47">●</span>'+nonDirect[i]+'</div>';
+        dddHtml+='<div class="wp-custom-option'+isActive+'" onclick="selectWPDeptOption(\''+nonDirect[i]+'\',\''+nonDirect[i]+'\')"><span style="margin-right:6px;color:#9DDEF7">●</span>'+nonDirect[i]+'</div>';
       }
       dddHtml+='<div style="height:12px"></ddiv>';
       ddDept.innerHTML=dddHtml;
