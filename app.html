@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.3.108">
+<meta name="version" content="V0.3.109">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -17000,7 +17000,7 @@ function _renderTaskOpCell(taskIdx,seq,plan){
   }
   // − 删除按钮：每行显示（协同行除外），至少保留1行 — 圆形红色按钮
   if(!isCollab && total>1){
-    btns+='<span onclick="event.stopPropagation();deleteTaskRow('+taskIdx+')" style="display:inline-block;width:16px;height:16px;line-height:16px;text-align:center;border-radius:50%;background:#9ca3af;color:#fff;font-size:12px;font-weight:bold;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.15);user-select:none;margin-top:2px" title="删除此行">−</span>';
+    btns+='<span onclick="event.stopPropagation();var _tr=this.closest(\'tr\');deleteTaskRow(_tr?parseInt(_tr.dataset.taskIdx||this.getAttribute(\'data-idx\')):'+taskIdx+')" data-idx="'+taskIdx+'" style="display:inline-block;width:16px;height:16px;line-height:16px;text-align:center;border-radius:50%;background:#9ca3af;color:#fff;font-size:12px;font-weight:bold;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.15);user-select:none;margin-top:2px" title="删除此行">−</span>';
   }
 
   // ★ V0.3.70: 序号列垂直排列 — 序号在上，+号居中，-号在下
@@ -17030,10 +17030,15 @@ async function deleteTaskRow(idx){
   var p=_wpCurrent.plan;if(!p)return;
   var tasks=p.tasks;
   if(tasks.length<=1){showToast('⚠️ 至少保留一行工作计划');return;}
+  // ★ V0.3.109: 防御性校验 — idx 越界保护
+  if(idx<0||idx>=tasks.length){console.error('[deleteTaskRow] invalid idx='+idx+', tasks.length='+tasks.length);showToast('⚠️ 索引越界，无法删除');return;}
   var t=tasks[idx];
+  if(!t){console.error('[deleteTaskRow] tasks['+idx+'] is empty/undefined');showToast('⚠️ 目标行为空，无法删除');return;}
   if(t.collab_from){showToast('⚠️ 协同任务不能删除');return;}
-  var ok=await _showConfirm('确定要删除第'+(idx+1)+'项工作计划的所有信息吗？\n\n⚠️ 此操作不可恢复'+'\n\n—\n\n'+'Are you sure you want to delete row '+(idx+1)+' of this work plan?\n\n⚠️ This action cannot be undone.','注意 / Attention');
+  var taskLabel=(t.work||'第'+(idx+1)+'项').substring(0,20);
+  var ok=await _showConfirm('确定要删除「'+taskLabel+'」吗？\n\n⚠️ 此操作不可恢复'+'\n\n—\n\n'+'Are you sure you want to delete "'+taskLabel+'"?\n\n⚠️ This action cannot be undone.','注意 / Attention');
   if(!ok)return;
+  console.log('[deleteTaskRow] removing idx='+idx+' work='+(t.work||''));
   tasks.splice(idx,1);
   // 重新编号
   for(var i=0;i<tasks.length;i++)tasks[i].seq=i+1;
@@ -17202,7 +17207,7 @@ function renderWPTable(plan){
     var j=newTasks[ni]; seq++;
     var t=plan.tasks[j];
     var _frozenCls=(plan.frozen&&!_wpViewingSubordinate&&!_wpViewingDeptMember?' wp-cell-frozen':'');
-    html+='<tr>';
+    html+='<tr data-task-idx="'+j+'">';
     // ★ V0.1.59: # 列 — +/- 操作按钮
     html+=_renderTaskOpCell(j,seq,plan);
     html+='<td class="editable col-work'+_frozenCls+'" data-field="tasks.'+j+'.work" data-type="textarea" onclick="startEditCell(this)">'+(t.work||plan._revisions&&plan._revisions['tasks.'+j+'.work']?renderWPCellValue(plan,'tasks.'+j+'.work',t.work):(t.work?_hWork(t.work):'<span style="color:var(--text-hint)">点击填写</span>'))+'</td>';
