@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.3.60">
+<meta name="version" content="V0.3.61">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -17086,7 +17086,7 @@ function renderWPTable(plan){
       var jj=carriedTasks[ci]; seq++;
       var tt=plan.tasks[jj];
       var cf=tt.carriedFrom;
-      var cfTag=cf?'<span style="font-size:9px;color:#8B6914;background:#FFF8E7;padding:1px 4px;border-radius:3px;margin-left:4px">来源:'+cf.year+'年'+cf.month+'月第'+cf.week+'周</span>':'';
+      var cfTag=cf?'<div style="font-size:9px;color:#8B6914;background:#FFF8E7;padding:1px 4px;border-radius:3px;display:inline-block;margin-top:2px">来源:'+cf.year+'年'+cf.month+'月第'+cf.week+'周</div>':'';
       // ★ V0.1.88: 转入任务可编辑
       var edCls=' editable';
       var edClick=' onclick="startEditCell(this)"';
