@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.3.52">
+<meta name="version" content="V0.3.53">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -17525,8 +17525,8 @@ function _calcWeekScore(plan){
         // 按时完成 → 加分
         pts=base;
       }else if(isDone && actualDate && actualDate>tt.plannedDate){
-        // 逾期但完成 → 扣一半
-        pts=-(base/2);
+        // 逾期但完成 → 扣四分之一
+        pts=-(base/4);
       }else{
         // 未完成 → 检查截止日期是否已到
         var _today=new Date().toISOString().slice(0,10); // YYYY-MM-DD
@@ -17534,8 +17534,8 @@ function _calcWeekScore(plan){
           // ★ V0.1.54: 截止日期未到，不扣分（推进中/待开始都合理）
           pts=0;
         }else{
-          // 已逾期未完成 → 全扣
-          pts=-base;
+          // 已逾期未完成 → 扣一半
+          pts=-(base/2);
         }
       }
       taskScore+=pts;
@@ -17627,8 +17627,8 @@ function _renderTimeManagementPanel(plan){
   html+='<tr><td style="padding:3px 4px;color:#374151"><span style="color:#059669;margin-right:6px">✓</span>周六12:00前提交</td><td style="text-align:left;padding-left:2px;color:#059669">✓</td></tr>';
   html+='<tr><td style="padding:3px 4px;color:#374151"><span style="color:#059669;margin-right:6px">✓</span>上级周一12:00评价</td><td style="text-align:left;padding-left:2px;color:#059669">✓</td></tr>';
   html+='<tr><td style="padding:3px 4px;color:#6b7280"><span style="margin-right:6px">—</span>法定节假日顺延</td><td style="text-align:left;padding-left:2px;color:#6b7280">—</td></tr>';
-  html+='<tr><td style="padding:3px 4px;color:#6b7280"><span style="margin-right:6px">○</span>每迟12h</td><td style="text-align:left;padding-left:2px;color:#6b7280;font-weight:500">−1</td></tr>';
-  html+='<tr><td style="padding:3px 4px;color:#6b7280"><span style="margin-right:6px">○</span>超48h未交</td><td style="text-align:left;padding-left:2px;color:#6b7280;font-weight:500">−3</td></tr>';
+  html+='<tr><td style="padding:3px 4px;color:#6b7280"><span style="margin-right:6px">○</span>每迟12h</td><td style="text-align:left;padding-left:2px;color:#6b7280;font-weight:500">−.5</td></tr>';
+  html+='<tr><td style="padding:3px 4px;color:#6b7280"><span style="margin-right:6px">○</span>超48h未交</td><td style="text-align:left;padding-left:2px;color:#6b7280;font-weight:500">−1.5</td></tr>';
   html+='</table>';
   html+='</div>';
 
@@ -17637,10 +17637,10 @@ function _renderTimeManagementPanel(plan){
   html+='<div style="font-weight:600;color:#1f2937;margin-bottom:8px;font-size:12px">评分标准</div>';
   html+='<table style="width:100%;font-size:11px;border-collapse:collapse;line-height:1.8">';
   html+='<tr><td style="padding-bottom:3px"></td><td style="text-align:center;padding-bottom:3px;color:#6b7280;width:20%">按时</td><td style="text-align:center;padding-bottom:3px;color:#6b7280;width:20%">逾期</td><td style="text-align:center;padding-bottom:3px;color:#6b7280;width:20%">未完</td></tr>';
-  html+='<tr><td style="padding:3px 4px;color:#374151"><span style="display:inline-block;width:.6em"></span>重要紧急</td><td style="text-align:center;color:#059669;font-weight:600">+3</td><td style="text-align:center;color:#6b7280">−1.5</td><td style="text-align:center;color:#6b7280;font-weight:600">−3</td></tr>';
-  html+='<tr><td style="padding:3px 4px;color:#374151"><span style="display:inline-block;width:.6em"></span>重要</td><td style="text-align:center;color:#059669;font-weight:500">+1.5</td><td style="text-align:center;color:#6b7280">−.75</td><td style="text-align:center;color:#6b7280">−1.5</td></tr>';
-  html+='<tr><td style="padding:3px 4px;color:#374151"><span style="display:inline-block;width:.6em"></span>一般紧急</td><td style="text-align:center;color:#059669;font-weight:500">+1</td><td style="text-align:center;color:#6b7280">−.5</td><td style="text-align:center;color:#6b7280">−1</td></tr>';
-  html+='<tr><td style="padding:3px 4px;color:#374151"><span style="display:inline-block;width:.6em"></span>一般</td><td style="text-align:center;color:#059669;font-weight:500">+.5</td><td style="text-align:center;color:#6b7280">−.25</td><td style="text-align:center;color:#6b7280">−.5</td></tr>';
+  html+='<tr><td style="padding:3px 4px;color:#374151"><span style="display:inline-block;width:.6em"></span>重要紧急</td><td style="text-align:center;color:#059669;font-weight:600">+3</td><td style="text-align:center;color:#6b7280">−.75</td><td style="text-align:center;color:#6b7280">−1.5</td></tr>';
+  html+='<tr><td style="padding:3px 4px;color:#374151"><span style="display:inline-block;width:.6em"></span>重要</td><td style="text-align:center;color:#059669;font-weight:500">+1.5</td><td style="text-align:center;color:#6b7280">−.38</td><td style="text-align:center;color:#6b7280">−.75</td></tr>';
+  html+='<tr><td style="padding:3px 4px;color:#374151"><span style="display:inline-block;width:.6em"></span>一般紧急</td><td style="text-align:center;color:#059669;font-weight:500">+1</td><td style="text-align:center;color:#6b7280">−.25</td><td style="text-align:center;color:#6b7280">−.5</td></tr>';
+  html+='<tr><td style="padding:3px 4px;color:#374151"><span style="display:inline-block;width:.6em"></span>一般</td><td style="text-align:center;color:#059669;font-weight:500">+.5</td><td style="text-align:center;color:#6b7280">−.13</td><td style="text-align:center;color:#6b7280">−.25</td></tr>';
   html+='</table>';
   html+='</div>';
 
