@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.3.101">
+<meta name="version" content="V0.3.102">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1753,8 +1753,8 @@ body{
 .kpi-layout{display:flex;height:calc(100vh - 56px);overflow:hidden}
 .kpi-sidebar{width:200px;min-width:200px;height:calc(100vh - 56px);overflow-y:auto;background:#F1EFE8;border-right:1px solid var(--border);padding:14px 10px;display:flex;flex-direction:column;gap:10px}
 .kpi-sidebar-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:6px}
-.kpi-new-btn{width:100%;padding:8px 0;border:none;border-radius:6px;background:#002D4E;color:#fff;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;margin-bottom:40px}
-.kpi-new-btn:hover{opacity:.88;transform:translateY(-1px);box-shadow:0 3px 10px rgba(0,45,78,.35)}
+.kpi-new-btn{width:100%;padding:8px 0;border:1px dashed #d1d5db;border-radius:6px;background:#fff;color:#2A476A;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;margin-bottom:40px}
+.kpi-new-btn:hover{background:#F8FAFB;border-color:#9ca3af;color:#002D4E}
 .kpi-sidebar-divider{height:1px;background:linear-gradient(90deg,transparent,#D3D1C7,transparent);margin:8px 0}
 .kpi-btn-revise{background:linear-gradient(135deg,#7c2d12,#9a3412)}.kpi-btn-revise:hover{box-shadow:0 3px 10px rgba(154,52,18,.3)}
 .kpi-btn-myplan{padding:8px 0;border:none;border-radius:6px;background:linear-gradient(135deg,#E8622A,#d45119);color:#fff;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;margin-top:8px}
@@ -1869,23 +1869,25 @@ body{
 .wp-back-btn:hover{background:rgba(42,71,106,.06)}
 
 .wp-layout{display:flex;height:calc(100vh - 48px);overflow:hidden}
-.wp-sidebar{width:200px;min-width:200px;height:100%;overflow-y:auto;background:linear-gradient(180deg,#2D3E50 0%,#3A4A5F 100%);border-right:1px solid rgba(255,255,255,.08);padding:14px 10px;display:flex;flex-direction:column;gap:8px;flex-shrink:0}
-.wp-sidebar-title{font-size:13px;font-weight:600;color:#E8EDF2;margin-bottom:4px}
-.wp-sidebar-label{font-size:11px;color:#B0C0D0;margin-top:8px;margin-bottom:2px;font-weight:500}
-.wp-sidebar select{width:100%;padding:7px 10px 7px 8px;border:1px solid rgba(255,255,255,.15);border-radius:6px;font-size:12px;background:rgba(255,255,255,.12);color:#E8EDF2;outline:none;cursor:pointer}
-.wp-sidebar select:focus{border-color:rgba(255,255,255,.4)}
+/* ★ V0.3.102: 侧栏浅色导航轨 — 纯白底+左侧竖条指示器 */
+.wp-sidebar{width:200px;min-width:200px;height:100%;overflow-y:auto;background:#FFFFFF;border-right:1px solid #e5e7eb;padding:14px 10px;display:flex;flex-direction:column;gap:8px;flex-shrink:0}
+.wp-sidebar-title{font-size:13px;font-weight:600;color:#2A476A;margin-bottom:4px}
+.wp-sidebar-label{font-size:11px;color:#9ca3af;margin-top:8px;margin-bottom:2px;font-weight:500}
+.wp-sidebar select{width:100%;padding:7px 10px 7px 8px;border:1px solid #d1d5db;border-radius:6px;font-size:12px;background:#fff;color:#374151;outline:none;cursor:pointer}
+.wp-sidebar select:focus{border-color:#9ca3af}
 .wp-sidebar select option{color:#1f2937}
-.wp-sidebar-divider{height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.15),transparent);margin:4px 0}
+.wp-sidebar-divider{height:1px;background:#e5e7eb;margin:4px 0}
 .wp-sidebar-plan-list{flex:1;overflow-y:auto;margin-top:4px}
-.wp-sidebar-plan-item{padding:8px 10px;border-radius:6px;font-size:12px;cursor:pointer;transition:all .12s;color:#C8D4DE;border:1px solid transparent;margin-bottom:3px}
-.wp-sidebar-plan-item:hover{background:rgba(255,255,255,.1);color:#E8EDF2}
-.wp-sidebar-plan-item.active{background:rgba(255,255,255,.18);color:#fff;font-weight:500}
-.wp-sidebar-plan-item .wp-plan-meta{font-size:10px;opacity:.6;margin-top:2px}
-.wp-sidebar-plan-item.active .wp-plan-meta{opacity:.8}
-.wp-sidebar-plan-delete{display:none;float:right;width:16px;height:16px;line-height:16px;text-align:center;border-radius:50%;font-size:10px;cursor:pointer;margin-top:1px;color:rgba(255,255,255,.6)}
+.wp-sidebar-plan-item{padding:8px 10px;border-radius:6px;font-size:12px;cursor:pointer;transition:all .12s;color:#6b7280;margin-bottom:3px;position:relative}
+.wp-sidebar-plan-item:hover{background:rgba(42,71,106,.06);color:#2A476A}
+.wp-sidebar-plan-item.active{color:#002D4E;font-weight:600;background:transparent;border-radius:0;padding-left:10px}
+.wp-sidebar-plan-item.active::before{content:'';position:absolute;left:0;top:4px;bottom:4px;width:3px;background:#002D4E;border-radius:2px}
+.wp-sidebar-plan-item .wp-plan-meta{font-size:10px;color:#9ca3af;margin-top:2px}
+.wp-sidebar-plan-item.active .wp-plan-meta{color:#6b7280}
+.wp-sidebar-plan-delete{display:none;float:right;width:16px;height:16px;line-height:16px;text-align:center;border-radius:50%;font-size:10px;cursor:pointer;margin-top:1px;color:#9ca3af}
 .wp-sidebar-plan-item:hover .wp-sidebar-plan-delete{display:block}
 .wp-sidebar-plan-item.active .wp-sidebar-plan-delete{display:none}
-.wp-sidebar-plan-delete:hover{background:rgba(220,38,38,.3);color:#FCA5A5}
+.wp-sidebar-plan-delete:hover{background:rgba(217,67,82,.12);color:#B83645}
 
 .wp-content{flex:1;height:100%;overflow-y:auto;padding:16px 24px;background:#FBF7EE;display:flex;flex-direction:column}
 .wp-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--text-hint)}
