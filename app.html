@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.3.77">
+<meta name="version" content="V0.3.78">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1047,7 +1047,7 @@ body{
 #portalCard_rd{grid-column:3;grid-row:3} /* V0.1.77: 与仪表盘对调 */
 #portalCard_maintenance{grid-column:4;grid-row:3}
 .portal-card{
-  background:#004a8d;
+  background:#4E6278;
   border:1px solid rgba(255,255,255,.08);
   border-radius:12px;
   padding:28px 14px;
@@ -1066,7 +1066,7 @@ body{
 }
 .portal-card:hover{
   transform:translateY(-4px);
-  background:#0071E3;
+  background:#586C84;
   border-color:rgba(255,255,255,.15);
   box-shadow:0 4px 20px rgba(0,0,0,.15);
   z-index:10;
@@ -1152,31 +1152,30 @@ body{
 .portal-card.disabled:active{transform:none}
 
 /* 系统维护特殊卡片 — hover行为与已开发模块一致 */
-.portal-card-special{background:#004a8d}
-.portal-card-special:hover{transform:translateY(-4px);background:#0071E3;border-color:rgba(255,255,255,.15);box-shadow:0 4px 20px rgba(0,0,0,.15);z-index:10}
+.portal-card-special{background:#4E6278}
+.portal-card-special:hover{transform:translateY(-4px);background:#586C84;border-color:rgba(255,255,255,.15);box-shadow:0 4px 20px rgba(0,0,0,.15);z-index:10}
 .portal-card-special .portal-card-label{color:#ffffff;font-weight:400}
 .portal-card-special .portal-card-en{color:rgba(255,255,255,.7)}
 .portal-card-special .portal-card-badge{background:rgba(255,255,255,.15);color:rgba(255,255,255,.9)}
 
 /* 未开工建设的模块：浅灰底深色字 */
 .portal-card.disabled{
-  background:#e8ecef;
-  border-color:rgba(0,0,0,.06);
+  background:#D0D8E2;
 }
 .portal-card.disabled .portal-card-label{color:#374151;font-weight:300}
 .portal-card.disabled .portal-card-en{color:#6b7280}
 .portal-card.disabled .portal-card-badge{background:rgba(0,0,0,.08);color:#6b7280;border-color:rgba(0,0,0,.06)}
 .portal-card.disabled:hover{
   transform:none;
-  background:#dde2e6;
+  background:#C3CEDB;
 }
-.portal-card.disabled:hover .portal-card-label{color:#003472}
-.portal-card.disabled:hover .portal-card-en{color:#004a8d}
+.portal-card.disabled:hover .portal-card-label{color:#4E6278}
+.portal-card.disabled:hover .portal-card-en{color:#586C84}
   border-color:rgba(0,0,0,.12);
   box-shadow:0 4px 16px rgba(0,0,0,.1);
 }
-.portal-card.disabled:hover .portal-card-label{color:#003472}
-.portal-card.disabled:hover .portal-card-en{color:#004a8d}
+.portal-card.disabled:hover .portal-card-label{color:#4E6278}
+.portal-card.disabled:hover .portal-card-en{color:#586C84}
 
 .portal-footer{
   text-align:center;
@@ -3664,6 +3663,8 @@ function _h(v){return (v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace
 // V0.3.74: 计分规则/评分标准/完成状态/积分统计改为4卡片仪表盘（.wp-cards-grid+.wp-card）
 // V0.3.75: 顶栏蓝→钢蓝灰#5B7089，侧栏浅灰→深色渐变#4E6278→#5B7289(文字反白)
 // V0.3.76: 修复切换周次时卡片面板重复追加的bug（wp-cards-grid补回id=wpTimeMgmtPanel）
+// V0.3.77: 表格奇偶行交替底色
+// V0.3.78: 门户已开发模块→钢蓝#4E6278，待开发→灰蓝#D0D8E2
 function _hWork(v){return _h((v||'').replace(/\n{2,}/g,'\n'));}
 
 // ===== KPI 可编辑渲染 =====
