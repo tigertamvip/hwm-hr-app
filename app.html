@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.3.95">
+<meta name="version" content="V0.3.96">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -125,8 +125,8 @@ body{
   padding:3px 0;
 }
 .stats-row+.stats-row{border-top:1px solid #EBEEF0}
-.stats-row-label{font-size:11px;color:#003472;white-space:nowrap}
-.stats-row-num{font-size:15px;font-weight:700;color:#003472;white-space:nowrap}
+.stats-row-label{font-size:11px;color:#2A476A;white-space:nowrap}
+.stats-row-num{font-size:15px;font-weight:700;color:#2A476A;white-space:nowrap}
 .stats-row-num.small{font-size:12px;font-weight:600}
 .stats-row-num.tbd{font-size:12px;font-weight:600;color:var(--text-hint)}
 .stats-row-clickable{cursor:pointer;border-radius:4px;transition:background .15s}
@@ -906,7 +906,7 @@ body{
   .stats-box{padding:8px 6px;border-radius:8px}
   .stats-box-title{font-size:10px;margin-bottom:5px}
   .stats-row-label{font-size:10px}
-  .stats-row-num{font-size:13px;color:#003472}
+  .stats-row-num{font-size:13px;color:#2A476A}
   .stats-row-num.small{font-size:11px}
 
   /* 搜索区 */
@@ -1894,20 +1894,20 @@ body{
 .wp-empty-desc{font-size:13px;text-align:center;line-height:1.6}
 
 .wp-toolbar{display:flex;flex-wrap:wrap;gap:16px;padding:14px 0;margin-bottom:7px;border-bottom:1px solid var(--border);flex-shrink:0}
-/* ★ V0.2.89: 统一浅蓝底按钮 */
-.wp-toolbar button{padding:8px 18px;border:1px solid #c4ccd2;border-radius:4px;background:#D6E4F0;color:#1f2937;font-size:12px;cursor:pointer;transition:all .15s ease;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:5px;font-weight:500;min-width:122px}
-.wp-toolbar button:hover{background:#C0D6E8;border-color:#a8b8c9}
-.wp-toolbar button.wp-btn-primary{background:#D6E4F0;color:#1f2937;border-color:#c4ccd2}
-.wp-toolbar button.wp-btn-primary:hover{background:#C0D6E8}
+/* ★ V0.3.96: 统一工具栏按钮文字颜色#2A476A，hover#F2F2F2 */
+.wp-toolbar button{padding:8px 18px;border:1px solid #c4ccd2;border-radius:4px;background:#D6E4F0;color:#2A476A;font-size:12px;cursor:pointer;transition:all .15s ease;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:5px;font-weight:500;min-width:122px}
+.wp-toolbar button:hover{background:#C0D6E8;border-color:#a8b8c9;color:#F2F2F2}
+.wp-toolbar button.wp-btn-primary{background:#D6E4F0;color:#2A476A;border-color:#c4ccd2}
+.wp-toolbar button.wp-btn-primary:hover{background:#C0D6E8;color:#F2F2F2}
 .wp-toolbar button.wp-btn-primary:disabled,.wp-toolbar button.wp-btn-disabled{background:#D6E4F0;color:#9ca3af}
-.wp-toolbar button.wp-btn-warn{background:#D6E4F0;color:#d94352;border-color:#c4ccd2}
-.wp-toolbar button.wp-btn-warn:hover{background:#C0D6E8}
-.wp-toolbar button.wp-btn-accent{background:#D6E4F0;color:#1f2937;border-color:#c4ccd2}
-.wp-toolbar button.wp-btn-accent:hover{background:#C0D6E8}
+.wp-toolbar button.wp-btn-warn{background:#D6E4F0;color:#2A476A;border-color:#c4ccd2}
+.wp-toolbar button.wp-btn-warn:hover{background:#C0D6E8;color:#F2F2F2}
+.wp-toolbar button.wp-btn-accent{background:#D6E4F0;color:#2A476A;border-color:#c4ccd2}
+.wp-toolbar button.wp-btn-accent:hover{background:#C0D6E8;color:#F2F2F2}
 .wp-toolbar button.wp-btn-ai{background:#0071E3;color:#fff;border-color:#0071E3;border-radius:6px;padding:8px 16px;font-size:13px}
 .wp-toolbar button.wp-btn-ai:hover{background:#0062B9}
-.wp-toolbar button.wp-btn-freeze{background:#D6E4F0;color:#1f2937;border-color:#c4ccd2}
-.wp-toolbar button.wp-btn-freeze:hover{background:#C0D6E8}
+.wp-toolbar button.wp-btn-freeze{background:#D6E4F0;color:#2A476A;border-color:#c4ccd2}
+.wp-toolbar button.wp-btn-freeze:hover{background:#C0D6E8;color:#F2F2F2}
 .wp-toolbar button:disabled,.wp-toolbar button.wp-btn-disabled:not(.wp-btn-primary){background:#D6E4F0;color:#9ca3af;cursor:not-allowed}
 /* ★ V0.1.30: 冻结视觉提示 — 仅本周重点工作列显示左侧蓝边框+锁图标 */
 .wp-table td.wp-cell-frozen{border-left:3px solid #3b82f6!important;border-right:none!important;position:relative}
@@ -4035,7 +4035,7 @@ function renderSeniorKPI(container){
     // 自己查看自己的KPI：显示查看上级评价按钮（只读）
     if(_kpiCurrentData&&_kpiCurrentData.bossComment){
       html+='<div class="kpi-submit-bar" style="margin-top:12px">';
-      html+='<button onclick="viewKPIBossEval()"><span style="color:#003472">📋</span> 查看上级评价</button>';
+      html+='<button onclick="viewKPIBossEval()"><span style="color:#2A476A">📋</span> 查看上级评价</button>';
       html+='</div>';
       html+='<div class="kpi-summary" style="margin-top:8px;padding:10px 14px;border-left:3px solid var(--primary);background:#F0F7FF">';
       html+='<strong>上级评价</strong>（'+_h(_kpiCurrentData.bossEvalBy||'')+'，'+_h((_kpiCurrentData.bossEvalAt||'').substring(0,10))+'）：<br>'+_h(_kpiCurrentData.bossComment);
@@ -4148,7 +4148,7 @@ function renderMiddleKPI(container){
     // 自己查看自己的KPI：显示查看上级评价按钮（只读）
     if(_kpiCurrentData&&_kpiCurrentData.bossComment){
       html+='<div class="kpi-submit-bar" style="margin-top:12px">';
-      html+='<button onclick="viewKPIBossEval()"><span style="color:#003472">📋</span> 查看上级评价</button>';
+      html+='<button onclick="viewKPIBossEval()"><span style="color:#2A476A">📋</span> 查看上级评价</button>';
       html+='</div>';
       html+='<div class="kpi-summary" style="margin-top:8px;padding:10px 14px;border-left:3px solid var(--primary);background:#F0F7FF">';
       html+='<strong>上级评价</strong>（'+_h(_kpiCurrentData.bossEvalBy||'')+'，'+_h((_kpiCurrentData.bossEvalAt||'').substring(0,10))+'）：<br>'+_h(_kpiCurrentData.bossComment);
@@ -17098,22 +17098,22 @@ function renderWPTable(plan){
     html+='<button onclick="openBossEval()">⭐ 完成评价</button>';
   }else{
     // 自己的计划：完整编辑功能（去掉新增+转发，左下角已有新建）
-    html+='<button onclick="submitWPPlan()" '+(plan.firstSubmittedAt?'disabled':'')+' class="'+(plan.firstSubmittedAt?'wp-btn-disabled':'wp-btn-primary')+'"><span style="color:#003472">📋</span> 提交周计划</button>';
+    html+='<button onclick="submitWPPlan()" '+(plan.firstSubmittedAt?'disabled':'')+' class="'+(plan.firstSubmittedAt?'wp-btn-disabled':'wp-btn-primary')+'"><span style="color:#2A476A">📋</span> 提交周计划</button>';
     // ★ V0.1.44: 撤销提交按钮（仅在已提交时显示）
     if(plan.firstSubmittedAt){
-      html+='<button class="wp-btn-accent" onclick="undoWPSubmit()"><span style="color:#003472">↩</span> 撤销提交</button>';
+      html+='<button class="wp-btn-accent" onclick="undoWPSubmit()"><span style="color:#2A476A">↩</span> 撤销提交</button>';
     }
-    html+='<button onclick="submitWPWeekSummary()" '+(plan.summarySubmittedAt?'disabled':'')+' class="'+(plan.summarySubmittedAt?'wp-btn-disabled':'')+'"><span style="color:#003472">✅</span> 提交周小结</button>';
-    html+='<button class="wp-btn-warn" onclick="deleteCurrentWPPlan()"><span style="color:#003472">🗑</span> 删除周计划</button>';
-    html+='<button onclick="exportCurrentWP()"><span style="color:#003472">📥</span> 导出周计划</button>';
+    html+='<button onclick="submitWPWeekSummary()" '+(plan.summarySubmittedAt?'disabled':'')+' class="'+(plan.summarySubmittedAt?'wp-btn-disabled':'')+'"><span style="color:#2A476A">✅</span> 提交周小结</button>';
+    html+='<button class="wp-btn-warn" onclick="deleteCurrentWPPlan()"><span style="color:#2A476A">🗑</span> 删除周计划</button>';
+    html+='<button onclick="exportCurrentWP()"><span style="color:#2A476A">📥</span> 导出周计划</button>';
     if(plan.bossEvaluated){
-      html+='<button onclick="viewBossEval()"><span style="color:#003472">📋</span> 查看上级评价</button>';
+      html+='<button onclick="viewBossEval()"><span style="color:#2A476A">📋</span> 查看上级评价</button>';
     }
     html+='<button class="wp-btn-ai" onclick="aiAssessWP()" style="margin-left:auto"><span style="color:rgba(255,255,255,.7)">🤖</span> AI-分析建议</button>';
   }
   // 安全兜底：确保工具栏至少有一个可见按钮（防止所有分支都未命中导致空白）
   if(html.indexOf('<button', html.lastIndexOf('wpToolbar')) < 0){
-    html+='<button onclick="exportCurrentWP()"><span style="color:#003472">📥</span> 导出周计划</button>';
+    html+='<button onclick="exportCurrentWP()"><span style="color:#2A476A">📥</span> 导出周计划</button>';
   }
   html+='</div>';
 
