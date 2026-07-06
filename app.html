@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.3.97">
+<meta name="version" content="V0.3.98">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1894,21 +1894,21 @@ body{
 .wp-empty-desc{font-size:13px;text-align:center;line-height:1.6}
 
 .wp-toolbar{display:flex;flex-wrap:wrap;gap:16px;padding:14px 0;margin-bottom:7px;border-bottom:1px solid var(--border);flex-shrink:0}
-/* ★ V0.3.96: 统一工具栏按钮文字颜色#2A476A，hover#F2F2F2 */
-.wp-toolbar button{padding:8px 18px;border:1px solid #c4ccd2;border-radius:4px;background:#D6E4F0;color:#2A476A;font-size:12px;cursor:pointer;transition:all .15s ease;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:5px;font-weight:500;min-width:122px}
-.wp-toolbar button:hover{background:#C0D6E8;border-color:#a8b8c9;color:#F2F2F2}
-.wp-toolbar button.wp-btn-primary{background:#D6E4F0;color:#2A476A;border-color:#c4ccd2}
-.wp-toolbar button.wp-btn-primary:hover{background:#C0D6E8;color:#F2F2F2}
-.wp-toolbar button.wp-btn-primary:disabled,.wp-toolbar button.wp-btn-disabled{background:#D6E4F0;color:#9ca3af}
-.wp-toolbar button.wp-btn-warn{background:#D6E4F0;color:#2A476A;border-color:#c4ccd2}
-.wp-toolbar button.wp-btn-warn:hover{background:#C0D6E8;color:#F2F2F2}
-.wp-toolbar button.wp-btn-accent{background:#D6E4F0;color:#2A476A;border-color:#c4ccd2}
-.wp-toolbar button.wp-btn-accent:hover{background:#C0D6E8;color:#F2F2F2}
+/* ★ V0.3.98: 工具栏按钮底色统一#AFAFAF浅灰，删除按钮#7D8C9A */
+.wp-toolbar button{padding:8px 18px;border:1px solid #c4ccd2;border-radius:4px;background:#AFAFAF;color:#2A476A;font-size:12px;cursor:pointer;transition:all .15s ease;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:5px;font-weight:500;min-width:122px}
+.wp-toolbar button:hover{background:#9A9A9A;border-color:#a8b8c9;color:#F2F2F2}
+.wp-toolbar button.wp-btn-primary{background:#AFAFAF;color:#2A476A;border-color:#c4ccd2}
+.wp-toolbar button.wp-btn-primary:hover{background:#9A9A9A;color:#F2F2F2}
+.wp-toolbar button.wp-btn-primary:disabled,.wp-toolbar button.wp-btn-disabled{background:#AFAFAF;color:#9ca3af}
+.wp-toolbar button.wp-btn-warn{background:#7D8C9A;color:#2A476A;border-color:#6B7B89}
+.wp-toolbar button.wp-btn-warn:hover{background:#6B7B89;color:#F2F2F2}
+.wp-toolbar button.wp-btn-accent{background:#AFAFAF;color:#2A476A;border-color:#c4ccd2}
+.wp-toolbar button.wp-btn-accent:hover{background:#9A9A9A;color:#F2F2F2}
 .wp-toolbar button.wp-btn-ai{background:#0071E3;color:#fff;border-color:#0071E3;border-radius:6px;padding:8px 16px;font-size:13px}
 .wp-toolbar button.wp-btn-ai:hover{background:#0062B9}
-.wp-toolbar button.wp-btn-freeze{background:#D6E4F0;color:#2A476A;border-color:#c4ccd2}
-.wp-toolbar button.wp-btn-freeze:hover{background:#C0D6E8;color:#F2F2F2}
-.wp-toolbar button:disabled,.wp-toolbar button.wp-btn-disabled:not(.wp-btn-primary){background:#D6E4F0;color:#9ca3af;cursor:not-allowed}
+.wp-toolbar button.wp-btn-freeze{background:#AFAFAF;color:#2A476A;border-color:#c4ccd2}
+.wp-toolbar button.wp-btn-freeze:hover{background:#9A9A9A;color:#F2F2F2}
+.wp-toolbar button:disabled,.wp-toolbar button.wp-btn-disabled:not(.wp-btn-primary){background:#AFAFAF;color:#9ca3af;cursor:not-allowed}
 /* ★ V0.1.30: 冻结视觉提示 — 仅本周重点工作列显示左侧蓝边框+锁图标 */
 .wp-table td.wp-cell-frozen{border-left:3px solid #3b82f6!important;border-right:none!important;position:relative}
 .wp-table td.wp-cell-frozen::after{content:'🔒';position:absolute;top:2px;right:4px;font-size:9px;opacity:.5}
