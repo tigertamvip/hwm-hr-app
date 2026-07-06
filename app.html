@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.3.47">
+<meta name="version" content="V0.3.48">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -17179,7 +17179,7 @@ function renderWPTable(plan){
     html+='<button type="button" onclick="toggleAIAnalysis()" id="aiAnalysisToggleBtn" style="padding:3px 12px;border:1px solid #d4c8f0;border-radius:14px;background:#fff;color:#6b5b95;font-size:11px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:3px;transition:all .25s ease;white-space:nowrap"><span id="aiToggleIcon">▼</span><span id="aiToggleText">展开</span></button>';
     html+='</div>';
   if(plan.aiAnalysis && plan.aiAnalysis.trim()){
-    html+='<div class="wp-feedback-textarea" id="aiAnalysisContent" style="background:#F4F0FF;border:1px solid #d4c8f0;font-size:13px;line-height:2.2;white-space:pre-wrap;transition:max-height .35s ease,opacity .25s ease,padding .25s ease;overflow:hidden;max-height:0;opacity:0;padding:0">'+_h(plan.aiAnalysis)+'</div>';
+    html+='<div class="wp-feedback-textarea" id="aiAnalysisContent" style="background:#F4F0FF;border:1px solid #d4c8f0;font-size:13px;line-height:1.8;white-space:pre-wrap;transition:max-height .35s ease,opacity .25s ease,padding .25s ease;overflow:hidden;max-height:0;opacity:0;padding:0">'+_h(plan.aiAnalysis)+'</div>';
   }else{
     html+='<div class="wp-feedback-empty" id="aiAnalysisContent" style="background:#F4F0FF;border:1px dashed #d4c8f0;transition:max-height .35s ease,opacity .25s ease,padding .25s ease;max-height:0;opacity:0;padding:0">点击上方「AI-分析建议」按钮，生成本周整体分析报告</div>';
   }
@@ -18160,7 +18160,7 @@ function toggleAIAnalysis(){
     section.classList.remove('ai-section-collapsed');
     el.style.maxHeight = '800px';
     el.style.opacity = '1';
-    el.style.paddingBottom = '';
+    el.style.padding = '12px 16px';
     el.style.overflow = 'auto';
     icon.textContent = '▲';
     text.textContent = '收起';
@@ -18286,7 +18286,12 @@ async function aiAssessWP() {
       }
     }
 
-    p.aiAnalysis = analysis.join('\n');
+    p.aiAnalysis = analysis.map(function(line){
+      var t=line.trim();
+      if(!t) return '';
+      if(t.startsWith('【')) return line;
+      return '\u25CF ' + line;
+    }).join('\n');
     p.updatedAt = new Date().toISOString();
     saveWP(p.year, p.month, p.week, p);
     renderWPTable(p);
