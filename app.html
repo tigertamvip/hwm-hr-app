@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.3.79">
+<meta name="version" content="V0.3.80">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1918,9 +1918,7 @@ body{
 .wp-table{width:100%;border-collapse:collapse;font-size:12px;min-width:0;table-layout:fixed}
 .wp-table th{background:#E2E4E7;color:#1f2937;font-weight:600;padding:8px 6px;border-bottom:2px solid #fff;white-space:nowrap;position:sticky;top:0;z-index:1;font-size:11px;text-align:center}
 .wp-table th.col-fixed{background:#d5d8db}
-.wp-table td{padding:2px 6px;border-bottom:1px solid #F0F0F0;vertical-align:top;text-align:center}
-/* ★ V0.3.77: 表格行交替底色（偶行浅灰） */
-.wp-table tbody tr:nth-child(even) td{background:#F3F4F5}
+.wp-table td{padding:2px 6px;border-bottom:1px solid rgba(0,0,0,.05);vertical-align:top;text-align:center}
 .wp-table td.editable{cursor:pointer;transition:background .15s;position:relative}
 .wp-table td.editable:hover{background:#FFF9E6}
 .wp-table td.editable.editing{background:#FFFAEA;box-shadow:inset 0 0 0 2px var(--gold);padding:0}
@@ -3666,6 +3664,7 @@ function _h(v){return (v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace
 // V0.3.77: 表格奇偶行交替底色
 // V0.3.78: 门户已开发模块→钢蓝#4E6278，待开发→灰蓝#D0D8E2
 // V0.3.79: "退出登录"按钮改为钢蓝#4E6278
+// V0.3.80: 去掉表格隔行底色(#F3F4F5太重)，线条改为极微rgba(0,0,0,.05)
 function _hWork(v){return _h((v||'').replace(/\n{2,}/g,'\n'));}
 
 // ===== KPI 可编辑渲染 =====
