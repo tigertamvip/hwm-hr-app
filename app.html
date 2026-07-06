@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.3.73">
+<meta name="version" content="V0.3.74">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1995,6 +1995,28 @@ table.collab-table tbody tr:hover{background:#fffdf5}
 .wp-summary-label{color:var(--text-hint)}
 .wp-summary-value{font-weight:600;color:var(--primary)}
 .wp-summary-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:500}
+
+/* ★ V0.3.74: 卡片仪表盘 */
+.wp-cards-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:6px 0 8px 0}
+.wp-card{background:#EEF1F5;border-radius:10px;padding:14px 16px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.wp-card-title{font-size:12px;font-weight:600;color:#1f2937;margin-bottom:10px;display:flex;align-items:center;gap:5px}
+.wp-card-table{width:100%;border-collapse:collapse;font-size:11px;line-height:1.8}
+.wp-card-table td{padding:3px 4px}
+.wp-card-table .td-val{text-align:center;font-weight:600}
+.wp-card-table .td-pos{color:#059669}
+.wp-card-table .td-neg{color:#6b7280}
+.wp-card-tag{display:inline-block;padding:3px 14px;border-radius:12px;font-size:11px;font-weight:500}
+.wp-card-tag.green{background:#d1fae5;color:#065f46}
+.wp-card-tag.blue{background:#dbeafe;color:#1e40af}
+.wp-card-tag.red{background:#fee2e2;color:#991b1b}
+.wp-card-tag.gray{background:#f3f4f6;color:#6b7280}
+.wp-card-score-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0}
+.wp-card-score-label{color:#6b7280;font-size:11px}
+.wp-card-score-val{color:#374151;font-family:system-ui;font-size:16px}
+.wp-card-score-bold{font-weight:800;font-size:18px}
+.wp-card-divider{border-top:1px solid #dee2e8;margin:6px 0;padding-top:6px}
+@media(max-width:900px){.wp-cards-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.wp-cards-grid{grid-template-columns:1fr}}
 .wp-badge-done{background:#E6F7EE;color:#059669}
 .wp-badge-progress{background:#FFF3E0;color:#E67E22}
 .wp-badge-paused{background:#F1F2F4;color:#8A9499}
@@ -3636,6 +3658,7 @@ function _h(v){return (v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace
 // V0.3.71: 修复协同人换行——调用点从renderWPCellValue改为始终走_renderSupportersCell(含revision支持)
 // V0.3.72: .wp-topbar添加box-shadow底部浮显投影效果
 // V0.3.73: MBO/KPI内容区底色从var(--bg)改为暖奶黄#FBF7EE
+// V0.3.74: 计分规则/评分标准/完成状态/积分统计改为4卡片仪表盘（.wp-cards-grid+.wp-card）
 function _hWork(v){return _h((v||'').replace(/\n{2,}/g,'\n'));}
 
 // ===== KPI 可编辑渲染 =====
@@ -17645,91 +17668,81 @@ function _renderTimeManagementPanel(plan){
 
   // 提交状态
   var subStatus=_checkSubmissionStatus(plan,'submit');
-  var subText='';var subColor='';var subBg='';
-  if(subStatus==='on_time'){subText='✅ 按时';subColor='#065f46';subBg='#d1fae5';}
-  else if(subStatus==='late'){subText='⚠️ 超时';subColor='#991b1b';subBg='#fee2e2';}
-  else if(subStatus==='exempted'){subText='🛡️ 已豁免';subColor='#1e40af';subBg='#dbeafe';}
-  else{subText='待提交';subColor='#6b7280';subBg='#f3f4f6';}
-
+  var subTagClass='',subText='';
+  if(subStatus==='on_time'){subText='✅ 按时';subTagClass='green';}
+  else if(subStatus==='late'){subText='⚠️ 超时';subTagClass='red';}
+  else if(subStatus==='exempted'){subText='🛡️ 已豁免';subTagClass='blue';}
+  else{subText='待提交';subTagClass='gray';}
   var subTime=plan.firstSubmittedAt?_formatDateTime(plan.firstSubmittedAt):'—';
 
   // 评价状态
   var revStatus=_checkSubmissionStatus(plan,'review');
-  var revText='';var revColor='';var revBg='';
-  if(revStatus==='on_time'){revText='✅ 按时';revColor='#065f46';revBg='#d1fae5';}
-  else if(revStatus==='late'){revText='⚠️ 超时';revColor='#991b1b';revBg='#fee2e2';}
-  else{revText='待评价';revColor='#6b7280';revBg='#f3f4f3';}
-
+  var revTagClass='',revText='';
+  if(revStatus==='on_time'){revText='✅ 按时';revTagClass='green';}
+  else if(revStatus==='late'){revText='⚠️ 超时';revTagClass='red';}
+  else{revText='待评价';revTagClass='gray';}
   var revTime=plan.bossReviewedAt?_formatDateTime(plan.bossReviewedAt):'—';
 
-  // ★ 豁免按钮：上级在非按时（待提交灰色/超时红色/已豁免蓝色）均可见
+  // 豁免按钮
   var exemptionBtn='';
   if((_wpViewingSubordinate||_wpViewingDeptMember)&&(subStatus!=='on_time'||plan.exempted)){
     exemptionBtn='<button onclick="toggleWPExemption()" style="padding:2px 8px;border:none;border-radius:4px;cursor:pointer;font-size:11px;margin-top:4px;'+(plan.exempted?'background:#94a3b8;color:#fff':'background:#3b82f6;color:#fff')+'">'+(plan.exempted?'🔓 取消豁免':'🛡️ 豁免')+'</button>';
   }
 
   var html='';
-  html+='<div id="wpTimeMgmtPanel" style="background:#fafbfc;border:none;padding:14px 20px;margin:5px 0 7px 0;font-size:13px;display:flex;gap:16px;align-items:stretch">';
+  html+='<div class="wp-cards-grid">';
 
-  // Col 1: 提交规则 — 统一字体/颜色
-  html+='<div style="flex:1;min-width:140px;border-right:1px solid #eef2f6">';
-  html+='<div style="font-weight:600;color:#1f2937;margin-bottom:8px;font-size:12px">提交规则</div>';
-  html+='<table style="width:100%;font-size:11px;border-collapse:collapse;line-height:1.8">';
-  html+='<tr><td colspan=2 style="padding-bottom:3px"></td></tr>';
-  html+='<tr><td style="padding:3px 4px;color:#374151"><span style="color:#059669;margin-right:6px">✓</span>周六12:00前提交</td><td style="text-align:left;padding-left:2px;color:#059669">✓</td></tr>';
-  html+='<tr><td style="padding:3px 4px;color:#374151"><span style="color:#059669;margin-right:6px">✓</span>上级周一12:00评价</td><td style="text-align:left;padding-left:2px;color:#059669">✓</td></tr>';
-  html+='<tr><td style="padding:3px 4px;color:#6b7280"><span style="margin-right:6px">—</span>法定节假日顺延</td><td style="text-align:left;padding-left:2px;color:#6b7280">—</td></tr>';
-  html+='<tr><td style="padding:3px 4px;color:#6b7280"><span style="margin-right:6px">○</span>每迟12h</td><td style="text-align:left;padding-left:2px;color:#6b7280;font-weight:500">−0.5</td></tr>';
-  html+='<tr><td style="padding:3px 4px;color:#6b7280"><span style="margin-right:6px">○</span>超48h未交</td><td style="text-align:left;padding-left:2px;color:#6b7280;font-weight:500">−1.5</td></tr>';
-  html+='</table>';
-  html+='</div>';
-
-  // Col 2: 任务评分标准 — 统一
-  html+='<div style="flex:1;min-width:160px;padding:0 14px;border-right:1px solid #eef2f6">';
-  html+='<div style="font-weight:600;color:#1f2937;margin-bottom:8px;font-size:12px">评分标准</div>';
-  html+='<table style="width:100%;font-size:11px;border-collapse:collapse;line-height:1.8">';
-  html+='<tr><td style="padding-bottom:3px"></td><td style="text-align:center;padding-bottom:3px;color:#6b7280;width:20%">按时</td><td style="text-align:center;padding-bottom:3px;color:#6b7280;width:20%">逾期</td><td style="text-align:center;padding-bottom:3px;color:#6b7280;width:20%">未完</td></tr>';
-  html+='<tr><td style="padding:3px 4px;color:#374151"><span style="display:inline-block;width:.6em"></span>重要紧急</td><td style="text-align:center;color:#059669;font-weight:600">+3</td><td style="text-align:center;color:#6b7280">−0.75</td><td style="text-align:center;color:#6b7280">−1.5</td></tr>';
-  html+='<tr><td style="padding:3px 4px;color:#374151"><span style="display:inline-block;width:.6em"></span>重要</td><td style="text-align:center;color:#059669;font-weight:500">+1.5</td><td style="text-align:center;color:#6b7280">−0.38</td><td style="text-align:center;color:#6b7280">−0.75</td></tr>';
-  html+='<tr><td style="padding:3px 4px;color:#374151"><span style="display:inline-block;width:.6em"></span>一般紧急</td><td style="text-align:center;color:#059669;font-weight:500">+1</td><td style="text-align:center;color:#6b7280">−0.25</td><td style="text-align:center;color:#6b7280">−0.5</td></tr>';
-  html+='<tr><td style="padding:3px 4px;color:#374151"><span style="display:inline-block;width:.6em"></span>一般</td><td style="text-align:center;color:#059669;font-weight:500">+0.5</td><td style="text-align:center;color:#6b7280">−0.13</td><td style="text-align:center;color:#6b7280">−0.25</td></tr>';
+  // ★ Card 1: 计分规则
+  html+='<div class="wp-card">';
+  html+='<div class="wp-card-title">📋 计分规则</div>';
+  html+='<table class="wp-card-table">';
+  html+='<tr><td><span style="color:#059669;margin-right:6px">✓</span>周六12:00前提交</td><td class="td-val td-pos" style="width:24px">✓</td></tr>';
+  html+='<tr><td><span style="color:#059669;margin-right:6px">✓</span>上级周一12:00评价</td><td class="td-val td-pos">✓</td></tr>';
+  html+='<tr><td style="color:#6b7280"><span style="margin-right:6px">—</span>法定节假日顺延</td><td class="td-val" style="color:#6b7280">—</td></tr>';
+  html+='<tr><td style="color:#6b7280"><span style="margin-right:6px">○</span>每迟12h</td><td class="td-val" style="color:#6b7280;font-weight:500">−0.5</td></tr>';
+  html+='<tr><td style="color:#6b7280"><span style="margin-right:6px">○</span>超48h未交</td><td class="td-val" style="color:#6b7280;font-weight:500">−1.5</td></tr>';
   html+='</table>';
   html+='</div>';
 
-  // Col 3: 完成状态 — 统一
-  html+='<div style="flex:.8;min-width:130px;padding:0 14px;border-right:1px solid #eef2f6">';
-  html+='<div style="font-weight:600;color:#1f2937;margin-bottom:8px;font-size:12px">完成状态</div>';
-  html+='<table style="width:100%;border-collapse:collapse;font-size:11px;line-height:1.8">';
-  html+='<tr><td style="color:#6b7280;white-space:nowrap;padding:4px 6px">提交</td><td style="color:#374151">'+subTime+'</td></tr>';
+  // ★ Card 2: 评分标准
+  html+='<div class="wp-card">';
+  html+='<div class="wp-card-title">📊 评分标准</div>';
+  html+='<table class="wp-card-table">';
+  html+='<tr><td></td><td class="td-val" style="color:#6b7280;font-weight:400;font-size:10px">按时</td><td class="td-val" style="color:#6b7280;font-weight:400;font-size:10px">逾期</td><td class="td-val" style="color:#6b7280;font-weight:400;font-size:10px">未完</td></tr>';
+  html+='<tr><td>重要紧急</td><td class="td-val td-pos">+3</td><td class="td-val td-neg">−0.75</td><td class="td-val td-neg">−1.5</td></tr>';
+  html+='<tr><td>重要</td><td class="td-val" style="color:#059669;font-weight:500">+1.5</td><td class="td-val td-neg">−0.38</td><td class="td-val td-neg">−0.75</td></tr>';
+  html+='<tr><td>一般紧急</td><td class="td-val" style="color:#059669;font-weight:500">+1</td><td class="td-val td-neg">−0.25</td><td class="td-val td-neg">−0.5</td></tr>';
+  html+='<tr><td>一般</td><td class="td-val" style="color:#059669;font-weight:500">+0.5</td><td class="td-val td-neg">−0.13</td><td class="td-val td-neg">−0.25</td></tr>';
   html+='</table>';
-  html+='<div style="margin-bottom:10px;padding-top:4px">';
-  html+='<span class="wp-tag-pill" style="display:inline-block;background:'+subBg+';color:'+subColor+';border-radius:12px;padding:4px 14px;font-size:11px;font-weight:500">'+subText+'</span>';
   html+='</div>';
-  html+='<table style="width:100%;border-collapse:collapse;font-size:11px;line-height:1.8">';
-  html+='<tr><td style="color:#6b7280;white-space:nowrap;padding:4px 6px">评价</td><td style="color:#6b7280">—</td></tr>';
+
+  // ★ Card 3: 完成状态
+  html+='<div class="wp-card">';
+  html+='<div class="wp-card-title">⏰ 完成状态</div>';
+  html+='<table class="wp-card-table">';
+  html+='<tr><td style="color:#6b7280;width:32px">提交</td><td style="color:#374151">'+subTime+'</td></tr>';
   html+='</table>';
-  html+='<div>';
-  html+='<span class="wp-tag-pill" style="background:'+revBg+';color:'+revColor+';border-radius:10px;padding:2px 12px;font-size:12px;font-weight:500">'+revText+'</span>';
-  html+='</div>';
+  html+='<div style="margin:6px 0 10px 0"><span class="wp-card-tag '+subTagClass+'">'+subText+'</span></div>';
+  html+='<table class="wp-card-table">';
+  html+='<tr><td style="color:#6b7280;width:32px">评价</td><td style="color:#6b7280">—</td></tr>';
+  html+='</table>';
+  html+='<div style="margin-top:6px"><span class="wp-card-tag '+revTagClass+'">'+revText+'</span></div>';
   html+=exemptionBtn;
   html+='</div>';
 
-  // Col 4: 年度积分
+  // ★ Card 4: 年度积分
   var netVal=scores.net||0;
-  var netColor=netVal>=0?'#059669':'#6b7280';
-  html+='<div style="flex:.7;min-width:110px;padding-left:16px">';
-  html+='<div style="font-weight:600;color:#1f2937;margin-bottom:8px;font-size:12px">'+year+'年积分</div>';
-  html+='<div style="line-height:2">';
-  html+='<div style="display:flex;justify-content:space-between"><span style="color:#6b7280;font-size:11px">累计</span><span style="color:#374151;font-family:system-ui;font-size:16px">'
-  +((scores.total||0)>=0?'+':'')+(scores.total||0)+'</span></div>';
-  html+='<div style="display:flex;justify-content:space-between"><span style="color:#6b7280;font-size:11px">扣除</span><span style="color:#374151;font-family:system-ui;font-size:16px">'
-  +(scores.deducted||0)+'</span></div>';
-  html+='<div style="border-top:1px solid #eef2f6;margin:6px 0;padding-top:6px;display:flex;justify-content:space-between"><span style="color:#374151;font-size:12px;font-weight:500">净积分</span><span style="font-weight:800;color:'+netColor+';font-family:system-ui;font-size:18px">'
-  +(netVal>=0?'+':'')+netVal+'</span></div>';
+  var netColor=netVal>=0?'#059669':'#374151';
+  html+='<div class="wp-card">';
+  html+='<div class="wp-card-title">📊 '+year+'年积分</div>';
+  html+='<div class="wp-card-score-row"><span class="wp-card-score-label">累计</span><span class="wp-card-score-val">'+((scores.total||0)>=0?'+':'')+(scores.total||0)+'</span></div>';
+  html+='<div class="wp-card-score-row"><span class="wp-card-score-label">扣除</span><span class="wp-card-score-val">'+(scores.deducted||0)+'</span></div>';
+  html+='<div class="wp-card-divider"><div style="display:flex;justify-content:space-between"><span style="color:#374151;font-size:12px;font-weight:500">净积分</span><span class="wp-card-score-bold" style="color:'+netColor+'">'+(netVal>=0?'+':'')+netVal+'</span></div></div>';
   if((scores.net||0)<=-20){
     html+='<div style="color:#6b7280;font-size:11px;margin-top:4px">⚠️ 不能胜任</div>';
   }
-  html+='</div></div>';
+  html+='</div>';
+
   html+='</div>';
   return html;
 }
