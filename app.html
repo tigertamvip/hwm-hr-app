@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.3.71">
+<meta name="version" content="V0.3.72">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1862,7 +1862,7 @@ body{
 }
 
 /* ===== MBO模块样式 ===== */
-.wp-topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:#004a8d;color:#fff;min-height:56px;flex-shrink:0}
+.wp-topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:#004a8d;color:#fff;min-height:56px;flex-shrink:0;box-shadow:0 4px 12px rgba(0,0,0,0.18);position:relative;z-index:1}
 .wp-topbar-left{display:flex;align-items:center;gap:20px}
 .wp-topbar-logo{font-size:16px;font-weight:600;display:flex;align-items:center;gap:6px}
 .wp-topbar-user{font-size:12px;opacity:.8;margin-left:16px;padding:2px 10px;background:rgba(255,255,255,.15);border-radius:10px}
@@ -3634,6 +3634,7 @@ function _h(v){return (v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace
 // V0.3.69: "回到我的周计划"按钮自动选中当前时间对应周（而非空白）
 // V0.3.70: 序号列垂直排列——序号在上、+号居中、-号在下（flex-direction:column）
 // V0.3.71: 修复协同人换行——调用点从renderWPCellValue改为始终走_renderSupportersCell(含revision支持)
+// V0.3.72: .wp-topbar添加box-shadow底部浮显投影效果
 function _hWork(v){return _h((v||'').replace(/\n{2,}/g,'\n'));}
 
 // ===== KPI 可编辑渲染 =====
