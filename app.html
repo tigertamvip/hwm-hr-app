@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.3.65">
+<meta name="version" content="V0.3.66">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -3628,6 +3628,7 @@ function _h(v){return (v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace
 // V0.3.63: 合并连续换行为单个，防止粘贴内容撑大行高
 // V0.3.64: 统计数字颜色从#02314D改为#1B6EC4科技蓝，提升可读性
 // V0.3.65: 人口统计条形图数字(.demo-bar-num)从--text-hint(#C8C8C8)改为#1B6EC4科技蓝
+// V0.3.66: 协同人多人时每个姓名独占一行(用div替代逗号分隔)
 function _hWork(v){return _h((v||'').replace(/\n{2,}/g,'\n'));}
 
 // ===== KPI 可编辑渲染 =====
@@ -16556,13 +16557,14 @@ function _renderSupportersCell(plan,taskIndex,rawSupporters){
   // 检查是否有协同状态信息
   var hasStatuses=plan._collab_statuses&&Object.keys(plan._collab_statuses).length>0;
   if(!hasStatuses){
-    // 无状态信息时，显示纯文本
-    return _h(rawSupporters);
+    // 无状态信息时，每个姓名独占一行
+    var names=[];
+    for(var i=0;i<sups.length;i++){names.push('<div>'+_h(sups[i].name)+'</div>');}
+    return names.join('');
   }
-  // 有状态：显示带徽章的名字列表
+  // 有状态：每个协同人独占一行，带徽章
   var html='';
   for(var i=0;i<sups.length;i++){
-    if(i>0)html+=', ';
     var s=sups[i];
     var statusKey=taskIndex+'_'+s.uid;
     var st=plan._collab_statuses[statusKey]||'pending';
@@ -16570,10 +16572,10 @@ function _renderSupportersCell(plan,taskIndex,rawSupporters){
     if(st==='accepted'){badgeColor='#16a34a';badgeIcon='✅';badgeText='已接受';}
     else if(st==='rejected'){badgeColor='#dc2626';badgeIcon='❌';badgeText='已拒绝';}
     else{badgeColor='#9ca3af';badgeIcon='⏳';badgeText='待响应';}
-    html+='<span style="display:inline-flex;align-items:center;gap:2px;white-space:nowrap">';
+    html+='<div style="display:inline-flex;align-items:center;gap:2px;white-space:nowrap">';
     html+='<span style="font-weight:500">'+_h(s.name)+'</span>';
     html+='<span style="font-size:9px;padding:1px 4px;border-radius:3px;background:'+badgeColor+';color:#fff;font-weight:600;line-height:1.4">'+badgeIcon+' '+badgeText+'</span>';
-    html+='</span>';
+    html+='</div>';
   }
   return html;
 }
