@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.3.62">
+<meta name="version" content="V0.3.63">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -3625,6 +3625,8 @@ function kpiSelect(name,opts,sel){
   return s+'</select>';
 }
 function _h(v){return (v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+// V0.3.63: 合并连续换行为单个，防止粘贴内容撑大行高
+function _hWork(v){return _h((v||'').replace(/\n{2,}/g,'\n'));}
 
 // ===== KPI 可编辑渲染 =====
 function renderSeniorKPIEditable(container){
@@ -17093,7 +17095,7 @@ function renderWPTable(plan){
       html+='<tr style="background:#FFFDF5">';
       // ★ V0.1.59: 上周转入的不可删除，只显示序号
       html+='<td class="col-num" style="text-align:center;color:#8B6914">'+seq+'</td>';
-      html+='<td class="'+edCls+' col-work" data-field="tasks.'+jj+'.work" data-type="textarea"'+edClick+'>'+(tt.work?_h(tt.work):'<span style="color:var(--text-hint)">点击填写</span>')+cfTag+'</td>';
+      html+='<td class="'+edCls+' col-work" data-field="tasks.'+jj+'.work" data-type="textarea"'+edClick+'>'+(tt.work?_hWork(tt.work):'<span style="color:var(--text-hint)">点击填写</span>')+cfTag+'</td>';
       var __goalRaw=tt.goal||'';
       var __goalVal=renderWPCellValue(plan,'tasks.'+jj+'.goal',tt.goal);
       var __goalPriClass=__goalRaw==='重要紧急'?'pri-urgent':__goalRaw==='重要'?'pri-important':__goalRaw==='一般紧急'?'pri-normal-urgent':__goalRaw==='其他'?'pri-normal':'';
@@ -17126,7 +17128,7 @@ function renderWPTable(plan){
     html+='<tr>';
     // ★ V0.1.59: # 列 — +/- 操作按钮
     html+=_renderTaskOpCell(j,seq,plan);
-    html+='<td class="editable col-work'+_frozenCls+'" data-field="tasks.'+j+'.work" data-type="textarea" onclick="startEditCell(this)">'+(t.work||plan._revisions&&plan._revisions['tasks.'+j+'.work']?renderWPCellValue(plan,'tasks.'+j+'.work',t.work):(t.work?_h(t.work):'<span style="color:var(--text-hint)">点击填写</span>'))+'</td>';
+    html+='<td class="editable col-work'+_frozenCls+'" data-field="tasks.'+j+'.work" data-type="textarea" onclick="startEditCell(this)">'+(t.work||plan._revisions&&plan._revisions['tasks.'+j+'.work']?renderWPCellValue(plan,'tasks.'+j+'.work',t.work):(t.work?_hWork(t.work):'<span style="color:var(--text-hint)">点击填写</span>'))+'</td>';
     var _goalRaw=t.goal||'';
     var _goalVal=renderWPCellValue(plan,'tasks.'+j+'.goal',t.goal);
     var _goalPriClass=_goalRaw==='重要紧急'?'pri-urgent':_goalRaw==='重要'?'pri-important':_goalRaw==='一般紧急'?'pri-normal-urgent':_goalRaw==='其他'?'pri-normal':'';
