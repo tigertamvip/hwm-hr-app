@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.3.38">
+<meta name="version" content="V0.3.39">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1915,7 +1915,7 @@ body{
 .wp-toolbar-sep{width:1px;background:var(--border);margin:0 4px;display:inline-block}
 
 .wp-table-wrap{flex:1;overflow-x:auto;background:var(--card);border-radius:8px;border:1px solid var(--border)}
-.wp-table{width:100%;border-collapse:collapse;font-size:12px;min-width:1950px;table-layout:fixed}
+.wp-table{width:100%;border-collapse:collapse;font-size:12px;min-width:1500px;table-layout:fixed}
 .wp-table th{background:#E2E4E7;color:#1f2937;font-weight:600;padding:8px 6px;border-bottom:2px solid #fff;white-space:nowrap;position:sticky;top:0;z-index:1;font-size:11px;text-align:center}
 .wp-table th.col-fixed{background:#d5d8db}
 .wp-table td{padding:6px;border-bottom:1px solid #F0F0F0;vertical-align:top;text-align:center}
@@ -17172,10 +17172,9 @@ function renderWPTable(plan){
   var summaryUpdatedAt = plan.weekSummaryUpdatedAt || '';
   
   html+='<div class="wp-feedback-section">';
-  html+='<div class="wp-feedback-header">';
-  html+='<div style="display:flex;align-items:center;justify-content:space-between;padding-bottom:6px;border-bottom:1px solid #e5e7eb;margin-bottom:8px">';
-    html+='<div style="display:flex;align-items:center;gap:8px"><span>🤖</span><span class="wp-feedback-title" style="margin:0">AI 综合分析</span></div>';
-    html+='<button type="button" onclick="toggleAIAnalysis()" id="aiAnalysisToggleBtn" style="padding:3px 12px;border:1px solid #d4c8f0;border-radius:14px;background:#fff;color:#6b5b95;font-size:11px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:4px;transition:all .25s ease;white-space:nowrap"><span id="aiToggleIcon">▼</span><span id="aiToggleText">收起</span></button>';
+  html+='<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 16px 6px;border-bottom:1px solid #e5e7eb;margin-bottom:6px;flex-wrap:wrap;gap:8px">';
+    html+='<div style="display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:#374151">🤖 AI 综合分析</div>';
+    html+='<button type="button" onclick="toggleAIAnalysis()" id="aiAnalysisToggleBtn" style="padding:3px 12px;border:1px solid #d4c8f0;border-radius:14px;background:#fff;color:#6b5b95;font-size:11px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:3px;transition:all .25s ease;white-space:nowrap"><span id="aiToggleIcon">▼</span><span id="aiToggleText">收起</span></button>';
     html+='</div>';
   if(plan.aiAnalysis && plan.aiAnalysis.trim()){
     html+='<div class="wp-feedback-textarea" id="aiAnalysisContent" style="background:#F4F0FF;border:1px solid #d4c8f0;font-size:13px;line-height:1.7;white-space:pre-wrap;transition:max-height .35s ease,opacity .25s ease,padding .25s ease;overflow:hidden;max-height:600px">'+_h(plan.aiAnalysis)+'</div>';
