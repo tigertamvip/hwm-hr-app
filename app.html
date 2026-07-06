@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.3.124">
+<meta name="version" content="V0.3.125">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1865,8 +1865,8 @@ body{
 .wp-topbar-left{display:flex;align-items:center;gap:20px}
 .wp-topbar-logo{font-size:16px;font-weight:600;display:flex;align-items:center;gap:6px}
 .wp-topbar-user{font-size:12px;margin-left:16px;padding:2px 10px;background:rgba(42,71,106,.08);border-radius:10px;color:#2A476A}
-.wp-back-btn{padding:10px 20px;border:none;border-radius:8px;background:#007AFF;color:#fff;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;box-shadow:0 2px 8px rgba(0,122,255,.25)}
-.wp-back-btn:hover{background:#0066D6}
+.wp-back-btn{padding:10px 20px;border:1px solid rgba(255,255,255,.25);border-radius:8px;background:rgba(0,122,255,.80);color:#fff;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 2px 12px rgba(0,122,255,.20)}
+.wp-back-btn:hover{background:rgba(0,122,255,.90)}
 
 .wp-layout{display:flex;height:calc(100vh - 48px);overflow:hidden}
 /* ★ V0.3.102: 侧栏浅色导航轨 — 纯白底+左侧竖条指示器 */
@@ -1907,8 +1907,8 @@ body{
 .wp-toolbar button.wp-btn-warn:hover{background:#FEF2F2;border-color:#fca5a5;color:#D64352}
 .wp-toolbar button.wp-btn-accent{background:#fff;color:#2A476A;border-color:#d1d5db}
 .wp-toolbar button.wp-btn-accent:hover{background:#F8FAFB;border-color:#9ca3af}
-.wp-toolbar button.wp-btn-ai{background:#0F7BE1;color:#fff;border-color:#0F7BE1;border-radius:6px;padding:7px 16px;font-size:13px;font-weight:600}
-.wp-toolbar button.wp-btn-ai:hover{background:#0069C8;border-color:#0069C8}
+.wp-toolbar button.wp-btn-ai{background:rgba(15,123,225,.80);color:#fff;border-color:rgba(255,255,255,.25);border-radius:6px;padding:7px 16px;font-size:13px;font-weight:600;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 2px 12px rgba(15,123,225,.20)}
+.wp-toolbar button.wp-btn-ai:hover{background:rgba(15,123,225,.90)}
 .wp-toolbar button.wp-btn-freeze{background:#fff;color:#2A476A;border-color:#d1d5db}
 .wp-toolbar button.wp-btn-freeze:hover{background:#F8FAFB;border-color:#9ca3af}
 .wp-toolbar button:disabled,.wp-toolbar button.wp-btn-disabled:not(.wp-btn-primary){background:#F9FAFB;color:#a0aab4;border-color:#e5e7eb;cursor:not-allowed}
