@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.3.36">
+<meta name="version" content="V0.3.37">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1938,8 +1938,8 @@ body{
 .wp-table td.col-wide{text-align:left;width:180px;max-width:180px;word-wrap:break-word;overflow-wrap:break-word}
 .wp-table td.col-problemtype{width:110px;max-width:110px}
 .wp-table td.col-needboss{width:69px;max-width:69px}
-.wp-table td.col-boss{background:#FFFDF5;width:320px;max-width:320px;text-align:left;border-left:2px solid #FFBB1C}
-.wp-table td.col-remarks{width:200px;max-width:200px;text-align:left}
+.wp-table td.col-boss{background:#FFFDF5;width:200px;max-width:200px;text-align:left;border-left:2px solid #FFBB1C}
+.wp-table td.col-remarks{width:140px;max-width:140px;text-align:left}
 .wp-table td.col-readonly{background:#FAFAFA;color:var(--text-hint);cursor:default}
 .wp-table input.wp-cell-input{width:100%;max-width:100%;border:1px solid var(--gold);border-radius:3px;padding:5px 6px;font-size:12px;outline:none;box-sizing:border-box;background:#fff}
 .wp-table input.wp-cell-input:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba(24,90,165,.12)}
@@ -17065,7 +17065,7 @@ function renderWPTable(plan){
   }
   html+='</div>';
 
-  html+='<div class="wp-table-area"><div class="wp-table-wrap"><table class="wp-table"><colgroup><col style="width:72px"><col style="width:200px"><col style="width:90px"><col style="width:135px"><col style="width:135px"><col style="width:84px"><col style="width:56px"><col style="width:92px"><col style="width:160px"><col style="width:82px"><col style="width:90px"><col style="width:200px"><col style="width:320px"></colgroup><thead><tr>';
+  html+='<div class="wp-table-area"><div class="wp-table-wrap"><table class="wp-table"><colgroup><col style="width:72px"><col style="width:200px"><col style="width:90px"><col style="width:135px"><col style="width:135px"><col style="width:84px"><col style="width:56px"><col style="width:92px"><col style="width:160px"><col style="width:82px"><col style="width:90px"><col style="width:180px"><col style="width:200px"></colgroup><thead><tr>';
   html+='<th class="col-num" style="color:#0071E3">#</th><th class="col-work" style="color:#0071E3">本周重点工作</th><th class="col-goal" style="color:#0071E3">优先级</th><th class="col-hours" style="color:#0071E3">计划完成日期</th><th class="col-hours" style="color:#0071E3">实际完成日期</th><th class="col-status" style="color:#0071E3">完成状态</th><th class="col-score" style="color:#0071E3">积分</th><th class="col-supporters" style="color:#0071E3">协同人</th><th class="col-wide" style="color:#0071E3">遇到的问题/困难</th><th class="col-problemtype" style="color:#0071E3">问题类型</th><th class="col-needboss" style="color:#0071E3">需上级介入</th><th class="col-remarks" style="color:#0071E3">备注说明</th><th class="col-boss" style="color:#0071E3">直属上级建议</th>';
   html+='</tr></thead><tbody>';
 
@@ -17173,12 +17173,14 @@ function renderWPTable(plan){
   
   html+='<div class="wp-feedback-section">';
   html+='<div class="wp-feedback-header">';
-  html+='<span class="wp-feedback-title">🤖 AI 综合分析</span>';
-  html+='</div>';
+  html+='<div style="display:flex;align-items:center;justify-content:space-between">';
+    html+='<span class="wp-feedback-title">🤖 AI 综合分析</span>';
+    html+='<button type="button" onclick="toggleAIAnalysis()" id="aiAnalysisToggleBtn" style="padding:4px 14px;border:1px solid #d4c8f0;border-radius:16px;background:#fff;color:#6b5b95;font-size:11px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:4px;transition:all .25s ease"><span id="aiToggleIcon">▲</span> <span id="aiToggleText">收起</span></button>';
+    html+='</div>';
   if(plan.aiAnalysis && plan.aiAnalysis.trim()){
-    html+='<div class="wp-feedback-textarea" style="background:#F4F0FF;border:1px solid #d4c8f0;font-size:13px;line-height:1.7;white-space:pre-wrap">'+_h(plan.aiAnalysis)+'</div>';
+    html+='<div class="wp-feedback-textarea" id="aiAnalysisContent" style="background:#F4F0FF;border:1px solid #d4c8f0;font-size:13px;line-height:1.7;white-space:pre-wrap;transition:max-height .35s ease,opacity .25s ease,padding .25s ease;overflow:hidden;max-height:600px">'+_h(plan.aiAnalysis)+'</div>';
   }else{
-    html+='<div class="wp-feedback-empty" style="background:#F4F0FF;border:1px dashed #d4c8f0">点击上方「AI-分析建议」按钮，生成本周整体分析报告</div>';
+    html+='<div class="wp-feedback-empty" id="aiAnalysisContent" style="background:#F4F0FF;border:1px dashed #d4c8f0;transition:max-height .35s ease,opacity .25s ease,padding .25s ease">点击上方「AI-分析建议」按钮，生成本周整体分析报告</div>';
   }
   html+='</div>';
 
@@ -18144,6 +18146,32 @@ function calcAverage(arr) {
 }
 
 // 增强版 AI 评估（异步，加载历史数据）
+// ★ V0.3.36: AI 综合分析折叠/展开
+var _aiExpanded = true;
+function toggleAIAnalysis(){
+  _aiExpanded = !_aiExpanded;
+  var el = document.getElementById('aiAnalysisContent');
+  var icon = document.getElementById('aiToggleIcon');
+  var text = document.getElementById('aiToggleText');
+  if(!el) return;
+  if(_aiExpanded){
+    el.style.maxHeight = '600px';
+    el.style.opacity = '1';
+    el.style.paddingBottom = '';
+    el.style.overflow = 'auto';
+    icon.textContent = '▲';
+    text.textContent = '收起';
+  }else{
+    el.style.maxHeight = '0';
+    el.style.opacity = '0';
+    el.style.paddingTop = '0';
+    el.style.paddingBottom = '0';
+    el.style.marginTop = '-8px';
+    icon.textContent = '▼';
+    text.textContent = '展开';
+  }
+}
+
 async function aiAssessWP() {
   var p = _wpCurrent.plan;
   if (!p) { _showAlert('请先选择一个周计划'); return; }
