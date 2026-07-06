@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.3.75">
+<meta name="version" content="V0.3.76">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -3661,6 +3661,7 @@ function _h(v){return (v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace
 // V0.3.73: MBO/KPI内容区底色从var(--bg)改为暖奶黄#FBF7EE
 // V0.3.74: 计分规则/评分标准/完成状态/积分统计改为4卡片仪表盘（.wp-cards-grid+.wp-card）
 // V0.3.75: 顶栏蓝→钢蓝灰#5B7089，侧栏浅灰→深色渐变#4E6278→#5B7289(文字反白)
+// V0.3.76: 修复切换周次时卡片面板重复追加的bug（wp-cards-grid补回id=wpTimeMgmtPanel）
 function _hWork(v){return _h((v||'').replace(/\n{2,}/g,'\n'));}
 
 // ===== KPI 可编辑渲染 =====
@@ -17692,7 +17693,7 @@ function _renderTimeManagementPanel(plan){
   }
 
   var html='';
-  html+='<div class="wp-cards-grid">';
+  html+='<div class="wp-cards-grid" id="wpTimeMgmtPanel">';
 
   // ★ Card 1: 计分规则
   html+='<div class="wp-card">';
