@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.3.109">
+<meta name="version" content="V0.3.110">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -16998,9 +16998,9 @@ function _renderTaskOpCell(taskIdx,seq,plan){
   if(isLast && total<15 && !isCollab){
     btns+='<span onclick="event.stopPropagation();addTaskRow('+taskIdx+')" style="display:inline-block;width:18px;height:18px;line-height:18px;text-align:center;border-radius:50%;background:#3498db;color:#fff;font-size:13px;font-weight:bold;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.15);user-select:none" title="在此后添加一行">+</span>';
   }
-  // − 删除按钮：每行显示（协同行除外），至少保留1行 — 圆形红色按钮
-  if(!isCollab && total>1){
-    btns+='<span onclick="event.stopPropagation();var _tr=this.closest(\'tr\');deleteTaskRow(_tr?parseInt(_tr.dataset.taskIdx||this.getAttribute(\'data-idx\')):'+taskIdx+')" data-idx="'+taskIdx+'" style="display:inline-block;width:16px;height:16px;line-height:16px;text-align:center;border-radius:50%;background:#9ca3af;color:#fff;font-size:12px;font-weight:bold;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.15);user-select:none;margin-top:2px" title="删除此行">−</span>';
+  // − 清空按钮：每行显示（协同行除外），点击清空该行全部内容
+  if(!isCollab){
+    btns+='<span onclick="event.stopPropagation();var _tr=this.closest(\'tr\');clearTaskRow(_tr?parseInt(_tr.dataset.taskIdx):'+taskIdx+')" style="display:inline-block;width:16px;height:16px;line-height:16px;text-align:center;border-radius:50%;background:#9ca3af;color:#fff;font-size:12px;font-weight:bold;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.15);user-select:none;margin-top:2px" title="清空此行内容">−</span>';
   }
 
   // ★ V0.3.70: 序号列垂直排列 — 序号在上，+号居中，-号在下
@@ -17026,6 +17026,28 @@ function addTaskRow(afterIdx){
 }
 
 // ★ V0.1.59: 删除指定行
+// ★ V0.3.110: 清空指定行内容（不清除该行，只重置所有字段）
+async function clearTaskRow(idx){
+  var p=_wpCurrent.plan;if(!p)return;
+  var tasks=p.tasks;
+  if(idx<0||idx>=tasks.length){showToast('⚠️ 索引越界，无法清空');return;}
+  var t=tasks[idx];
+  if(!t){showToast('⚠️ 目标行为空');return;}
+  if(t.collab_from){showToast('⚠️ 协同任务不能清空');return;}
+  var taskLabel=(t.work||'第'+(idx+1)+'项').substring(0,20);
+  var ok=await _showConfirm('确定要清空「'+taskLabel+'」的全部内容吗？\n\n该行将保留为空白行，可重新填写。'+'\n\n—\n\n'+'Clear all content of "'+taskLabel+'"?\n\nThe row will remain as a blank line.','注意 / Attention');
+  if(!ok)return;
+  // ★ 重置所有字段为默认空值，保留对象引用
+  t.work='';t.goal='';t.plannedDate='';t.actualDate='';t.status='';
+  t.supporters='';t.problems='';t.problemType='';t.needBoss='';t.bossFeedback='';t.remarks='';
+  if(t.aiSuggestion)delete t.aiSuggestion;
+  console.log('[clearTaskRow] cleared idx='+idx);
+  _calcWeekScore(p);
+  saveWP(p.year,p.month,p.week,p);
+  renderWPTable(p);
+  showToast('🧹 已清空该行内容');
+}
+
 async function deleteTaskRow(idx){
   var p=_wpCurrent.plan;if(!p)return;
   var tasks=p.tasks;
