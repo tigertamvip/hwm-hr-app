@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.4.61">
+<meta name="version" content="V0.4.62">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1951,9 +1951,9 @@ body{
 .wp-table td.col-goal.pri-important{background:#fff;color:#C4960F;font-weight:500;border-left:3px solid rgba(230,168,23,.40)}
 .wp-table td.col-goal.pri-daily-urgent{background:#fff;color:#0F7BE1;font-weight:500;border-left:3px solid rgba(15,123,225,.30)}
 .wp-table td.col-goal.pri-daily-routine{background:#fff;color:#5E7080;font-weight:400;border-left:3px solid rgba(94,112,128,.25)}
-.wp-table td.col-hours{font-variant-numeric:tabular-nums;min-width:105px;text-align:center}
+.wp-table td.col-hours{font-variant-numeric:tabular-nums;min-width:110px;text-align:center}
 .wp-table td.col-hours input[type="date"].wp-cell-input{width:100px!important;max-width:100px!important;min-width:0;padding:4px 2px;text-align:center;font-size:12px}
-.wp-table td.col-hours input[type="date"].wp-cell-input::-webkit-calendar-picker-indicator{margin-left:2px;cursor:pointer;width:14px;height:14px}
+.wp-table td.col-hours input[type="date"].wp-cell-input::-webkit-calendar-picker-indicator{margin-left:-2px;margin-right:0;padding:0;cursor:pointer;width:14px;height:14px}
 .wp-table td.col-status{min-width:72px}
 .wp-table td.col-wide{text-align:left;min-width:150px;word-wrap:break-word;overflow-wrap:break-word}
 .wp-table td.col-problemtype{min-width:90px}
@@ -17227,8 +17227,8 @@ function _renderTaskOpCell(taskIdx,seq,plan){
   if(isFrozen)return '<td class="col-num" style="text-align:center"><span style="display:inline-flex;align-items:center;gap:2px"><span style="font-size:11px;color:#3b82f6">🔒</span><span style="font-size:11px;line-height:1">'+seq+'</span></span></td>';
 
   var btns='';
-  // + 添加按钮：最后一行，总数<15，非协同 — 圆形蓝色按钮
-  if(isLast && total<15 && !isCollab){
+  // + 添加按钮：最后一行 或 第一行，总数<15，非协同
+  if((isLast || taskIdx===0) && total<15 && !isCollab){
     btns+='<span onclick="event.stopPropagation();addTaskRow('+taskIdx+')" style="display:inline-block;width:18px;height:18px;line-height:18px;text-align:center;border-radius:50%;background:#3498db;color:#fff;font-size:13px;font-weight:bold;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.15);user-select:none" title="在此后添加一行">+</span>';
   }
   // − 删除按钮：每行显示（协同行除外），至少保留1行
