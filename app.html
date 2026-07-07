@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.4.90o">
+<meta name="version" content="V0.4.90p">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -17789,12 +17789,22 @@ function commitEditCell(el){
             _wpCurrent.plan.tasks[ti][parts[2]]=newVal;
           }else{
             _wpCurrent.plan.tasks[ti][parts[2]]=newVal;
-            // ★ V0.4.90m: 保存实际完成日期时，自动根据计划日期设置完成状态
+            // ★ V0.4.90p: 自动状态识别增强逻辑
             if(parts[2]==='actualDate' && newVal){
               var tsk=_wpCurrent.plan.tasks[ti];
               var pDate=tsk.plannedDate;
-              if(pDate){
-                tsk.status = newVal<=pDate ? '已完成' : '已逾期';
+              // 用户手动设定的'暂停中'和'未做'不自动覆盖
+              if(tsk.status==='暂停中'||tsk.status==='未做'){
+                // 保持用户手动状态，不做自动判断
+              }else if(pDate){
+                var today=new Date().toISOString().slice(0,10);
+                if(today<pDate){
+                  // 当前日期还未到达计划完成日期 → 进行中
+                  tsk.status='进行中';
+                }else{
+                  // 已过截止日期，根据实际日期判断
+                  tsk.status = newVal<=pDate ? '已完成' : '已逾期';
+                }
               }
             }
           }
