@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.4.91h">
+<meta name="version" content="V0.4.91i">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -17879,7 +17879,7 @@ function startEditCell(cell){
   }
 }
 
-function commitEditCell(el){
+async function commitEditCell(el){
   // el: when called from inline handler, receives the input/select/textarea element
   var cell=el?el.closest('td.editing'):_wpEditCell;
   if(!cell)return;
@@ -17897,6 +17897,21 @@ function commitEditCell(el){
 
     cell.classList.remove('editing');
     _wpEditCell=null;
+
+    // ★ V0.4.91i: 计划完成日期早于启动日期 → 弹窗警告并拒绝保存
+    if(field&&field.indexOf('.plannedDate')>=0&&newVal&&_wpCurrent.plan&&_wpCurrent.plan.tasks){
+      var _pp=field.split('.');
+      if(_pp[0]==='tasks'){
+        var _pti=parseInt(_pp[1]);
+        var _pt=_wpCurrent.plan.tasks[_pti];
+        if(_pt&&_pt.startDate&&newVal<_pt.startDate){
+          await _showAlert('你正在输入的"计划完成日期"早于"启动日期"，请确认并重新输入。','日期错误');
+          // 恢复旧值并重新渲染
+          setTimeout(function(){if(_wpCurrent.plan)renderWPTable(_wpCurrent.plan);},0);
+          return;
+        }
+      }
+    }
 
     if(field&&_wpCurrent.plan){
       var parts=field.split('.');
