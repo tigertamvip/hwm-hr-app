@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.4.43">
+<meta name="version" content="V0.4.44">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1920,7 +1920,7 @@ body{
 .wp-toolbar-sep{width:1px;background:var(--border);margin:0 4px;display:inline-block}
 
 .wp-table-wrap{flex:1;overflow-x:auto;background:var(--card);border-radius:8px;border:1px solid var(--border)}
-.wp-table{border-collapse:collapse;font-size:12px;min-width:1400px;table-layout:auto}
+.wp-table{width:100%;border-collapse:collapse;font-size:12px;min-width:1200px;table-layout:auto}
 .wp-table th{background:#E8EAED;color:#002D4E;font-weight:600;padding:8px 6px;border-bottom:2px solid #C5C9CE;white-space:nowrap;position:sticky;top:0;z-index:1;font-size:11px;text-align:center}
 .wp-table th.col-fixed{background:#d5d8db}
 .wp-table td{padding:2px 6px;border-bottom:1px solid #E2E4E7;border-right:1px solid rgba(0,0,0,.04);vertical-align:top;text-align:center;color:#0F2C4B}
@@ -1947,7 +1947,7 @@ body{
 .wp-table td.col-boss{background:#FFFDF5;text-align:left;border-left:2px solid #FFBB1C;min-width:180px;border-right:none;overflow:visible;white-space:normal;word-wrap:break-word;word-break:break-word}
 .wp-table th.col-boss{overflow:visible;white-space:normal;min-width:180px}
 .wp-table td.col-remarks{min-width:100px;text-align:left;word-break:break-all;white-space:normal;overflow-wrap:break-word}
-/* V0.4.43: table-layout:auto+min-width弹性布局，最后列自适应填充，窄屏横向滚动 */
+/* V0.4.44: width:100%+min-width:1200px — 宽屏填满/boss列自适应，窄屏横向滚动 */
 .wp-table td.col-readonly{background:#FAFAFA;color:var(--text-hint);cursor:default}
 .wp-table input.wp-cell-input{width:100%;max-width:100%;border:1px solid var(--gold);border-radius:3px;padding:5px 6px;font-size:12px;outline:none;box-sizing:border-box;background:#fff}
 .wp-table input.wp-cell-input:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba(24,90,165,.12)}
