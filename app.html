@@ -2018,7 +2018,7 @@ table.collab-table tbody tr:hover{background:#fffdf5}
 .wp-feedback-empty{display:flex;align-items:center;justify-content:center;min-height:60px;padding:12px 16px;color:var(--text-hint);font-size:13px;font-style:italic;background:var(--card-alt)}
 .wp-summary-bar{display:flex;gap:12px;padding:10px 12px;margin-top:7px;background:#FFFFFF;border:none;flex-shrink:0;flex-wrap:wrap}
 .wp-summary-item{display:flex;align-items:center;gap:6px;font-size:12px}
-.wp-summary-label{color:var(--text-hint)}
+.wp-summary-label{color:#6b7280}
 .wp-summary-value{font-weight:600;color:var(--primary)}
 .wp-summary-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:500}
 
@@ -17407,8 +17407,8 @@ function renderWPTable(plan){
   var taskScoreDisplay='';if(_taskTotal!==0||plan.bossEvaluated){taskScoreDisplay=(_taskTotal>0?'+':'')+_taskTotal;}
 
   html+='<div class="wp-summary-bar">';
-  html+='<div class="wp-summary-item"><span class="wp-summary-label">✅完成：</span><span class="wp-summary-value">'+completed+'</span></div>';
-  html+='<div class="wp-summary-item"><span class="wp-summary-label">⚙推进：</span><span class="wp-summary-value">'+progress+'</span></div>';
+  html+='<div class="wp-summary-item"><span class="wp-summary-label">✅ 完成：</span><span class="wp-summary-value">'+completed+'</span></div>';
+  html+='<div class="wp-summary-item"><span class="wp-summary-label">⚙ 推进：</span><span class="wp-summary-value">'+progress+'</span></div>';
   html+='<div class="wp-summary-item"><span class="wp-summary-label">📅 已排期：</span><span class="wp-summary-value">'+hasPlan+'</span></div>';
   html+='<div class="wp-summary-item"><span class="wp-summary-label">🏁 已完成：</span><span class="wp-summary-value">'+hasActual+'</span></div>';
   html+='<div class="wp-summary-item"><span class="wp-summary-label">⚠️ 逾期：</span><span class="wp-summary-value" style="color:'+(overdue>0?'var(--danger)':'var(--success)')+'">'+overdue+'</span></div>';
