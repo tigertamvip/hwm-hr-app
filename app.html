@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.4.49">
+<meta name="version" content="V0.4.50">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1876,6 +1876,13 @@ body{
 .wp-sidebar select{width:100%;padding:7px 10px 7px 8px;border:1px solid #d1d5db;border-radius:6px;font-size:12px;background:#fff;color:#0F2C4B;outline:none;cursor:pointer}
 .wp-sidebar select:focus{border-color:#9ca3af}
 .wp-sidebar select option{color:#0F2C4B}
+.wp-sidebar select.hidden-select{display:none}
+.wp-month-trigger{width:100%;padding:7px 10px 7px 8px;border:1px solid #d1d5db;border-radius:6px;font-size:12px;background:#fff;color:#0F2C4B;outline:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;user-select:none}
+.wp-month-trigger:hover{border-color:#9ca3af}
+.wp-month-dropdown{display:none;position:fixed;z-index:9999;background:rgba(252,252,253,.95);backdrop-filter:blur(20px) saturate(1.4);border:1px solid rgba(200,205,212,.4);border-radius:8px;box-shadow:0 4px 6px rgba(0,0,0,.04),0 10px 24px rgba(0,0,0,.08);padding:6px 4px;grid-template-columns:repeat(3,1fr);gap:2px}
+.wp-month-dropdown .wp-month-opt{padding:6px 4px;text-align:center;border-radius:6px;font-size:12px;color:#0F2C4B;cursor:pointer;transition:background .1s}
+.wp-month-dropdown .wp-month-opt:hover{background:rgba(0,0,0,.04)}
+.wp-month-dropdown .wp-month-opt.active{background:#1B6EC4;color:#fff;font-weight:600}
 .wp-sidebar-divider{height:1px;background:#e5e7eb;margin:4px 0}
 .wp-sidebar-plan-list{flex:1;overflow-y:auto;margin-top:4px}
 .wp-sidebar-plan-item{padding:8px 10px;border-radius:6px;font-size:12px;cursor:pointer;transition:all .12s;color:#6b7280;margin-bottom:3px;position:relative}
@@ -2579,12 +2586,16 @@ table.collab-table tbody tr:hover{background:#fffdf5}
         <option value="2030">2030年</option>
       </select>
       <div class="wp-sidebar-label">月份</div>
-      <select id="wpMonth" onchange="onWPMonthChange()">
+      <select id="wpMonth" onchange="onWPMonthChange()" class="hidden-select">
         <option value="1">1月</option><option value="2">2月</option><option value="3">3月</option>
         <option value="4">4月</option><option value="5">5月</option><option value="6">6月</option>
         <option value="7">7月</option><option value="8">8月</option><option value="9">9月</option>
         <option value="10">10月</option><option value="11">11月</option><option value="12">12月</option>
       </select>
+      <div class="wp-month-trigger" id="wpMonthTrigger" onclick="toggleMonthDropdown()">
+        <span id="wpMonthLabel">7月</span>
+        <span style="font-size:10px;color:#9ca3af">▼</span>
+      </div>
       <div class="wp-sidebar-label">周次</div>
       <div class="wp-sidebar-plan-list" id="wpPlanList">
         <div style="text-align:center;color:var(--text-hint);font-size:11px;padding:20px 0">请先选择年度和月份</div>
@@ -15797,7 +15808,7 @@ function initWPModule(){
       var yEl=document.getElementById('wpYear');
       var mEl=document.getElementById('wpMonth');
       if(yEl)yEl.value=now.getFullYear();
-      if(mEl)mEl.value=now.getMonth()+1;
+      if(mEl){mEl.value=now.getMonth()+1;syncMonthLabel();}
 
       // ★ V0.1.19: 批量修复当前用户所有周计划的脏数据（name/dept/position不匹配）
       try{fixAllPlanDirtyData();}catch(e){console.warn('fixAllPlanDirtyData failed:',e);}
@@ -16460,8 +16471,57 @@ function onWPMonthChange(){
   var mEl=document.getElementById('wpMonth');
   var year=yEl?parseInt(yEl.value):new Date().getFullYear();
   var month=mEl?parseInt(mEl.value):(new Date().getMonth()+1);
+  syncMonthLabel();
   loadWPData();
   renderWPPlanList(year,month);
+}
+
+// V0.4.50: 同步月份触发器标签
+function syncMonthLabel(){
+  var mEl=document.getElementById('wpMonth');
+  var lb=document.getElementById('wpMonthLabel');
+  if(mEl&&lb)lb.textContent=mEl.options[mEl.selectedIndex]?mEl.options[mEl.selectedIndex].text:(mEl.value+'月');
+}
+
+// V0.4.50: 月份自定义下拉面板（替换原生select）
+function toggleMonthDropdown(){
+  var existing=document.getElementById('__wpMonthDD');
+  if(existing){existing.remove();return;}
+  var mEl=document.getElementById('wpMonth');
+  var trig=document.getElementById('wpMonthTrigger');
+  if(!mEl||!trig)return;
+  // 创建下拉面板
+  var dd=document.createElement('div');
+  dd.id='__wpMonthDD';
+  dd.className='wp-month-dropdown';
+  dd.style.display='grid';
+  for(var i=0;i<mEl.options.length;i++){
+    (function(opt){
+      var odiv=document.createElement('div');
+      odiv.className='wp-month-opt'+(opt.selected?' active':'');
+      odiv.textContent=opt.text;
+      odiv.onclick=function(){
+        mEl.value=opt.value;
+        syncMonthLabel();
+        dd.remove();
+        onWPMonthChange();
+      };
+      dd.appendChild(odiv);
+    })(mEl.options[i]);
+  }
+  document.body.appendChild(dd);
+  var cr=trig.getBoundingClientRect();
+  dd.style.left=cr.left+'px';
+  dd.style.top=(cr.bottom+4)+'px';
+  dd.style.width=Math.max(cr.width,140)+'px';
+  // 点击外部关闭
+  setTimeout(function(){
+    document.addEventListener('click',function _c(e){
+      if(!dd.contains(e.target)&&e.target!==trig&&!trig.contains(e.target)){
+        dd.remove();document.removeEventListener('click',_c);
+      }
+    });
+  },0);
 }
 
 function onWPDeptMemberChange(val){
