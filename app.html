@@ -1951,12 +1951,13 @@ body{
 .wp-table td.col-goal.pri-important{background:#fff;color:#C4960F;font-weight:500;border-left:3px solid rgba(230,168,23,.40)}
 .wp-table td.col-goal.pri-daily-urgent{background:#fff;color:#0F7BE1;font-weight:500;border-left:3px solid rgba(15,123,225,.30)}
 .wp-table td.col-goal.pri-daily-routine{background:#fff;color:#5E7080;font-weight:400;border-left:3px solid rgba(94,112,128,.25)}
-  .wp-table td.col-hours{font-variant-numeric:tabular-nums;min-width:130px;text-align:center}
+  .wp-table td.col-hours{font-variant-numeric:tabular-nums;min-width:100px;text-align:center}
   .wp-table td.col-hours input[type="date"].wp-cell-input{width:110px!important;max-width:110px!important;min-width:0;padding:4px 8px 4px 2px;text-align:center;font-size:12px}
   .wp-table td.col-hours input[type="date"].wp-cell-input::-webkit-datetime-edit{padding:0;margin:0;width:80px}
   .wp-table td.col-hours input[type="date"].wp-cell-input::-webkit-datetime-edit-fields-wrapper{padding:0}
   .wp-table td.col-hours input[type="date"].wp-cell-input::-webkit-calendar-picker-indicator{margin-left:6px;margin-right:0;padding:0;cursor:pointer;width:14px;height:14px;opacity:.8}
-.wp-table td.col-status{min-width:72px}
+.wp-table td.col-status{min-width:90px}
+.wp-table td.col-duration{font-variant-numeric:tabular-nums;min-width:56px;text-align:center;font-size:12px}
 .wp-table td.col-wide{text-align:left;min-width:150px;word-wrap:break-word;overflow-wrap:break-word}
 .wp-table td.col-problemtype{min-width:90px}
 .wp-table td.col-needboss{min-width:56px}
@@ -17555,7 +17556,7 @@ function renderWPTable(plan){
       html+='<td class="'+edCls+' col-hours" data-field="tasks.'+jj+'.actualDate" data-type="date"'+edClick+'>'+(_ad?_ad:'<span style="color:var(--text-hint)">点击选择日期</span>')+'</td>';
       // ★ V0.4.91d: 耗时列（自动计算，只读）
       var _dur=_calcTaskDuration(tt);
-      html+='<td class="col-hours" style="text-align:center;font-variant-numeric:tabular-nums;color:#6b7280;font-size:12px">'+(_dur?_dur+'天':'—')+'</td>';
+      html+='<td class="col-duration" style="text-align:center;font-variant-numeric:tabular-nums;color:#6b7280;font-size:12px">'+(_dur?_dur+'天':'—')+'</td>';
       // ★ V0.1.49: 每行任务得分 — 完成状态在前，积分在后(与表头一致)
       html+='<td class="'+edCls+' col-status" data-field="tasks.'+jj+'.status" data-type="select" data-opts="'+WP_STATUS_OPTIONS.join(',')+'"'+edClick+'>'+(tt.status?_renderStatusDot(tt.status):'<span style="color:var(--text-hint)">选择</span>')+'</td>';
       html+=_renderTaskScoreCell(plan,jj);
@@ -17598,7 +17599,7 @@ function renderWPTable(plan){
     }
     // ★ V0.4.91d: 耗时列（自动计算，只读）
     var _durNew=_calcTaskDuration(t);
-    html+='<td class="col-hours" style="text-align:center;font-variant-numeric:tabular-nums;color:#6b7280;font-size:12px">'+(_durNew?_durNew+'天':'—')+'</td>';
+    html+='<td class="col-duration" style="text-align:center;font-variant-numeric:tabular-nums;color:#6b7280;font-size:12px">'+(_durNew?_durNew+'天':'—')+'</td>';
     // ★ V0.1.49: 每行任务积分
     html+='<td class="editable col-status" data-field="tasks.'+j+'.status" data-type="select" data-opts="'+WP_STATUS_OPTIONS.join(',')+'" onclick="startEditCell(this)">'+(t.status?_renderStatusDot(t.status):'<span style="color:var(--text-hint)">选择</span>')+'</td>';
     html+=_renderTaskScoreCell(plan,j);
