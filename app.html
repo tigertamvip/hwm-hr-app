@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.4.91">
+<meta name="version" content="V0.4.91b">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -15793,6 +15793,11 @@ function _isWorkday(dateStr){
   return true;
 }
 
+function _getTodayStr(){
+  var d=new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+
 function _countWorkdays(fromDateExcl,toDateIncl){
   var cnt=0,d=new Date(fromDateExcl+'T00:00:00');
   while(true){
@@ -16720,6 +16725,7 @@ function selectWP(y,m,w){
     if(dirty) saveWP(y,m,w,plan);
     _wpCurrent.plan=plan;
     _autoCarryTasks(plan,y,m,w); // ★ V0.1.87b: 已有计划也尝试顺延(防旧代码空壳+首次部署遗漏)
+    _calcWeekScore(plan); // ★ V0.4.91b: 选择周计划时重新计算状态
     renderWPTable(plan);
   }else{
     // ★ 自动创建空白周计划并渲染表单（用户无需手动点「新建周计划」）
@@ -17459,7 +17465,7 @@ function renderWPTable(plan){
   html+=_renderTimeManagementPanel(plan);
 
   var completed=0,progress=0,hasPlan=0,hasActual=0,overdue=0;
-  var todayStr=new Date().toISOString().slice(0,10);
+  var todayStr=_getTodayStr();
   for(var i=0;i<plan.tasks.length;i++){
     var t=plan.tasks[i];
     if(t.status==='✓完成'||t.status==='按时完成')completed++;
@@ -17795,7 +17801,7 @@ function startEditCell(cell){
             cell.classList.remove('editing');_wpEditCell=null;
             // 手动更新 plan 数据并保存
             var _gf=cell.dataset.field;
-            if(_gf&&_wpCurrent.plan){var _gp=_gf.split('.');if(_gp[0]==='tasks'){var _gti=parseInt(_gp[1]);if(_wpCurrent.plan.tasks[_gti]){var _t=_wpCurrent.plan.tasks[_gti];_t[_gp[2]]=opt;if(_gp[2]==='status'){if(opt==='未做'){_t._manualNotDone=true;}else{delete _t._manualNotDone;}}_wpCurrent.plan.updatedAt=new Date().toISOString();saveWP(_wpCurrent.plan.year,_wpCurrent.plan.month,_wpCurrent.plan.week,_wpCurrent.plan);_calcWeekScore(_wpCurrent.plan);setTimeout(function(){if(!_wpEditCell&&_wpCurrent.plan)renderWPTable(_wpCurrent.plan);},0);}}}
+            if(_gf&&_wpCurrent.plan){var _gp=_gf.split('.');if(_gp[0]==='tasks'){var _gti=parseInt(_gp[1]);if(_wpCurrent.plan.tasks[_gti]){var _t=_wpCurrent.plan.tasks[_gti];_t[_gp[2]]=opt;if(_gp[2]==='status'){if(opt==='未做'){_t._manualNotDone=true;}else{delete _t._manualNotDone;}}_wpCurrent.plan.updatedAt=new Date().toISOString();_calcWeekScore(_wpCurrent.plan);saveWP(_wpCurrent.plan.year,_wpCurrent.plan.month,_wpCurrent.plan.week,_wpCurrent.plan);setTimeout(function(){if(!_wpEditCell&&_wpCurrent.plan)renderWPTable(_wpCurrent.plan);},0);}}}
           };
           _gdd.appendChild(_gOptDiv);
         })(opts[gi],WP_GOAL_COLORS[opts[gi]]||'#9ca3af');
@@ -17901,8 +17907,8 @@ function commitEditCell(el){
         }
       }
       _wpCurrent.plan.updatedAt=new Date().toISOString();
+      _calcWeekScore(_wpCurrent.plan); // ★ V0.4.91b: 先计算状态再保存
       saveWP(_wpCurrent.plan.year,_wpCurrent.plan.month,_wpCurrent.plan.week,_wpCurrent.plan);
-      _calcWeekScore(_wpCurrent.plan); // ★ V0.1.49: 编辑单元格后实时更新任务得分
     }
   }catch(e){
     if(cell)cell.classList.remove('editing');
@@ -18063,7 +18069,7 @@ function _calcWeekScore(plan){
       if(!sc){_taskScores.push(0);continue;}
 
       var actualDate=tt.actualDate||'';
-      var today=new Date().toISOString().slice(0,10);
+      var today=_getTodayStr();
 
       if(tt.status==='暂停中'){
         // 暂停中 → 0分，不自动判定
