@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.4.44">
+<meta name="version" content="V0.4.45">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1944,9 +1944,9 @@ body{
 .wp-table td.col-needboss{min-width:56px}
 .wp-table td.col-score{min-width:48px}
 .wp-table td.col-supporters{min-width:80px}
-.wp-table td.col-boss{background:#FFFDF5;text-align:left;border-left:2px solid #FFBB1C;min-width:180px;border-right:none;overflow:visible;white-space:normal;word-wrap:break-word;word-break:break-word}
-.wp-table th.col-boss{overflow:visible;white-space:normal;min-width:180px}
-.wp-table td.col-remarks{min-width:100px;text-align:left;word-break:break-all;white-space:normal;overflow-wrap:break-word}
+.wp-table td.col-boss{background:#FFFDF5;text-align:left;border-left:2px solid #FFBB1C;min-width:120px;border-right:none;overflow:visible;white-space:normal;word-wrap:break-word;word-break:break-word}
+.wp-table th.col-boss{overflow:visible;white-space:normal;min-width:120px}
+.wp-table td.col-remarks{min-width:200px;text-align:left;word-break:break-all;white-space:normal;overflow-wrap:break-word}
 /* V0.4.44: width:100%+min-width:1200px — 宽屏填满/boss列自适应，窄屏横向滚动 */
 .wp-table td.col-readonly{background:#FAFAFA;color:var(--text-hint);cursor:default}
 .wp-table input.wp-cell-input{width:100%;max-width:100%;border:1px solid var(--gold);border-radius:3px;padding:5px 6px;font-size:12px;outline:none;box-sizing:border-box;background:#fff}
@@ -17282,8 +17282,8 @@ function renderWPTable(plan){
   }
   html+='</div>';
 
-  html+='<div class="wp-table-area"><div class="wp-table-wrap"><table class="wp-table"><colgroup><col style="width:56px"><col style="width:180px"><col style="width:80px"><col style="width:100px"><col style="width:100px"><col style="width:72px"><col style="width:48px"><col style="width:80px"><col style="width:150px"><col style="width:90px"><col style="width:56px"><col style="width:100px"><col></colgroup><thead><tr>';
-  html+='<th class="col-num">#</th><th class="col-work">本周重点工作</th><th class="col-goal">优先级</th><th class="col-hours">计划完成日期</th><th class="col-hours">实际完成日期</th><th class="col-status">完成状态</th><th class="col-score">积分</th><th class="col-supporters">协同人</th><th class="col-wide">遇到的问题/困难</th><th class="col-problemtype">问题类型</th><th class="col-needboss">需上级介入</th><th class="col-remarks">备注说明</th><th class="col-boss">直属上级建议</th>';
+  html+='<div class="wp-table-area"><div class="wp-table-wrap"><table class="wp-table"><colgroup><col style="width:56px"><col style="width:180px"><col style="width:80px"><col style="width:100px"><col style="width:100px"><col style="width:72px"><col style="width:48px"><col style="width:80px"><col style="width:150px"><col style="width:90px"><col style="width:56px"><col style="width:200px"><col></colgroup><thead><tr>';
+  html+='<th class="col-num">#</th><th class="col-work">本周重点工作</th><th class="col-goal">优先级</th><th class="col-hours">计划完成日期</th><th class="col-hours">实际完成日期</th><th class="col-status">完成状态</th><th class="col-score">积分</th><th class="col-supporters">协同人</th><th class="col-wide">遇到的问题/困难</th><th class="col-problemtype">问题类型</th><th class="col-needboss">需上级介入</th><th class="col-remarks">备注说明</th><th class="col-boss" style="white-space:normal;overflow:visible">上级评价与建议</th>';
   html+='</tr></thead><tbody>';
 
   // ★ V0.1.39: 区分「上周转入」和「本周新增」
