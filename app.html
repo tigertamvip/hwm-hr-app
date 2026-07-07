@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.3.134">
+<meta name="version" content="V0.3.135">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2546,12 +2546,14 @@ table.collab-table tbody tr:hover{background:#fffdf5}
             <span id="wpSubTriggerText">查阅直属下属周计划</span>
             <span style="font-size:10px;margin-left:4px">▾</span>
           </div>
+          <div class="wp-custom-dropdown" id="wpSubDropdown" style="display:none"></div>
         </div>
         <div class="wp-custom-select" id="wpDeptCustom" style="display:none">
           <div class="wp-custom-trigger" id="wpDeptTrigger" onclick="toggleWPDeptDropdown()">
             <span id="wpDeptTriggerText">查阅更多下属周计划</span>
             <span style="font-size:10px;margin-left:4px">▾</span>
           </div>
+          <div class="wp-custom-dropdown" id="wpDeptDropdown" style="display:none"></div>
         </div>
         <button class="wp-btn-myplan" id="wpBtnMyPlan" onclick="switchToMyWP()" title="回到我的周计划">回到我的周计划</button>
       </div>
@@ -16279,30 +16281,46 @@ function switchToMyWP(){
 
 // ★ V0.2.40: 自定义下拉组件 — 替代原生select，小圆角+不遮挡
 var _wpSubData={options:[],selected:'',details:{}};
-// ★ V0.3.134: 智能下拉定位 — body 级别 fixed 元素，自动判断向上/向下弹出
+// ★ V0.3.135: 智能下拉定位 — Portal模式：打开时移到body级别，关闭时归还父级
 function _positionDropdown(dd,trigger){
-  var GAP=3; // 触发器与弹窗间距
-  var PADDING=16; // 距离视口边缘安全距离
-  var MAX_H=600; // 弹窗最大高度
+  var GAP=3;
+  var PADDING=16;
+  var MAX_H=600;
   var rect=trigger.getBoundingClientRect();
   var spaceBelow=window.innerHeight-rect.bottom-GAP;
   var spaceAbove=rect.top-GAP;
-  // 默认向下弹出，宽度比触发器宽20px
+  // 记录原始父节点（关闭时归还）
+  if(!dd._originalParent){
+    dd._originalParent=dd.parentNode;
+  }
+  // ★ 核心：将下拉框提升到 body 级别，脱离所有祖先层叠上下文
+  if(dd.parentNode!==document.body){
+    document.body.appendChild(dd);
+  }
   dd.style.left=(rect.left-10)+'px';
   dd.style.width=(rect.width+20)+'px';
   if(spaceBelow>=180||spaceBelow>=spaceAbove){
-    // 向下弹出（优先）：下方空间足够或下方比上方多
     dd.style.top=(rect.bottom+GAP)+'px';
     dd.style.bottom='auto';
-    dd.style.maxHeight=Math.min(spaceBelow-PADDING,MAX_H)+'px';
-    // 记录方向供滚动提示使用
+    dd.style.maxHeight=Math.min(Math.max(spaceBelow-PADDING,120),MAX_H)+'px';
     dd._dropDir='down';
   }else{
-    // 向上弹出：上方空间更充裕
     dd.style.top='auto';
     dd.style.bottom=(window.innerHeight-rect.top+GAP)+'px';
-    dd.style.maxHeight=Math.min(spaceAbove-PADDING,MAX_H)+'px';
+    dd.style.maxHeight=Math.min(Math.max(spaceAbove-PADDING,120),MAX_H)+'px';
     dd._dropDir='up';
+  }
+}
+
+function _returnDropdownToParent(dd){
+  if(dd&&dd._originalParent&&dd.parentNode===document.body){
+    try{dd._originalParent.appendChild(dd);}catch(e){}
+    dd._originalParent=null;
+    dd.style.left='';
+    dd.style.top='';
+    dd.style.bottom='';
+    dd.style.width='';
+    dd.style.maxHeight='';
   }
 }
 
@@ -16310,18 +16328,12 @@ function toggleWPSubDropdown(){
   var dd=document.getElementById('wpSubDropdown');
   if(!dd)return;
   var isOpen=dd.style.display==='block';
-  if(isOpen){dd.style.display='none';return;}
-  // ★ V0.3.134: body 级别 + 智能上下定位
+  if(isOpen){dd.style.display='none';_returnDropdownToParent(dd);return;}
   var trigger=document.getElementById('wpSubTrigger');
-  if(trigger){
-    _positionDropdown(dd,trigger);
-  }
+  if(trigger){_positionDropdown(dd,trigger);}
   dd.style.display='block';
-  // 滚动提示箭头
   _setupDropdownScrollHint(dd);
-  setTimeout(function(){
-    document.addEventListener('click',_wpCloseSubDropdown);
-  },50);
+  setTimeout(function(){document.addEventListener('click',_wpCloseSubDropdown);},50);
 }
 function _wpCloseSubDropdown(e){
   var trigger=document.getElementById('wpSubTrigger');
@@ -16330,11 +16342,12 @@ function _wpCloseSubDropdown(e){
   if(trigger&&trigger.contains(e.target))return;
   if(dd.contains(e.target))return;
   dd.style.display='none';
+  _returnDropdownToParent(dd);
   document.removeEventListener('click',_wpCloseSubDropdown);
 }
 function selectWPSubOption(val,name){
   var dd=document.getElementById('wpSubDropdown');
-  if(dd)dd.style.display='none';
+  if(dd){dd.style.display='none';_returnDropdownToParent(dd);}
   document.removeEventListener('click',_wpCloseSubDropdown);
   _wpSubData.selected=val;
   var triggerText=document.getElementById('wpSubTriggerText');
@@ -16351,18 +16364,12 @@ function toggleWPDeptDropdown(){
   var dd=document.getElementById('wpDeptDropdown');
   if(!dd)return;
   var isOpen=dd.style.display==='block';
-  if(isOpen){dd.style.display='none';return;}
-  // ★ V0.3.134: body 级别 + 智能上下定位
+  if(isOpen){dd.style.display='none';_returnDropdownToParent(dd);return;}
   var trigger=document.getElementById('wpDeptTrigger');
-  if(trigger){
-    _positionDropdown(dd,trigger);
-  }
+  if(trigger){_positionDropdown(dd,trigger);}
   dd.style.display='block';
-  // 滚动提示箭头
   _setupDropdownScrollHint(dd);
-  setTimeout(function(){
-    document.addEventListener('click',_wpCloseDeptDropdown);
-  },50);
+  setTimeout(function(){document.addEventListener('click',_wpCloseDeptDropdown);},50);
 }
 function _wpCloseDeptDropdown(e){
   var trigger=document.getElementById('wpDeptTrigger');
@@ -16371,6 +16378,7 @@ function _wpCloseDeptDropdown(e){
   if(trigger&&trigger.contains(e.target))return;
   if(dd.contains(e.target))return;
   dd.style.display='none';
+  _returnDropdownToParent(dd);
   document.removeEventListener('click',_wpCloseDeptDropdown);
 }
 // ★ V0.3.134: 下拉滚动提示 — 支持向上/向下弹出，内容溢出时显示方向箭头
@@ -16412,7 +16420,7 @@ function _setupDropdownScrollHint(dd){
 }
 function selectWPDeptOption(val,name){
   var dd=document.getElementById('wpDeptDropdown');
-  if(dd)dd.style.display='none';
+  if(dd){dd.style.display='none';_returnDropdownToParent(dd);}
   document.removeEventListener('click',_wpCloseDeptDropdown);
   _wpDeptData.selected=val;
   var triggerText=document.getElementById('wpDeptTriggerText');
@@ -19026,8 +19034,5 @@ if('serviceWorker' in navigator){
   });
 }
 </script>
-<!-- ★ V0.3.134: 下拉弹窗提升至 body 级别，脱离所有父容器层叠上下文 -->
-<div class="wp-custom-dropdown" id="wpSubDropdown" style="display:none"></div>
-<div class="wp-custom-dropdown" id="wpDeptDropdown" style="display:none"></div>
 </body>
 </html>
