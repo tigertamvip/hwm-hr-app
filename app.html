@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.4.90q">
+<meta name="version" content="V0.4.90r">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -15777,8 +15777,8 @@ var _wpRevisionMode=false;
 // 下拉选项
 var WP_GOAL_OPTIONS=['重要紧急','重要不急','日常紧急','日常事项'];
 var WP_GOAL_COLORS={'重要紧急':'#D64352','重要不急':'#E6A817','日常紧急':'#0F7BE1','日常事项':'#5E7080'};
-var WP_STATUS_OPTIONS=['已完成','进行中','已逾期','暂停中','未做'];
-var WP_STATUS_COLORS={'已完成':'#22c55e','进行中':'#3b82f6','已逾期':'#eab308','暂停中':'#9ca3af','未做':'#D64352'};
+var WP_STATUS_OPTIONS=['按时完成','进行中','逾期完成','暂停中','未做'];
+var WP_STATUS_COLORS={'按时完成':'#22c55e','进行中':'#3b82f6','逾期完成':'#eab308','暂停中':'#9ca3af','未做':'#D64352'};
 var WP_PROBLEM_OPTIONS=['无','资源不足','跨部门协调','技术瓶颈','时间紧张','其他原因'];
 var WP_NEEDBOSS_OPTIONS=['否','是'];
 
@@ -16744,7 +16744,7 @@ function showWPEmpty(){
 function _renderStatusDot(status){
   if(!status) return '';
   // 兼容旧值映射
-  var map={'✓完成':'已完成','⚙推进中':'进行中','⏸暂停':'已逾期','❌未完成':'未做'};
+  var map={'✓完成':'按时完成','⚙推进中':'进行中','⏸暂停':'逾期完成','❌未完成':'未做'};
   var s=map[status]||status;
   var c=WP_STATUS_COLORS[s]||'#9ca3af';
   return '<span style="color:'+c+';font-size:10px;margin-right:4px">●</span>'+_h(s);
@@ -17228,7 +17228,7 @@ function _renderTaskScoreCell(plan,taskIdx){
   var scLabel=pts>0?'+'+pts:''+pts;
   // 检测是否逾期但完成（扣一半分的情况）
   var tt=plan.tasks[taskIdx];
-  var isDelayedDone=tt&&(tt.status==='✓完成'||tt.status==='已完成')&&tt.actualDate&&tt.plannedDate&&tt.actualDate>tt.plannedDate;
+  var isDelayedDone=tt&&(tt.status==='✓完成'||tt.status==='按时完成')&&tt.actualDate&&tt.plannedDate&&tt.actualDate>tt.plannedDate;
   if(isDelayedDone)scLabel+=(' (逾期)');
   return '<td class="col-score" style="text-align:center;font-size:12px;font-weight:600;color:#2A476A">'+scLabel+'</td>';
 }
@@ -17398,10 +17398,10 @@ function renderWPTable(plan){
   var todayStr=new Date().toISOString().slice(0,10);
   for(var i=0;i<plan.tasks.length;i++){
     var t=plan.tasks[i];
-    if(t.status==='✓完成'||t.status==='已完成')completed++;
+    if(t.status==='✓完成'||t.status==='按时完成')completed++;
     else if(t.status==='⚙推进中'||t.status==='进行中')progress++;
     var pd=t.plannedDate||'';
-    if(pd){ hasPlan++; if(pd<todayStr&&t.status!=='✓完成'&&t.status!=='已完成')overdue++; }
+    if(pd){ hasPlan++; if(pd<todayStr&&t.status!=='✓完成'&&t.status!=='按时完成')overdue++; }
     var ad=t.actualDate||'';
     if(ad)hasActual++;
   }
@@ -17653,7 +17653,7 @@ function startEditCell(cell){
   }else{
     cur=cell.textContent.replace(/来源[：:]\d{4}年\d{1,2}月第[1-4]周|点击填写|填写|选择|上级建议/g,'').trim();
     // ★ V0.4.46: 旧状态值映射
-    var _oldStatusMap={'✓完成':'已完成','⚙推进中':'进行中','⏸暂停':'已逾期','❌未完成':'暂停中'};
+    var _oldStatusMap={'✓完成':'按时完成','⚙推进中':'进行中','⏸暂停':'逾期完成','❌未完成':'暂停中'};
     if(_oldStatusMap[cur])cur=_oldStatusMap[cur];
   }
   if(_wpRevisionMode&&_wpCurrent.plan&&_wpCurrent.plan._revisions&&_wpCurrent.plan._revisions[field]){
@@ -17769,7 +17769,7 @@ function commitEditCell(el){
     // ★ V0.4.90m: 状态字段自定义下拉无 input，从 cell 文本提取
     if(!newVal && field && field.indexOf('.status')>=0){
       var tc=cell.textContent||'';
-      var sMap={'已完成':'已完成','进行中':'进行中','已逾期':'已逾期','暂停中':'暂停中'};
+      var sMap={'按时完成':'按时完成','进行中':'进行中','逾期完成':'逾期完成','暂停中':'暂停中'};
       for(var sk in sMap){if(tc.indexOf(sk)>=0){newVal=sMap[sk];break;}}
     }
 
@@ -17803,7 +17803,7 @@ function commitEditCell(el){
                   tsk.status='进行中';
                 }else{
                   // 已过截止日期，根据实际日期判断
-                  tsk.status = newVal<=pDate ? '已完成' : '已逾期';
+                  tsk.status = newVal<=pDate ? '按时完成' : '逾期完成';
                 }
               }
             }
@@ -17986,10 +17986,10 @@ function _calcWeekScore(plan){
         // 实际完成日期有值
         if(actualDate<=tt.plannedDate){
           pts=base/2;
-          tt.status='已完成';
+          tt.status='按时完成';
         }else{
           pts=-(base/4);
-          tt.status='已逾期';
+          tt.status='逾期完成';
         }
       }else{
         // 实际完成日期为空 → 根据当天日期自动判断
@@ -18000,7 +18000,7 @@ function _calcWeekScore(plan){
         if(todayD>graceD){
           tt.status='未做'; pts=-(base/2);
         }else if(todayD>planD){
-          tt.status='已逾期'; pts=0;
+          tt.status='逾期完成'; pts=0;
         }else{
           tt.status='进行中'; pts=0;
         }
