@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.4.48">
+<meta name="version" content="V0.4.49">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -17528,12 +17528,38 @@ function startEditCell(cell){
   _wpEditCell=cell;
 
   if(type==='select'){
-    var s='<select class="wp-cell-select" onchange="commitEditCell(this)"><option value="">--</option>';
     var _isStatusField=field&&field.indexOf('.status')>=0;
+    if(_isStatusField){
+      // V0.4.49: 自定义彩色下拉（原生select无法显示彩色圆点）
+      cell.innerHTML='<span style="color:'+((cur&&WP_STATUS_COLORS[cur])||'var(--text-hint)')+';font-size:11px">'+(cur||'--')+'</span>';
+      var _dd=document.createElement('div');
+      _dd.className='wp-custom-dropdown';
+      _dd.style.cssText='display:block;position:fixed;z-index:9999;padding:6px 4px;border-radius:8px;border:1px solid rgba(200,205,212,.4);background:rgba(252,252,253,.95);backdrop-filter:blur(20px) saturate(1.4);box-shadow:0 4px 6px rgba(0,0,0,.04),0 10px 24px rgba(0,0,0,.08)';
+      for(var si=0;si<opts.length;si++){
+        (function(opt,clr){
+          var _optDiv=document.createElement('div');
+          _optDiv.className='wp-custom-option'+(opt===cur?' active':'');
+          _optDiv.style.cssText='height:28px;font-size:12px;color:#0F2C4B;border-radius:6px;margin:1px 0;padding:0 10px;cursor:pointer;display:flex;align-items:center';
+          _optDiv.innerHTML='<span style="color:'+clr+';margin-right:6px;font-size:12px">●</span>'+opt;
+          _optDiv.onclick=function(){
+            _dd.style.display='none';if(_dd.parentNode)_dd.parentNode.removeChild(_dd);
+            var _dot=document.createElement('span');_dot.style.color=clr;_dot.style.marginRight='4px';_dot.textContent='●';_dot.style.fontSize='11px';
+            cell.innerHTML='';cell.appendChild(_dot);cell.appendChild(document.createTextNode(opt));
+            cell.classList.remove('editing');_wpEditCell=null;commitEditCell();
+          };
+          _dd.appendChild(_optDiv);
+        })(opts[si],WP_STATUS_COLORS[opts[si]]||'#9ca3af');
+      }
+      document.body.appendChild(_dd);
+      var _cr=cell.getBoundingClientRect();_dd.style.left=(_cr.left-2)+'px';_dd.style.width=Math.max(_cr.width,120)+'px';
+      _dd.style.top=(_cr.bottom+4)+'px';_dd.style.maxHeight=Math.min(window.innerHeight-_cr.bottom-8,200)+'px';
+      setTimeout(function(){document.addEventListener('click',function _onBody(e){if(!_dd.contains(e.target)&&!cell.contains(e.target)){_dd.style.display='none';if(_dd.parentNode)_dd.parentNode.removeChild(_dd);document.removeEventListener('click',_onBody);}});},0);
+      return;
+    }
+    // 非状态字段：原生 select
+    var s='<select class="wp-cell-select" onchange="commitEditCell(this)"><option value="">--</option>';
     for(var i=0;i<opts.length;i++){
-      // 状态选项加圆点前缀（native select显示为黑圆点，单元格中渲染为彩色圆点）
-      var _optLbl=_isStatusField?'● '+opts[i]:opts[i];
-      s+='<option value="'+opts[i]+'"'+(opts[i]===cur?' selected':'')+'>'+_optLbl+'</option>';
+      s+='<option value="'+opts[i]+'"'+(opts[i]===cur?' selected':'')+'>'+opts[i]+'</option>';
     }
     s+='</select>';
     cell.innerHTML=s;
