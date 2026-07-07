@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.4.51">
+<meta name="version" content="V0.4.52">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1880,6 +1880,10 @@ body{
 .wp-month-trigger{width:100%;padding:7px 10px 7px 8px;border:1px solid #d1d5db;border-radius:6px;font-size:12px;background:#fff;color:#0F2C4B;outline:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;user-select:none}
 .wp-month-trigger:hover{border-color:#9ca3af}
 .wp-month-dropdown{display:none;position:fixed;z-index:9999;background:rgba(252,252,253,.95);backdrop-filter:blur(20px) saturate(1.4);border:1px solid rgba(200,205,212,.4);border-radius:8px;box-shadow:0 4px 6px rgba(0,0,0,.04),0 10px 24px rgba(0,0,0,.08);padding:6px 4px;grid-template-columns:repeat(3,1fr);gap:2px}
+.wp-year-dropdown{display:none;position:fixed;z-index:9999;background:rgba(252,252,253,.95);backdrop-filter:blur(20px) saturate(1.4);border:1px solid rgba(200,205,212,.4);border-radius:8px;box-shadow:0 4px 6px rgba(0,0,0,.04),0 10px 24px rgba(0,0,0,.08);padding:6px 4px}
+.wp-year-dropdown .wp-year-opt{padding:7px 12px;text-align:left;border-radius:6px;font-size:12px;color:#0F2C4B;cursor:pointer;transition:background .1s}
+.wp-year-dropdown .wp-year-opt:hover{background:rgba(0,0,0,.04)}
+.wp-year-dropdown .wp-year-opt.active{background:#1B6EC4;color:#fff;font-weight:600}
 .wp-month-dropdown .wp-month-opt{padding:6px 4px;text-align:center;border-radius:6px;font-size:12px;color:#0F2C4B;cursor:pointer;transition:background .1s}
 .wp-month-dropdown .wp-month-opt:hover{background:rgba(0,0,0,.04)}
 .wp-month-dropdown .wp-month-opt.active{background:#1B6EC4;color:#fff;font-weight:600}
@@ -2578,13 +2582,17 @@ table.collab-table tbody tr:hover{background:#fffdf5}
     <div class="wp-sidebar" id="wpSidebar">
       <div class="wp-sidebar-title">📅 周计划导航</div>
       <div class="wp-sidebar-label">年度</div>
-      <select id="wpYear" onchange="onWPYearChange()">
+      <select id="wpYear" onchange="onWPYearChange()" class="hidden-select">
         <option value="2026">2026年</option>
         <option value="2027">2027年</option>
         <option value="2028">2028年</option>
         <option value="2029">2029年</option>
         <option value="2030">2030年</option>
       </select>
+      <div class="wp-month-trigger" id="wpYearTrigger" onclick="toggleYearDropdown()">
+        <span id="wpYearLabel">2026年</span>
+        <span style="font-size:10px;color:#9ca3af">▼</span>
+      </div>
       <div class="wp-sidebar-label">月份</div>
       <select id="wpMonth" onchange="onWPMonthChange()" class="hidden-select">
         <option value="1">1月</option><option value="2">2月</option><option value="3">3月</option>
@@ -15807,7 +15815,7 @@ function initWPModule(){
       var now=new Date();
       var yEl=document.getElementById('wpYear');
       var mEl=document.getElementById('wpMonth');
-      if(yEl)yEl.value=now.getFullYear();
+      if(yEl){yEl.value=now.getFullYear();syncYearLabel();}
       if(mEl){mEl.value=now.getMonth()+1;syncMonthLabel();}
 
       // ★ V0.1.19: 批量修复当前用户所有周计划的脏数据（name/dept/position不匹配）
@@ -16515,6 +16523,50 @@ function toggleMonthDropdown(){
   dd.style.top=(cr.bottom+4)+'px';
   dd.style.width=Math.max(cr.width,140)+'px';
   // 点击外部关闭
+  setTimeout(function(){
+    document.addEventListener('click',function _c(e){
+      if(!dd.contains(e.target)&&e.target!==trig&&!trig.contains(e.target)){
+        dd.remove();document.removeEventListener('click',_c);
+      }
+    });
+  },0);
+}
+
+// V0.4.52: 年度选择器自定义下拉面板（同月份方案）
+function syncYearLabel(){
+  var yEl=document.getElementById('wpYear');
+  var lb=document.getElementById('wpYearLabel');
+  if(yEl&&lb)lb.textContent=yEl.options[yEl.selectedIndex]?yEl.options[yEl.selectedIndex].text:(yEl.value+'年');
+}
+function toggleYearDropdown(){
+  var existing=document.getElementById('__wpYearDD');
+  if(existing){existing.remove();return;}
+  var yEl=document.getElementById('wpYear');
+  var trig=document.getElementById('wpYearTrigger');
+  if(!yEl||!trig)return;
+  var dd=document.createElement('div');
+  dd.id='__wpYearDD';
+  dd.className='wp-year-dropdown';
+  dd.style.display='';
+  for(var i=0;i<yEl.options.length;i++){
+    (function(opt){
+      var odiv=document.createElement('div');
+      odiv.className='wp-year-opt'+(opt.selected?' active':'');
+      odiv.textContent=opt.text;
+      odiv.onclick=function(){
+        yEl.value=opt.value;
+        syncYearLabel();
+        dd.remove();
+        onWPYearChange();
+      };
+      dd.appendChild(odiv);
+    })(yEl.options[i]);
+  }
+  document.body.appendChild(dd);
+  var cr=trig.getBoundingClientRect();
+  dd.style.left=cr.left+'px';
+  dd.style.top=(cr.bottom+4)+'px';
+  dd.style.width=Math.max(cr.width,120)+'px';
   setTimeout(function(){
     document.addEventListener('click',function _c(e){
       if(!dd.contains(e.target)&&e.target!==trig&&!trig.contains(e.target)){
