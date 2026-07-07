@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.4.90h">
+<meta name="version" content="V0.4.90i">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -17439,6 +17439,7 @@ function renderWPTable(plan){
   var seq=0;
 
   // 上周转入区块
+  if(carriedTasks.length>0){
     for(var ci=0;ci<carriedTasks.length;ci++){
       var jj=carriedTasks[ci]; seq++;
       var tt=plan.tasks[jj];
