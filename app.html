@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.4.76">
+<meta name="version" content="V0.4.77">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -15833,6 +15833,18 @@ function initWPModule(){
     try{renderWPUserInfo();}catch(e){console.warn('renderWPUserInfo failed:',e);}
     try{renderWPSubSelect();}catch(e){console.warn('renderWPSubSelect failed:',e);}
     try{onWPMonthChange();}catch(e){console.warn('onWPMonthChange failed:',e);}
+    // ★ V0.4.77: 员工本人进入MBO时自动导航到当前周（避免空白状态）
+    if(_wpCurrent&&!_wpCurrent.plan&&!_wpViewingSubordinate&&!_wpViewingDeptMember){
+      var _nowD=new Date();
+      var _autoY=_nowD.getFullYear();
+      var _autoM=_nowD.getMonth()+1;
+      var _autoW=Math.min(4,Math.ceil(_nowD.getDate()/7));
+      var _selY=yEl?parseInt(yEl.value):_autoY;
+      var _selM=mEl?parseInt(mEl.value):_autoM;
+      if(_selY===_autoY&&_selM===_autoM){
+        setTimeout(function(){try{selectWP(_autoY,_autoM,_autoW);}catch(e){console.warn('auto-selectWP current week failed:',e);}},100);
+      }
+    }
     // 如果之前已选中周计划，重新渲染表格
     if(_wpCurrent&&_wpCurrent.plan){
       setTimeout(function(){ try{renderWPTable(_wpCurrent.plan);}catch(e){console.warn('renderWPTable failed:',e);} }, 50);
