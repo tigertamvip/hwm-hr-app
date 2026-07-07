@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.4.53">
+<meta name="version" content="V0.4.54">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1891,14 +1891,13 @@ body{
 .wp-sidebar-plan-list{flex:1;overflow-y:auto;margin-top:4px}
 .wp-sidebar-plan-item{padding:8px 10px;border-radius:6px;font-size:12px;cursor:pointer;transition:all .12s;color:#6b7280;margin-bottom:3px;position:relative}
 .wp-sidebar-plan-item:hover{background:rgba(42,71,106,.06);color:#2A476A}
-.wp-sidebar-plan-item.active{color:#002D4E;font-weight:600;background:transparent;border-radius:0;padding-left:10px}
-.wp-sidebar-plan-item.active::before{content:'';position:absolute;left:0;top:4px;bottom:4px;width:3px;background:#002D4E;border-radius:2px}
+.wp-sidebar-plan-item.active{color:#002D4E;font-weight:600;background:#E8EDF2;border-radius:6px;padding-left:10px}
 .wp-sidebar-plan-item .wp-plan-meta{font-size:10px;color:#9ca3af;margin-top:2px}
 .wp-sidebar-plan-item.active .wp-plan-meta{color:#6b7280}
-.wp-sidebar-plan-delete{display:none;float:right;width:16px;height:16px;line-height:16px;text-align:center;border-radius:50%;font-size:10px;cursor:pointer;margin-top:1px;color:#9ca3af}
+.wp-sidebar-plan-delete{display:none;position:absolute;right:8px;top:50%;transform:translateY(-50%);width:22px;height:22px;line-height:22px;text-align:center;border-radius:50%;font-size:12px;cursor:pointer;color:#9ca3af}
 .wp-sidebar-plan-item:hover .wp-sidebar-plan-delete{display:block}
 .wp-sidebar-plan-item.active .wp-sidebar-plan-delete{display:none}
-.wp-sidebar-plan-delete:hover{background:rgba(217,67,82,.12);color:#B83645}
+.wp-sidebar-plan-delete:hover{background:#ef4444;color:#fff;transform:translateY(-50%) scale(1.1)}
 
 .wp-content{flex:1;height:100%;overflow-y:auto;padding:16px 24px;background:#FBF8F3;display:flex;flex-direction:column}
 .wp-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--text-hint)}
@@ -16613,8 +16612,9 @@ function renderWPPlanList(year,month){
   list.innerHTML=html;
 }
 
-function delWPFromSidebar(y,m,w){
-  if(!confirm('确定删除 '+y+'年'+m+'月第'+w+'周的工作计划吗？'))return;
+async function delWPFromSidebar(y,m,w){
+  var ok=await _showConfirm('确定删除 '+y+'年'+m+'月第'+w+'周的工作计划吗？\n\n此操作不可撤销。'+'\n\n—\n\n'+'Confirm deletion of Week '+w+', '+m+'/'+y+'?\n\nThis action cannot be undone.','注意 / Attention');
+  if(!ok)return;
   deleteWP(y,m,w);
   if(_wpCurrent&&_wpCurrent.year===y&&_wpCurrent.month===m&&_wpCurrent.week===w){
     _wpCurrent={year:null,month:null,week:null,plan:null};
