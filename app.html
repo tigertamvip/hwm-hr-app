@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.4.90m">
+<meta name="version" content="V0.4.90n">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -17963,8 +17963,8 @@ function _calcWeekScore(plan){
       var actualDate=tt.actualDate||'';
 
       if(isDone && actualDate && actualDate<=tt.plannedDate){
-        // 按时完成 → 加分
-        pts=base;
+        // 按时完成 → 加分 = 未做扣分绝对值（base/2）
+        pts=base/2;
       }else if(isDone && actualDate && actualDate>tt.plannedDate){
         // 逾期但完成 → 扣四分之一
         pts=-(base/4);
@@ -18074,11 +18074,11 @@ function _renderTimeManagementPanel(plan){
   html+='<div class="wp-card">';
   html+='<div class="wp-card-title">📊 评分标准</div>';
   html+='<table class="wp-card-table">';
-  html+='<tr><td></td><td class="td-val" style="color:#6b7280;font-weight:400;font-size:10px">按时</td><td class="td-val" style="color:#6b7280;font-weight:400;font-size:10px">逾期</td><td class="td-val" style="color:#6b7280;font-weight:400;font-size:10px">未完</td></tr>';
-  html+='<tr><td>重要紧急</td><td class="td-val td-pos">+3</td><td class="td-val td-neg">−0.75</td><td class="td-val td-neg">−1.5</td></tr>';
-  html+='<tr><td>重要不急</td><td class="td-val" style="color:#059669;font-weight:500">+1.5</td><td class="td-val td-neg">−0.38</td><td class="td-val td-neg">−0.75</td></tr>';
-  html+='<tr><td>日常紧急</td><td class="td-val" style="color:#059669;font-weight:500">+1</td><td class="td-val td-neg">−0.25</td><td class="td-val td-neg">−0.5</td></tr>';
-  html+='<tr><td>日常事项</td><td class="td-val" style="color:#059669;font-weight:500">+0.5</td><td class="td-val td-neg">−0.13</td><td class="td-val td-neg">−0.25</td></tr>';
+  html+='<tr><td></td><td class="td-val" style="color:#6b7280;font-weight:400;font-size:10px">按时</td><td class="td-val" style="color:#6b7280;font-weight:400;font-size:10px">逾期</td><td class="td-val" style="color:#6b7280;font-weight:400;font-size:10px">未做</td></tr>';
+  html+='<tr><td>重要紧急</td><td class="td-val td-pos">+1.5</td><td class="td-val td-neg">−0.75</td><td class="td-val td-neg">−1.5</td></tr>';
+  html+='<tr><td>重要不急</td><td class="td-val" style="color:#059669;font-weight:500">+0.75</td><td class="td-val td-neg">−0.38</td><td class="td-val td-neg">−0.75</td></tr>';
+  html+='<tr><td>日常紧急</td><td class="td-val" style="color:#059669;font-weight:500">+0.5</td><td class="td-val td-neg">−0.25</td><td class="td-val td-neg">−0.5</td></tr>';
+  html+='<tr><td>日常事项</td><td class="td-val" style="color:#059669;font-weight:500">+0.25</td><td class="td-val td-neg">−0.13</td><td class="td-val td-neg">−0.25</td></tr>';
   html+='</table>';
   html+='</div>';
 
