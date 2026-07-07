@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.3.133">
+<meta name="version" content="V0.3.134">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2546,14 +2546,12 @@ table.collab-table tbody tr:hover{background:#fffdf5}
             <span id="wpSubTriggerText">查阅直属下属周计划</span>
             <span style="font-size:10px;margin-left:4px">▾</span>
           </div>
-          <div class="wp-custom-dropdown" id="wpSubDropdown" style="display:none"></div>
         </div>
         <div class="wp-custom-select" id="wpDeptCustom" style="display:none">
           <div class="wp-custom-trigger" id="wpDeptTrigger" onclick="toggleWPDeptDropdown()">
             <span id="wpDeptTriggerText">查阅更多下属周计划</span>
             <span style="font-size:10px;margin-left:4px">▾</span>
           </div>
-          <div class="wp-custom-dropdown" id="wpDeptDropdown" style="display:none"></div>
         </div>
         <button class="wp-btn-myplan" id="wpBtnMyPlan" onclick="switchToMyWP()" title="回到我的周计划">回到我的周计划</button>
       </div>
@@ -16281,19 +16279,42 @@ function switchToMyWP(){
 
 // ★ V0.2.40: 自定义下拉组件 — 替代原生select，小圆角+不遮挡
 var _wpSubData={options:[],selected:'',details:{}};
+// ★ V0.3.134: 智能下拉定位 — body 级别 fixed 元素，自动判断向上/向下弹出
+function _positionDropdown(dd,trigger){
+  var GAP=3; // 触发器与弹窗间距
+  var PADDING=16; // 距离视口边缘安全距离
+  var MAX_H=600; // 弹窗最大高度
+  var rect=trigger.getBoundingClientRect();
+  var spaceBelow=window.innerHeight-rect.bottom-GAP;
+  var spaceAbove=rect.top-GAP;
+  // 默认向下弹出，宽度比触发器宽20px
+  dd.style.left=(rect.left-10)+'px';
+  dd.style.width=(rect.width+20)+'px';
+  if(spaceBelow>=180||spaceBelow>=spaceAbove){
+    // 向下弹出（优先）：下方空间足够或下方比上方多
+    dd.style.top=(rect.bottom+GAP)+'px';
+    dd.style.bottom='auto';
+    dd.style.maxHeight=Math.min(spaceBelow-PADDING,MAX_H)+'px';
+    // 记录方向供滚动提示使用
+    dd._dropDir='down';
+  }else{
+    // 向上弹出：上方空间更充裕
+    dd.style.top='auto';
+    dd.style.bottom=(window.innerHeight-rect.top+GAP)+'px';
+    dd.style.maxHeight=Math.min(spaceAbove-PADDING,MAX_H)+'px';
+    dd._dropDir='up';
+  }
+}
+
 function toggleWPSubDropdown(){
   var dd=document.getElementById('wpSubDropdown');
   if(!dd)return;
   var isOpen=dd.style.display==='block';
   if(isOpen){dd.style.display='none';return;}
-  // ★ V0.3.132: position:fixed — 用触发器位置计算下拉框坐标，脱离父级z-index限制
+  // ★ V0.3.134: body 级别 + 智能上下定位
   var trigger=document.getElementById('wpSubTrigger');
   if(trigger){
-    var rect=trigger.getBoundingClientRect();
-    dd.style.left=rect.left+'px';
-    dd.style.top=(rect.bottom+3)+'px';
-    dd.style.width=rect.width+20+'px'; // 左右各扩展10px
-    dd.style.maxHeight=Math.min(window.innerHeight-rect.bottom-20,600)+'px';
+    _positionDropdown(dd,trigger);
   }
   dd.style.display='block';
   // 滚动提示箭头
@@ -16331,14 +16352,10 @@ function toggleWPDeptDropdown(){
   if(!dd)return;
   var isOpen=dd.style.display==='block';
   if(isOpen){dd.style.display='none';return;}
-  // ★ V0.3.132: position:fixed — 用触发器位置计算下拉框坐标
+  // ★ V0.3.134: body 级别 + 智能上下定位
   var trigger=document.getElementById('wpDeptTrigger');
   if(trigger){
-    var rect=trigger.getBoundingClientRect();
-    dd.style.left=rect.left+'px';
-    dd.style.top=(rect.bottom+3)+'px';
-    dd.style.width=rect.width+20+'px';
-    dd.style.maxHeight=Math.min(window.innerHeight-rect.bottom-20,600)+'px';
+    _positionDropdown(dd,trigger);
   }
   dd.style.display='block';
   // 滚动提示箭头
@@ -16356,7 +16373,7 @@ function _wpCloseDeptDropdown(e){
   dd.style.display='none';
   document.removeEventListener('click',_wpCloseDeptDropdown);
 }
-// ★ V0.3.130: 下拉滚动提示 — 内容溢出时显示向下箭头，滚到底部自动消失
+// ★ V0.3.134: 下拉滚动提示 — 支持向上/向下弹出，内容溢出时显示方向箭头
 function _setupDropdownScrollHint(dd){
   if(!dd)return;
   // 移除已有提示
@@ -16366,17 +16383,31 @@ function _setupDropdownScrollHint(dd){
   // 检查是否需要提示
   var needsHint=dd.scrollHeight>dd.clientHeight+2;
   if(!needsHint)return;
-  // 添加提示条
+  var isUp=(dd._dropDir==='up');
+  // 添加提示条（向上弹出时放在顶部，向下时放底部）
   var hint=document.createElement('div');
   hint.className='wp-dropdown-scroll-hint';
-  hint.innerHTML='<span>▼</span> 向下滚动查看更多';
-  dd.appendChild(hint);
-  // 滚动事件：到底部隐藏，离开底部显示
-  dd._scrollHintHandler=function(){
-    var atBottom=dd.scrollTop+dd.clientHeight>=dd.scrollHeight-4;
-    var h=dd.querySelector('.wp-dropdown-scroll-hint');
-    if(h)h.style.display=atBottom?'none':'flex';
-  };
+  if(isUp){
+    hint.innerHTML='<span>▲</span> 向上滚动查看更多';
+    hint.style.cssText='position:sticky;top:0;';
+    // 插入到最前面
+    dd.insertBefore(hint,dd.firstChild);
+    // 滚动到顶部隐藏
+    dd._scrollHintHandler=function(){
+      var atTop=dd.scrollTop<=4;
+      var h=dd.querySelector('.wp-dropdown-scroll-hint');
+      if(h)h.style.display=atTop?'none':'flex';
+    };
+  }else{
+    hint.innerHTML='<span>▼</span> 向下滚动查看更多';
+    dd.appendChild(hint);
+    // 滚动到底部隐藏
+    dd._scrollHintHandler=function(){
+      var atBottom=dd.scrollTop+dd.clientHeight>=dd.scrollHeight-4;
+      var h=dd.querySelector('.wp-dropdown-scroll-hint');
+      if(h)h.style.display=atBottom?'none':'flex';
+    };
+  }
   dd.addEventListener('scroll',dd._scrollHintHandler);
 }
 function selectWPDeptOption(val,name){
@@ -18995,5 +19026,8 @@ if('serviceWorker' in navigator){
   });
 }
 </script>
+<!-- ★ V0.3.134: 下拉弹窗提升至 body 级别，脱离所有父容器层叠上下文 -->
+<div class="wp-custom-dropdown" id="wpSubDropdown" style="display:none"></div>
+<div class="wp-custom-dropdown" id="wpDeptDropdown" style="display:none"></div>
 </body>
 </html>
