@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.4.47">
+<meta name="version" content="V0.4.48">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -17531,8 +17531,8 @@ function startEditCell(cell){
     var s='<select class="wp-cell-select" onchange="commitEditCell(this)"><option value="">--</option>';
     var _isStatusField=field&&field.indexOf('.status')>=0;
     for(var i=0;i<opts.length;i++){
-      // select选项用纯文本（native option不支持彩色），彩色圆点仅显示在单元格中
-      var _optLbl=opts[i];
+      // 状态选项加圆点前缀（native select显示为黑圆点，单元格中渲染为彩色圆点）
+      var _optLbl=_isStatusField?'● '+opts[i]:opts[i];
       s+='<option value="'+opts[i]+'"'+(opts[i]===cur?' selected':'')+'>'+_optLbl+'</option>';
     }
     s+='</select>';
