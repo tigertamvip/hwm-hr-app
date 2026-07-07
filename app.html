@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.4.90p">
+<meta name="version" content="V0.4.90q">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -17957,7 +17957,7 @@ function _calcWeekScore(plan){
   // 评价奖励（仅上级按时完成时给下属加分）
   if(revStatus==='on_time')weekScore+=2;
 
-  // ★ V0.1.49: 任务完成评分
+  // ★ V0.1.49: 任务完成评分（V0.4.90q 重构自动状态逻辑）
   var taskScore=0;
   var _taskScores=[];
   if(plan.tasks){
@@ -17972,21 +17972,38 @@ function _calcWeekScore(plan){
       var base=tt.goal==='重要紧急'?3:tt.goal==='重要不急'?1.5:tt.goal==='日常紧急'?1:tt.goal==='日常事项'?0.5:0;
       if(base===0){_taskScores.push(0);continue;}
 
-      var isDone=tt.status==='✓完成'||tt.status==='已完成';
       var actualDate=tt.actualDate||'';
+      var today=new Date().toISOString().slice(0,10);
+      var isManual=(tt.status==='暂停中'||tt.status==='未做');
 
-      if(isDone && actualDate && actualDate<=tt.plannedDate){
-        // 按时完成 → 加分 = 未做扣分绝对值
-        pts=base/2;
-      }else if(isDone && actualDate && actualDate>tt.plannedDate){
-        // 逾期但完成 → 扣四分之一（未做扣分的50%）
-        pts=-(base/4);
-      }else if(tt.status==='未做'){
-        // 未做 → 扣分 = 按时加分绝对值
-        pts=-(base/2);
-      }else{
-        // 实际完成日期为空且未做状态 → 不扣分
+      if(tt.status==='暂停中'){
+        // 暂停中 → 不扣分不加分
         pts=0;
+      }else if(tt.status==='未做'){
+        // 未做 → 扣分（用户手动设置或程序自动判定）
+        pts=-(base/2);
+      }else if(actualDate){
+        // 实际完成日期有值
+        if(actualDate<=tt.plannedDate){
+          pts=base/2;
+          tt.status='已完成';
+        }else{
+          pts=-(base/4);
+          tt.status='已逾期';
+        }
+      }else{
+        // 实际完成日期为空 → 根据当天日期自动判断
+        var graceDays=(tt.goal==='日常事项')?15:7;
+        var planD=new Date(tt.plannedDate+'T00:00:00');
+        var graceD=new Date(planD);graceD.setDate(graceD.getDate()+graceDays);
+        var todayD=new Date(today+'T00:00:00');
+        if(todayD>graceD){
+          tt.status='未做'; pts=-(base/2);
+        }else if(todayD>planD){
+          tt.status='已逾期'; pts=0;
+        }else{
+          tt.status='进行中'; pts=0;
+        }
       }
       taskScore+=pts;
       _taskScores.push(pts);
