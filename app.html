@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.4.91d">
+<meta name="version" content="V0.4.91e">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -15798,21 +15798,25 @@ function _getTodayStr(){
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 }
 
-// ★ V0.4.91d: 计算任务耗时（天）
+// ★ V0.4.91e: 计算任务耗时（工作日，排除周末+法定假日）
 function _calcTaskDuration(task){
   if(!task||!task.startDate)return null;
-  var sDate=new Date(task.startDate+'T00:00:00');
-  var eDate;
+  var endDate;
   if(task.status==='暂停中'&&task._pausedAt){
-    // 暂停中：使用暂停时的日期
-    eDate=new Date(task._pausedAt+'T00:00:00');
+    // 暂停中：锁定为暂停时的工作日数
+    endDate=task._pausedAt;
   }else if(task.actualDate){
-    eDate=new Date(task.actualDate+'T00:00:00');
+    // 有实际完成日期：实际耗时
+    endDate=task.actualDate;
+  }else if(task.plannedDate){
+    // 无实际完成日期：按"计划完成日期"显示预计耗时
+    endDate=task.plannedDate;
   }else{
-    eDate=new Date(_getTodayStr()+'T00:00:00');
+    return null;
   }
-  var diff=Math.floor((eDate-sDate)/(1000*60*60*24));
-  return diff>=0?diff:0;
+  // 使用工作日计数（排除周六、周日及法定节假日）
+  var wd=_countWorkdays(task.startDate,endDate);
+  return wd>=0?wd:0;
 }
 
 function _countWorkdays(fromDateExcl,toDateIncl){
@@ -17518,8 +17522,8 @@ function renderWPTable(plan){
     else newTasks.push(j);
   }
 
-  html+='<div class="wp-table-area"><div class="wp-table-wrap"><table class="wp-table"><colgroup><col style="width:56px"><col style="width:180px"><col style="width:80px"><col style="width:100px"><col style="width:100px"><col style="width:100px"><col style="width:56px"><col style="width:72px"><col style="width:48px"><col style="width:80px"><col style="width:150px"><col style="width:90px"><col style="width:56px"><col style="width:200px"><col></colgroup><thead><tr>';
-  html+='<th class="col-num">#</th><th class="col-work">本周重点工作</th><th class="col-goal">优先级</th><th class="col-hours">启动日期</th><th class="col-hours">计划完成日期</th><th class="col-hours">实际完成日期</th><th class="col-hours" style="min-width:56px">耗时</th><th class="col-status">完成状态</th><th class="col-score">积分</th><th class="col-supporters">协同人</th><th class="col-wide">遇到的问题/困难</th><th class="col-problemtype">问题类型</th><th class="col-needboss">需上级介入</th><th class="col-remarks">备注说明</th><th class="col-boss" style="white-space:normal;overflow:visible">上级评价与建议</th>';
+  html+='<div class="wp-table-area"><div class="wp-table-wrap"><table class="wp-table"><colgroup><col style="width:56px"><col style="width:180px"><col style="width:80px"><col style="width:100px"><col style="width:100px"><col style="width:100px"><col style="width:80px"><col style="width:72px"><col style="width:48px"><col style="width:80px"><col style="width:150px"><col style="width:90px"><col style="width:56px"><col style="width:200px"><col></colgroup><thead><tr>';
+  html+='<th class="col-num">#</th><th class="col-work">本周重点工作</th><th class="col-goal">优先级</th><th class="col-hours">启动日期</th><th class="col-hours">计划完成日期</th><th class="col-hours">实际完成日期</th><th class="col-hours" style="min-width:80px">计划/实际耗时</th><th class="col-status">完成状态</th><th class="col-score">积分</th><th class="col-supporters">协同人</th><th class="col-wide">遇到的问题/困难</th><th class="col-problemtype">问题类型</th><th class="col-needboss">需上级介入</th><th class="col-remarks">备注说明</th><th class="col-boss" style="white-space:normal;overflow:visible">上级评价与建议</th>';
   html+='</tr></thead><tbody>';
 
   var seq=0;
