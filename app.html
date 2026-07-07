@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.4.90r">
+<meta name="version" content="V0.4.91">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -15763,6 +15763,56 @@ function initImportButtons(){
 
 
 // ==============================
+// ★ V0.4.91: 中国法定节假日数据 & 工作日计算工具
+// ==============================
+var CN_HOLIDAYS={
+  '2026':{
+    holidays:[
+      '2026-01-01','2026-01-02','2026-01-03',
+      '2026-02-15','2026-02-16','2026-02-17','2026-02-18','2026-02-19','2026-02-20','2026-02-21','2026-02-22','2026-02-23',
+      '2026-04-04','2026-04-05','2026-04-06',
+      '2026-05-01','2026-05-02','2026-05-03','2026-05-04','2026-05-05',
+      '2026-06-19','2026-06-20','2026-06-21',
+      '2026-09-25','2026-09-26','2026-09-27',
+      '2026-10-01','2026-10-02','2026-10-03','2026-10-04','2026-10-05','2026-10-06','2026-10-07'
+    ],
+    workdays:['2026-01-04','2026-02-14','2026-02-28','2026-05-09','2026-09-20','2026-10-10']
+  }
+};
+// 为每年建立 Set 加速查找
+(function(){for(var y in CN_HOLIDAYS){CN_HOLIDAYS[y]._hSet=new Set(CN_HOLIDAYS[y].holidays);CN_HOLIDAYS[y]._wSet=new Set(CN_HOLIDAYS[y].workdays);}})();
+
+function _isWorkday(dateStr){
+  var d=new Date(dateStr+'T00:00:00');
+  var day=d.getDay();
+  var year=dateStr.slice(0,4);
+  var hy=CN_HOLIDAYS[year];
+  if(hy&&hy._wSet&&hy._wSet.has(dateStr))return true;
+  if(hy&&hy._hSet&&hy._hSet.has(dateStr))return false;
+  if(day===0||day===6)return false;
+  return true;
+}
+
+function _countWorkdays(fromDateExcl,toDateIncl){
+  var cnt=0,d=new Date(fromDateExcl+'T00:00:00');
+  while(true){
+    d.setDate(d.getDate()+1);
+    var ds=d.toISOString().slice(0,10);
+    if(ds>toDateIncl)break;
+    if(_isWorkday(ds))cnt++;
+  }
+  return cnt;
+}
+
+// ★ V0.4.91: 新积分映射表
+var _TASK_SCORE_MAP={
+  '重要紧急':{onTime:3,overdue:-1.5,notDone:-5},
+  '重要不急':{onTime:2,overdue:-1,notDone:-4},
+  '日常紧急':{onTime:1.5,overdue:-1,notDone:-4},
+  '日常事项':{onTime:1,overdue:-0.5,notDone:-2}
+};
+
+// ==============================
 // MBO模块 (Work Plan)
 // ==============================
 var _wpInited=false;
@@ -17221,15 +17271,29 @@ async function _collabRespondSyncToCloud(ct,newStatus,fromUid,reqId){
 // ★ V0.1.49: 渲染任务积分单元格
 function _renderTaskScoreCell(plan,taskIdx){
   var tt=plan.tasks[taskIdx];
-  // V0.4.90o: 实际完成日期为空时，积分不显示
-  if(!tt||!tt.actualDate)return '<td class="col-score" style="text-align:center;font-size:12px;color:#9ca3af">—</td>';
-  var pts=plan._taskScores?plan._taskScores[taskIdx]:0;
-  if(!pts)return '<td class="col-score" style="text-align:center;font-size:12px;color:#9ca3af">—</td>';
+  if(!tt)return '<td class="col-score" style="text-align:center;font-size:12px;color:#9ca3af">—</td>';
+
+  // ★ V0.4.91: 无实际日期但有计划日期+优先级 → 按计分规则算出pts
+  var pts=0;
+  if(plan._taskScores&&typeof plan._taskScores[taskIdx]!=='undefined'){
+    pts=plan._taskScores[taskIdx]||0;
+  }
+  // 如果没有taskScore（比如还没调用过_calcWeekScore），回退到显示"—"
+  if(!plan._taskScores||plan._taskScores.length<=taskIdx){
+    return '<td class="col-score" style="text-align:center;font-size:12px;color:#9ca3af">—</td>';
+  }
+
+  if(pts===0&&tt.status==='暂停中'){
+    return '<td class="col-score" style="text-align:center;font-size:12px;color:#9ca3af">—</td>';
+  }
+  if(pts===0&&tt.status==='未做'&&tt._manualNotDone){
+    return '<td class="col-score" style="text-align:center;font-size:12px;color:#9ca3af">0</td>';
+  }
+  if(pts===0){
+    return '<td class="col-score" style="text-align:center;font-size:12px;color:#9ca3af">—</td>';
+  }
+
   var scLabel=pts>0?'+'+pts:''+pts;
-  // 检测是否逾期但完成（扣一半分的情况）
-  var tt=plan.tasks[taskIdx];
-  var isDelayedDone=tt&&(tt.status==='✓完成'||tt.status==='按时完成')&&tt.actualDate&&tt.plannedDate&&tt.actualDate>tt.plannedDate;
-  if(isDelayedDone)scLabel+=(' (逾期)');
   return '<td class="col-score" style="text-align:center;font-size:12px;font-weight:600;color:#2A476A">'+scLabel+'</td>';
 }
 
@@ -17491,7 +17555,12 @@ function renderWPTable(plan){
     var plannedDateDisplay=renderWPCellValue(plan,'tasks.'+j+'.plannedDate',t.plannedDate||'');
     html+='<td class="editable col-hours'+_frozenCls+'" data-field="tasks.'+j+'.plannedDate" data-type="date" onclick="startEditCell(this)">'+(plannedDateDisplay?plannedDateDisplay:'<span style="color:var(--text-hint)">点击选择日期</span>')+'</td>';
     var actualDateDisplay=renderWPCellValue(plan,'tasks.'+j+'.actualDate',t.actualDate||'');
-    html+='<td class="editable col-hours" data-field="tasks.'+j+'.actualDate" data-type="date" onclick="startEditCell(this)">'+(actualDateDisplay?actualDateDisplay:'<span style="color:var(--text-hint)">点击选择日期</span>')+'</td>';
+    // ★ V0.4.91: 自动"未做"时锁定实际完成日期，显示"—"
+    if(t.status==='未做'&&!t._manualNotDone){
+      html+='<td class="col-hours" style="color:#9ca3af;cursor:not-allowed;text-align:center">—</td>';
+    }else{
+      html+='<td class="editable col-hours" data-field="tasks.'+j+'.actualDate" data-type="date" onclick="startEditCell(this)">'+(actualDateDisplay?actualDateDisplay:'<span style="color:var(--text-hint)">点击选择日期</span>')+'</td>';
+    }
     // ★ V0.1.49: 每行任务积分
     html+='<td class="editable col-status" data-field="tasks.'+j+'.status" data-type="select" data-opts="'+WP_STATUS_OPTIONS.join(',')+'" onclick="startEditCell(this)">'+(t.status?_renderStatusDot(t.status):'<span style="color:var(--text-hint)">选择</span>')+'</td>';
     html+=_renderTaskScoreCell(plan,j);
@@ -17641,6 +17710,18 @@ function startEditCell(cell){
   if(_wpViewingSubordinate&&cell.dataset.field&&cell.dataset.field.indexOf('bossFeedback')<0&&!_wpRevisionMode){console.log('[startEditCell] blocked: subordinate view without revision mode');return;}
   // 查看下属时且修订模式开启：允许编辑所有字段
   if(_wpEditCell&&_wpEditCell!==cell)commitEditCell();
+  // ★ V0.4.91: 自动"未做"时锁定实际完成日期列（手动"未做"不锁定）
+  if(field&&field.indexOf('.actualDate')>=0&&_wpCurrent.plan&&_wpCurrent.plan.tasks){
+    var _tfParts=field.split('.');
+    if(_tfParts[0]==='tasks'){
+      var _tfi=parseInt(_tfParts[1]);
+      var _tft=_wpCurrent.plan.tasks[_tfi];
+      if(_tft&&_tft.status==='未做'&&!_tft._manualNotDone){
+        showToast('⚠️ 逾期超5个工作日，系统自动判定为"未做"，实际完成日期已锁定');
+        return;
+      }
+    }
+  }
   if(cell.classList.contains('editing'))return;
   var type=cell.dataset.type;
   var field=cell.dataset.field;
@@ -17714,7 +17795,7 @@ function startEditCell(cell){
             cell.classList.remove('editing');_wpEditCell=null;
             // 手动更新 plan 数据并保存
             var _gf=cell.dataset.field;
-            if(_gf&&_wpCurrent.plan){var _gp=_gf.split('.');if(_gp[0]==='tasks'){var _gti=parseInt(_gp[1]);if(_wpCurrent.plan.tasks[_gti]){_wpCurrent.plan.tasks[_gti][_gp[2]]=opt;_wpCurrent.plan.updatedAt=new Date().toISOString();saveWP(_wpCurrent.plan.year,_wpCurrent.plan.month,_wpCurrent.plan.week,_wpCurrent.plan);_calcWeekScore(_wpCurrent.plan);setTimeout(function(){if(!_wpEditCell&&_wpCurrent.plan)renderWPTable(_wpCurrent.plan);},0);}}}
+            if(_gf&&_wpCurrent.plan){var _gp=_gf.split('.');if(_gp[0]==='tasks'){var _gti=parseInt(_gp[1]);if(_wpCurrent.plan.tasks[_gti]){var _t=_wpCurrent.plan.tasks[_gti];_t[_gp[2]]=opt;if(_gp[2]==='status'){if(opt==='未做'){_t._manualNotDone=true;}else{delete _t._manualNotDone;}}_wpCurrent.plan.updatedAt=new Date().toISOString();saveWP(_wpCurrent.plan.year,_wpCurrent.plan.month,_wpCurrent.plan.week,_wpCurrent.plan);_calcWeekScore(_wpCurrent.plan);setTimeout(function(){if(!_wpEditCell&&_wpCurrent.plan)renderWPTable(_wpCurrent.plan);},0);}}}
           };
           _gdd.appendChild(_gOptDiv);
         })(opts[gi],WP_GOAL_COLORS[opts[gi]]||'#9ca3af');
@@ -17789,21 +17870,30 @@ function commitEditCell(el){
             _wpCurrent.plan.tasks[ti][parts[2]]=newVal;
           }else{
             _wpCurrent.plan.tasks[ti][parts[2]]=newVal;
-            // ★ V0.4.90p: 自动状态识别增强逻辑
+            // ★ V0.4.91: 自动状态识别（新积分规则+工作日宽限期）
             if(parts[2]==='actualDate' && newVal){
               var tsk=_wpCurrent.plan.tasks[ti];
               var pDate=tsk.plannedDate;
-              // 用户手动设定的'暂停中'和'未做'不自动覆盖
-              if(tsk.status==='暂停中'||tsk.status==='未做'){
+              if(tsk.status==='暂停中'){
                 // 保持用户手动状态，不做自动判断
+              }else if(tsk.status==='未做' && tsk._manualNotDone){
+                // 手动"未做"→终止计算时间，但允许填实际日期来恢复
+                if(pDate){
+                  if(newVal<=pDate){
+                    tsk.status='按时完成';delete tsk._manualNotDone;
+                  }else{
+                    var _ovd=_countWorkdays(pDate,newVal);
+                    if(_ovd>5){tsk.status='未做';delete tsk._manualNotDone;}
+                    else{tsk.status='逾期完成';delete tsk._manualNotDone;}
+                  }
+                }
               }else if(pDate){
-                var today=new Date().toISOString().slice(0,10);
-                if(today<pDate){
-                  // 当前日期还未到达计划完成日期 → 进行中
-                  tsk.status='进行中';
+                if(newVal<=pDate){
+                  tsk.status='按时完成';
                 }else{
-                  // 已过截止日期，根据实际日期判断
-                  tsk.status = newVal<=pDate ? '按时完成' : '逾期完成';
+                  var _ovd2=_countWorkdays(pDate,newVal);
+                  if(_ovd2>5){tsk.status='未做';delete tsk._manualNotDone;}
+                  else{tsk.status='逾期完成';}
                 }
               }
             }
@@ -17957,7 +18047,7 @@ function _calcWeekScore(plan){
   // 评价奖励（仅上级按时完成时给下属加分）
   if(revStatus==='on_time')weekScore+=2;
 
-  // ★ V0.1.49: 任务完成评分（V0.4.90q 重构自动状态逻辑）
+  // ★ V0.4.91: 任务完成评分（新积分规则+5工作日宽限期+法定节假日排除）
   var taskScore=0;
   var _taskScores=[];
   if(plan.tasks){
@@ -17969,40 +18059,41 @@ function _calcWeekScore(plan){
       if(tt.collab_from){_taskScores.push(0);continue;}
       if(!tt.goal||!tt.plannedDate){_taskScores.push(0);continue;}
 
-      var base=tt.goal==='重要紧急'?3:tt.goal==='重要不急'?1.5:tt.goal==='日常紧急'?1:tt.goal==='日常事项'?0.5:0;
-      if(base===0){_taskScores.push(0);continue;}
+      var sc=_TASK_SCORE_MAP[tt.goal];
+      if(!sc){_taskScores.push(0);continue;}
 
       var actualDate=tt.actualDate||'';
       var today=new Date().toISOString().slice(0,10);
-      var isManual=(tt.status==='暂停中'||tt.status==='未做');
 
       if(tt.status==='暂停中'){
-        // 暂停中 → 不扣分不加分
+        // 暂停中 → 0分，不自动判定
         pts=0;
-      }else if(tt.status==='未做'){
-        // 未做 → 扣分（用户手动设置或程序自动判定）
-        pts=-(base/2);
+      }else if(tt.status==='未做' && tt._manualNotDone){
+        // 用户手动选择"未做"→ 终止计算时间，积分=0
+        pts=0;
       }else if(actualDate){
-        // 实际完成日期有值
+        // ★ 有实际完成日期
         if(actualDate<=tt.plannedDate){
-          pts=base/2;
-          tt.status='按时完成';
+          tt.status='按时完成'; pts=sc.onTime;
         }else{
-          pts=-(base/4);
-          tt.status='逾期完成';
+          var wdOverdue=_countWorkdays(tt.plannedDate,actualDate);
+          if(wdOverdue>5){
+            tt.status='未做'; delete tt._manualNotDone; pts=sc.notDone;
+          }else{
+            tt.status='逾期完成'; pts=sc.overdue;
+          }
         }
       }else{
-        // 实际完成日期为空 → 根据当天日期自动判断
-        var graceDays=(tt.goal==='日常事项')?15:7;
-        var planD=new Date(tt.plannedDate+'T00:00:00');
-        var graceD=new Date(planD);graceD.setDate(graceD.getDate()+graceDays);
-        var todayD=new Date(today+'T00:00:00');
-        if(todayD>graceD){
-          tt.status='未做'; pts=-(base/2);
-        }else if(todayD>planD){
-          tt.status='逾期完成'; pts=0;
-        }else{
+        // ★ 无实际完成日期 → 按今天判定
+        if(today<=tt.plannedDate){
           tt.status='进行中'; pts=0;
+        }else{
+          var wdPassed=_countWorkdays(tt.plannedDate,today);
+          if(wdPassed>5){
+            tt.status='未做'; delete tt._manualNotDone; pts=sc.notDone;
+          }else{
+            tt.status='进行中'; pts=0;
+          }
         }
       }
       taskScore+=pts;
@@ -18084,7 +18175,7 @@ function _renderTimeManagementPanel(plan){
   var html='';
   html+='<div class="wp-cards-grid" id="wpTimeMgmtPanel">';
 
-  // ★ Card 1: 计分规则
+  // ★ Card 1: 计分规则（V0.4.91 新规则）
   html+='<div class="wp-card">';
   html+='<div class="wp-card-title">📋 计分规则</div>';
   html+='<table class="wp-card-table">';
@@ -18093,18 +18184,20 @@ function _renderTimeManagementPanel(plan){
   html+='<tr><td style="color:#6b7280"><span style="margin-right:6px">—</span>法定节假日顺延</td><td class="td-val" style="color:#6b7280">—</td></tr>';
   html+='<tr><td style="color:#6b7280"><span style="margin-right:6px">○</span>每迟12h</td><td class="td-val" style="color:#6b7280;font-weight:500">−0.5</td></tr>';
   html+='<tr><td style="color:#6b7280"><span style="margin-right:6px">○</span>超48h未交</td><td class="td-val" style="color:#6b7280;font-weight:500">−1.5</td></tr>';
+  html+='<tr><td style="color:#132843;font-size:10px;text-align:right;padding-top:6px" colspan="2">任务宽限期：5个工作日<span style="font-size:9px;color:#6b7280">（排除周末+法定节假日）</span></td></tr>';
   html+='</table>';
   html+='</div>';
 
-  // ★ Card 2: 评分标准
+  // ★ Card 2: 评分标准（V0.4.91 新分值）
   html+='<div class="wp-card">';
   html+='<div class="wp-card-title">📊 评分标准</div>';
   html+='<table class="wp-card-table">';
   html+='<tr><td></td><td class="td-val" style="color:#6b7280;font-weight:400;font-size:10px">按时</td><td class="td-val" style="color:#6b7280;font-weight:400;font-size:10px">逾期</td><td class="td-val" style="color:#6b7280;font-weight:400;font-size:10px">未做</td></tr>';
-  html+='<tr><td>重要紧急</td><td class="td-val td-pos">+1.5</td><td class="td-val td-neg">−0.75</td><td class="td-val td-neg">−1.5</td></tr>';
-  html+='<tr><td>重要不急</td><td class="td-val" style="color:#059669;font-weight:500">+0.75</td><td class="td-val td-neg">−0.38</td><td class="td-val td-neg">−0.75</td></tr>';
-  html+='<tr><td>日常紧急</td><td class="td-val" style="color:#059669;font-weight:500">+0.5</td><td class="td-val td-neg">−0.25</td><td class="td-val td-neg">−0.5</td></tr>';
-  html+='<tr><td>日常事项</td><td class="td-val" style="color:#059669;font-weight:500">+0.25</td><td class="td-val td-neg">−0.13</td><td class="td-val td-neg">−0.25</td></tr>';
+  html+='<tr><td>重要紧急</td><td class="td-val td-pos">+3</td><td class="td-val td-neg">−1.5</td><td class="td-val td-neg">−5</td></tr>';
+  html+='<tr><td>重要不急</td><td class="td-val td-pos">+2</td><td class="td-val td-neg">−1</td><td class="td-val td-neg">−4</td></tr>';
+  html+='<tr><td>日常紧急</td><td class="td-val td-pos">+1.5</td><td class="td-val td-neg">−1</td><td class="td-val td-neg">−4</td></tr>';
+  html+='<tr><td>日常事项</td><td class="td-val td-pos">+1</td><td class="td-val td-neg">−0.5</td><td class="td-val td-neg">−2</td></tr>';
+  html+='<tr><td style="font-size:9px;color:#6b7280;text-align:right;padding-top:4px" colspan="4">* 手动选择"未做"→终止计算，积分=0</td></tr>';
   html+='</table>';
   html+='</div>';
 
