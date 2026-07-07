@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.4.45">
+<meta name="version" content="V0.4.46">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -15750,7 +15750,8 @@ var _wpRevisionMode=false;
 
 // 下拉选项
 var WP_GOAL_OPTIONS=['重要紧急','重要','一般紧急','其他'];
-var WP_STATUS_OPTIONS=['✓完成','⚙推进中','⏸暂停','❌未完成'];
+var WP_STATUS_OPTIONS=['已完成','进行中','已逾期','暂定执行'];
+var WP_STATUS_COLORS={'已完成':'#22c55e','进行中':'#3b82f6','已逾期':'#eab308','暂定执行':'#9ca3af'};
 var WP_PROBLEM_OPTIONS=['无','资源不足','跨部门协调','技术瓶颈','时间紧张','其他原因'];
 var WP_NEEDBOSS_OPTIONS=['否','是'];
 
@@ -16001,7 +16002,7 @@ function _autoCarryTasks(plan,y,m,w){
   for(var i=0;i<prevPlan.tasks.length;i++){
     var t=prevPlan.tasks[i];
     if(!t.work || !t.work.trim())continue;   // 空任务不转
-    if(t.status==='✓完成')continue;           // 已完成不转
+    if(t.status==='✓完成'||t.status==='已完成')continue;           // 已完成不转
     if(t.collab_from)continue;                // 协同任务不转
     // 去重：同一工作内容只转一次
     var dup=carried.some(function(c){return c.work===t.work;});
@@ -16053,7 +16054,7 @@ function _carryTasksToNextWeek(sourcePlan, forceResync){
   for(var i=0;i<sourcePlan.tasks.length;i++){
     var t=sourcePlan.tasks[i];
     if(!t.work||!t.work.trim())continue;
-    if(t.status==='✓完成')continue;
+    if(t.status==='✓完成'||t.status==='已完成')continue;
     if(t.collab_from)continue;
     var dup=carried.some(function(c){return c.work===t.work;});
     if(dup)continue;
@@ -16305,17 +16306,11 @@ function _positionDropdown(dd,trigger){
   }
   dd.style.left=(rect.left-10)+'px';
   dd.style.width=(rect.width+20)+'px';
-  if(spaceBelow>=180||spaceBelow>=spaceAbove){
-    dd.style.top=(rect.bottom+GAP)+'px';
-    dd.style.bottom='auto';
-    dd.style.maxHeight=Math.min(Math.max(spaceBelow-PADDING,120),MAX_H)+'px';
-    dd._dropDir='down';
-  }else{
-    dd.style.top='auto';
-    dd.style.bottom=(window.innerHeight-rect.top+GAP)+'px';
-    dd.style.maxHeight=Math.min(Math.max(spaceAbove-PADDING,120),MAX_H)+'px';
-    dd._dropDir='up';
-  }
+  // ★ V0.4.46: 始终向下展开，弹窗上边缘对齐单元格下边线，不向上溢出
+  dd.style.top=(rect.bottom+GAP)+'px';
+  dd.style.bottom='auto';
+  dd.style.maxHeight=Math.min(Math.max(spaceBelow-PADDING,120),MAX_H)+'px';
+  dd._dropDir='down';
 }
 
 function _returnDropdownToParent(dd){
@@ -16610,6 +16605,16 @@ function showWPEmpty(){
   if(ib)ib.remove();
   if(sb)sb.remove();
   dd.style.display='flex';
+}
+
+// ★ V0.4.46: 状态彩色圆点渲染
+function _renderStatusDot(status){
+  if(!status) return '';
+  // 兼容旧值映射
+  var map={'✓完成':'已完成','⚙推进中':'进行中','⏸暂停':'已逾期','❌未完成':'暂定执行'};
+  var s=map[status]||status;
+  var c=WP_STATUS_COLORS[s]||'#9ca3af';
+  return '<span style="color:'+c+';font-size:10px;margin-right:4px">●</span>'+_h(s);
 }
 
 function renderWPCellValue(plan, fieldKey, originalValue){
@@ -17087,7 +17092,7 @@ function _renderTaskScoreCell(plan,taskIdx){
   var scLabel=pts>0?'+'+pts:''+pts;
   // 检测是否逾期但完成（扣一半分的情况）
   var tt=plan.tasks[taskIdx];
-  var isDelayedDone=tt&&tt.status==='✓完成'&&tt.actualDate&&tt.plannedDate&&tt.actualDate>tt.plannedDate;
+  var isDelayedDone=tt&&(tt.status==='✓完成'||tt.status==='已完成')&&tt.actualDate&&tt.plannedDate&&tt.actualDate>tt.plannedDate;
   if(isDelayedDone)scLabel+=(' (逾期)');
   return '<td class="col-score" style="text-align:center;font-size:12px;font-weight:600;color:#2A476A">'+scLabel+'</td>';
 }
@@ -17257,10 +17262,10 @@ function renderWPTable(plan){
   var todayStr=new Date().toISOString().slice(0,10);
   for(var i=0;i<plan.tasks.length;i++){
     var t=plan.tasks[i];
-    if(t.status==='✓完成')completed++;
-    else if(t.status==='⚙推进中')progress++;
+    if(t.status==='✓完成'||t.status==='已完成')completed++;
+    else if(t.status==='⚙推进中'||t.status==='进行中')progress++;
     var pd=t.plannedDate||'';
-    if(pd){ hasPlan++; if(pd<todayStr&&t.status!=='✓完成')overdue++; }
+    if(pd){ hasPlan++; if(pd<todayStr&&t.status!=='✓完成'&&t.status!=='已完成')overdue++; }
     var ad=t.actualDate||'';
     if(ad)hasActual++;
   }
@@ -17318,7 +17323,7 @@ function renderWPTable(plan){
       var _ad=renderWPCellValue(plan,'tasks.'+jj+'.actualDate',tt.actualDate||'');
       html+='<td class="'+edCls+' col-hours" data-field="tasks.'+jj+'.actualDate" data-type="date"'+edClick+'>'+(_ad?_ad:'<span style="color:var(--text-hint)">点击选择日期</span>')+'</td>';
       // ★ V0.1.49: 每行任务得分 — 完成状态在前，积分在后(与表头一致)
-      html+='<td class="'+edCls+' col-status" data-field="tasks.'+jj+'.status" data-type="select" data-opts="'+WP_STATUS_OPTIONS.join(',')+'"'+edClick+'>'+(tt.status||plan._revisions&&plan._revisions['tasks.'+jj+'.status']?renderWPCellValue(plan,'tasks.'+jj+'.status',tt.status):(tt.status?_h(tt.status):'<span style="color:var(--text-hint)">选择</span>'))+'</td>';
+      html+='<td class="'+edCls+' col-status" data-field="tasks.'+jj+'.status" data-type="select" data-opts="'+WP_STATUS_OPTIONS.join(',')+'"'+edClick+'>'+(tt.status?_renderStatusDot(tt.status):'<span style="color:var(--text-hint)">选择</span>')+'</td>';
       html+=_renderTaskScoreCell(plan,jj);
       html+='<td class="'+edCls+' col-supporters" data-field="tasks.'+jj+'.supporters" data-type="text"'+edClick+'>'+_renderSupportersCell(plan,jj,tt.supporters)+'</td>';
       html+='<td class="'+edCls+' col-wide" data-field="tasks.'+jj+'.problems" data-type="text"'+edClick+'>'+(tt.problems||plan._revisions&&plan._revisions['tasks.'+jj+'.problems']?renderWPCellValue(plan,'tasks.'+jj+'.problems',tt.problems):(tt.problems?_h(tt.problems):'<span style="color:var(--text-hint)">填写</span>'))+'</td>';
@@ -17351,7 +17356,7 @@ function renderWPTable(plan){
     var actualDateDisplay=renderWPCellValue(plan,'tasks.'+j+'.actualDate',t.actualDate||'');
     html+='<td class="editable col-hours" data-field="tasks.'+j+'.actualDate" data-type="date" onclick="startEditCell(this)">'+(actualDateDisplay?actualDateDisplay:'<span style="color:var(--text-hint)">点击选择日期</span>')+'</td>';
     // ★ V0.1.49: 每行任务积分
-    html+='<td class="editable col-status" data-field="tasks.'+j+'.status" data-type="select" data-opts="'+WP_STATUS_OPTIONS.join(',')+'" onclick="startEditCell(this)">'+(t.status||plan._revisions&&plan._revisions['tasks.'+j+'.status']?renderWPCellValue(plan,'tasks.'+j+'.status',t.status):(t.status?_h(t.status):'<span style="color:var(--text-hint)">选择</span>'))+'</td>';
+    html+='<td class="editable col-status" data-field="tasks.'+j+'.status" data-type="select" data-opts="'+WP_STATUS_OPTIONS.join(',')+'" onclick="startEditCell(this)">'+(t.status?_renderStatusDot(t.status):'<span style="color:var(--text-hint)">选择</span>')+'</td>';
     html+=_renderTaskScoreCell(plan,j);
     html+='<td class="editable col-supporters" data-field="tasks.'+j+'.supporters" data-type="text" onclick="startEditCell(this)">'+_renderSupportersCell(plan,j,t.supporters)+'</td>';
     html+='<td class="editable col-wide" data-field="tasks.'+j+'.problems" data-type="text" onclick="startEditCell(this)">'+(t.problems||plan._revisions&&plan._revisions['tasks.'+j+'.problems']?renderWPCellValue(plan,'tasks.'+j+'.problems',t.problems):(t.problems?_h(t.problems):'<span style="color:var(--text-hint)">填写</span>'))+'</td>';
@@ -17510,6 +17515,9 @@ function startEditCell(cell){
     cur=(_wpCurrent.plan.tasks[parseInt(sfParts[1])]&&_wpCurrent.plan.tasks[parseInt(sfParts[1])].supporters)||'';
   }else{
     cur=cell.textContent.replace(/点击填写|填写|选择|上级建议/g,'').trim();
+    // ★ V0.4.46: 旧状态值映射
+    var _oldStatusMap={'✓完成':'已完成','⚙推进中':'进行中','⏸暂停':'已逾期','❌未完成':'暂定执行'};
+    if(_oldStatusMap[cur])cur=_oldStatusMap[cur];
   }
   if(_wpRevisionMode&&_wpCurrent.plan&&_wpCurrent.plan._revisions&&_wpCurrent.plan._revisions[field]){
     cur=_wpCurrent.plan._revisions[field].value||'';
@@ -17521,7 +17529,14 @@ function startEditCell(cell){
 
   if(type==='select'){
     var s='<select class="wp-cell-select" onchange="commitEditCell(this)"><option value="">--</option>';
-    for(var i=0;i<opts.length;i++)s+='<option value="'+opts[i]+'"'+(opts[i]===cur?' selected':'')+'>'+opts[i]+'</option>';
+    var _isStatusField=field&&field.indexOf('.status')>=0;
+    for(var i=0;i<opts.length;i++){
+      var _optLbl=opts[i];
+      if(_isStatusField&&WP_STATUS_COLORS[opts[i]]){
+        _optLbl='● '+opts[i];  // select选项中用纯文本圆点
+      }
+      s+='<option value="'+opts[i]+'"'+(opts[i]===cur?' selected':'')+'>'+_optLbl+'</option>';
+    }
     s+='</select>';
     cell.innerHTML=s;
     var selEl=cell.querySelector('select');if(selEl){selEl.focus();selEl.addEventListener('blur',function(){commitEditCell(this);});}
@@ -17740,7 +17755,7 @@ function _calcWeekScore(plan){
       var base=tt.goal==='重要紧急'?3:tt.goal==='重要'?1.5:tt.goal==='一般紧急'?1:tt.goal==='其他'?0.5:0;
       if(base===0){_taskScores.push(0);continue;}
 
-      var isDone=tt.status==='✓完成';
+      var isDone=tt.status==='✓完成'||tt.status==='已完成';
       var actualDate=tt.actualDate||'';
 
       if(isDone && actualDate && actualDate<=tt.plannedDate){
@@ -18407,10 +18422,10 @@ async function aiAssessWP() {
       var t = p.tasks[i];
       if (!t || !t.work || !t.work.trim()) continue;
       validTasks.push(t);
-      if (t.status === '✓完成') completed++;
-      else if (t.status === '⚙推进中') inProgress++;
-      else if (t.status === '⏸暂停') paused++;
-      if (t.plannedDate && t.plannedDate < todayStr && t.status !== '✓完成') overdue++;
+      if (t.status === '✓完成' || t.status === '已完成') completed++;
+      else if (t.status === '⚙推进中' || t.status === '进行中') inProgress++;
+      else if (t.status === '⏸暂停' || t.status === '已逾期') paused++;
+      if (t.plannedDate && t.plannedDate < todayStr && t.status !== '✓完成' && t.status !== '已完成') overdue++;
       if (t.problems && t.problems.trim()) problemCount++;
       if (t.needBoss === '是') needBossCount++;
     }
@@ -18422,7 +18437,7 @@ async function aiAssessWP() {
       // 📊 整体概览
       analysis.push('【📊 整体概览】');
       var compRate = total > 0 ? Math.round(completed / total * 100) : 0;
-      analysis.push('本周共 ' + total + ' 项任务：✓完成 ' + completed + ' 项(' + compRate + '%)，⚙推进中 ' + inProgress + ' 项，⏸暂停 ' + paused + ' 项。');
+      analysis.push('本周共 ' + total + ' 项任务：已完成 ' + completed + ' 项(' + compRate + '%)，进行中 ' + inProgress + '  项，已逾期 ' + paused + ' 项。');
       if (overdue > 0) analysis.push('⚠️ 有 ' + overdue + ' 项任务已逾期，建议优先处理。');
       if (completed === total && total > 0) analysis.push('🎉 所有任务均已完成，表现优秀！');
 
@@ -18463,7 +18478,7 @@ async function aiAssessWP() {
         analysis.push('【🕐 逾期预警】');
         for (var i = 0; i < validTasks.length; i++) {
           var ti = validTasks[i];
-          if (ti.plannedDate && ti.plannedDate < todayStr && ti.status !== '✓完成') {
+          if (ti.plannedDate && ti.plannedDate < todayStr && ti.status !== '✓完成' && ti.status !== '已完成') {
             analysis.push('🔴「' + ti.work + '」计划 ' + ti.plannedDate + ' 完成，已逾期。');
           }
         }
@@ -18486,7 +18501,7 @@ async function aiAssessWP() {
           var hw = history[i];
           if (hw && hw.tasks) {
             for (var j = 0; j < hw.tasks.length; j++) {
-              if (hw.tasks[j].work && hw.tasks[j].work.trim()) { histTotal++; if (hw.tasks[j].status === '✓完成') histComp++; }
+              if (hw.tasks[j].work && hw.tasks[j].work.trim()) { histTotal++; if (hw.tasks[j].status === '✓完成' || hw.tasks[j].status === '已完成') histComp++; }
             }
           }
         }
