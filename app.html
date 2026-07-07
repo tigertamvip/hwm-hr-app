@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.3.129">
+<meta name="version" content="V0.3.130">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2062,7 +2062,9 @@ table.collab-table tbody tr:hover{background:#fffdf5}
 .wp-custom-select{position:relative}
 .wp-custom-trigger{padding:6px 22px 6px 14px;border-radius:2px;border:1px solid rgba(42,71,106,.18);background:rgba(42,71,106,.04);color:#2A476A;font-size:13px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;user-select:none}
 .wp-custom-trigger:hover{background:rgba(42,71,106,.08)}
-.wp-custom-dropdown{position:absolute;top:100%;left:0;right:0;margin-top:3px;background:rgba(255,255,255,.85);border:1px solid rgba(255,255,255,.5);border-radius:8px;box-shadow:0 8px 32px rgba(0,0,0,.12);max-height:none;overflow-y:auto;z-index:2000;padding-bottom:6px;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+.wp-custom-dropdown{position:absolute;top:100%;left:-10px;right:-10px;margin-top:3px;background:rgba(252,252,253,.95);border:1px solid rgba(200,205,212,.6);border-radius:8px;box-shadow:0 12px 40px rgba(0,0,0,.15);max-height:none;overflow-y:auto;z-index:2000;padding-bottom:6px;backdrop-filter:blur(20px) saturate(1.2);-webkit-backdrop-filter:blur(20px) saturate(1.2)}
+.wp-dropdown-scroll-hint{display:flex;align-items:center;justify-content:center;gap:4px;padding:6px 0 4px;color:#9ca3af;font-size:11px;pointer-events:none;animation:scrollHintPulse 1.5s ease-in-out infinite}
+@keyframes scrollHintPulse{0%,100%{opacity:.5;transform:translateY(0)}50%{opacity:1;transform:translateY(2px)}}
 .wp-custom-option{padding:5px 14px;font-size:13px;color:#0F2C4B;cursor:pointer;white-space:nowrap;border-bottom:none;line-height:1.5}
 .wp-custom-option:hover{background:rgba(59,130,246,.08)}
 .wp-custom-option.active{background:rgba(59,130,246,.12);font-weight:500;color:#1d4ed8}
@@ -16291,6 +16293,8 @@ function toggleWPSubDropdown(){
     dd.style.maxHeight=Math.min(window.innerHeight-rect.bottom-20,600)+'px';
   }
   dd.style.display='block';
+  // ★ V0.3.130: 滚动提示箭头
+  _setupDropdownScrollHint(dd);
   setTimeout(function(){
     document.addEventListener('click',_wpCloseSubDropdown);
   },50);
@@ -16331,6 +16335,8 @@ function toggleWPDeptDropdown(){
     dd.style.maxHeight=Math.min(window.innerHeight-rect.bottom-20,600)+'px';
   }
   dd.style.display='block';
+  // ★ V0.3.130: 滚动提示箭头
+  _setupDropdownScrollHint(dd);
   setTimeout(function(){
     document.addEventListener('click',_wpCloseDeptDropdown);
   },50);
@@ -16343,6 +16349,29 @@ function _wpCloseDeptDropdown(e){
   if(dd.contains(e.target))return;
   dd.style.display='none';
   document.removeEventListener('click',_wpCloseDeptDropdown);
+}
+// ★ V0.3.130: 下拉滚动提示 — 内容溢出时显示向下箭头，滚到底部自动消失
+function _setupDropdownScrollHint(dd){
+  if(!dd)return;
+  // 移除已有提示
+  var existing=dd.querySelector('.wp-dropdown-scroll-hint');
+  if(existing)existing.remove();
+  dd.removeEventListener('scroll',dd._scrollHintHandler);
+  // 检查是否需要提示
+  var needsHint=dd.scrollHeight>dd.clientHeight+2;
+  if(!needsHint)return;
+  // 添加提示条
+  var hint=document.createElement('div');
+  hint.className='wp-dropdown-scroll-hint';
+  hint.innerHTML='<span>▼</span> 向下滚动查看更多';
+  dd.appendChild(hint);
+  // 滚动事件：到底部隐藏，离开底部显示
+  dd._scrollHintHandler=function(){
+    var atBottom=dd.scrollTop+dd.clientHeight>=dd.scrollHeight-4;
+    var h=dd.querySelector('.wp-dropdown-scroll-hint');
+    if(h)h.style.display=atBottom?'none':'flex';
+  };
+  dd.addEventListener('scroll',dd._scrollHintHandler);
 }
 function selectWPDeptOption(val,name){
   var dd=document.getElementById('wpDeptDropdown');
