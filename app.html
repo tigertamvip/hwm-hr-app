@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.4.90l">
+<meta name="version" content="V0.4.90m">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -17763,6 +17763,13 @@ function commitEditCell(el){
     var input=el||cell.querySelector('input,textarea,select');
     var newVal=input?input.value:'';
 
+    // ★ V0.4.90m: 状态字段自定义下拉无 input，从 cell 文本提取
+    if(!newVal && field && field.indexOf('.status')>=0){
+      var tc=cell.textContent||'';
+      var sMap={'已完成':'已完成','进行中':'进行中','已逾期':'已逾期','暂停中':'暂停中'};
+      for(var sk in sMap){if(tc.indexOf(sk)>=0){newVal=sMap[sk];break;}}
+    }
+
     cell.classList.remove('editing');
     _wpEditCell=null;
 
@@ -17779,6 +17786,14 @@ function commitEditCell(el){
             _wpCurrent.plan.tasks[ti][parts[2]]=newVal;
           }else{
             _wpCurrent.plan.tasks[ti][parts[2]]=newVal;
+            // ★ V0.4.90m: 保存实际完成日期时，自动根据计划日期设置完成状态
+            if(parts[2]==='actualDate' && newVal){
+              var tsk=_wpCurrent.plan.tasks[ti];
+              var pDate=tsk.plannedDate;
+              if(pDate){
+                tsk.status = newVal<=pDate ? '已完成' : '已逾期';
+              }
+            }
           }
         }
       }
