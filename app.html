@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.5.2">
+<meta name="version" content="V0.5.3">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -18414,11 +18414,10 @@ function _renderEisenhowerMatrix(year){
   svg+='<line x1="'+XC+'" y1="8" x2="'+XC+'" y2="'+(H-8)+'" stroke="#cbd5e1" stroke-width="1"/>';
   svg+='<line x1="8" y1="'+YC+'" x2="'+(W-8)+'" y2="'+YC+'" stroke="#cbd5e1" stroke-width="1"/>';
   // 象限标签
-  svg+='<text x="'+(XC-3)+'" y="8" text-anchor="end" fill="#9ca3af" font-size="9" font-family="system-ui">重要</text>';
-  svg+='<text x="'+(W-6)+'" y="'+(YC-4)+'" text-anchor="end" fill="#9ca3af" font-size="9" font-family="system-ui">重要</text>';
-  svg+='<text x="6" y="'+(YC-4)+'" text-anchor="start" fill="#9ca3af" font-size="9" font-family="system-ui">不重要</text>';
-  svg+='<text x="'+(W/4)+'" y="'+(H-3)+'" text-anchor="middle" fill="#9ca3af" font-size="9" font-family="system-ui">不紧急</text>';
-  svg+='<text x="'+(W*3/4)+'" y="'+(H-3)+'" text-anchor="middle" fill="#9ca3af" font-size="9" font-family="system-ui">紧急</text>';
+  svg+='<text x="'+XC+'" y="14" text-anchor="middle" fill="#9ca3af" font-size="9" font-family="system-ui">重要</text>';
+  svg+='<text x="'+XC+'" y="'+(H-3)+'" text-anchor="middle" fill="#9ca3af" font-size="9" font-family="system-ui">不重要</text>';
+  svg+='<text x="6" y="'+(YC-4)+'" text-anchor="start" fill="#9ca3af" font-size="9" font-family="system-ui">不紧急</text>';
+  svg+='<text x="'+(W-6)+'" y="'+(YC-4)+'" text-anchor="end" fill="#9ca3af" font-size="9" font-family="system-ui">紧急</text>';
 
   // 每个象限的点位置
   var quadRanges=[{cxL:8,cxR:XC-10,cyT:8,cyB:YC-10,goal:ni},{cxL:XC+10,cxR:W-8,cyT:8,cyB:YC-10,goal:n},{cxL:8,cxR:XC-10,cyT:YC+10,cyB:H-8,goal:dr},{cxL:XC+10,cxR:W-8,cyT:YC+10,cyB:H-8,goal:du}];
