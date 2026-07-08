@@ -16912,6 +16912,11 @@ function selectWP(y,m,w){
     }
     if(dirty) saveWP(y,m,w,plan);
     _wpCurrent.plan=plan;
+    // ★ V0.5.55: 自动清理旧数据中错误设置的 bossEvaluated（有值但无 bossEvaluatedAt）
+    if(plan.bossEvaluated && !plan.bossEvaluatedAt){
+      plan.bossEvaluated=false;
+      saveWP(y,m,w,plan);
+    }
     _autoCarryTasks(plan,y,m,w); // ★ V0.1.87b: 已有计划也尝试顺延(防旧代码空壳+首次部署遗漏)
     _calcWeekScore(plan); // ★ V0.4.91b: 选择周计划时重新计算状态
     renderWPTable(plan);
