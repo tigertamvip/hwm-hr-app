@@ -18447,7 +18447,7 @@ function _renderEisenhowerMatrix(year){
   html+=svg;
 
   // 图例
-  html+='<div class="wp-em-legend">';
+  html+='<div class="wp-em-legend" style="justify-content:center">';
   var legColors={'按时完成':'#22c55e','进行中':'#3b82f6','逾期完成':'#eab308','未做':'#D64352','暂停中':'#9ca3af'};
   for(var lk in legColors){
     html+='<span class="wp-em-legend-dot" style="background:'+legColors[lk]+'"></span>'+lk;
