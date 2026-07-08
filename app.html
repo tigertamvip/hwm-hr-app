@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.5.14">
+<meta name="version" content="V0.5.15">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1901,7 +1901,8 @@ body{
 /* ★ 系统当前周：深蓝文字 + 底部蓝色短横线（独立于用户选中） */
 .wp-yg-cell.current-week{color:#1B6EC4;font-weight:700}
 .wp-yg-cell.current-week::after{content:'';position:absolute;bottom:1px;left:50%;transform:translateX(-50%);width:12px;height:2px;background:#4DD1FF;border-radius:1px}
-/* 同时是当前周又是选中周：蓝线变白 */
+/* 同时是当前周又是选中周：蓝线变白 + 文字变白 */
+.wp-yg-cell.active.current-week{color:#fff}
 .wp-yg-cell.active.current-week::after{background:#fff}
 .wp-yg-cell.has-data::before{content:'';position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:3px;height:3px;background:#1B6EC4;border-radius:50%}
 .wp-yg-cell.active.has-data::before{background:#fff}
