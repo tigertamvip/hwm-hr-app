@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.5.36">
+<meta name="version" content="V0.5.37">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1753,8 +1753,8 @@ body{
 .kpi-layout{display:flex;height:calc(100vh - 56px);overflow:hidden}
 .kpi-sidebar{width:200px;min-width:200px;height:calc(100vh - 56px);overflow-y:auto;background:#F0EDE6;border-right:1px solid var(--border);padding:14px 10px;display:flex;flex-direction:column;gap:10px}
 .kpi-sidebar-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:6px}
-.kpi-new-btn{width:100%;padding:8px 0;border:none;border-radius:8px;background:#0F7BE1;color:#fff;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s ease;margin-bottom:40px}
-.kpi-new-btn:hover{background:#005BB5}
+.kpi-new-btn{width:100%;padding:8px 0;border:none;border-radius:8px;background:#3B7DB4;color:#fff;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s ease;margin-bottom:40px}
+.kpi-new-btn:hover{background:#2A6A9A}
 .kpi-sidebar-divider{height:1px;background:linear-gradient(90deg,transparent,#D3D1C7,transparent);margin:8px 0}
 .kpi-btn-revise{background:#0F7BE1}.kpi-btn-revise:hover{background:#005BB5}
 .kpi-btn-myplan{padding:8px 0;border:none;border-radius:8px;background:#0F7BE1;color:#fff;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;margin-top:8px}
@@ -1865,8 +1865,8 @@ body{
 .wp-topbar-left{display:flex;align-items:center;gap:20px}
 .wp-topbar-logo{font-size:16px;font-weight:600;display:flex;align-items:center;gap:6px}
 .wp-topbar-user{font-size:12px;margin-left:16px;padding:2px 10px;background:rgba(42,71,106,.08);border-radius:10px;color:#2A476A}
-.wp-back-btn{padding:10px 20px;border:none;border-radius:8px;background:#0F7BE1;color:#fff;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
-.wp-back-btn:hover{background:#005BB5}
+.wp-back-btn{padding:10px 20px;border:none;border-radius:8px;background:#3B7DB4;color:#fff;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.wp-back-btn:hover{background:#2A6A9A}
 
 .wp-layout{display:flex;height:calc(100vh - 48px);overflow:hidden}
 /* ★ V0.3.102: 侧栏浅色导航轨 — 纯白底+左侧竖条指示器 */
@@ -1906,7 +1906,7 @@ body{
 .wp-yg-cell.active.current-week::after{background:#fff}
 .wp-yg-cell.has-data::before{content:'';position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:3px;height:3px;background:#1B6EC4;border-radius:50%}
 .wp-yg-cell.active.has-data::before{background:#fff}
-.wp-sidebar-plan-item.active{color:#fff;font-weight:600;background:#1B6EC4;border-color:#1B6EC4}
+.wp-sidebar-plan-item.active{color:#fff;font-weight:600;background:#3B7DB4;border-color:#3B7DB4}
 .wp-sidebar-plan-item .wp-plan-meta{font-size:10px;color:#9ca3af;margin-top:2px;font-weight:400}
 .wp-sidebar-plan-item.active .wp-plan-meta{color:rgba(255,255,255,.8)}
 .wp-sidebar-plan-item .week-label{font-size:12px;font-weight:600}
@@ -1929,8 +1929,8 @@ body{
 .wp-toolbar button:hover{background:#E8F4FE;border-color:#005BB5;color:#005BB5}
 .wp-toolbar button:active{background:#D0E8FD;border-color:#004A9E}
 /* 第一类：基准蓝填充主按钮（提交/保存等核心操作） */
-.wp-toolbar button.wp-btn-primary{background:#0F7BE1;color:#fff;border:1px solid #0F7BE1}
-.wp-toolbar button.wp-btn-primary:hover{background:#005BB5;border-color:#005BB5;color:#fff}
+.wp-toolbar button.wp-btn-primary{background:#3B7DB4;color:#fff;border:1px solid #3B7DB4}
+.wp-toolbar button.wp-btn-primary:hover{background:#2A6A9A;border-color:#2A6A9A;color:#fff}
 .wp-toolbar button.wp-btn-primary:disabled,.wp-toolbar button.wp-btn-disabled{background:#CBD5E1;color:#94A3B8;border-color:#CBD5E1;cursor:not-allowed}
 /* 第一类：删除危险按钮 */
 .wp-toolbar button.wp-btn-warn{background:#fff;color:#dc2626;border:1px solid #dc2626;font-weight:500}
@@ -2151,8 +2151,8 @@ table.collab-table tbody tr:hover{background:#fffdf5}
 .wp-custom-option{display:flex;align-items:center;height:24px;padding:0;font-size:13px;color:#0F2C4B;cursor:pointer;white-space:nowrap;border-radius:6px;margin:0 -8px;padding:0 8px}
 .wp-custom-option:hover{background:rgba(0,0,0,.04)}
 .wp-custom-option.active{background:rgba(59,130,246,.08);font-weight:500;color:#1d4ed8}
-.wp-btn-myplan{padding:7px 18px;margin-left:12px;border:none;border-radius:8px;background:#0F7BE1;color:#fff;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .15s}
-.wp-btn-myplan:hover{background:#005BB5}
+.wp-btn-myplan{padding:7px 18px;margin-left:12px;border:none;border-radius:8px;background:#3B7DB4;color:#fff;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .15s}
+.wp-btn-myplan:hover{background:#2A6A9A}
 
 @media(max-width:768px){
   .wp-layout{flex-direction:column}
