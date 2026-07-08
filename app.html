@@ -16792,8 +16792,21 @@ function renderWPPlanList(year,month){
 }
 
 // ★ V0.4.91s: 全年53周快速导航网格
-function _absWeek(y,m,w){return(m-1)*4+w;}
-function _fromAbsWeek(aw){var m=Math.ceil(aw/4);var w=((aw-1)%4)+1;return{month:m,week:w};}
+function _absWeek(y,m,w){
+  var WEEKS=[4,4,5,4,4,5,4,4,5,4,4,5];
+  var sum=0;
+  for(var i=1;i<m;i++){sum+=WEEKS[i-1];}
+  return sum+w;
+}
+function _fromAbsWeek(aw){
+  var WEEKS=[4,4,5,4,4,5,4,4,5,4,4,5];
+  var month=1, week=aw;
+  for(var i=0;i<12;i++){
+    if(week<=WEEKS[i]){month=i+1;break;}
+    week-=WEEKS[i];
+  }
+  return{month:month,week:week};
+}
 
 // ★ V0.5.8: 获取系统当前日期的ISO周数（用于年周度网格标识当前周）
 function getISOWeek(date){
