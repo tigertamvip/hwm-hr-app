@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.5.20">
+<meta name="version" content="V0.5.21">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -16632,6 +16632,12 @@ function onWPMonthChange(){
   var month=mEl?parseInt(mEl.value):(new Date().getMonth()+1);
   syncMonthLabel();
   loadWPData();
+  // ★ V0.5.21: 月份切换时自动定位到该月1日对应的ISO周
+  var isoWeek=getFirstDayISOWeek(year,month);
+  var mapped=isoWeekToMonthWeek(isoWeek);
+  _wpCurrent={year:year,month:mapped.month,week:mapped.week,plan:null};
+  var plan=getWP(year,mapped.month,mapped.week);
+  if(plan)_wpCurrent.plan=plan;
   renderWPPlanList(year,month);
 }
 
@@ -16771,13 +16777,26 @@ function _absWeek(y,m,w){return(m-1)*4+w;}
 function _fromAbsWeek(aw){var m=Math.ceil(aw/4);var w=((aw-1)%4)+1;return{month:m,week:w};}
 
 // ★ V0.5.8: 获取系统当前日期的ISO周数（用于年周度网格标识当前周）
-function getCurrentISOWeek(){
-  var d=new Date();
-  d=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));
+function getISOWeek(date){
+  var d=new Date(Date.UTC(date.getFullYear(),date.getMonth(),date.getDate()));
   d.setUTCDate(d.getUTCDate()+4-(d.getUTCDay()||7));
   var yearStart=new Date(Date.UTC(d.getUTCFullYear(),0,1));
-  var weekNo=Math.ceil(((d-yearStart)/86400000+1)/7);
-  return{year:d.getUTCFullYear(),week:weekNo};
+  return Math.ceil(((d-yearStart)/86400000+1)/7);
+}
+function getCurrentISOWeek(){
+  var d=new Date();
+  return{year:d.getFullYear(),week:getISOWeek(d)};
+}
+
+// ★ V0.5.21: 月份切换时自动定位到该月1日对应的ISO周
+function getFirstDayISOWeek(year,month){
+  return getISOWeek(new Date(year,month-1,1));
+}
+function isoWeekToMonthWeek(isoWeek){
+  var m=Math.ceil(isoWeek/4);
+  var w=((isoWeek-1)%4)+1;
+  if(m>12){m=12;w=4;} // 边界保护：ISO周53超出48周时锁定12月第4周
+  return{month:m,week:w};
 }
 
 function renderWPYearGrid(year){
