@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.5.53">
+<meta name="version" content="V0.5.54">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -18090,7 +18090,7 @@ function startEditCell(cell){
       document.body.appendChild(_gdd);
       var _gcr=cell.getBoundingClientRect();_gdd.style.left=(_gcr.left-2)+'px';_gdd.style.width=Math.max(_gcr.width,130)+'px';
       _gdd.style.top=(_gcr.bottom+4)+'px';_gdd.style.maxHeight=Math.min(window.innerHeight-_gcr.bottom-8,160)+'px';
-      setTimeout(function(){document.addEventListener('click',function _onGBody(e){if(!_gdd.contains(e.target)&&!cell.contains(e.target)){_gdd.style.display='none';if(_gdd.parentNode)_gdd.parentNode.removeChild(_gdd);document.removeEventListener('click',_onGBody);}});},0);
+      setTimeout(function(){document.addEventListener('click',function _onGBody(e){if(!_gdd.contains(e.target)&&!cell.contains(e.target)){_gdd.style.display='none';if(_gdd.parentNode)_gdd.parentNode.removeChild(_gdd);document.removeEventListener('click',_onGBody);cell.classList.remove('editing');_wpEditCell=null;}});},0);
       return;
     }
     var s='<select class="wp-cell-select" onchange="commitEditCell(this)"><option value="">--</option>';
@@ -18139,6 +18139,11 @@ async function commitEditCell(el){
       var tc=cell.textContent||'';
       var sMap={'按时完成':'按时完成','进行中':'进行中','逾期完成':'逾期完成','暂停中':'暂停中'};
       for(var sk in sMap){if(tc.indexOf(sk)>=0){newVal=sMap[sk];break;}}
+    }
+    // ★ V0.5.54: 优先级字段自定义下拉无 input，从 cell 文本提取（防御性修复）
+    if(!newVal && field && field.indexOf('.goal')>=0){
+      var tc2=cell.textContent||'';
+      for(var gi=0;gi<WP_GOAL_OPTIONS.length;gi++){if(tc2.indexOf(WP_GOAL_OPTIONS[gi])>=0){newVal=WP_GOAL_OPTIONS[gi];break;}}
     }
 
     cell.classList.remove('editing');
