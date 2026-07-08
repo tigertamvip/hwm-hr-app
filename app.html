@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.5.26">
+<meta name="version" content="V0.5.27">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2078,7 +2078,7 @@ table.collab-table tbody tr:hover{background:#fffdf5}
 .wp-progress-row{display:flex;align-items:center;gap:6px;margin:3px 0}
 .wp-progress-label{font-size:10px;color:#4b5563;width:48px;flex-shrink:0;text-align:right}
 .wp-progress-bar-wrap{flex:1;height:10px;background:#e5e7eb;border-radius:5px;overflow:hidden}
-.wp-progress-bar-fill{height:100%;background:linear-gradient(90deg,#10b981,#059669);border-radius:5px;transition:width .4s ease}
+.wp-progress-bar-fill{height:100%;background:linear-gradient(90deg,rgba(16,185,129,.5),rgba(5,150,105,.5));border-radius:5px;transition:width .4s ease;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);box-shadow:inset 0 1px 3px rgba(255,255,255,.25)}
 .wp-progress-num{font-size:10px;color:#6b7280;width:64px;flex-shrink:0;white-space:nowrap}
 .wp-card-tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:500;background:#EEF1F5;color:#2A476A}
 .wp-card-tag.green,.wp-card-tag.blue,.wp-card-tag.red,.wp-card-tag.gray{background:#EEF1F5;color:#2A476A}
@@ -18445,10 +18445,14 @@ var _EM_POS_MAP={'重要紧急':{x:'right',y:'top'},'重要不急':{x:'left',y:'
 function _renderEisenhowerMatrix(year){
   var tasks=_collectYearTasks(year);
   var html='<div class="wp-card">';
-  html+='<div class="wp-card-title">🎯 艾森豪威尔矩阵</div>';
+  var toggleIcon=_matrixExpanded?'▲':'▼';
+  var toggleText=_matrixExpanded?'收起':'展开';
+  var contentStyle=_matrixExpanded?'transition:max-height .4s ease,opacity .3s ease;overflow:hidden':'transition:max-height .4s ease,opacity .3s ease;overflow:hidden;max-height:0;opacity:0';
+  html+='<div class="wp-card-title">🎯 艾森豪威尔矩阵<button type="button" onclick="toggleEisenhowerMatrix()" id="matrixToggleBtn" style="margin-left:auto;padding:2px 10px;border:1px solid #d1d5db;border-radius:6px;background:#fff;color:#6b7280;font-size:11px;font-weight:400;cursor:pointer;display:inline-flex;align-items:center;gap:3px;transition:all .25s ease;white-space:nowrap"><span id="matrixToggleIcon">'+toggleIcon+'</span><span id="matrixToggleText">'+toggleText+'</span></button></div>';
+  html+='<div id="matrixContent" style="'+contentStyle+'">';
   if(tasks.length===0){
     html+='<div style="text-align:center;color:#9ca3af;font-size:11px;padding:40px 0">暂无年度计划数据</div>';
-    html+='</div>'; return html;
+    html+='</div></div>'; return html;
   }
   // 按优先级分四个象限
   var quads={'重要紧急':[],'重要不急':[],'日常紧急':[],'日常事项':[]};
@@ -18514,6 +18518,7 @@ function _renderEisenhowerMatrix(year){
     var lab=allQuads[qi].replace('重要紧急','⚡重急').replace('重要不急','📌重不急').replace('日常紧急','🔥日急').replace('日常事项','📋日常');
     html+='<div style="padding:2px 4px;background:#F8FAFB;border-radius:3px">'+lab+' <b style="color:#374151">'+quads[allQuads[qi]].length+'</b></div>';
   }
+  html+='</div>';
   html+='</div>';
   html+='</div>';
   return html;
@@ -19121,6 +19126,7 @@ function calcAverage(arr) {
 // ★ V0.3.36: AI 综合分析折叠/展开
 var _aiExpanded = false;
 var _progressExpanded = true;
+var _matrixExpanded = true;
 function toggleAIAnalysis(){
   _aiExpanded = !_aiExpanded;
   var el = document.getElementById('aiAnalysisContent');
@@ -19157,6 +19163,25 @@ function toggleAnnualProgress(){
   if(!el) return;
   if(_progressExpanded){
     el.style.maxHeight = '300px';
+    el.style.opacity = '1';
+    icon.textContent = '▲';
+    text.textContent = '收起';
+  }else{
+    el.style.maxHeight = '0';
+    el.style.opacity = '0';
+    icon.textContent = '▼';
+    text.textContent = '展开';
+  }
+}
+// ★ V0.5.27: 艾森豪威尔矩阵折叠/展开
+function toggleEisenhowerMatrix(){
+  _matrixExpanded = !_matrixExpanded;
+  var el = document.getElementById('matrixContent');
+  var icon = document.getElementById('matrixToggleIcon');
+  var text = document.getElementById('matrixToggleText');
+  if(!el) return;
+  if(_matrixExpanded){
+    el.style.maxHeight = '600px';
     el.style.opacity = '1';
     icon.textContent = '▲';
     text.textContent = '收起';
