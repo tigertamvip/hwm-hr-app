@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.5.13">
+<meta name="version" content="V0.5.14">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1892,18 +1892,18 @@ body{
 .wp-sidebar-plan-item{padding:6px 2px;border-radius:6px;font-size:11px;cursor:pointer;transition:all .12s;color:#6b7280;background:#F8FAFB;border:1px solid #e5e7eb;text-align:center;position:relative;min-height:40px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}
 .wp-sidebar-plan-item:hover{background:#E8F4FE;color:#0F7BE1;border-color:#0F7BE1}
 /* ★ V0.4.91s: 全年53周快速导航网格 */
-.wp-year-grid{display:flex;justify-content:center;padding:6px 0 4px;margin-top:4px;border-top:1px solid #e5e7eb}
-.wp-year-grid-title{font-size:11px;color:#1E3A5F;font-weight:600;text-align:center;padding:2px 0 6px;letter-spacing:.3px}
-.wp-year-grid-grid{display:grid;grid-template-columns:repeat(6,28px);column-gap:3px;row-gap:2px;justify-items:center}
-.wp-yg-cell{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:5px;font-size:11px;color:#6b7280;cursor:pointer;transition:all .12s;position:relative;user-select:none}
+.wp-year-grid{display:flex;justify-content:center;padding:4px 0 2px;margin-top:2px;border-top:1px solid #e5e7eb}
+.wp-year-grid-title{font-size:10px;color:#1E3A5F;font-weight:600;text-align:center;padding:2px 0 4px;letter-spacing:.3px}
+.wp-year-grid-grid{display:grid;grid-template-columns:repeat(6,24px);column-gap:2px;row-gap:1px;justify-items:center}
+.wp-yg-cell{width:24px;height:24px;display:flex;align-items:center;justify-content:center;border-radius:4px;font-size:10px;color:#6b7280;cursor:pointer;transition:all .12s;position:relative;user-select:none}
 .wp-yg-cell:hover{background:#E2E8F0;color:#374151}
 .wp-yg-cell.active{background:#1B6EC4;color:#fff;font-weight:600}
 /* ★ 系统当前周：深蓝文字 + 底部蓝色短横线（独立于用户选中） */
 .wp-yg-cell.current-week{color:#1B6EC4;font-weight:700}
-.wp-yg-cell.current-week::after{content:'';position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:14px;height:2px;background:#4DD1FF;border-radius:1px}
+.wp-yg-cell.current-week::after{content:'';position:absolute;bottom:1px;left:50%;transform:translateX(-50%);width:12px;height:2px;background:#4DD1FF;border-radius:1px}
 /* 同时是当前周又是选中周：蓝线变白 */
 .wp-yg-cell.active.current-week::after{background:#fff}
-.wp-yg-cell.has-data::before{content:'';position:absolute;bottom:3px;left:50%;transform:translateX(-50%);width:4px;height:4px;background:#1B6EC4;border-radius:50%}
+.wp-yg-cell.has-data::before{content:'';position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:3px;height:3px;background:#1B6EC4;border-radius:50%}
 .wp-yg-cell.active.has-data::before{background:#fff}
 .wp-sidebar-plan-item.active{color:#fff;font-weight:600;background:#1B6EC4;border-color:#1B6EC4}
 .wp-sidebar-plan-item .wp-plan-meta{font-size:10px;color:#9ca3af;margin-top:2px;font-weight:400}
