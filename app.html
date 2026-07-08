@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.5.40">
+<meta name="version" content="V0.5.41">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1899,8 +1899,8 @@ body{
 .wp-yg-cell:hover{background:#E2E8F0;color:#374151}
 .wp-yg-cell.active{background:#1B6EC4;color:#fff;font-weight:600}
 /* ★ 系统当前周：深蓝文字 + 底部蓝色短横线（独立于用户选中） */
-.wp-yg-cell.current-week{color:#1B6EC4;font-weight:700}
-.wp-yg-cell.current-week::after{content:'';position:absolute;bottom:1px;left:50%;transform:translateX(-50%);width:12px;height:2px;background:#4DD1FF;border-radius:1px}
+.wp-yg-cell.current-week{color:#3B7DB4;font-weight:700}
+.wp-yg-cell.current-week::after{content:'';position:absolute;bottom:1px;left:50%;transform:translateX(-50%);width:12px;height:2px;background:#3B7DB4;border-radius:1px}
 /* 同时是当前周又是选中周：蓝线变白 + 文字变白 */
 .wp-yg-cell.active.current-week{color:#fff}
 .wp-yg-cell.active.current-week::after{background:#fff}
@@ -1925,8 +1925,8 @@ body{
 
 .wp-toolbar{display:flex;flex-wrap:wrap;gap:16px;padding:14px 0;margin-bottom:7px;border-bottom:1px solid var(--border);flex-shrink:0}
 /* ★ V0.3.140: 全局按钮标准化 — 三类基准样式 + 8px圆角 */
-.wp-toolbar button{padding:6px 18px;border:1px solid #0F7BE1;border-radius:8px;background:#fff;color:#0F7BE1;font-size:12px;cursor:pointer;transition:all .18s ease;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:5px;font-weight:500;min-width:118px;box-shadow:none;line-height:1.4}
-.wp-toolbar button:hover{background:#E8F4FE;border-color:#005BB5;color:#005BB5}
+.wp-toolbar button{padding:6px 18px;border:1px solid #3B7DB4;border-radius:8px;background:#fff;color:#3B7DB4;font-size:12px;cursor:pointer;transition:all .18s ease;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:5px;font-weight:500;min-width:118px;box-shadow:none;line-height:1.4}
+.wp-toolbar button:hover{background:#E8F4FE;border-color:#2A6A9A;color:#2A6A9A}
 .wp-toolbar button:active{background:#D0E8FD;border-color:#004A9E}
 /* 第一类：基准蓝填充主按钮（提交/保存等核心操作） */
 .wp-toolbar button.wp-btn-primary{background:#3B7DB4;color:#fff;border:1px solid #3B7DB4}
@@ -1935,8 +1935,8 @@ body{
 /* 第一类：删除危险按钮 */
 .wp-toolbar button.wp-btn-warn{background:#fff;color:#dc2626;border:1px solid #dc2626;font-weight:500}
 .wp-toolbar button.wp-btn-warn:hover{background:#FEF2F2;border-color:#b91c1c;color:#b91c1c}
-.wp-toolbar button.wp-btn-accent{background:#fff;color:#0F7BE1;border-color:#0F7BE1}
-.wp-toolbar button.wp-btn-accent:hover{background:#E8F4FE;border-color:#005BB5;color:#005BB5}
+.wp-toolbar button.wp-btn-accent{background:#fff;color:#3B7DB4;border-color:#3B7DB4}
+.wp-toolbar button.wp-btn-accent:hover{background:#E8F4FE;border-color:#2A6A9A;color:#2A6A9A}
 .wp-toolbar button.wp-btn-ai{background:linear-gradient(135deg,#0F7BE1 0%,#8B5CF6 40%,#A78BFA 70%,#EC4899 100%);background-size:200% 200%;color:#fff;border:none;border-radius:16px;padding:0;width:64px;height:64px;font-size:11px;font-weight:600;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 4px 14px rgba(139,92,246,.25),0 0 18px rgba(236,72,153,.08),inset 0 1px 0 rgba(255,255,255,.2);animation:aiGlow 5s ease-in-out 2;position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.5}
 .wp-toolbar button.wp-btn-ai::before{content:'';position:absolute;inset:0;border-radius:16px;background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.15) 50%,transparent 100%);background-size:200% 100%;animation:aiSlide 4s linear 2}
 @keyframes aiGlow{0%,100%{box-shadow:0 4px 14px rgba(139,92,246,.25),0 0 18px rgba(236,72,153,.08)}50%{box-shadow:0 5px 20px rgba(139,92,246,.40),0 0 28px rgba(168,85,247,.20),0 0 36px rgba(236,72,153,.10)}}
@@ -1944,8 +1944,8 @@ body{
 @keyframes aiSlide{from{transform:translateX(-100%)}to{transform:translateX(200%)}}
 .wp-toolbar button.wp-btn-ai:hover{background-position:100% 100%;box-shadow:0 6px 22px rgba(139,92,246,.45),0 0 30px rgba(168,85,247,.25),0 0 45px rgba(236,72,153,.12);transform:translateY(-2px);filter:brightness(1.05)}
 .wp-toolbar button.wp-btn-ai span{position:relative;z-index:1;text-shadow:0 1px 4px rgba(99,102,241,.4)}
-.wp-toolbar button.wp-btn-freeze{background:#fff;color:#0F7BE1;border-color:#0F7BE1}
-.wp-toolbar button.wp-btn-freeze:hover{background:#E8F4FE;border-color:#005BB5;color:#005BB5}
+.wp-toolbar button.wp-btn-freeze{background:#fff;color:#3B7DB4;border-color:#3B7DB4}
+.wp-toolbar button.wp-btn-freeze:hover{background:#E8F4FE;border-color:#2A6A9A;color:#2A6A9A}
 .wp-toolbar button:disabled,.wp-toolbar button.wp-btn-disabled:not(.wp-btn-primary){background:#F2F4F8;color:#94A3B8;border-color:#CBD5E1;cursor:not-allowed}
 /* ★ V0.1.30: 锁定视觉提示 — 本周重点工作/优先级/计划完成日期被锁定 */
 .wp-table td.wp-cell-frozen{border-left:3px solid #3b82f6!important;border-right:none!important;position:relative;background:rgba(59,130,246,.04);cursor:not-allowed!important}
@@ -2143,8 +2143,8 @@ table.collab-table tbody tr:hover{background:#fffdf5}
 .wp-sub-select>.wp-custom-select{flex:0 1 auto;min-width:160px;max-width:200px}
 .wp-sub-select>.wp-btn-myplan{flex:0 0 auto}
 .wp-custom-select{/* position:relative removed — breaks position:fixed in child dropdown */}
-.wp-custom-trigger{padding:6px 22px 6px 14px;border-radius:8px;border:1px solid #0F7BE1;background:#fff;color:#0F7BE1;font-size:13px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;user-select:none;transition:all .15s}
-.wp-custom-trigger:hover{background:#E8F4FE;border-color:#005BB5;color:#005BB5}
+.wp-custom-trigger{padding:6px 22px 6px 14px;border-radius:8px;border:1px solid #3B7DB4;background:#fff;color:#3B7DB4;font-size:13px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;user-select:none;transition:all .15s}
+.wp-custom-trigger:hover{background:#E8F4FE;border-color:#2A6A9A;color:#2A6A9A}
 .wp-custom-dropdown{position:fixed;background:rgba(252,252,253,.55);border:1px solid rgba(200,205,212,.4);border-radius:8px;box-shadow:0 4px 6px rgba(0,0,0,.04),0 10px 24px rgba(0,0,0,.08),0 24px 64px rgba(0,0,0,.06);overflow-y:auto;z-index:9999;padding:12px 16px;backdrop-filter:blur(20px) saturate(1.4);-webkit-backdrop-filter:blur(20px) saturate(1.4)}
 .wp-dropdown-scroll-hint{display:flex;align-items:center;justify-content:center;gap:4px;padding:6px 0 4px;color:#9ca3af;font-size:11px;pointer-events:none;animation:scrollHintPulse 1.5s ease-in-out infinite}
 @keyframes scrollHintPulse{0%,100%{opacity:.5;transform:translateY(0)}50%{opacity:1;transform:translateY(2px)}}
