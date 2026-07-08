@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.4.91r">
+<meta name="version" content="V0.4.91s">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1891,6 +1891,17 @@ body{
 .wp-sidebar-plan-list{flex:1;overflow-y:auto;margin-top:4px}
 .wp-sidebar-plan-item{padding:8px 10px;border-radius:6px;font-size:12px;cursor:pointer;transition:all .12s;color:#6b7280;margin-bottom:3px;position:relative}
 .wp-sidebar-plan-item:hover{background:rgba(42,71,106,.06);color:#2A476A}
+/* ★ V0.4.91s: 全年53周快速导航网格 */
+.wp-year-grid{padding:6px 8px 4px;margin-top:4px}
+.wp-year-grid-title{font-size:11px;color:#1E3A5F;font-weight:600;text-align:center;padding:2px 0 6px;letter-spacing:.3px}
+.wp-year-grid-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:3px;justify-items:center}
+.wp-yg-cell{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:5px;font-size:11px;color:#6b7280;cursor:pointer;transition:all .12s;position:relative;user-select:none}
+.wp-yg-cell:hover{background:#E2E8F0;color:#374151}
+.wp-yg-cell.active{background:#1B6EC4;color:#fff;font-weight:600}
+/* ★ 当前周底部蓝色短横线 */
+.wp-yg-cell.active::after{content:'';position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:14px;height:2px;background:#4DD1FF;border-radius:1px}
+.wp-yg-cell.has-data::before{content:'';position:absolute;bottom:3px;left:50%;transform:translateX(-50%);width:4px;height:4px;background:#1B6EC4;border-radius:50%}
+.wp-yg-cell.active.has-data::before{background:#fff}
 .wp-sidebar-plan-item.active{color:#002D4E;font-weight:600;background:#E8EDF2;border-radius:6px;padding-left:10px}
 .wp-sidebar-plan-item .wp-plan-meta{font-size:10px;color:#9ca3af;margin-top:2px}
 .wp-sidebar-plan-item.active .wp-plan-meta{color:#6b7280}
@@ -2639,6 +2650,8 @@ table.collab-table tbody tr:hover{background:#fffdf5}
       <div class="wp-sidebar-plan-list" id="wpPlanList">
         <div style="text-align:center;color:var(--text-hint);font-size:11px;padding:20px 0">请先选择年度和月份</div>
       </div>
+      <!-- ★ V0.4.91s: 全年53周快速导航网格 -->
+      <div class="wp-year-grid" id="wpYearGrid" style="display:none"></div>
       <div class="wp-sidebar-divider"></div>
       <button class="kpi-new-btn" onclick="createNewWP()">＋ 新建周计划</button>
     </div>
@@ -16731,6 +16744,52 @@ function renderWPPlanList(year,month){
     html+='<div class="wp-sidebar-plan-item'+(active?' active':'')+'" onclick="selectWP('+year+','+month+','+w+')">第'+w+'周'+delBtn+'<div class="wp-plan-meta">'+info+'</div></div>';
   }
   list.innerHTML=html;
+  // ★ V0.4.91s: 同步渲染全年周度导航网格
+  renderWPYearGrid(year);
+}
+
+// ★ V0.4.91s: 全年53周快速导航网格
+function _absWeek(y,m,w){return(m-1)*4+w;}
+function _fromAbsWeek(aw){var m=Math.ceil(aw/4);var w=((aw-1)%4)+1;return{month:m,week:w};}
+
+function renderWPYearGrid(year){
+  var grid=document.getElementById('wpYearGrid');
+  if(!grid)return;grid.style.display='block';
+  // 收集全年各周数据状态
+  var dataMap={};
+  for(var m=1;m<=12;m++){
+    for(var w=1;w<=4;w++){
+      var p=getWP(year,m,w);
+      if(p && p.tasks.some(function(t){return t.work;})) dataMap[_absWeek(year,m,w)]=true;
+    }
+  }
+  // 当前选中的绝对周号
+  var currAbs=null;
+  if(_wpCurrent&&_wpCurrent.year===year) currAbs=_absWeek(year,_wpCurrent.month,_wpCurrent.week);
+  // 构建网格
+  var html='<div class="wp-year-grid-title">'+year+'年全年周度</div>';
+  html+='<div class="wp-year-grid-grid">';
+  for(var i=1;i<=53;i++){
+    var cls='wp-yg-cell';
+    if(i===currAbs)cls+=' active';
+    if(dataMap[i])cls+=' has-data';
+    html+='<div class="'+cls+'" data-aw="'+i+'" title="第'+i+'周">'+i+'</div>';
+  }
+  html+='</div>';
+  grid.innerHTML=html;
+  // 绑定点击事件
+  setTimeout(function(){
+    grid.querySelectorAll('.wp-yg-cell').forEach(function(cell){
+      cell.onclick=function(){
+        var aw=parseInt(cell.getAttribute('data-aw'));
+        var mw=_fromAbsWeek(aw);
+        // 切换月份下拉到目标月
+        var mEl=document.getElementById('wpMonth');
+        if(mEl){mEl.value=mw.month;syncMonthLabel();}
+        selectWP(year,mw.month,mw.week);
+      };
+    });
+  },10);
 }
 
 async function delWPFromSidebar(y,m,w){
