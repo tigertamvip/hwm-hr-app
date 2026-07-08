@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.5.49">
+<meta name="version" content="V0.5.50">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -16429,7 +16429,6 @@ function switchToMyWP(){
   _wpViewingDeptMember=null;
   _wpRevisionMode=false;
   _wpCurrent={year:null,month:null,week:null,plan:null};
-  // 清空两个下拉框的选中状态  // 清空两个下拉框的选中状态
   _wpSubData.selected='';
   var triggerText=document.getElementById('wpSubTriggerText');
   if(triggerText){triggerText.textContent='直属下属周计划';triggerText.style.color='';}
@@ -16440,27 +16439,20 @@ function switchToMyWP(){
   renderWPUserInfo();
   renderWPSubSelect();
   showWPEmpty();
-  onWPMonthChange();
-  // ★ V0.3.69: 自动选中当前时间对应的周（默认回到"我的本周计划"）
+  
+  // ★ V0.5.50: 同步计算当前周并选中，避免双重渲染导致的跳动
   var now=new Date();
   var autoY=now.getFullYear();
   var autoM=now.getMonth()+1;
-  // 计算当前是本月第几周：取当月1日，逐周+7天判断今天落在哪段
-  var firstDay=new Date(autoY,autoM-1,1);
-  var fd=firstDay.getDay()||7; // 周日=7 → 7
-  // 本月第1个周一距离1号的天数（若1号就是周一则偏移0）
-  var monOffset=(fd<=1)?(1-fd):(8-fd);
-  var firstMon=new Date(autoY,autoM-1,1+monOffset);
-  for(var w=1;w<=4;w++){
-    var weekStart=new Date(firstMon); weekStart.setDate(firstMon.getDate()+(w-1)*7);
-    var weekEnd=new Date(weekStart); weekEnd.setDate(weekStart.getDate()+6); // 周日
-    if(now>=weekStart && now<=weekEnd){
-      setTimeout(function(){try{selectWP(autoY,autoM,w);}catch(e){console.warn('auto-selectWP in switchToMyWP failed:',e);} },100);
-      return;
-    }
-  }
-  // 超出4周范围则选第4周兜底
-  setTimeout(function(){try{selectWP(autoY,autoM,4);}catch(e){console.warn('auto-selectWP fallback in switchToMyWP failed:',e);} },100);
+  var yEl=document.getElementById('wpYear');
+  var mEl=document.getElementById('wpMonth');
+  if(yEl) yEl.value=autoY;
+  if(mEl) mEl.value=autoM;
+  syncMonthLabel();
+  
+  var currInfo=getCurrentISOWeek();
+  var mapped=isoWeekToMonthWeek(currInfo.week);
+  selectWP(autoY, mapped.month, mapped.week);
 }
 
 // ★ V0.2.40: 自定义下拉组件 — 替代原生select，小圆角+不遮挡
@@ -16826,10 +16818,14 @@ function getFirstDayISOWeek(year,month){
   return getISOWeek(new Date(year,month-1,1));
 }
 function isoWeekToMonthWeek(isoWeek){
-  var m=Math.ceil(isoWeek/4);
-  var w=((isoWeek-1)%4)+1;
-  if(m>12){m=12;w=4;} // 边界保护：ISO周53超出48周时锁定12月第4周
-  return{month:m,week:w};
+  var WEEKS=[4,4,5,4,4,5,4,4,5,4,4,5];
+  var month=1, week=isoWeek;
+  for(var i=0;i<12;i++){
+    if(week<=WEEKS[i]){month=i+1;break;}
+    week-=WEEKS[i];
+  }
+  if(month>12){month=12;week=Math.min(week,4);}
+  return{month:month,week:week};
 }
 
 function renderWPYearGrid(year){
