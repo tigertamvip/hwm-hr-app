@@ -1937,8 +1937,8 @@ body{
 .wp-toolbar button.wp-btn-warn:hover{background:#FEF2F2;border-color:#b91c1c;color:#b91c1c}
 .wp-toolbar button.wp-btn-accent{background:#fff;color:#0F7BE1;border-color:#0F7BE1}
 .wp-toolbar button.wp-btn-accent:hover{background:#E8F4FE;border-color:#005BB5;color:#005BB5}
-.wp-toolbar button.wp-btn-ai{background:linear-gradient(135deg,#0F7BE1 0%,#8B5CF6 40%,#A78BFA 70%,#EC4899 100%);background-size:200% 200%;color:#fff;border:none;border-radius:10px;padding:9px 24px;font-size:13px;font-weight:600;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 4px 14px rgba(139,92,246,.25),0 0 18px rgba(236,72,153,.08),inset 0 1px 0 rgba(255,255,255,.2);animation:aiGlow 5s ease-in-out 2;position:relative;overflow:hidden}
-.wp-toolbar button.wp-btn-ai::before{content:'';position:absolute;inset:0;border-radius:10px;background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.15) 50%,transparent 100%);background-size:200% 100%;animation:aiSlide 4s linear 2}
+.wp-toolbar button.wp-btn-ai{background:linear-gradient(135deg,#0F7BE1 0%,#8B5CF6 40%,#A78BFA 70%,#EC4899 100%);background-size:200% 200%;color:#fff;border:none;border-radius:16px;padding:0;width:64px;height:64px;font-size:11px;font-weight:600;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 4px 14px rgba(139,92,246,.25),0 0 18px rgba(236,72,153,.08),inset 0 1px 0 rgba(255,255,255,.2);animation:aiGlow 5s ease-in-out 2;position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.5}
+.wp-toolbar button.wp-btn-ai::before{content:'';position:absolute;inset:0;border-radius:16px;background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.15) 50%,transparent 100%);background-size:200% 100%;animation:aiSlide 4s linear 2}
 @keyframes aiGlow{0%,100%{box-shadow:0 4px 14px rgba(139,92,246,.25),0 0 18px rgba(236,72,153,.08)}50%{box-shadow:0 5px 20px rgba(139,92,246,.40),0 0 28px rgba(168,85,247,.20),0 0 36px rgba(236,72,153,.10)}}
 @keyframes aiShimmer{0%{background-position:-100% 0}100%{background-position:200% 0}}
 @keyframes aiSlide{from{transform:translateX(-100%)}to{transform:translateX(200%)}}
@@ -17621,7 +17621,7 @@ function renderWPTable(plan){
     if(plan.bossEvaluated){
       html+='<button onclick="viewBossEval()"><span style="color:#2A476A">📋</span> 查看上级评价</button>';
     }
-    html+='<button class="wp-btn-ai" onclick="aiAssessWP()" style="margin-left:auto"><span style="color:rgba(255,255,255,.7)">🤖</span> AI-分析建议</button>';
+    html+='<button class="wp-btn-ai" onclick="aiAssessWP()" style="margin-left:auto"><span style="line-height:1.5">AI<br>分析建议</span></button>';
   }
   // 安全兜底：确保工具栏至少有一个可见按钮（防止所有分支都未命中导致空白）
   if(html.indexOf('<button', html.lastIndexOf('wpToolbar')) < 0){
@@ -19313,11 +19313,11 @@ async function aiAssessWP() {
     saveWP(p.year, p.month, p.week, p);
     renderWPTable(p);
 
-    if (btn) { btn.disabled = false; btn.textContent = '🤖 AI-分析建议'; }
+    if (btn) { btn.disabled = false; btn.innerHTML = '<span style="line-height:1.5">AI<br>分析建议</span>'; }
     _showAlert('AI 综合分析已生成，请查看下方「🤖 AI 综合分析」区域。');
   } catch (e) {
     console.error('[AI] 分析失败:', e);
-    if (btn) { btn.disabled = false; btn.textContent = '🤖 AI-分析建议'; }
+    if (btn) { btn.disabled = false; btn.innerHTML = '<span style="line-height:1.5">AI<br>分析建议</span>'; }
     _showAlert('AI 分析失败：' + (e.message || '未知错误'));
   }
 }
