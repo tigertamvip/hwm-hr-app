@@ -18997,7 +18997,6 @@ function saveWPFeedback(field, value) {
     p.supervisorReview.content = value;
     p.supervisorReview.reviewerName = (currentUser && currentUser.name) || '未知';
     p.supervisorReview.updatedAt = new Date().toISOString().split('T')[0];
-    p.bossEvaluated = true;
   } else if (field === 'skipLevelSuggestion') {
     if (!p.skipLevelSuggestion) p.skipLevelSuggestion = {};
     p.skipLevelSuggestion.content = value;
