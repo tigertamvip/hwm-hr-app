@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.5.31">
+<meta name="version" content="V0.5.32">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1893,7 +1893,7 @@ body{
 .wp-sidebar-plan-item:hover{background:#E8F4FE;color:#0F7BE1;border-color:#0F7BE1}
 /* ★ V0.4.91s: 全年53周快速导航网格 */
 .wp-year-grid{display:flex;justify-content:center;padding:4px 0 2px;margin-top:2px;border-top:1px solid #e5e7eb}
-.wp-year-grid-title{font-size:10px;color:#1E3A5F;font-weight:600;text-align:center;padding:2px 0 4px;letter-spacing:.3px}
+.wp-year-grid-title{font-size:11px;color:#1E3A5F;font-weight:600;text-align:center;padding:2px 0 4px;letter-spacing:.3px;display:flex;align-items:center;justify-content:center;gap:4px;cursor:pointer}
 .wp-year-grid-grid{display:grid;grid-template-columns:repeat(6,1fr);column-gap:2px;row-gap:1px;justify-items:center;width:100%}
 .wp-yg-cell{width:24px;height:24px;display:flex;align-items:center;justify-content:center;border-radius:4px;font-size:10px;color:#6b7280;cursor:pointer;transition:all .12s;position:relative;user-select:none}
 .wp-yg-cell:hover{background:#E2E8F0;color:#374151}
@@ -16826,7 +16826,10 @@ function renderWPYearGrid(year){
   var nowInfo=getCurrentISOWeek();
   var sysWeek=(nowInfo.year===year)?nowInfo.week:null;
   // 构建网格
-  var html='<div class="wp-year-grid-title">'+year+'年全年周度</div>';
+  var toggleIcon = _yearGridExpanded ? '▲' : '▼';
+  var contentStyle = _yearGridExpanded ? 'transition:max-height .35s ease,opacity .25s ease;overflow:hidden' : 'transition:max-height .35s ease,opacity .25s ease;overflow:hidden;max-height:0;opacity:0';
+  var html='<div class="wp-year-grid-title" onclick="toggleYearGrid()">'+year+'年全年周度 <span id="wpYearGridToggle" style="font-size:9px;color:#6b7280;cursor:pointer">'+toggleIcon+'</span></div>';
+  html+='<div id="wpYearGridContent" style="'+contentStyle+'">';
   html+='<div class="wp-year-grid-grid">';
   for(var i=1;i<=53;i++){
     var cls='wp-yg-cell';
@@ -16835,6 +16838,7 @@ function renderWPYearGrid(year){
     if(dataMap[i])cls+=' has-data';
     html+='<div class="'+cls+'" data-aw="'+i+'" title="第'+i+'周">'+i+'</div>';
   }
+  html+='</div>';
   html+='</div>';
   grid.innerHTML=html;
   // 绑定点击事件
@@ -19212,6 +19216,22 @@ function toggleWPCard(cardId){
   if(!el) return;
   if(_wpCardExpanded[cardId]){
     el.style.maxHeight = '800px';
+    el.style.opacity = '1';
+    if(btn) btn.textContent = '▲';
+  }else{
+    el.style.maxHeight = '0';
+    el.style.opacity = '0';
+    if(btn) btn.textContent = '▼';
+  }
+}
+var _yearGridExpanded = false;
+function toggleYearGrid(){
+  _yearGridExpanded = !_yearGridExpanded;
+  var el = document.getElementById('wpYearGridContent');
+  var btn = document.getElementById('wpYearGridToggle');
+  if(!el) return;
+  if(_yearGridExpanded){
+    el.style.maxHeight = '500px';
     el.style.opacity = '1';
     if(btn) btn.textContent = '▲';
   }else{
