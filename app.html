@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.5.27">
+<meta name="version" content="V0.5.28">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -18598,7 +18598,8 @@ function _renderTimeManagementPanel(plan){
 
   // ★ Card 1: 计分规则（V0.4.91 新规则）
   html+='<div class="wp-card">';
-  html+='<div class="wp-card-title">📋 计分规则</div>';
+  html+='<div class="wp-card-title">📋 计分规则<button type="button" onclick="toggleWPCard(\'rules\')" id="wpCardBtn_rules" style="margin-left:auto;padding:2px 8px;border:1px solid #d1d5db;border-radius:6px;background:#fff;color:#6b7280;font-size:10px;font-weight:400;cursor:pointer;display:inline-flex;align-items:center;gap:2px;transition:all .25s ease;white-space:nowrap">▲</button></div>';
+  html+='<div id="wpCardContent_rules" style="transition:max-height .35s ease,opacity .25s ease;overflow:hidden">';
   html+='<table class="wp-card-table">';
   html+='<tr><td><span style="color:#059669;margin-right:6px">✓</span>周六12:00前提交</td><td class="td-val td-pos" style="width:24px">✓</td></tr>';
   html+='<tr><td><span style="color:#059669;margin-right:6px">✓</span>上级周一12:00评价</td><td class="td-val td-pos">✓</td></tr>';
@@ -18608,10 +18609,12 @@ function _renderTimeManagementPanel(plan){
   html+='<tr><td style="font-size:9px;color:#6b7280;padding-top:6px;border-top:1px solid #e5e7eb;white-space:pre-line" colspan="2">注：\n任务宽限期：5个工作日<span style="color:#9ca3af">（排除周末+法定节假日）</span></td></tr>';
   html+='</table>';
   html+='</div>';
+  html+='</div>';
 
   // ★ Card 2: 评分标准（V0.4.91 新分值）
   html+='<div class="wp-card">';
-  html+='<div class="wp-card-title">📊 评分标准</div>';
+  html+='<div class="wp-card-title">📊 评分标准<button type="button" onclick="toggleWPCard(\'scores\')" id="wpCardBtn_scores" style="margin-left:auto;padding:2px 8px;border:1px solid #d1d5db;border-radius:6px;background:#fff;color:#6b7280;font-size:10px;font-weight:400;cursor:pointer;display:inline-flex;align-items:center;gap:2px;transition:all .25s ease;white-space:nowrap">▲</button></div>';
+  html+='<div id="wpCardContent_scores" style="transition:max-height .35s ease,opacity .25s ease;overflow:hidden">';
   html+='<table class="wp-card-table">';
   html+='<tr><td></td><td class="td-val" style="color:#6b7280;font-weight:400;font-size:10px">按时</td><td class="td-val" style="color:#6b7280;font-weight:400;font-size:10px">逾期</td><td class="td-val" style="color:#6b7280;font-weight:400;font-size:10px">未做</td></tr>';
   html+='<tr><td>重要紧急</td><td class="td-val td-pos">+3</td><td class="td-val td-neg">−1.5</td><td class="td-val td-neg">−5</td></tr>';
@@ -18621,10 +18624,12 @@ function _renderTimeManagementPanel(plan){
   html+='<tr><td style="font-size:9px;color:#9ca3af;padding-top:6px;border-top:1px solid #e5e7eb;white-space:pre-line" colspan="4">注：\n手动选择"未做"→终止计算，积分=0</td></tr>';
   html+='</table>';
   html+='</div>';
+  html+='</div>';
 
   // ★ Card 3: 完成状态
   html+='<div class="wp-card">';
-  html+='<div class="wp-card-title">⏰ 完成状态</div>';
+  html+='<div class="wp-card-title">⏰ 完成状态<button type="button" onclick="toggleWPCard(\'status\')" id="wpCardBtn_status" style="margin-left:auto;padding:2px 8px;border:1px solid #d1d5db;border-radius:6px;background:#fff;color:#6b7280;font-size:10px;font-weight:400;cursor:pointer;display:inline-flex;align-items:center;gap:2px;transition:all .25s ease;white-space:nowrap">▲</button></div>';
+  html+='<div id="wpCardContent_status" style="transition:max-height .35s ease,opacity .25s ease;overflow:hidden">';
   html+='<table class="wp-card-table">';
   html+='<tr><td style="color:#6b7280;width:32px">提交</td><td style="color:#0F2C4B">'+subTime+'</td></tr>';
   html+='</table>';
@@ -18635,17 +18640,20 @@ function _renderTimeManagementPanel(plan){
   html+='<div style="margin-top:6px"><span class="wp-card-tag '+revTagClass+'">'+revText+'</span></div>';
   html+=exemptionBtn;
   html+='</div>';
+  html+='</div>';
 
   // ★ Card 4: 年度积分
   var netVal=scores.net||0;
   html+='<div class="wp-card">';
-  html+='<div class="wp-card-title">📊 '+year+'年积分</div>';
+  html+='<div class="wp-card-title">📊 '+year+'年积分<button type="button" onclick="toggleWPCard(\'points\')" id="wpCardBtn_points" style="margin-left:auto;padding:2px 8px;border:1px solid #d1d5db;border-radius:6px;background:#fff;color:#6b7280;font-size:10px;font-weight:400;cursor:pointer;display:inline-flex;align-items:center;gap:2px;transition:all .25s ease;white-space:nowrap">▲</button></div>';
+  html+='<div id="wpCardContent_points" style="transition:max-height .35s ease,opacity .25s ease;overflow:hidden">';
   html+='<div class="wp-card-score-row"><span class="wp-card-score-label">累计</span><span class="wp-card-score-val">'+((scores.total||0)>=0?'+':'')+(scores.total||0)+'</span></div>';
   html+='<div class="wp-card-score-row"><span class="wp-card-score-label">扣除</span><span class="wp-card-score-val">'+(scores.deducted||0)+'</span></div>';
   html+='<div class="wp-card-divider"><div style="display:flex;justify-content:space-between"><span style="color:#0F2C4B;font-size:12px;font-weight:500">净积分</span><span class="wp-card-score-bold">'+(netVal>=0?'+':'')+netVal+'</span></div></div>';
   if((scores.net||0)<=-20){
     html+='<div style="color:#6b7280;font-size:11px;margin-top:4px">⚠️ 不能胜任</div>';
   }
+  html+='</div>';
   html+='</div>';
   // ★ V0.5.0: 艾森豪威尔矩阵卡片
   html+=_renderEisenhowerMatrix(year);
@@ -19190,6 +19198,22 @@ function toggleEisenhowerMatrix(){
     el.style.opacity = '0';
     icon.textContent = '▼';
     text.textContent = '展开';
+  }
+}
+// ★ V0.5.28: 通用卡片折叠/展开
+function toggleWPCard(cardId){
+  var el = document.getElementById('wpCardContent_'+cardId);
+  var btn = document.getElementById('wpCardBtn_'+cardId);
+  if(!el) return;
+  var isCollapsed = el.style.maxHeight === '0px';
+  if(isCollapsed){
+    el.style.maxHeight = '800px';
+    el.style.opacity = '1';
+    if(btn) btn.textContent = '▲';
+  }else{
+    el.style.maxHeight = '0';
+    el.style.opacity = '0';
+    if(btn) btn.textContent = '▼';
   }
 }
 
