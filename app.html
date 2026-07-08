@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.5.1">
+<meta name="version" content="V0.5.2">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2058,9 +2058,9 @@ table.collab-table tbody tr:hover{background:#fffdf5}
 .wp-summary-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:500}
 
 /* ★ V0.3.74: 卡片仪表盘 */
-.wp-cards-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:6px 0 8px 0}
-.wp-card{background:#F8FAFB;border-radius:8px;padding:12px 14px;border:1px solid #e5e7eb;box-shadow:none}
-.wp-card-title{font-size:12px;font-weight:600;color:#2A476A;margin-bottom:8px;display:flex;align-items:center;gap:5px}
+.wp-cards-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:6px 0 4px 0}
+.wp-card{background:#F8FAFB;border-radius:8px;padding:10px 12px;border:1px solid #e5e7eb;box-shadow:none}
+.wp-card-title{font-size:12px;font-weight:600;color:#2A476A;margin-bottom:6px;display:flex;align-items:center;gap:5px}
 .wp-card-table{width:100%;border-collapse:collapse;font-size:11px;line-height:1.7}
 .wp-card-table td{padding:2px 4px;color:#0F2C4B}
 .wp-card-table .td-val{text-align:center;font-weight:600;color:#2A476A}
@@ -18457,7 +18457,7 @@ function _renderEisenhowerMatrix(year){
 
   // 四个象限计数
   var allQuads=[n,ni,du,dr];
-  html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:3px;font-size:9px;color:#6b7280;margin-top:4px">';
+  html+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:3px;font-size:9px;color:#6b7280;margin-top:4px">';
   for(var qi=0;qi<allQuads.length;qi++){
     var lab=allQuads[qi].replace('重要紧急','⚡重急').replace('重要不急','📌重不急').replace('日常紧急','🔥日急').replace('日常事项','📋日常');
     html+='<div style="padding:2px 4px;background:#F8FAFB;border-radius:3px">'+lab+' <b style="color:#374151">'+quads[allQuads[qi]].length+'</b></div>';
