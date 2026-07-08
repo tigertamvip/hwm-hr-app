@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.4.91z">
+<meta name="version" content="V0.5.0">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2058,7 +2058,7 @@ table.collab-table tbody tr:hover{background:#fffdf5}
 .wp-summary-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:500}
 
 /* ★ V0.3.74: 卡片仪表盘 */
-.wp-cards-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:6px 0 8px 0}
+.wp-cards-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:6px 0 8px 0}
 .wp-card{background:#F8FAFB;border-radius:8px;padding:12px 14px;border:1px solid #e5e7eb;box-shadow:none}
 .wp-card-title{font-size:12px;font-weight:600;color:#2A476A;margin-bottom:8px;display:flex;align-items:center;gap:5px}
 .wp-card-table{width:100%;border-collapse:collapse;font-size:11px;line-height:1.7}
@@ -2072,8 +2072,18 @@ table.collab-table tbody tr:hover{background:#fffdf5}
 .wp-card-score-val{color:#2A476A;font-family:system-ui;font-size:15px}
 .wp-card-score-bold{font-weight:700;font-size:16px;color:#2A476A}
 .wp-card-divider{border-top:1px solid #e5e7eb;margin:5px 0;padding-top:5px}
-@media(max-width:900px){.wp-cards-grid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:600px){.wp-cards-grid{grid-template-columns:1fr}}
+/* ★ V0.5.0: 艾森豪威尔矩阵 */
+.wp-eisenhower{position:relative;min-height:210px;overflow:hidden}
+.wp-em-axes{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none}
+.wp-em-axis-line{stroke:#cbd5e1;stroke-width:1}
+.wp-em-axis-text{fill:#9ca3af;font-size:9px;font-family:system-ui,-apple-system,sans-serif}
+.wp-em-dot{cursor:pointer;transition:opacity .15s;stroke:rgba(255,255,255,.7);stroke-width:.5}
+.wp-em-dot:hover{opacity:.85;stroke:#fff;stroke-width:1}
+.wp-em-legend{display:flex;gap:6px;flex-wrap:wrap;font-size:8.5px;color:#6b7280;padding:4px 0;align-items:center}
+.wp-em-legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+@media(max-width:1024px){.wp-cards-grid{grid-template-columns:repeat(3,1fr);gap:6px}}
+@media(max-width:700px){.wp-cards-grid{grid-template-columns:repeat(2,1fr);gap:6px}}
+@media(max-width:480px){.wp-cards-grid{grid-template-columns:1fr}}
 .wp-badge-done{background:#E6F7EE;color:#059669}
 .wp-badge-progress{background:#FFF3E0;color:#E67E22}
 .wp-badge-paused{background:#F1F2F4;color:#8A9499}
@@ -17851,6 +17861,24 @@ function renderWPTable(plan){
       });
     });
   },10);
+
+  // ★ V0.5.0: 艾森豪威尔矩阵圆点点击跳转
+  setTimeout(function(){
+    content.querySelectorAll('.wp-em-dot').forEach(function(dot){
+      dot.addEventListener('click',function(e){
+        e.stopPropagation();
+        var y=parseInt(dot.getAttribute('data-y'));
+        var m=parseInt(dot.getAttribute('data-m'));
+        var w=parseInt(dot.getAttribute('data-w'));
+        if(!y||!m||!w)return;
+        var yEl=document.getElementById('wpYear');
+        if(yEl){yEl.value=y;syncYearLabel();}
+        var mEl=document.getElementById('wpMonth');
+        if(mEl){mEl.value=m;syncMonthLabel();}
+        selectWP(y,m,w);
+      });
+    });
+  },10);
 }
 
 // ★ V0.1.23: 审核并锁定 — 上级锁定下属周计划的核心三列
@@ -18337,6 +18365,108 @@ function toggleWPExemption(){
   showToast(p.exempted?'🛡️ 已豁免（本周不积分不扣分）':'⚠️ 已取消豁免（恢复扣分规则）');
 }
 
+// ★ V0.5.0: 艾森豪威尔矩阵 — 收集全年任务数据
+function _collectYearTasks(year){
+  var tasks=[];
+  for(var m=1;m<=12;m++){
+    for(var w=1;w<=4;w++){
+      var plan=getWP(year,m,w);
+      if(!plan||!plan.tasks)continue;
+      for(var ti=0;ti<plan.tasks.length;ti++){
+        var t=plan.tasks[ti];
+        if(!t||!t.work)continue;
+        tasks.push({
+          work:t.work, goal:t.goal||'', status:t.status||'',
+          year:year, month:m, week:w,
+          startDate:t.startDate||'', actualDate:t.actualDate||''
+        });
+      }
+    }
+  }
+  return tasks;
+}
+
+// ★ V0.5.0: 艾森豪威尔矩阵 — 渲染SVG象限卡片
+var _EM_POS_MAP={'重要紧急':{x:'right',y:'top'},'重要不急':{x:'left',y:'top'},'日常紧急':{x:'right',y:'bottom'},'日常事项':{x:'left',y:'bottom'}};
+
+function _renderEisenhowerMatrix(year){
+  var tasks=_collectYearTasks(year);
+  var html='<div class="wp-card">';
+  html+='<div class="wp-card-title">🎯 艾森豪威尔矩阵</div>';
+  if(tasks.length===0){
+    html+='<div style="text-align:center;color:#9ca3af;font-size:11px;padding:40px 0">暂无年度计划数据</div>';
+    html+='</div>'; return html;
+  }
+  // 按优先级分四个象限
+  var quads={'重要紧急':[],'重要不急':[],'日常紧急':[],'日常事项':[]};
+  for(var i=0;i<tasks.length;i++){
+    var g=tasks[i].goal||'日常事项';
+    if(quads[g])quads[g].push(tasks[i]);
+    else quads['日常事项'].push(tasks[i]);
+  }
+  var n='重要紧急',ni='重要不急',du='日常紧急',dr='日常事项';
+  var activeQuads=[n,ni,du,dr].reduce(function(a,v){a[v]=quads[v].length>0;return a;},{});
+
+  // SVG 矩阵
+  var W=220,H=160,XC=Math.round(W/2),YC=Math.round(H/2),R=6;
+  var svg='<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto">';
+  // 十字轴
+  svg+='<line x1="'+XC+'" y1="8" x2="'+XC+'" y2="'+(H-8)+'" stroke="#cbd5e1" stroke-width="1"/>';
+  svg+='<line x1="8" y1="'+YC+'" x2="'+(W-8)+'" y2="'+YC+'" stroke="#cbd5e1" stroke-width="1"/>';
+  // 象限标签
+  svg+='<text x="'+(XC-3)+'" y="8" text-anchor="end" fill="#9ca3af" font-size="9" font-family="system-ui">重要</text>';
+  svg+='<text x="'+(W-6)+'" y="'+(YC-4)+'" text-anchor="end" fill="#9ca3af" font-size="9" font-family="system-ui">重要</text>';
+  svg+='<text x="6" y="'+(YC-4)+'" text-anchor="start" fill="#9ca3af" font-size="9" font-family="system-ui">不重要</text>';
+  svg+='<text x="'+(W/4)+'" y="'+(H-3)+'" text-anchor="middle" fill="#9ca3af" font-size="9" font-family="system-ui">不紧急</text>';
+  svg+='<text x="'+(W*3/4)+'" y="'+(H-3)+'" text-anchor="middle" fill="#9ca3af" font-size="9" font-family="system-ui">紧急</text>';
+
+  // 每个象限的点位置
+  var quadRanges=[{cxL:8,cxR:XC-10,cyT:8,cyB:YC-10,goal:ni},{cxL:XC+10,cxR:W-8,cyT:8,cyB:YC-10,goal:n},{cxL:8,cxR:XC-10,cyT:YC+10,cyB:H-8,goal:dr},{cxL:XC+10,cxR:W-8,cyT:YC+10,cyB:H-8,goal:du}];
+
+  // 预生成每个象限的点位置（网格分布防止重叠）
+  for(var qi=0;qi<quadRanges.length;qi++){
+    var qr=quadRanges[qi],pts=quads[qr.goal];
+    if(!pts.length)continue;
+    var cols=Math.min(pts.length, Math.max(3, Math.ceil(Math.sqrt(pts.length))));
+    var rows=Math.ceil(pts.length/cols);
+    var cw=(qr.cxR-qr.cxL)/cols,rh=(qr.cyB-qr.cyT)/rows;
+    for(var pi=0;pi<pts.length;pi++){
+      var col=pi%cols,row=Math.floor(pi/cols);
+      var cx=Math.round(qr.cxL+cw*(col+.5)),cy=Math.round(qr.cyT+rh*(row+.5));
+      // 颜色映射
+      var st=pts[pi].status||'进行中';
+      var color=WP_STATUS_COLORS[st]||'#9ca3af';
+      // 映射旧值
+      if(!WP_STATUS_COLORS[st]){
+        var mp={'✓完成':'按时完成','⚙推进中':'进行中','⏸暂停':'暂停中','❌未完成':'未做'};
+        color=WP_STATUS_COLORS[mp[st]]||'#9ca3af';
+      }
+      svg+='<circle class="wp-em-dot" cx="'+cx+'" cy="'+cy+'" r="'+R+'" fill="'+color+'" data-y="'+pts[pi].year+'" data-m="'+pts[pi].month+'" data-w="'+pts[pi].week+'" title="'+_h(pts[pi].work)+'\n'+_h(st)+' | '+_h(pts[pi].goal)+'"/>';
+    }
+  }
+  svg+='</svg>';
+  html+=svg;
+
+  // 图例
+  html+='<div class="wp-em-legend">';
+  var legColors={'按时完成':'#22c55e','进行中':'#3b82f6','逾期完成':'#eab308','未做':'#D64352','暂停中':'#9ca3af'};
+  for(var lk in legColors){
+    html+='<span class="wp-em-legend-dot" style="background:'+legColors[lk]+'"></span>'+lk;
+  }
+  html+='</div>';
+
+  // 四个象限计数
+  var allQuads=[n,ni,du,dr];
+  html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:3px;font-size:9px;color:#6b7280;margin-top:4px">';
+  for(var qi=0;qi<allQuads.length;qi++){
+    var lab=allQuads[qi].replace('重要紧急','⚡重急').replace('重要不急','📌重不急').replace('日常紧急','🔥日急').replace('日常事项','📋日常');
+    html+='<div style="padding:2px 4px;background:#F8FAFB;border-radius:3px">'+lab+' <b style="color:#374151">'+quads[allQuads[qi]].length+'</b></div>';
+  }
+  html+='</div>';
+  html+='</div>';
+  return html;
+}
+
 // ★ V0.1.35: 时间管理规则面板
 function _renderTimeManagementPanel(plan){
   if(!plan)return'';
@@ -18421,6 +18551,8 @@ function _renderTimeManagementPanel(plan){
     html+='<div style="color:#6b7280;font-size:11px;margin-top:4px">⚠️ 不能胜任</div>';
   }
   html+='</div>';
+  // ★ V0.5.0: 艾森豪威尔矩阵卡片
+  html+=_renderEisenhowerMatrix(year);
 
   html+='</div>';
   return html;
