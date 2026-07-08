@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.5.11">
+<meta name="version" content="V0.5.12">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1888,9 +1888,9 @@ body{
 .wp-month-dropdown .wp-month-opt:hover{background:rgba(0,0,0,.04)}
 .wp-month-dropdown .wp-month-opt.active{background:#1B6EC4;color:#fff;font-weight:600}
 .wp-sidebar-divider{height:1px;background:#e5e7eb;margin:4px 0}
-.wp-sidebar-plan-list{flex:1;min-height:0;overflow-y:auto;margin-top:4px}
-.wp-sidebar-plan-item{padding:8px 10px;border-radius:6px;font-size:12px;cursor:pointer;transition:all .12s;color:#6b7280;margin-bottom:3px;position:relative}
-.wp-sidebar-plan-item:hover{background:rgba(42,71,106,.06);color:#2A476A}
+.wp-sidebar-plan-list{flex:1;min-height:0;overflow-y:auto;margin-top:4px;display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:2px}
+.wp-sidebar-plan-item{padding:10px 4px;border-radius:8px;font-size:12px;cursor:pointer;transition:all .12s;color:#6b7280;background:#F8FAFB;border:1px solid #e5e7eb;text-align:center;position:relative;min-height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.wp-sidebar-plan-item:hover{background:#E8F4FE;color:#0F7BE1;border-color:#0F7BE1}
 /* ★ V0.4.91s: 全年53周快速导航网格 */
 .wp-year-grid{display:flex;justify-content:center;padding:6px 0 4px;margin-top:4px;border-top:1px solid #e5e7eb}
 .wp-year-grid-title{font-size:11px;color:#1E3A5F;font-weight:600;text-align:center;padding:2px 0 6px;letter-spacing:.3px}
@@ -1905,13 +1905,16 @@ body{
 .wp-yg-cell.active.current-week::after{background:#fff}
 .wp-yg-cell.has-data::before{content:'';position:absolute;bottom:3px;left:50%;transform:translateX(-50%);width:4px;height:4px;background:#1B6EC4;border-radius:50%}
 .wp-yg-cell.active.has-data::before{background:#fff}
-.wp-sidebar-plan-item.active{color:#002D4E;font-weight:600;background:#E8EDF2;border-radius:6px;padding-left:10px}
-.wp-sidebar-plan-item .wp-plan-meta{font-size:10px;color:#9ca3af;margin-top:2px}
-.wp-sidebar-plan-item.active .wp-plan-meta{color:#6b7280}
-.wp-sidebar-plan-delete{display:none;position:absolute;right:8px;top:50%;transform:translateY(-50%);width:22px;height:22px;line-height:22px;text-align:center;border-radius:50%;font-size:12px;cursor:pointer;color:#9ca3af}
+.wp-sidebar-plan-item.active{color:#fff;font-weight:600;background:#1B6EC4;border-color:#1B6EC4}
+.wp-sidebar-plan-item .wp-plan-meta{font-size:10px;color:#9ca3af;margin-top:2px;font-weight:400}
+.wp-sidebar-plan-item.active .wp-plan-meta{color:rgba(255,255,255,.8)}
+.wp-sidebar-plan-item .week-label{font-size:13px;font-weight:600}
+.wp-sidebar-plan-item .task-count{font-size:11px;color:#6b7280}
+.wp-sidebar-plan-item.active .task-count{color:rgba(255,255,255,.9)}
+.wp-sidebar-plan-delete{display:none;position:absolute;right:4px;top:4px;width:16px;height:16px;line-height:16px;text-align:center;border-radius:50%;font-size:10px;cursor:pointer;color:#fff;background:#D64352;z-index:2}
 .wp-sidebar-plan-item:hover .wp-sidebar-plan-delete{display:block}
 .wp-sidebar-plan-item.active .wp-sidebar-plan-delete{display:none}
-.wp-sidebar-plan-delete:hover{background:rgba(239,68,68,.8);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);color:#fff;transform:translateY(-50%) scale(1.15);box-shadow:0 2px 12px rgba(239,68,68,.35)}
+.wp-sidebar-plan-delete:hover{background:#B91C1C;transform:scale(1.1)}
 
 .wp-content{flex:1;height:100%;overflow-y:auto;padding:16px 24px;background:#FBF8F3;display:flex;flex-direction:column}
 .wp-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--text-hint)}
@@ -16747,14 +16750,14 @@ function renderWPPlanList(year,month){
   var list=document.getElementById('wpPlanList');
   if(!list)return;
   var html='';
+  var weekLabels=['第一周','第二周','第三周','第四周'];
   for(var w=1;w<=4;w++){
     var plan=getWP(year,month,w);
     var active=(_wpCurrent&&_wpCurrent.year===year&&_wpCurrent.month===month&&_wpCurrent.week===w);
     var taskCount=plan?plan.tasks.filter(function(t){return t.work;}).length:0;
-    var info=plan?(taskCount+'项工作'):'无数据';
     var delBtn='';
     if(plan&&!active)delBtn='<span class="wp-sidebar-plan-delete" onclick="event.stopPropagation();delWPFromSidebar('+year+','+month+','+w+')">×</span>';
-    html+='<div class="wp-sidebar-plan-item'+(active?' active':'')+'" onclick="selectWP('+year+','+month+','+w+')">第'+w+'周'+delBtn+'<div class="wp-plan-meta">'+info+'</div></div>';
+    html+='<div class="wp-sidebar-plan-item'+(active?' active':'')+'" onclick="selectWP('+year+','+month+','+w+')">'+delBtn+'<div class="week-label">'+weekLabels[w-1]+'</div><div class="task-count">('+taskCount+')</div></div>';
   }
   list.innerHTML=html;
   // ★ V0.4.91s: 同步渲染全年周度导航网格
