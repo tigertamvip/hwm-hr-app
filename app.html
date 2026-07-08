@@ -18990,9 +18990,10 @@ function submitBossEval(){
 }
 
 // ★ V0.5.55: 撤销评价 — 上级可重新修订评价
-function revokeBossEval(){
+async function revokeBossEval(){
   var p=_wpCurrent.plan;if(!p)return;
-  if(!confirm('确认撤销评价？撤销后该下属周计划将恢复为可编辑状态。'))return;
+  var confirmed=await _showConfirm('撤销后该下属周计划将恢复为可编辑状态。','确认撤销评价？');
+  if(!confirmed)return;
   p.bossEvaluated=false;
   p.bossEvaluatedAt=null;
   p.bossEvaluatedBy='';
