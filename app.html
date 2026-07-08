@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.5.62">
+<meta name="version" content="V0.5.63">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -456,11 +456,12 @@ body{
 }
 .inline-filter-select{
   position:relative;
-  width:108px;
+  width:130px;
 }
-.inline-filter-select select{
+.inline-filter-select select.hidden-select{display:none}
+.inline-filter-trigger{
   width:100%;
-  padding:8px 28px 8px 10px;
+  padding:8px 24px 8px 10px;
   border-radius:8px;
   border:1.5px solid var(--border);
   font-size:13px;
@@ -468,21 +469,39 @@ body{
   color:var(--text);
   outline:none;
   cursor:pointer;
-  appearance:none;
-  -webkit-appearance:none;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  user-select:none;
+  box-sizing:border-box
 }
-.inline-filter-select select:focus{border-color:var(--primary-light)}
-.inline-filter-select::after{
-  content:'▼';
-  position:absolute;
-  right:8px;
-  top:50%;
-  transform:translateY(-50%);
-  font-size:9px;
-  color:var(--text-hint);
-  pointer-events:none;
+.inline-filter-trigger:hover{border-color:var(--primary-light)}
+.inline-filter-trigger .tri-arrow{font-size:9px;color:var(--text-hint);margin-left:4px}
+.inline-filter-dd{
+  display:none;
+  position:fixed;
+  z-index:9999;
+  background:rgba(252,252,253,.92);
+  backdrop-filter:blur(20px) saturate(1.4);
+  -webkit-backdrop-filter:blur(20px) saturate(1.4);
+  border:1px solid rgba(200,205,212,.4);
+  border-radius:8px;
+  box-shadow:0 4px 6px rgba(0,0,0,.04),0 10px 24px rgba(0,0,0,.08);
+  padding:4px;
+  box-sizing:border-box
 }
-.inline-filter-select select:has(option:not([value=""]):checked)::after{color:var(--primary-light)}
+.inline-filter-dd .inline-filter-opt{
+  padding:7px 12px;
+  text-align:left;
+  border-radius:6px;
+  font-size:13px;
+  color:#0F2C4B;
+  cursor:pointer;
+  transition:background .1s;
+  white-space:nowrap
+}
+.inline-filter-dd .inline-filter-opt:hover{background:rgba(0,0,0,.04)}
+.inline-filter-dd .inline-filter-opt.active{background:#3B7DB4;color:#fff;font-weight:600}
 .btn-confirm-filter{
   padding:8px 18px;
   border-radius:8px;
@@ -2395,11 +2414,26 @@ table.collab-table tbody tr:hover{background:#fffdf5}
   <div class="result-count" id="resultCount">共 0 条结果</div>
   <div class="filter-controls">
     <span class="filter-label">筛选</span>
-    <div class="inline-filter-select"><select id="filterStatus" onchange="onInlineFilterChange()"><option value="">状态：全部</option><option value="已转正">已转正</option><option value="已离职">已离职</option><option value="试用期">试用期</option></select></div>
-    <div class="inline-filter-select"><select id="filterCenter" onchange="onInlineFilterChange()"><option value="">中心：全部</option></select></div>
-    <div class="inline-filter-select"><select id="filterDept" onchange="onInlineFilterChange()"><option value="">部门：全部</option></select></div>
-    <div class="inline-filter-select"><select id="filterGender" onchange="onInlineFilterChange()"><option value="">性别：全部</option><option value="男">男</option><option value="女">女</option></select></div>
-    <div class="inline-filter-select"><select id="filterEducation" onchange="onInlineFilterChange()"><option value="">学历：全部</option><option value="博士">博士</option><option value="普通硕士">普通硕士</option><option value="其他硕士">其他硕士</option><option value="普通本科">普通本科</option><option value="其他本科">其他本科</option><option value="普通专科">普通专科</option><option value="其他专科">其他专科</option><option value="职业高中">职业高中</option><option value="高中">高中</option><option value="初中">初中</option><option value="初中以下">初中以下</option></select></div>
+    <div class="inline-filter-select">
+      <div class="inline-filter-trigger" id="filterStatusTrigger" onclick="toggleInlineFilterDropdown('filterStatus')"><span id="filterStatusLabel">状态：全部</span><span class="tri-arrow">▼</span></div>
+      <select id="filterStatus" class="hidden-select" onchange="onInlineFilterChange()"><option value="">状态：全部</option><option value="已转正">已转正</option><option value="已离职">已离职</option><option value="试用期">试用期</option></select>
+    </div>
+    <div class="inline-filter-select">
+      <div class="inline-filter-trigger" id="filterCenterTrigger" onclick="toggleInlineFilterDropdown('filterCenter')"><span id="filterCenterLabel">中心：全部</span><span class="tri-arrow">▼</span></div>
+      <select id="filterCenter" class="hidden-select" onchange="onInlineFilterChange()"><option value="">中心：全部</option></select>
+    </div>
+    <div class="inline-filter-select">
+      <div class="inline-filter-trigger" id="filterDeptTrigger" onclick="toggleInlineFilterDropdown('filterDept')"><span id="filterDeptLabel">部门：全部</span><span class="tri-arrow">▼</span></div>
+      <select id="filterDept" class="hidden-select" onchange="onInlineFilterChange()"><option value="">部门：全部</option></select>
+    </div>
+    <div class="inline-filter-select">
+      <div class="inline-filter-trigger" id="filterGenderTrigger" onclick="toggleInlineFilterDropdown('filterGender')"><span id="filterGenderLabel">性别：全部</span><span class="tri-arrow">▼</span></div>
+      <select id="filterGender" class="hidden-select" onchange="onInlineFilterChange()"><option value="">性别：全部</option><option value="男">男</option><option value="女">女</option></select>
+    </div>
+    <div class="inline-filter-select">
+      <div class="inline-filter-trigger" id="filterEducationTrigger" onclick="toggleInlineFilterDropdown('filterEducation')"><span id="filterEducationLabel">学历：全部</span><span class="tri-arrow">▼</span></div>
+      <select id="filterEducation" class="hidden-select" onchange="onInlineFilterChange()"><option value="">学历：全部</option><option value="博士">博士</option><option value="普通硕士">普通硕士</option><option value="其他硕士">其他硕士</option><option value="普通本科">普通本科</option><option value="其他本科">其他本科</option><option value="普通专科">普通专科</option><option value="其他专科">其他专科</option><option value="职业高中">职业高中</option><option value="高中">高中</option><option value="初中">初中</option><option value="初中以下">初中以下</option></select>
+    </div>
   </div>
 </div>
 <div class="active-filters" id="activeFilters"></div>
@@ -4436,7 +4470,51 @@ function _mapEduToGroup(raw){
 
 var _lastCenterVal='';
 
-function populateInlineFilters(){
+// ★ V0.5.63: 筛选器自定义下拉（复用年度选择器方案）
+function syncInlineFilterLabel(selectId){
+  var sel=document.getElementById(selectId);
+  var lb=document.getElementById(selectId+'Label');
+  if(sel&&lb)lb.textContent=sel.options[sel.selectedIndex]?sel.options[sel.selectedIndex].text:(sel.value||'全部');
+}
+function toggleInlineFilterDropdown(selectId){
+  var ddId='__'+selectId+'DD';
+  var existing=document.getElementById(ddId);
+  if(existing){existing.remove();return;}
+  var sel=document.getElementById(selectId);
+  var trig=document.getElementById(selectId+'Trigger');
+  if(!sel||!trig)return;
+  var dd=document.createElement('div');
+  dd.id=ddId;
+  dd.className='inline-filter-dd';
+  dd.style.display='block';
+  for(var i=0;i<sel.options.length;i++){
+    (function(opt){
+      var odiv=document.createElement('div');
+      odiv.className='inline-filter-opt'+(opt.selected?' active':'');
+      odiv.textContent=opt.text;
+      odiv.onclick=function(){
+        sel.value=opt.value;
+        syncInlineFilterLabel(selectId);
+        dd.remove();
+        onInlineFilterChange();
+      };
+      dd.appendChild(odiv);
+    })(sel.options[i]);
+  }
+  document.body.appendChild(dd);
+  var cr=trig.getBoundingClientRect();
+  dd.style.left=cr.left+'px';
+  dd.style.top=(cr.bottom)+'px';
+  dd.style.width=cr.width+'px';
+  setTimeout(function(){
+    document.addEventListener('click',function _c(e){
+      if(!dd.contains(e.target)&&e.target!==trig&&!trig.contains(e.target)){
+        dd.remove();document.removeEventListener('click',_c);
+      }
+    });
+  },0);
+}
+
   // 中心下拉
   var centerSel=document.getElementById('filterCenter');
   if(centerSel && allFilterMeta.center){
@@ -4469,6 +4547,12 @@ function populateInlineFilters(){
       eduSel.innerHTML+='<option value="'+esc(eduOrder[i])+'">'+esc(eduOrder[i])+'</option>';
     }
   }
+  // 同步自定义触发器标签
+  syncInlineFilterLabel('filterStatus');
+  syncInlineFilterLabel('filterCenter');
+  syncInlineFilterLabel('filterDept');
+  syncInlineFilterLabel('filterGender');
+  syncInlineFilterLabel('filterEducation');
 }
 
 // 级联刷新部门下拉：根据选中的中心，只显示该中心下在职员工涉及的部门
@@ -4510,17 +4594,27 @@ function onInlineFilterChange(){
     _lastCenterVal=centerVal;
     refreshDeptDropdown(centerVal);
   }
-  // Visual feedback - highlight selects with active filters
-  var selects=document.querySelectorAll('.inline-filter-select select');
-  for(var i=0;i<selects.length;i++){
-    if(selects[i].value){
-      selects[i].style.borderColor='var(--primary-light)';
-      selects[i].style.background='#E8F1F8';
-    }else{
-      selects[i].style.borderColor='';
-      selects[i].style.background='';
+  // Visual feedback - highlight triggers with active filters
+  var triggers=['filterStatus','filterCenter','filterDept','filterGender','filterEducation'];
+  for(var i=0;i<triggers.length;i++){
+    var trig=document.getElementById(triggers[i]+'Trigger');
+    var sel=document.getElementById(triggers[i]);
+    if(trig&&sel){
+      if(sel.value){
+        trig.style.borderColor='var(--primary-light)';
+        trig.style.background='#E8F1F8';
+      }else{
+        trig.style.borderColor='';
+        trig.style.background='';
+      }
     }
   }
+  // 同步标签
+  syncInlineFilterLabel('filterStatus');
+  syncInlineFilterLabel('filterCenter');
+  syncInlineFilterLabel('filterDept');
+  syncInlineFilterLabel('filterGender');
+  syncInlineFilterLabel('filterEducation');
   // 选择即触发查询，无需手动点确定
   applyInlineFilters();
 }
