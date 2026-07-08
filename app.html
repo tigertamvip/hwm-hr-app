@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.5.32">
+<meta name="version" content="V0.5.33">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -16639,14 +16639,24 @@ function onWPMonthChange(){
   var month=mEl?parseInt(mEl.value):(new Date().getMonth()+1);
   syncMonthLabel();
   loadWPData();
-  // ★ V0.5.21: 月份切换时自动定位到该月1日对应的ISO周
-  var isoWeek=getFirstDayISOWeek(year,month);
-  var mapped=isoWeekToMonthWeek(isoWeek);
-  _wpCurrent={year:year,month:mapped.month,week:mapped.week,plan:null};
-  var plan=getWP(year,mapped.month,mapped.week);
+  // ★ V0.5.33: 月份切换逻辑优化——当前月→当前周，非当前月→该月第一周
+  var now=new Date();
+  var currYear=now.getFullYear();
+  var currMonth=now.getMonth()+1;
+  var targetMonth,targetWeek;
+  if(year===currYear && month===currMonth){
+    var currInfo=getCurrentISOWeek();
+    var mapped=isoWeekToMonthWeek(currInfo.week);
+    targetMonth=mapped.month;targetWeek=mapped.week;
+  }else{
+    var isoWeek=getFirstDayISOWeek(year,month);
+    var mapped=isoWeekToMonthWeek(isoWeek);
+    targetMonth=mapped.month;targetWeek=mapped.week;
+  }
+  _wpCurrent={year:year,month:targetMonth,week:targetWeek,plan:null};
+  var plan=getWP(year,targetMonth,targetWeek);
   if(plan)_wpCurrent.plan=plan;
   renderWPPlanList(year,month);
-  // ★ V0.5.22: 年月切换时同步刷新艾森豪威尔矩阵和进度面板
   if(_wpCurrent.plan) renderWPTable(_wpCurrent.plan);
 }
 
