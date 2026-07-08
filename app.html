@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.5.55">
+<meta name="version" content="V0.5.56">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -690,7 +690,7 @@ body{
   bottom:30px;
   left:50%;
   transform:translateX(-50%);
-  background:var(--primary);
+  background:#3B7DB4;
   color:#fff;
   padding:10px 24px;
   border-radius:20px;
@@ -2126,16 +2126,16 @@ table.collab-table tbody tr:hover{background:#fffdf5}
 ._confirm-btn-cancel:hover{background:#F5F5F5}
 ._confirm-btn-ok{padding:10px 40px;border:none;border-radius:8px;background:#3B6FA5;color:#fff;font-size:14px;font-weight:500;cursor:pointer;min-width:100px}
 ._confirm-btn-ok:hover{background:#2d5a8b}
-.wp-eval-body{padding:16px 18px}
+.wp-eval-body{padding:16px 18px 20px}
 .wp-eval-row{margin-bottom:12px}
 .wp-eval-row label{display:block;font-size:12px;font-weight:500;margin-bottom:4px;color:var(--text-secondary)}
 .wp-eval-row textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13px;resize:vertical;min-height:80px;outline:none;box-sizing:border-box}
 .wp-eval-row textarea:focus{border-color:var(--primary)}
-.wp-eval-actions{display:flex;gap:8px;justify-content:flex-end;padding-top:12px;border-top:1px solid var(--border)}
+.wp-eval-actions{display:flex;gap:8px;justify-content:flex-end;padding:12px 0 16px;border-top:1px solid var(--border)}
 .wp-eval-actions button{padding:8px 20px;border-radius:8px;font-size:13px;cursor:pointer;font-weight:500}
-.wp-eval-submit{background:#0F7BE1;color:#fff;border:none}
-.wp-eval-submit:hover{background:#005BB5}
-.wp-eval-cancel{background:#fff;color:#0F7BE1;border:1px solid #0F7BE1}
+.wp-eval-submit{background:#3B7DB4;color:#fff;border:none}
+.wp-eval-submit:hover{background:#2A6A9A}
+.wp-eval-cancel{background:#fff;color:#3B7DB4;border:1px solid #3B7DB4}
 .wp-eval-cancel:hover{background:#E8F4FE}
 
 /* 下属选择下拉 — 毛玻璃风格 */
@@ -17613,7 +17613,7 @@ function renderWPTable(plan){
   if(_wpViewingSubordinate)html+='<span style="color:#E8622A;font-weight:500;margin-left:8px">（查看直属下属周计划）</span>';
   else if(_wpViewingDeptMember)html+='<span style="color:#E8622A;font-weight:500;margin-left:8px">（查看更多下属周计划）</span>';
   if(plan.frozen && !_wpViewingSubordinate && !_wpViewingDeptMember){
-    html+='<span style="color:#3b82f6;font-weight:600;margin-left:8px">❄️ 已被上级锁定（本周重点/优先级/计划完成日期不可修改）</span>';
+    html+='<span style="color:#3b82f6;font-weight:600;margin-left:8px">🔐 已被上级锁定（本周重点/优先级/计划完成日期不可修改）</span>';
     if(plan.frozenBy)/* removed by attribution */;
   }
   if(_wpRevisionMode)html+='<span style="color:#e53e3e;font-weight:500;margin-left:8px">🔴 修订模式</span>';
@@ -17625,20 +17625,26 @@ function renderWPTable(plan){
     // 部门成员视图：审核锁定 + 上级评价（同直属下属）
     var isFrozen = _wpCurrent.plan && _wpCurrent.plan.frozen;
     html+='<button class="'+(isFrozen?'wp-btn-freeze':'')+'" onclick="toggleWPFreeze()" title="锁定后下属不能修改本周重点/优先级/计划完成日期">';
-    html+=isFrozen?'❄️ 解除锁定':'❄️ 审核并锁定';
+    html+=isFrozen?'🔐 解除锁定':'🔐 锁定周计划';
     html+='</button>';
     html+='<button onclick="openBossEval()">⭐ 完成评价</button>';
+    if(_wpCurrent.plan && _wpCurrent.plan.bossEvaluated){
+      html+='<button onclick="revokeBossEval()">↩️ 撤销评价</button>';
+    }
   }else if(_wpViewingSubordinate){
     // 查看下属：修订模式 + 审核锁定 + 上级评价编辑
     html+='<button class="' + (_wpRevisionMode?'wp-btn-warn':'') + '" onclick="toggleWPRevisionMode()" title="开启后可修改下属计划内容，修改将以红色标注">';
     html+=_wpRevisionMode?'🔴 关闭修订':'✏️ 开启修订';
     html+='</button>';
-    // ★ V0.1.23: 审核并锁定 — 上级点击后下属不能修改 本周重点工作/优先级/计划完成时间
+    // ★ V0.1.23: 锁定周计划 — 上级点击后下属不能修改 本周重点工作/优先级/计划完成时间
     var isFrozen = _wpCurrent.plan && _wpCurrent.plan.frozen;
     html+='<button class="'+(isFrozen?'wp-btn-freeze':'')+'" onclick="toggleWPFreeze()" title="锁定后下属不能修改本周重点、优先级、计划完成日期">';
-    html+=isFrozen?'❄️ 解除锁定':'❄️ 审核并锁定';
+    html+=isFrozen?'🔐 解除锁定':'🔐 锁定周计划';
     html+='</button>';
     html+='<button onclick="openBossEval()">⭐ 完成评价</button>';
+    if(_wpCurrent.plan && _wpCurrent.plan.bossEvaluated){
+      html+='<button onclick="revokeBossEval()">↩️ 撤销评价</button>';
+    }
   }else{
     // 自己的计划：完整编辑功能（去掉新增+转发，左下角已有新建）
     html+='<button onclick="submitWPPlan()" '+(plan.firstSubmittedAt?'disabled':'')+' class="'+(plan.firstSubmittedAt?'wp-btn-disabled':'wp-btn-primary')+'"><span style="color:#2A476A">📋</span> 提交周计划</button>';
@@ -18651,7 +18657,7 @@ function _renderTimeManagementPanel(plan){
   // 豁免按钮
   var exemptionBtn='';
   if((_wpViewingSubordinate||_wpViewingDeptMember)&&(subStatus!=='on_time'||plan.exempted)){
-    exemptionBtn='<button onclick="toggleWPExemption()" style="padding:2px 8px;border:none;border-radius:4px;cursor:pointer;font-size:11px;margin-top:4px;'+(plan.exempted?'background:#94a3b8;color:#fff':'background:#3b82f6;color:#fff')+'">'+(plan.exempted?'🔓 取消豁免':'🛡️ 豁免')+'</button>';
+    exemptionBtn='<button onclick="toggleWPExemption()" style="padding:2px 8px;border:none;border-radius:4px;cursor:pointer;font-size:11px;margin-top:4px;'+(plan.exempted?'background:#94a3b8;color:#fff':'background:#289FB7;color:#fff')+'">'+(plan.exempted?'🔓 取消豁免':'🛡️ 豁免')+'</button>';
   }
 
   var html='';
@@ -18981,6 +18987,19 @@ function submitBossEval(){
   _carryTasksToNextWeek(p, true);
   closeBossEval();
   renderWPTable(p);
+}
+
+// ★ V0.5.55: 撤销评价 — 上级可重新修订评价
+function revokeBossEval(){
+  var p=_wpCurrent.plan;if(!p)return;
+  if(!confirm('确认撤销评价？撤销后该下属周计划将恢复为可编辑状态。'))return;
+  p.bossEvaluated=false;
+  p.bossEvaluatedAt=null;
+  p.bossEvaluatedBy='';
+  p.updatedAt=new Date().toISOString();
+  saveWP(p.year,p.month,p.week,p);
+  renderWPTable(p);
+  showToast('↩️ 已撤销评价，该下属周计划恢复可编辑');
 }
 
 // ========== 修订模式 ==========
