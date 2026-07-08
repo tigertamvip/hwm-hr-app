@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.5.33">
+<meta name="version" content="V0.5.34">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -16918,6 +16918,8 @@ function selectWP(y,m,w){
   }
   renderWPPlanList(y,m);
   renderWPUserInfo();
+  // ★ V0.5.34: 选择周计划后同步刷新年周度网格高亮
+  renderWPYearGrid(y);
 }
 
 function createNewWP(){
@@ -19234,7 +19236,7 @@ function toggleWPCard(cardId){
     if(btn) btn.textContent = '▼';
   }
 }
-var _yearGridExpanded = false;
+var _yearGridExpanded = true;
 function toggleYearGrid(){
   _yearGridExpanded = !_yearGridExpanded;
   var el = document.getElementById('wpYearGridContent');
