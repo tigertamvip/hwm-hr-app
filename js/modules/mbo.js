@@ -671,7 +671,7 @@ function renderWPSubSelect(){
     dd.innerHTML=ddHtml;
   }
 
-  // 「回到我的周计划」按钮：有下属时始终显示
+  // 「Return to My Plan」按钮：有下属时始终显示
   var myBtn=document.getElementById('wpBtnMyPlan');
   if(myBtn)myBtn.style.display='inline-block';
 }

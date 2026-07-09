@@ -6,8 +6,8 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.5.82">
-<!-- cache-bust: 2026-07-09-21-50 -->
+<meta name="version" content="V0.5.83">
+<!-- cache-bust: 2026-07-09-21-55 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2696,7 +2696,7 @@ select.form-input{padding-right:28px;appearance:auto;-webkit-appearance:menulist
           <div class="wp-custom-dropdown" id="wpSharedDropdown" style="display:none"></div>
         </div>
         <button class="wp-btn-visibility" onclick="openWPVisibility()" title="管理周计划可见性">Share My Plan <span style="font-size:10px">▾</span></button>
-        <button class="wp-btn-myplan" id="wpBtnMyPlan" onclick="switchToMyWP()" title="回到我的周计划">回到我的周计划</button>
+        <button class="wp-btn-myplan" id="wpBtnMyPlan" onclick="switchToMyWP()" title="Return to My Plan">Return to My Plan</button>
       </div>
     </div>
     <div style="display:flex;gap:8px;align-items:center">
@@ -6096,7 +6096,7 @@ if('serviceWorker' in navigator){
       </div>
       <div id="wpVisGrantPanel" style="min-height:300px">
         <div style="display:flex;gap:8px;margin-bottom:12px">
-          <input type="text" id="wpVisSearch" class="form-input" placeholder="搜索员工姓名..." oninput="wpVisSearchMember()" style="flex:1">
+          <input type="text" id="wpVisSearch" class="form-input" placeholder="搜索你要分享的员工" oninput="wpVisSearchMember()" style="flex:1">
         </div>
         <div id="wpVisSearchResults" style="max-height:160px;overflow-y:auto;margin-bottom:12px"></div>
         <div style="font-size:12px;color:#797973;margin-bottom:8px">当前已授权：</div>
