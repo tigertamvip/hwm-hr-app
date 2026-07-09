@@ -419,8 +419,8 @@ function sysRenderSubList(){
     html+='<td style="padding:8px 12px;color:#797973">'+_h(e.position)+'</td>';
     html+='<td style="padding:6px 12px;text-align:center"><select onchange="sysToggleSubRel(\''+_h(e.name)+'\',this.value)" style="font-size:12px;padding:4px 8px;border-radius:4px;border:1px solid var(--border);cursor:pointer">';
     html+='<option value="none"'+(rel==='none'?' selected':'')+'>无</option>';
-    html+='<option value="direct"'+(rel==='direct'?' selected':'')+'>🟢 直属</option>';
-    html+='<option value="indirect"'+(rel==='indirect'?' selected':'')+'>🔵 间接</option>';
+    html+='<option value="direct" style="color:#22c55e"'+(rel==='direct'?' selected':'')+'>● 直属</option>';
+    html+='<option value="indirect" style="color:#3b82f6"'+(rel==='indirect'?' selected':'')+'>● 间接</option>';
     html+='</select></td>';
     html+='</tr>';
   }
