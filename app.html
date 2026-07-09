@@ -2364,11 +2364,13 @@ table.collab-table tbody tr:hover{background:#fffdf5}
         <h1>AI辅助信息管理系统——员工档案</h1>
         <div class="header-sub" id="headerUser">随时随地查询员工信息</div>
       </div>
-    <div style="display:flex;gap:8px">
-      <button class="btn btn-outline btn-sm" id="btnAdd" onclick="showAddEmployee()" style="display:none">新增</button>
-      <button class="btn btn-outline btn-sm" id="btnImport" onclick="showImport()">导入</button>
-      <button class="btn btn-outline btn-sm" id="btnExport" onclick="showExport()" style="display:none">导出</button>
-      <button class="btn btn-return-mbo" onclick="goHome()">← 返回</button>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-outline btn-sm" id="btnAdd" onclick="showAddEmployee()" style="display:none">新增</button>
+        <button class="btn btn-outline btn-sm" id="btnImport" onclick="showImport()">导入</button>
+        <button class="btn btn-outline btn-sm" id="btnExport" onclick="showExport()" style="display:none">导出</button>
+        <button class="btn btn-return-mbo" onclick="goHome()">← 返回首页</button>
+      </div>
       <button type="button" onclick="toggleEmpStats()" id="empStatsToggleBtn" style="padding:2px 6px;border:none;border-radius:6px;background:transparent;color:#fff;font-size:13px;font-weight:400;cursor:pointer;display:inline-flex;align-items:center;gap:3px;transition:all .25s ease;white-space:nowrap"><span id="empStatsToggleIcon" style="color:rgba(255,255,255,.7)">▲</span><span id="empStatsToggleText">收起</span></button>
     </div>
   </div>
@@ -4009,23 +4011,25 @@ const FIELD_MAP={
   idCard:['身份证','身份证号','idCard','ID Card'],
   education:['学历','education','Education'],
   birthday:['出生日期','生日','birthday','Birthday'],
-  email:['邮箱','email','Email'],
+  email:['工作邮箱','邮箱','email','Email'],
   // 扩展字段（增量导入需要）
   status:['个人状态','员工状态','状态','status','Status'],
   center:['中心','所属中心','center','Center'],
-  regularDate:['转正日期','regularDate'],
-  workplace:['工作地点','workplace','Workplace'],
+  regularDate:['转正日期','转正时间','regularDate'],
+  workplace:['工作地点','工作常驻地点','workplace','Workplace'],
   age:['年龄','age','Age'],
   householdType:['户籍性质','户籍','householdType'],
-  resignDate:['离职日期','resignDate'],
+  resignDate:['离职日期','离职时间','resignDate'],
+  resignType:['离职类别','离职类型','resignType'],
   birthDate:['出生年月','birthDate'],
+  birthMonth:['生日月份','birthMonth'],
   ethnicity:['民族','ethnicity','Ethnicity'],
   politicalStatus:['政治面貌','politicalStatus'],
   title:['职称','title','Title'],
   school:['毕业学校','学校','school','School'],
   major:['专业','major','Major'],
-  workYears:['工龄','司龄','workYears','workYear'],
-  archiveComplete:['档案完整','archiveComplete'],
+  workYears:['公司工龄','工龄','司龄','workYears','workYear'],
+  ssStartDate:['社保公积金起缴时间','社保起缴时间','ssStartDate'],
   seq:['序号','seq'],
   dept1:['部门一级','dept1'],
   dept2:['部门二级','dept2'],
@@ -4573,9 +4577,48 @@ function handleFile(e){
       const data=new Uint8Array(ev.target.result);
       const wb=XLSX.read(data,{type:'array'});
       const ws=wb.Sheets[wb.SheetNames[0]];
-      const rows=XLSX.utils.sheet_to_json(ws,{defval:''});
-      if(rows.length===0){
+      // ★ V0.5.78k: 使用 header:1 读取原始数据，自动探测表头行（支持花名册前3行空行/标题）
+      const rawRows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
+      if(rawRows.length===0){
         showToast('Excel 中没有数据');
+        return;
+      }
+      // 探测表头行：查找包含"姓名"或"工号"的行
+      var headerIndex=-1, headerRow=null;
+      for(var i=0;i<Math.min(rawRows.length,20);i++){
+        var row=rawRows[i];
+        for(var j=0;j<row.length;j++){
+          var val=String(row[j]||'').trim();
+          if(val==='姓名'||val==='工号'||val==='员工姓名'){
+            headerRow=row;
+            headerIndex=i;
+            break;
+          }
+        }
+        if(headerIndex>=0)break;
+      }
+      if(headerIndex<0){
+        showToast('未找到表头行（需要包含"姓名"或"工号"列），请检查文件格式');
+        return;
+      }
+      // 构建列索引→表头名的映射
+      var colMap={};
+      for(var c=0;c<headerRow.length;c++){
+        if(headerRow[c]) colMap[c]=String(headerRow[c]).trim();
+      }
+      // 转换数据行
+      var rows=[];
+      for(var r=headerIndex+1;r<rawRows.length;r++){
+        var rawRow=rawRows[r];
+        if(!rawRow||rawRow.length===0)continue;
+        var obj={};
+        for(var c=0;c<rawRow.length;c++){
+          if(colMap[c]!==undefined) obj[colMap[c]]=rawRow[c];
+        }
+        rows.push(obj);
+      }
+      if(rows.length===0){
+        showToast('表头后没有数据行，请检查文件格式');
         return;
       }
       var newRecords=[];
@@ -4584,7 +4627,7 @@ function handleFile(e){
         if(emp.name&&emp.name!=='未知')newRecords.push(emp);
       }
       if(newRecords.length===0){
-        showToast('未识别到员工数据，请检查表头');
+        showToast('未识别到员工数据，请检查表头或字段名称');
         return;
       }
       if(allEmployees.length===0||_importMode==='overwrite'){
@@ -5840,33 +5883,33 @@ function closeExport(){document.getElementById('exportModal').style.display='non
 
 var EXPORT_COLS=[
   {h:'序号', k:'seq'},
-  {h:'在职状态', k:'status'},
+  {h:'工号', k:'empId'},
   {h:'姓名', k:'name'},
+  {h:'状态', k:'status'},
   {h:'中心', k:'center'},
   {h:'部门', k:'dept'},
   {h:'岗位', k:'position'},
-  {h:'工号', k:'empId'},
   {h:'入职时间', k:'entryDate'},
-  {h:'档案是否完善', k:'archiveComplete'},
   {h:'转正时间', k:'regularDate'},
-  {h:'工作地点', k:'workLocation'},
-  {h:'交社保/公积金时间', k:'socialSecurityDate'},
-  {h:'离职日期', k:'resignDate'},
-  {h:'身份证号码', k:'idCard'},
-  {h:'年龄', k:'age'},
-  {h:'户籍性质', k:'householdType'},
-  {h:'出生年月', k:'birthDate'},
-  {h:'手机号码', k:'phone'},
+  {h:'公司工龄', k:'workYears'},
+  {h:'工作常驻地点', k:'workplace'},
+  {h:'社保公积金起缴时间', k:'ssStartDate'},
+  {h:'离职时间', k:'resignDate'},
+  {h:'离职类别', k:'resignType'},
   {h:'性别', k:'gender'},
-  {h:'民族', k:'ethnic'},
+  {h:'民族', k:'ethnicity'},
+  {h:'出生年月', k:'birthDate'},
+  {h:'年龄', k:'age'},
   {h:'政治面貌', k:'politicalStatus'},
-  {h:'职称', k:'title'},
-  {h:'邮箱', k:'email'},
-  {h:'工龄', k:'workYears'},
-  {h:'生日', k:'birthday'},
+  {h:'身份证号码', k:'idCard'},
+  {h:'户籍性质', k:'householdType'},
+  {h:'手机号码', k:'phone'},
+  {h:'生日月份', k:'birthMonth'},
   {h:'学历', k:'education'},
   {h:'毕业学校', k:'school'},
-  {h:'专业', k:'major'}
+  {h:'专业', k:'major'},
+  {h:'职称', k:'title'},
+  {h:'工作邮箱', k:'email'}
 ];
 
 function getExportData(){
