@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.5.69">
+<meta name="version" content="V0.5.70">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -18132,7 +18132,7 @@ function renderWPTable(plan){
     graceEl.addEventListener('mouseenter',function(){
       graceTip=document.createElement('div');
       graceTip.className='wp-tooltip';
-      graceTip.textContent='当工作逾期未完成，逾期未到5个工作日时 → 状态是「逾期完成」，超过5 → 系统自动判定为「未做」并扣较高分值。';
+      graceTip.textContent='当工作逾期未完成，逾期未到5个工作日时 → 系统状态标注为「逾期完成」，超过5个工作日 → 系统自动判定为「未做」并扣较高分值。具体分值参见右侧「评分标准」。';
       document.body.appendChild(graceTip);
       var r=graceEl.getBoundingClientRect();
       graceTip.style.left=Math.max(8, r.left+r.width/2-graceTip.offsetWidth/2)+'px';
@@ -18239,7 +18239,7 @@ function startEditCell(cell){
     var sfParts=field.split('.');
     cur=(_wpCurrent.plan.tasks[parseInt(sfParts[1])]&&_wpCurrent.plan.tasks[parseInt(sfParts[1])].supporters)||'';
   }else{
-    cur=cell.textContent.replace(/来源[：:]\d{4}年\d{1,2}月第[1-4]周|点击填写|填写|选择|上级建议|备注/g,'').trim();
+    cur=cell.textContent.replace(/来源[：:]\d{4}年\d{1,2}月第[1-4]周|点击填写|填写|选择|上级建议|备注|●/g,'').trim();
     // ★ V0.4.46: 旧状态值映射
     var _oldStatusMap={'✓完成':'按时完成','⚙推进中':'进行中','⏸暂停':'逾期完成','❌未完成':'暂停中'};
     if(_oldStatusMap[cur])cur=_oldStatusMap[cur];
@@ -18278,7 +18278,7 @@ function startEditCell(cell){
       document.body.appendChild(_dd);
       var _cr=cell.getBoundingClientRect();_dd.style.left=(_cr.left-2)+'px';_dd.style.width=Math.max(_cr.width,120)+'px';
       _dd.style.top=(_cr.bottom+4)+'px';_dd.style.maxHeight=Math.min(window.innerHeight-_cr.bottom-8,200)+'px';
-      setTimeout(function(){document.addEventListener('click',function _onBody(e){if(!_dd.contains(e.target)&&!cell.contains(e.target)){_dd.style.display='none';if(_dd.parentNode)_dd.parentNode.removeChild(_dd);document.removeEventListener('click',_onBody);}});},0);
+      setTimeout(function(){document.addEventListener('click',function _onBody(e){if(!_dd.contains(e.target)&&!cell.contains(e.target)){_dd.style.display='none';if(_dd.parentNode)_dd.parentNode.removeChild(_dd);document.removeEventListener('click',_onBody);cell.classList.remove('editing');_wpEditCell=null;if(_wpCurrent.plan)renderWPTable(_wpCurrent.plan);}});},0);
       return;
     }
     // 非状态字段：原生 select
@@ -18310,7 +18310,7 @@ function startEditCell(cell){
       document.body.appendChild(_gdd);
       var _gcr=cell.getBoundingClientRect();_gdd.style.left=(_gcr.left-2)+'px';_gdd.style.width=Math.max(_gcr.width,130)+'px';
       _gdd.style.top=(_gcr.bottom+4)+'px';_gdd.style.maxHeight=Math.min(window.innerHeight-_gcr.bottom-8,160)+'px';
-      setTimeout(function(){document.addEventListener('click',function _onGBody(e){if(!_gdd.contains(e.target)&&!cell.contains(e.target)){_gdd.style.display='none';if(_gdd.parentNode)_gdd.parentNode.removeChild(_gdd);document.removeEventListener('click',_onGBody);cell.classList.remove('editing');_wpEditCell=null;}});},0);
+      setTimeout(function(){document.addEventListener('click',function _onGBody(e){if(!_gdd.contains(e.target)&&!cell.contains(e.target)){_gdd.style.display='none';if(_gdd.parentNode)_gdd.parentNode.removeChild(_gdd);document.removeEventListener('click',_onGBody);cell.classList.remove('editing');_wpEditCell=null;if(_wpCurrent.plan)renderWPTable(_wpCurrent.plan);}});},0);
       return;
     }
     var s='<select class="wp-cell-select" onchange="commitEditCell(this)"><option value="">--</option>';
@@ -18357,7 +18357,7 @@ async function commitEditCell(el){
     // ★ V0.4.90m: 状态字段自定义下拉无 input，从 cell 文本提取
     if(!newVal && field && field.indexOf('.status')>=0){
       var tc=cell.textContent||'';
-      var sMap={'按时完成':'按时完成','进行中':'进行中','逾期完成':'逾期完成','暂停中':'暂停中'};
+      var sMap={'按时完成':'按时完成','进行中':'进行中','逾期完成':'逾期完成','暂停中':'暂停中','未做':'未做'};
       for(var sk in sMap){if(tc.indexOf(sk)>=0){newVal=sMap[sk];break;}}
     }
     // ★ V0.5.54: 优先级字段自定义下拉无 input，从 cell 文本提取（防御性修复）
@@ -18603,7 +18603,7 @@ function _calcWeekScore(plan){
         // 暂停中 → 0分，不自动判定
         pts=0;
       }else if(tt.status==='未做' && tt._manualNotDone){
-        // 用户手动选择"未做"→ 终止计算时间，积分=0
+        // 用户手动选择"暂停中"→ 终止计算时间，积分=0
         pts=0;
       }else if(actualDate){
         // ★ 有实际完成日期
