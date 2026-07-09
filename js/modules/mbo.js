@@ -94,6 +94,7 @@ var _wpCurrent={year:null,month:null,week:null,plan:null};
 var _wpData={};
 var _wpViewingSubordinate=null;
 var _wpViewingDeptMember=null;
+var _wpViewingShared=null; // ★ V0.5.79b: 被分享查看的人
 var _wpEditCell=null;
 var _wpLastRenderKey='';
 var _wpRevisionMode=false;
@@ -133,6 +134,57 @@ function isMySubordinate(empName){
   return subs.indexOf(empName)!==-1;
 }
 
+// ★ V0.5.79b: 周计划可见性数据
+var _wpVisibility={}; // { uid: { sharedTo: [name,...], sharedBy: { name: 'direct'|'peer', ... } } }
+var _wpVisibilityKey=function(){return 'hwm_wp_visibility_'+(currentUser&&currentUser._uid||'');};
+
+function loadWPVisibility(){
+  try{
+    var raw=localStorage.getItem(_wpVisibilityKey());
+    _wpVisibility=raw?JSON.parse(raw):{};
+  }catch(e){_wpVisibility={};}
+}
+function saveWPVisibility(){
+  localStorage.setItem(_wpVisibilityKey(),JSON.stringify(_wpVisibility));
+}
+function _syncWPVisibility(){saveWPVisibility();}
+
+// 判断某人授权我看他的周计划
+function isSharedToMe(ownerName){
+  if(!ownerName||!currentUser||!currentUser.name)return false;
+  // 通过 USERS 找到 ownerName 对应的 uid
+  var ownerUid=null;
+  for(var uid in USERS){
+    if(USERS[uid]&&USERS[uid].name===ownerName){ownerUid=uid;break;}
+  }
+  if(!ownerUid)return false;
+  var key='hwm_wp_visibility_'+ownerUid;
+  var raw=localStorage.getItem(key);
+  if(!raw)return false;
+  try{
+    var v=JSON.parse(raw);
+    return (v.sharedTo||[]).indexOf(currentUser.name)!==-1;
+  }catch(e){return false;}
+}
+
+// 获取所有授权我看的人（用于下拉列表）
+function getSharedToMeList(){
+  if(!currentUser||!currentUser.name)return[];
+  var result=[];
+  for(var uid in USERS){
+    var key='hwm_wp_visibility_'+uid;
+    var raw=localStorage.getItem(key);
+    if(!raw)continue;
+    try{
+      var v=JSON.parse(raw);
+      if(v.sharedTo&&v.sharedTo.indexOf(currentUser.name)!==-1){
+        result.push({name:USERS[uid].name, uid:uid});
+      }
+    }catch(e){}
+  }
+  return result;
+}
+
 function initWPModule(){
   try{
     // 确保 _wpCurrent 始终已初始化（防止跨会话状态丢失）
@@ -156,6 +208,8 @@ function initWPModule(){
     // 每次进入模块都刷新：信息栏 + 下属选择器 + 计划列表（各自独立容错）
     try{renderWPUserInfo();}catch(e){console.warn('renderWPUserInfo failed:',e);}
     try{renderWPSubSelect();}catch(e){console.warn('renderWPSubSelect failed:',e);}
+    // ★ V0.5.79b: 加载可见性 + 分享下拉
+    try{loadWPVisibility();renderWPSharedSelect();}catch(e){console.warn('renderWPSharedSelect failed:',e);}
     try{onWPMonthChange();}catch(e){console.warn('onWPMonthChange failed:',e);}
     // ★ V0.4.77: 员工本人进入MBO时自动导航到当前周（避免空白状态）
     if(_wpCurrent&&!_wpCurrent.plan&&!_wpViewingSubordinate&&!_wpViewingDeptMember){
@@ -1891,7 +1945,11 @@ function renderWPTable(plan){
   html+='</div>';
 
   html+='<div class="wp-toolbar" id="wpToolbar" style="display:flex;flex-wrap:wrap;gap:16px;padding:10px 0;margin-bottom:7px;border-bottom:1px solid var(--border)">';
-  if(_wpViewingDeptMember){
+  if(_wpViewingShared){
+    // ★ V0.5.79b: 只读模式 — 被授权查看他人周计划
+    html+='<span style="color:#3B7DB4;font-weight:600">📖 只读模式 — 您正在查看 '+esc(_wpViewingShared)+' 分享的周计划</span>';
+    html+='<button onclick="exportCurrentWP()" style="margin-left:auto"><span style="color:#2A476A">📥</span> 导出周计划</button>';
+  }else if(_wpViewingDeptMember){
     // 部门成员视图：审核锁定 + 上级评价（同直属下属）
     var isFrozen = _wpCurrent.plan && _wpCurrent.plan.frozen;
     html+='<button class="'+(isFrozen?'wp-btn-freeze':'')+'" onclick="toggleWPFreeze()" title="锁定后下属不能修改本周重点/优先级/计划完成日期">';
@@ -2293,6 +2351,11 @@ function isFieldFrozen(cell){
 
 // ========== 单元格编辑 ==========
 function startEditCell(cell){
+  // ★ V0.5.79b: 只读模式（被分享查看）
+  if(_wpViewingShared){
+    showToast('📖 只读模式 — 您仅能查看此周计划');
+    return;
+  }
   // ★ V0.5.55: 上级已完成评价，所有人锁定（直属/间接下属均不可修改）
   if(_wpCurrent.plan && _wpCurrent.plan.bossEvaluated){
     showToast('⚠️ 上级已完成评价，无法再修改');
@@ -3736,6 +3799,177 @@ async function aiAssessWP() {
     if (btn) { btn.disabled = false; btn.innerHTML = '<span style="line-height:1.5">AI<br>分析建议</span>'; }
     _showAlert('AI 分析失败：' + (e.message || '未知错误'));
   }
+}
+
+// ★ V0.5.79b: 周计划可见性管理函数
+var _wpVisTab='grant'; // grant | received
+
+function openWPVisibility(){
+  loadWPVisibility();
+  document.getElementById('wpVisibilityModal').style.display='flex';
+  _wpVisTab='grant';
+  renderWPVisTabs();
+  renderWPVisGrantList();
+}
+function closeWPVisibility(){
+  document.getElementById('wpVisibilityModal').style.display='none';
+}
+function switchWPVisTab(tab){
+  _wpVisTab=tab;
+  renderWPVisTabs();
+  if(tab==='grant')renderWPVisGrantList();
+  else renderWPVisReceivedList();
+}
+function renderWPVisTabs(){
+  var t1=document.getElementById('wpVisTab1'), t2=document.getElementById('wpVisTab2');
+  var g=document.getElementById('wpVisGrantPanel'), r=document.getElementById('wpVisReceivedPanel');
+  if(t1){t1.style.cssText=_wpVisTab==='grant'?'flex:1;background:#3B7DB4;color:#fff':'flex:1;background:#f3f4f6;color:#6b7280';}
+  if(t2){t2.style.cssText=_wpVisTab==='received'?'flex:1;background:#3B7DB4;color:#fff':'flex:1;background:#f3f4f6;color:#6b7280';}
+  if(g)g.style.display=_wpVisTab==='grant'?'':'none';
+  if(r)r.style.display=_wpVisTab==='received'?'':'none';
+}
+
+function renderWPVisGrantList(){
+  var list=document.getElementById('wpVisGrantList');
+  if(!list)return;
+  var myName=currentUser.name;
+  var sharedTo=_wpVisibility.sharedTo||[];
+  if(sharedTo.length===0){list.innerHTML='<div style="text-align:center;padding:20px;color:#797973;font-size:13px">暂未授权任何人</div>';return;}
+  var html='';
+  for(var i=0;i<sharedTo.length;i++){
+    html+='<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;margin-bottom:4px;background:#fff;border:1px solid var(--border);border-radius:6px">'+
+      '<span style="font-size:13px">'+esc(sharedTo[i])+'</span>'+
+      '<button class="btn btn-sm" onclick="wpVisRevoke(\''+esc(sharedTo[i])+'\')" style="background:#fef2f2;color:#dc2626;padding:4px 10px;font-size:11px">移除</button>'+
+      '</div>';
+  }
+  list.innerHTML=html;
+}
+
+function renderWPVisReceivedList(){
+  var list=document.getElementById('wpVisReceivedList');
+  if(!list)return;
+  var shared=getSharedToMeList();
+  if(shared.length===0){list.innerHTML='<div style="text-align:center;padding:40px;color:#797973">暂无分享</div>';return;}
+  var html='';
+  for(var i=0;i<shared.length;i++){
+    var s=shared[i];
+    html+='<div style="padding:10px 12px;margin-bottom:4px;background:#F0F5FF;border:1px solid #D0DDF5;border-radius:6px;font-size:13px">'+
+      '📖 <strong>'+esc(s.name)+'</strong> 授权您查看其周计划</div>';
+  }
+  list.innerHTML=html;
+}
+
+function wpVisSearchMember(){
+  var q=(document.getElementById('wpVisSearch')||{}).value||'';
+  var results=document.getElementById('wpVisSearchResults');
+  if(!results)return;
+  if(q.length<1){results.innerHTML='';return;}
+  var matches=[];
+  for(var i=0;i<allEmployees.length;i++){
+    var e=allEmployees[i];
+    if(!e.name||e.name===currentUser.name)continue;
+    if(e.name.indexOf(q)>=0||(e.empId||'').indexOf(q)>=0){
+      // check if already in sharedTo
+      var already=(_wpVisibility.sharedTo||[]).indexOf(e.name)>=0;
+      matches.push({name:e.name,dept:e.dept,already:already});
+    }
+    if(matches.length>=8)break;
+  }
+  if(matches.length===0){results.innerHTML='<div style="padding:8px;color:#797973;font-size:12px">未找到匹配员工</div>';return;}
+  var html='';
+  for(var i=0;i<matches.length;i++){
+    var m=matches[i];
+    html+='<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;margin-bottom:4px;background:#fff;border:1px solid var(--border);border-radius:6px;cursor:pointer;'+(m.already?'opacity:.5':'')+'" onclick="'+(m.already?'':'wpVisGrant(\''+esc(m.name)+'\')')+'">'+
+      '<div><span style="font-size:13px">'+esc(m.name)+'</span><span style="font-size:11px;color:#797973;margin-left:8px">'+esc(m.dept||'')+'</span></div>'+
+      '<span style="font-size:11px;color:'+(m.already?'#9ca3af':'#3B7DB4')+'">'+(m.already?'已授权':'＋ 授权查看')+'</span>'+
+      '</div>';
+  }
+  results.innerHTML=html;
+}
+
+function wpVisGrant(name){
+  if(!_wpVisibility.sharedTo)_wpVisibility.sharedTo=[];
+  if(_wpVisibility.sharedTo.indexOf(name)<0)_wpVisibility.sharedTo.push(name);
+  saveWPVisibility();
+  renderWPVisGrantList();
+  document.getElementById('wpVisSearch').value='';
+  wpVisSearchMember();
+  // 重新渲染顶栏下拉
+  renderWPSharedSelect();
+  showToast('已授权 '+name+' 查看您的周计划');
+}
+
+function wpVisRevoke(name){
+  if(!_wpVisibility.sharedTo)return;
+  var idx=_wpVisibility.sharedTo.indexOf(name);
+  if(idx>=0)_wpVisibility.sharedTo.splice(idx,1);
+  saveWPVisibility();
+  renderWPVisGrantList();
+  renderWPSharedSelect();
+  showToast('已取消 '+name+' 的查看权限');
+}
+
+// 渲染"分享给我的"下拉
+function renderWPSharedSelect(){
+  var shared=getSharedToMeList();
+  var div=document.getElementById('wpSharedCustom');
+  if(!div)return;
+  if(shared.length===0){div.style.display='none';if(_wpViewingShared){switchToMyWP();}return;}
+  div.style.display='';
+  if(_wpViewingShared){
+    var triggerText=document.getElementById('wpSharedTriggerText');
+    if(triggerText)triggerText.textContent='📖 '+_wpViewingShared;
+  }
+  var dd=document.getElementById('wpSharedDropdown');
+  if(dd){
+    var html='';
+    for(var i=0;i<shared.length;i++){
+      var s=shared[i];
+      var isActive=(s.name===_wpViewingShared)?' active':'';
+      html+='<div class="wp-custom-option'+isActive+'" onclick="selectWPSharedOption(\''+esc(s.name)+'\')">📖 '+esc(s.name)+'</div>';
+    }
+    dd.innerHTML=html;
+  }
+}
+function toggleWPSharedDropdown(){
+  var dd=document.getElementById('wpSharedDropdown');
+  if(!dd)return;
+  dd.style.display=(dd.style.display==='block'?'none':'block');
+}
+function selectWPSharedOption(name){
+  _wpViewingSubordinate=null;
+  _wpViewingDeptMember=null;
+  _wpViewingShared=name;
+  var triggerText=document.getElementById('wpSharedTriggerText');
+  if(triggerText)triggerText.textContent='📖 '+name;
+  loadWPData();
+  renderWPSubSelect();
+  renderWPSharedSelect();
+  renderWPUserInfo();
+  // 切换到当前年月
+  var nowD=new Date();
+  selectWP(nowD.getFullYear(),nowD.getMonth()+1,1);
+}
+window.selectWPSharedOption=selectWPSharedOption;
+
+// 切换回自己的周计划
+function switchToMyWP(){
+  _wpViewingSubordinate=null;
+  _wpViewingDeptMember=null;
+  _wpViewingShared=null;
+  var triggerText=document.getElementById('wpSharedTriggerText');
+  if(triggerText)triggerText.textContent='📖 分享给我的周计划';
+  loadWPData();
+  renderWPSubSelect();
+  renderWPSharedSelect();
+  renderWPUserInfo();
+  var nowD=new Date();
+  selectWP(nowD.getFullYear(),nowD.getMonth()+1,1);
+}
+
+// ★ 判断当前查看模式是否为只读（被分享查看）
+function isWPReadOnly(){
+  return !!_wpViewingShared;
 }
 
 // ===== 系统维护模块 =====

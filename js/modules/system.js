@@ -405,14 +405,22 @@ function sysRenderSubList(){
   html+='<th style="padding:10px 12px;text-align:left;font-weight:600">部门</th>';
   html+='<th style="padding:10px 12px;text-align:left;font-weight:600">职务</th>';
   html+='<th style="padding:10px 12px;text-align:center;font-weight:600;width:100px">关系</th>';
+  // ★ V0.5.79b: WP可见性
+  html+='<th style="padding:10px 12px;text-align:center;font-weight:600;font-size:11px">📖 可看我的<br>周计划</th>';
   html+='</tr></thead><tbody>';
   var direct=0,indirect=0;
+  // ★ 加载该用户的可见性
+  var visKey='hwm_wp_visibility_'+_sysEditingUid;
+  var visRaw=localStorage.getItem(visKey);
+  var visData=visRaw?JSON.parse(visRaw):{};
+  var sharedTo=visData.sharedTo||[];
   for(var i=0;i<emps.length;i++){
     var e=emps[i];
     if(e.name===myName)continue;
     var rel=_sysEditingSubs[e.name]||'none';
     if(rel==='direct')direct++;else if(rel==='indirect')indirect++;
     var bg=i%2?'#FAFBFC':'white';
+    var wpShared=sharedTo.indexOf(e.name)>=0;
     html+='<tr style="background:'+bg+';border-bottom:1px solid var(--border-light, #eee)">';
     html+='<td style="padding:8px 12px;font-weight:500">'+_h(e.name)+'</td>';
     html+='<td style="padding:8px 12px;color:#797973">'+_h(e.dept)+'</td>';
@@ -422,6 +430,8 @@ function sysRenderSubList(){
     html+='<option value="direct" style="color:#22c55e"'+(rel==='direct'?' selected':'')+'>● 直属</option>';
     html+='<option value="indirect" style="color:#3b82f6"'+(rel==='indirect'?' selected':'')+'>● 间接</option>';
     html+='</select></td>';
+    // WP可见性复选框
+    html+='<td style="padding:8px 12px;text-align:center"><input type="checkbox" '+(wpShared?'checked':'')+' onchange="sysToggleWPShared(\''+_h(e.name)+'\',this.checked)" style="cursor:pointer;accent-color:#3B7DB4;width:16px;height:16px"></td>';
     html+='</tr>';
   }
   if(emps.length===0)html+='<tr><td colspan="4" style="padding:30px;text-align:center;color:#797973">无匹配员工</td></tr>';
@@ -434,6 +444,18 @@ function sysToggleSubRel(name,rel){
   if(rel==='none')delete _sysEditingSubs[name];
   else _sysEditingSubs[name]=rel;
   sysRenderSubList();
+}
+
+// ★ V0.5.79b: 切换WP周计划可见性
+function sysToggleWPShared(name,checked){
+  var key='hwm_wp_visibility_'+_sysEditingUid;
+  var raw=localStorage.getItem(key);
+  var data=raw?JSON.parse(raw):{};
+  if(!data.sharedTo)data.sharedTo=[];
+  var idx=data.sharedTo.indexOf(name);
+  if(checked&&idx<0)data.sharedTo.push(name);
+  else if(!checked&&idx>=0)data.sharedTo.splice(idx,1);
+  localStorage.setItem(key,JSON.stringify(data));
 }
 
 function sysSaveSubs(){

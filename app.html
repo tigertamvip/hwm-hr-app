@@ -1890,6 +1890,8 @@ body{
 .wp-topbar-user{font-size:12px;margin-left:16px;padding:2px 10px;background:rgba(42,71,106,.08);border-radius:10px;color:#2A476A}
 .wp-back-btn{padding:10px 20px;border:none;border-radius:8px;background:#3B7DB4;color:#fff;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 .wp-back-btn:hover{background:#2A6A9A}
+.wp-btn-visibility{padding:8px 16px;border:none;border-radius:8px;background:rgba(255,255,255,.15);color:#fff;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.wp-btn-visibility:hover{background:rgba(255,255,255,.25)}
 
 .wp-layout{display:flex;height:calc(100vh - 48px);overflow:hidden}
 /* ★ V0.3.102: 侧栏浅色导航轨 — 纯白底+左侧竖条指示器 */
@@ -2688,10 +2690,20 @@ table.collab-table tbody tr:hover{background:#fffdf5}
           </div>
           <div class="wp-custom-dropdown" id="wpDeptDropdown" style="display:none"></div>
         </div>
+        <div class="wp-custom-select" id="wpSharedCustom" style="display:none">
+          <div class="wp-custom-trigger" id="wpSharedTrigger" onclick="toggleWPSharedDropdown()">
+            <span id="wpSharedTriggerText">📖 分享给我的周计划</span>
+            <span style="font-size:10px;margin-left:4px">▾</span>
+          </div>
+          <div class="wp-custom-dropdown" id="wpSharedDropdown" style="display:none"></div>
+        </div>
         <button class="wp-btn-myplan" id="wpBtnMyPlan" onclick="switchToMyWP()" title="回到我的周计划">回到我的周计划</button>
       </div>
     </div>
-    <button class="wp-back-btn" onclick="goHome()">💾 保存并返回首页</button>
+    <div style="display:flex;gap:8px;align-items:center">
+      <button class="wp-btn-visibility" onclick="openWPVisibility()" title="管理周计划可见性">👁 可见性</button>
+      <button class="wp-back-btn" onclick="goHome()">💾 保存并返回首页</button>
+    </div>
   </div>
   <div class="wp-layout">
     <!-- 左侧导航：周计划定位 -->
@@ -6071,6 +6083,36 @@ if('serviceWorker' in navigator){
 </script>
 
 <!-- ★ V0.5.78i: 导入花名册确认弹窗 -->
+<!-- ★ V0.5.79b: 周计划可见性管理弹窗 -->
+<div id="wpVisibilityModal" class="modal-overlay" style="display:none;z-index:210" onclick="if(event.target===this)closeWPVisibility()">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <h2>👁 周计划可见性</h2>
+      <button class="modal-close" onclick="closeWPVisibility()">✕</button>
+    </div>
+    <div class="modal-body" style="padding:20px 24px">
+      <div style="display:flex;gap:8px;margin-bottom:16px;border-bottom:1px solid var(--border);padding-bottom:12px">
+        <button class="btn btn-sm" id="wpVisTab1" onclick="switchWPVisTab('grant')" style="flex:1;background:#3B7DB4;color:#fff">我授权的</button>
+        <button class="btn btn-sm" id="wpVisTab2" onclick="switchWPVisTab('received')" style="flex:1">分享给我的</button>
+      </div>
+      <div id="wpVisGrantPanel">
+        <div style="display:flex;gap:8px;margin-bottom:12px">
+          <input type="text" id="wpVisSearch" class="form-input" placeholder="搜索员工姓名..." oninput="wpVisSearchMember()" style="flex:1">
+        </div>
+        <div id="wpVisSearchResults" style="max-height:160px;overflow-y:auto;margin-bottom:12px"></div>
+        <div style="font-size:12px;color:#797973;margin-bottom:8px">当前已授权：</div>
+        <div id="wpVisGrantList" style="max-height:200px;overflow-y:auto"></div>
+      </div>
+      <div id="wpVisReceivedPanel" style="display:none">
+        <div id="wpVisReceivedList" style="max-height:300px;overflow-y:auto">
+          <div style="text-align:center;padding:40px;color:#797973">暂无分享</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div id="importConfirmModal" class="modal-overlay" style="display:none;z-index:200" onclick="if(event.target===this)closeImportConfirm()">
   <div class="modal" style="max-width:520px">
     <div class="modal-handle"></div>
