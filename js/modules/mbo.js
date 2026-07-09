@@ -234,14 +234,14 @@ function initWPModule(){
 }
 
 function getWPLocalStorageKey(){
-  var user=_wpViewingSubordinate||_wpViewingDeptMember||(currentUser&&currentUser.name)||getCurrentEmployee().name;
+  var user=_wpViewingShared||_wpViewingSubordinate||_wpViewingDeptMember||(currentUser&&currentUser.name)||getCurrentEmployee().name;
   return 'hwm_workplans_'+user;
 }
 
 // ★ V0.1.19: 批量修复当前用户所有周计划的脏数据
 // 修复场景：跨浏览器登录、UID迁移后 localStorage 中残留其他用户信息
 function fixAllPlanDirtyData(){
-  var correctName=_wpViewingSubordinate||_wpViewingDeptMember||(currentUser&&currentUser.name)||'';
+  var correctName=_wpViewingShared||_wpViewingSubordinate||_wpViewingDeptMember||(currentUser&&currentUser.name)||'';
   if(!correctName)return;
   var emp=getViewedUserEmp();
   var correctDept=emp?emp.dept:'';
@@ -269,7 +269,7 @@ function loadWPData(){
   // ① 先读 localStorage（秒出，不卡）
   try{_wpData=JSON.parse(localStorage.getItem(getWPLocalStorageKey())||'{}');}catch(e){_wpData={};}
   // ② 后台从 Supabase 拉取并合并（跨设备数据同步，失败不影响使用）
-  var user=_wpViewingSubordinate||_wpViewingDeptMember||(currentUser&&currentUser.name)||getCurrentEmployee().name;
+  var user=_wpViewingShared||_wpViewingSubordinate||_wpViewingDeptMember||(currentUser&&currentUser.name)||getCurrentEmployee().name;
   if(!user||typeof user!=='string'||user.trim()===''){
     console.warn('HWM: loadWPData aborted - user is empty');
     return;
@@ -337,6 +337,8 @@ function loadWPData(){
 }
 
 function saveWPData(){
+  // ★ 只读模式禁止保存
+  if(_wpViewingShared)return;
   var key=getWPLocalStorageKey();
   localStorage.setItem(key,JSON.stringify(_wpData));
   // 异步推送到 Supabase（静默，失败不影响使用）
@@ -406,8 +408,8 @@ function _getPrevWeek(y,m,w){
   return {year:y-1,month:12,week:4};
 }
 function _autoCarryTasks(plan,y,m,w){
-  // 仅对自有计划执行自动顺延（上级查看下属时不触发）
-  if(_wpViewingSubordinate||_wpViewingDeptMember)return;
+  // 仅对自有计划执行自动顺延（上级查看下属 or 分享查看时不触发）
+  if(_wpViewingShared||_wpViewingSubordinate||_wpViewingDeptMember)return;
   // 防重复：如果已有 carriedFrom 标记的任务，说明已执行过
   if(plan.tasks.some(function(t){return t.carriedFrom;}))return;
   var pwk=_getPrevWeek(y,m,w);
@@ -521,7 +523,15 @@ function createEmptyPlan(y,m,w){
 function renderWPUserInfo(){
   var div=document.getElementById('wpUserInfo');
   if(!div)return;
-  if(_wpViewingSubordinate){
+  if(_wpViewingShared){
+    var sharedName=_wpViewingShared;
+    var sharedDept='', sharedPos='';
+    if(_wpCurrent&&_wpCurrent.plan){
+      sharedDept=_wpCurrent.plan.dept||'';
+      sharedPos=_wpCurrent.plan.position||'';
+    }
+    div.textContent='📖 查看分享：'+sharedName+' | '+sharedDept+' | '+sharedPos;
+  }else if(_wpViewingSubordinate){
     var subName=_wpViewingSubordinate;
     var subDept='', subPos='';
     if(_wpCurrent&&_wpCurrent.plan){
@@ -1132,8 +1142,8 @@ function selectWP(y,m,w){
   _wpCurrent={year:y,month:m,week:w,plan:null};
   loadWPData();
   var plan=getWP(y,m,w);
-  // ★ 确定当前正在查看的用户名（自己 or 下属）
-  var correctName=_wpViewingSubordinate||_wpViewingDeptMember||(currentUser&&currentUser.name)||'';
+  // ★ 确定当前正在查看的用户名（自己 or 下属 or 分享查看）
+  var correctName=_wpViewingShared||_wpViewingSubordinate||_wpViewingDeptMember||(currentUser&&currentUser.name)||'';
   // ★ 获取正在查看用户的正确部门/职位（自己 or 下属）
   var emp=getViewedUserEmp();
   var correctDept=emp?emp.dept:'';
@@ -1936,7 +1946,7 @@ function renderWPTable(plan){
   html+='<div class="wp-info-bar"><strong>当前员工：</strong><strong>'+_h(plan.name)+'</strong>&nbsp;'+_h(plan.dept)+' | '+_h(plan.position)+'<span class="sep">|</span>'+weekLabel;
   if(_wpViewingSubordinate)html+='<span style="color:#E8622A;font-weight:500;margin-left:8px">（查看直属下属周计划）</span>';
   else if(_wpViewingDeptMember)html+='<span style="color:#E8622A;font-weight:500;margin-left:8px">（查看更多下属周计划）</span>';
-  if(plan.frozen && !_wpViewingSubordinate && !_wpViewingDeptMember){
+  if(plan.frozen && !_wpViewingShared && !_wpViewingSubordinate && !_wpViewingDeptMember){
     html+='<span style="color:#3b82f6;font-weight:600;margin-left:8px">🔐 已被上级锁定（本周重点/优先级/计划完成日期不可修改）</span>';
     if(plan.frozenBy)/* removed by attribution */;
   }
@@ -2341,7 +2351,7 @@ function toggleWPFreeze(){
 // ★ V0.1.23: 判断某个字段是否被锁定（员工查看自己被上级锁定的计划时）
 function isFieldFrozen(cell){
   // 锁定保护只对「员工查看自己的计划」生效
-  if(_wpViewingSubordinate||_wpViewingDeptMember)return false; // 上级不受限
+  if(_wpViewingShared||_wpViewingSubordinate||_wpViewingDeptMember)return false; // 上级/分享查看不受限
   var plan=_wpCurrent?_wpCurrent.plan:null;
   if(!plan||!plan.frozen)return false;
   var field=cell.dataset.field||'';
@@ -3012,7 +3022,7 @@ function _renderTimeManagementPanel(plan){
 
   // 豁免按钮
   var exemptionBtn='';
-  if((_wpViewingSubordinate||_wpViewingDeptMember)&&(subStatus!=='on_time'||plan.exempted)){
+  if((_wpViewingShared||_wpViewingSubordinate||_wpViewingDeptMember)&&(subStatus!=='on_time'||plan.exempted)){
     exemptionBtn='<button onclick="toggleWPExemption()" style="padding:2px 8px;border:none;border-radius:4px;cursor:pointer;font-size:11px;margin-top:4px;'+(plan.exempted?'background:#94a3b8;color:#fff':'background:#289FB7;color:#fff')+'">'+(plan.exempted?'🔓 取消豁免':'🛡️ 豁免')+'</button>';
   }
 

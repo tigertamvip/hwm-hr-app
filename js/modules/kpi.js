@@ -143,7 +143,7 @@ function getCurrentEmployee(){
 
 // ★ V0.1.23: 获取当前正在查看的用户（自己/直属下属/部门成员），用于周计划模块
 function getViewedUserEmp(){
-  var targetName = _wpViewingSubordinate || _wpViewingDeptMember || (currentUser&&currentUser.name) || '';
+  var targetName = _wpViewingShared || _wpViewingSubordinate || _wpViewingDeptMember || (currentUser&&currentUser.name) || '';
   if(!targetName) return getCurrentEmployee();
   // 先从 USERS 查找
   for(var uid in USERS){
