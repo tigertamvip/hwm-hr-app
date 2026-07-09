@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.5.70">
+<meta name="version" content="V0.5.71">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -18726,8 +18726,8 @@ function _renderEisenhowerMatrix(year){
   var W=220,H=160,XC=Math.round(W/2),YC=Math.round(H/2),R=4;
   var svg='<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto">';
   // 十字轴
-  svg+='<line x1="'+XC+'" y1="8" x2="'+XC+'" y2="'+(H-8)+'" stroke="#cbd5e1" stroke-width="1"/>';
-  svg+='<line x1="8" y1="'+YC+'" x2="'+(W-8)+'" y2="'+YC+'" stroke="#cbd5e1" stroke-width="1"/>';
+  svg+='<line x1="'+XC+'" y1="18" x2="'+XC+'" y2="'+(H-14)+'" stroke="#cbd5e1" stroke-width="1"/>';
+  svg+='<line x1="14" y1="'+YC+'" x2="'+(W-14)+'" y2="'+YC+'" stroke="#cbd5e1" stroke-width="1"/>';
   // 象限标签
   svg+='<text x="'+XC+'" y="14" text-anchor="middle" fill="#9ca3af" font-size="9" font-family="system-ui">重要</text>';
   svg+='<text x="'+XC+'" y="'+(H-3)+'" text-anchor="middle" fill="#9ca3af" font-size="9" font-family="system-ui">日常</text>';
