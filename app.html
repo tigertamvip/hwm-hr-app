@@ -764,7 +764,7 @@ body{
 
 .file-input{display:none}
 
-.result-count{font-size:15px;font-weight:600;color:#fff;white-space:nowrap;padding:4px 0;margin:0}
+.result-count{font-size:15px;font-weight:600;color:#797973;white-space:nowrap;padding:4px 0;margin:0}
 
 /* Password Gate */
 .password-overlay{
@@ -2368,8 +2368,6 @@ table.collab-table tbody tr:hover{background:#fffdf5}
       <button class="btn btn-outline btn-sm" id="btnAdd" onclick="showAddEmployee()" style="display:none">新增</button>
       <button class="btn btn-outline btn-sm" id="btnImport" onclick="showImport()">导入</button>
       <button class="btn btn-outline btn-sm" id="btnExport" onclick="showExport()" style="display:none">导出</button>
-      <button class="btn btn-outline btn-sm" id="btnRefresh" onclick="forceRefreshFromCloud()" style="display:none" title="从云端强制刷新所有数据">🔄</button>
-      <button class="btn btn-outline btn-sm" id="btnClear" onclick="resetDatabase()" style="display:none">清空</button>
       <button class="btn btn-outline btn-sm" onclick="goHome()">← 返回</button>
       <button type="button" onclick="toggleEmpStats()" id="empStatsToggleBtn" style="padding:2px 6px;border:none;border-radius:6px;background:transparent;color:#fff;font-size:13px;font-weight:400;cursor:pointer;display:inline-flex;align-items:center;gap:3px;transition:all .25s ease;white-space:nowrap"><span id="empStatsToggleIcon" style="color:rgba(255,255,255,.7)">▲</span><span id="empStatsToggleText">收起</span></button>
     </div>
@@ -3445,10 +3443,6 @@ function applyRoleUI(){
   document.getElementById('btnImport').style.display=(role==='admin'||role==='data_admin')?'':'none';
   // 导出按钮：admin + data_admin
   document.getElementById('btnExport').style.display=(role==='admin'||role==='data_admin')?'':'none';
-  // 清空按钮：仅 admin
-  document.getElementById('btnClear').style.display=(role==='admin')?'':'none';
-  // 云端刷新按钮：admin + data_admin
-  document.getElementById('btnRefresh').style.display=(role==='admin'||role==='data_admin')?'':'none';
 
   // ─── 权限卡片显隐 ───
   var userPerms=null;
