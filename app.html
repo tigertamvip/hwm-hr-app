@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.5.66b">
+<meta name="version" content="V0.5.67">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1966,6 +1966,11 @@ body{
 .wp-table td.editable.editing{background:#F8F9FA;box-shadow:inset 0 0 0 2px rgba(15,123,225,.25);padding:3px}
 .wp-table th,.wp-table td{overflow:hidden;text-overflow:ellipsis}
 .wp-table td.col-num{color:#5B6B7B;font-size:11px;min-width:56px}
+/* ★ V0.5.67: 拖拽排序 */
+.wp-table td.col-num.drag-handle{cursor:grab;user-select:none}
+.wp-table td.col-num.drag-handle:active{cursor:grabbing}
+.wp-row-dragging{opacity:.4;background:#E8F4FE!important}
+.wp-row-drag-over td{border-top:3px solid #0F7BE1!important}
 .wp-table td.col-work{text-align:left;min-width:180px;font-weight:600}
 .wp-table td.col-goal{text-align:center;min-width:80px;font-size:12px;font-weight:600}
 /* ★ V0.3.101: 优先级纯文字标签 — 去彩色底色 */
@@ -17602,11 +17607,95 @@ function _renderTaskOpCell(taskIdx,seq,plan){
   }
 
   // ★ V0.3.70: 序号列垂直排列 — 序号在上，+号居中，-号在下
+  var dragCls=(!isFrozen&&!isCollab)?' drag-handle':'';
   var html='<div style="display:flex;flex-direction:column;align-items:center;gap:1px;padding:2px 0">';
   html+='<span style="font-size:11px;line-height:1">'+seq+'</span>';
   if(btns)html+=btns;
   html+='</div>';
-  return '<td class="col-num" style="text-align:center;padding:2px 4px;vertical-align:middle">'+html+'</td>';
+  return '<td class="col-num'+dragCls+'" style="text-align:center;padding:2px 4px;vertical-align:middle" draggable="true">'+html+'</td>';
+}
+
+// ★ V0.5.67: 拖拽排序 — 核心拖拽逻辑
+var _wpDragIdx=-1;
+function _onWPDragStart(e){
+  var cell=e.target.closest('td.col-num.drag-handle');
+  if(!cell)return;
+  var tr=cell.closest('tr');
+  if(!tr)return;
+  var idx=parseInt(tr.getAttribute('data-task-idx'));
+  if(isNaN(idx))return;
+  _wpDragIdx=idx;
+  tr.classList.add('wp-row-dragging');
+  e.dataTransfer.effectAllowed='move';
+  e.dataTransfer.setData('text/plain',''+idx);
+}
+function _onWPDragEnd(e){
+  var trs=document.querySelectorAll('.wp-table tbody tr');
+  for(var i=0;i<trs.length;i++)trs[i].classList.remove('wp-row-dragging','wp-row-drag-over');
+  _wpDragIdx=-1;
+}
+function _onWPDragOver(e){
+  e.preventDefault();
+  e.dataTransfer.dropEffect='move';
+  var tr=e.target.closest('tr');
+  if(!tr)return;
+  var idx=parseInt(tr.getAttribute('data-task-idx'));
+  if(isNaN(idx)||idx===_wpDragIdx)return;
+  // 清除之前的标记
+  var trs=document.querySelectorAll('.wp-table tbody tr.wp-row-drag-over');
+  for(var i=0;i<trs.length;i++)trs[i].classList.remove('wp-row-drag-over');
+  tr.classList.add('wp-row-drag-over');
+}
+function _onWPDragLeave(e){
+  var tr=e.target.closest('tr');
+  if(!tr)return;
+  tr.classList.remove('wp-row-drag-over');
+}
+function _onWPDrop(e){
+  e.preventDefault();
+  var tr=e.target.closest('tr');
+  if(!tr)return _onWPDragEnd(e);
+  var toIdx=parseInt(tr.getAttribute('data-task-idx'));
+  if(isNaN(toIdx)||toIdx===_wpDragIdx)return _onWPDragEnd(e);
+  // 检查目标是否为协作/转入任务行
+  var p=_wpCurrent.plan;if(!p)return _onWPDragEnd(e);
+  if(toIdx>=0&&toIdx<p.tasks.length&&p.tasks[toIdx]){
+    if(p.tasks[toIdx].collab_from){_onWPDragEnd(e);showToast('⚠️ 协作任务位置不可拖拽');return;}
+    if(p.tasks[toIdx].carriedFrom){_onWPDragEnd(e);showToast('⚠️ 上周转入任务位置不可拖拽');return;}
+  }
+  reorderTasks(_wpDragIdx,toIdx);
+  _onWPDragEnd(e);
+}
+function reorderTasks(fromIdx,toIdx){
+  var p=_wpCurrent.plan;if(!p)return;
+  var tasks=p.tasks;
+  if(fromIdx<0||fromIdx>=tasks.length||toIdx<0||toIdx>=tasks.length)return;
+  if(tasks[fromIdx]&&tasks[fromIdx].collab_from)return;
+  var moved=tasks.splice(fromIdx,1)[0];
+  // 调整插入索引：如果 from < to，splice 后 to 已经前移了一位
+  var insertAt=fromIdx<toIdx?toIdx:toIdx;
+  tasks.splice(insertAt,0,moved);
+  for(var i=0;i<tasks.length;i++)tasks[i].seq=i+1;
+  saveWP(p.year,p.month,p.week,p);
+  renderWPTable(p);
+  showToast('✅ 已调整次序');
+}
+// ★ V0.5.67: 在 renderWPTable 后自动绑定拖拽事件
+function _bindWPDragEvents(){
+  var tbodies=document.querySelectorAll('.wp-table tbody');
+  for(var bi=0;bi<tbodies.length;bi++){
+    var tb=tbodies[bi];
+    tb.removeEventListener('dragstart',_onWPDragStart);
+    tb.removeEventListener('dragend',_onWPDragEnd);
+    tb.removeEventListener('dragover',_onWPDragOver);
+    tb.removeEventListener('dragleave',_onWPDragLeave);
+    tb.removeEventListener('drop',_onWPDrop);
+    tb.addEventListener('dragstart',_onWPDragStart);
+    tb.addEventListener('dragend',_onWPDragEnd);
+    tb.addEventListener('dragover',_onWPDragOver);
+    tb.addEventListener('dragleave',_onWPDragLeave);
+    tb.addEventListener('drop',_onWPDrop);
+  }
 }
 
 // ★ V0.1.59: 在指定行后新增一行
@@ -17802,7 +17891,7 @@ function renderWPTable(plan){
       // ★ V0.1.88: 转入任务可编辑
       var edCls=(plan.bossEvaluated?'':' editable');
       var edClick=(plan.bossEvaluated?'':' onclick="startEditCell(this)"');
-      html+='<tr style="background:#FFFDF5">';
+      html+='<tr style="background:#FFFDF5" data-task-idx="'+jj+'">';
       // ★ V0.1.59: 上周转入的不可删除，只显示序号
       html+='<td class="col-num" style="text-align:center;color:#8B6914">'+seq+'</td>';
       html+='<td class="'+edCls+' col-work" data-field="tasks.'+jj+'.work" data-type="textarea"'+edClick+'>'+(tt.work?_hWork(tt.work):'<span style="color:var(--text-hint)">点击填写</span>')+cfTag+'</td>';
@@ -17988,6 +18077,9 @@ function renderWPTable(plan){
   html+='</div>';
 
   content.insertAdjacentHTML('beforeend',html);
+
+  // ★ V0.5.67: 绑定拖拽事件
+  setTimeout(function(){_bindWPDragEvents();},50);
 
   // ★ V0.4.91n: 绑定耗时表头的自定义 tooltip
   setTimeout(function(){
