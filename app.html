@@ -6,8 +6,8 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.5.84">
-<!-- cache-bust: 2026-07-09-22-05 -->
+<meta name="version" content="V0.5.85">
+<!-- cache-bust: 2026-07-09-22-15 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1102,10 +1102,9 @@ body{
   box-shadow:0 1px 4px rgba(0,0,0,.08);
 }
 .portal-card:hover{
-  opacity:.9;
   z-index:10;
 }
-.portal-card:active{opacity:.85}
+.portal-card:active{}
 .portal-card-label{
   font-family:"Microsoft YaHei","微软雅黑",sans-serif;
   font-size:18px;
@@ -1187,7 +1186,7 @@ body{
 
 /* 系统维护特殊卡片 — hover行为与已开发模块一致 */
 .portal-card-special{background:var(--brand-primary)}
-.portal-card-special:hover{opacity:.9;z-index:10}
+.portal-card-special:hover{z-index:10}
 .portal-card-special .portal-card-label{color:#ffffff;font-weight:400}
 .portal-card-special .portal-card-en{color:rgba(255,255,255,.7)}
 .portal-card-special .portal-card-badge{background:rgba(255,255,255,.15);color:rgba(255,255,255,.9)}
@@ -1199,7 +1198,7 @@ body{
 .portal-card.disabled .portal-card-label{color:#0F2C4B;font-weight:300}
 .portal-card.disabled .portal-card-en{color:#6b7280}
 .portal-card.disabled .portal-card-badge{background:rgba(0,0,0,.08);color:#6b7280;border-color:rgba(0,0,0,.06)}
-.portal-card.disabled:hover{opacity:.9}
+.portal-card.disabled:hover{}
 
 .portal-footer{
   text-align:center;
@@ -1891,7 +1890,7 @@ body{
 .wp-topbar-user{font-size:12px;margin-left:16px;padding:2px 10px;background:rgba(42,71,106,.08);border-radius:10px;color:#2A476A}
 .wp-back-btn{padding:10px 20px;border:none;border-radius:8px;background:#3B7DB4;color:#fff;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 .wp-back-btn:hover{background:#2A6A9A}
-.wp-btn-visibility{padding:8px 22px 8px 16px;border-radius:8px;border:1px solid #3B7DB4;background:#fff;color:#3B7DB4;font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:4px;user-select:none;transition:all .15s}
+.wp-btn-visibility{padding:8px 16px 8px 14px;border-radius:8px;border:1px solid #3B7DB4;background:#fff;color:#3B7DB4;font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:4px;user-select:none;transition:all .15s}
 .wp-btn-visibility:hover{background:#E8F4FE;border-color:#2A6A9A;color:#2A6A9A}
 
 .wp-layout{display:flex;height:calc(100vh - 48px);overflow:hidden}
@@ -1955,17 +1954,17 @@ body{
 .wp-toolbar button:hover{background:#E8F4FE;border-color:#2A6A9A;color:#2A6A9A}
 .wp-toolbar button:active{background:#D0E8FD;border-color:#004A9E}
 /* 第一类：基准蓝填充主按钮（提交周计划） */
-.wp-toolbar button.wp-btn-primary{background:#3B7DB4;color:#fff;border-color:#3B7DB4}
-.wp-toolbar button.wp-btn-primary:hover{background:#2A6A9A;border-color:#2A6A9A;color:#fff}
+.wp-toolbar button.wp-btn-primary{background:#2ECC71;color:#fff;border-color:#2ECC71}
+.wp-toolbar button.wp-btn-primary:hover{background:#27ae60;border-color:#27ae60;color:#fff}
 /* 第二类：暗灰蓝填充（提交周小结，沉稳低调） */
 .wp-toolbar button.wp-btn-summary{background:#4a6580;color:#fff;border-color:#4a6580}
 .wp-toolbar button.wp-btn-summary:hover{background:#3a5060;border-color:#3a5060;color:#fff}
-/* 第三类：深蓝灰填充（删除，最深邃低调） */
-.wp-toolbar button.wp-btn-delete{background:#2c3e5c;color:#fff;border-color:#2c3e5c}
-.wp-toolbar button.wp-btn-delete:hover{background:#1e2d42;border-color:#1e2d42;color:#fff}
-/* 第四类：中蓝填充（导出，温和辅助） */
-.wp-toolbar button.wp-btn-export{background:#6191D3;color:#fff;border-color:#6191D3}
-.wp-toolbar button.wp-btn-export:hover{background:#4a7bb5;border-color:#4a7bb5;color:#fff}
+/* 第三类：珊瑚红填充（删除，醒目警示） */
+.wp-toolbar button.wp-btn-delete{background:#D64352;color:#fff;border-color:#D64352}
+.wp-toolbar button.wp-btn-delete:hover{background:#b93645;border-color:#b93645;color:#fff}
+/* 第四类：基准蓝填充（导出，温和辅助） */
+.wp-toolbar button.wp-btn-export{background:#3B7DB4;color:#fff;border-color:#3B7DB4}
+.wp-toolbar button.wp-btn-export:hover{background:#2A6A9A;border-color:#2A6A9A;color:#fff}
 /* 统一禁用状态 */
 .wp-toolbar button.wp-btn-primary:disabled,.wp-toolbar button.wp-btn-summary:disabled,.wp-toolbar button.wp-btn-delete:disabled,.wp-toolbar button.wp-btn-export:disabled,.wp-toolbar button.wp-btn-disabled{background:#CBD5E1;color:#94A3B8;border-color:#CBD5E1;cursor:not-allowed}
 /* 白底蓝框次要按钮（回到我的计划/查看评价等） */
@@ -2177,11 +2176,12 @@ table.collab-table tbody tr:hover{background:#fffdf5}
 .wp-eval-cancel:hover{background:#E8F4FE}
 
 /* 下属选择下拉 — 毛玻璃风格 */
-.wp-sub-select{margin-left:auto;display:flex;align-items:center;gap:20px;font-size:12px;padding-left:120px;color:#2A476A}
+.wp-sub-select{margin-left:auto;display:flex;align-items:center;gap:12px;font-size:12px;padding-left:120px;color:#2A476A}
 .wp-sub-select>.wp-custom-select{flex:0 1 auto;min-width:160px;max-width:200px}
+.wp-sub-select>.wp-btn-visibility{flex:0 0 auto}
 .wp-sub-select>.wp-btn-myplan{flex:0 0 auto}
 .wp-custom-select{/* position:relative removed — breaks position:fixed in child dropdown */}
-.wp-custom-trigger{padding:6px 22px 6px 14px;border-radius:8px;border:1px solid #3B7DB4;background:#fff;color:#3B7DB4;font-size:13px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;user-select:none;transition:all .15s}
+.wp-custom-trigger{padding:8px 16px 8px 14px;border-radius:8px;border:1px solid #3B7DB4;background:#fff;color:#3B7DB4;font-size:13px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;user-select:none;transition:all .15s}
 .wp-custom-trigger:hover{background:#E8F4FE;border-color:#2A6A9A;color:#2A6A9A}
 .wp-custom-dropdown{position:fixed;background:rgba(252,252,253,.55);border:1px solid rgba(200,205,212,.4);border-radius:8px;box-shadow:0 4px 6px rgba(0,0,0,.04),0 10px 24px rgba(0,0,0,.08),0 24px 64px rgba(0,0,0,.06);overflow-y:auto;z-index:9999;padding:12px 16px;backdrop-filter:blur(20px) saturate(1.4);-webkit-backdrop-filter:blur(20px) saturate(1.4)}
 .wp-dropdown-scroll-hint{display:flex;align-items:center;justify-content:center;gap:4px;padding:6px 0 4px;color:#9ca3af;font-size:11px;pointer-events:none;animation:scrollHintPulse 1.5s ease-in-out infinite}
@@ -2189,7 +2189,7 @@ table.collab-table tbody tr:hover{background:#fffdf5}
 .wp-custom-option{display:flex;align-items:center;height:24px;padding:0;font-size:13px;color:#0F2C4B;cursor:pointer;white-space:nowrap;border-radius:6px;margin:0 -8px;padding:0 8px}
 .wp-custom-option:hover{background:rgba(0,0,0,.04)}
 .wp-custom-option.active{background:rgba(59,130,246,.08);font-weight:500;color:#1d4ed8}
-.wp-btn-myplan{padding:7px 18px;margin-left:12px;border:none;border-radius:8px;background:#3B7DB4;color:#fff;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .15s}
+.wp-btn-myplan{padding:8px 16px 8px 14px;margin-left:0;border:none;border-radius:8px;background:#3B7DB4;color:#fff;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .15s}
 .wp-btn-myplan:hover{background:#2A6A9A}
 
 @media(max-width:768px){
@@ -6093,7 +6093,7 @@ if('serviceWorker' in navigator){
   <div class="modal" style="max-width:560px">
     <div class="modal-handle"></div>
     <div class="modal-header">
-      <h2>工作目标计划横向对齐</h2>
+      <h2>目标计划横向对齐</h2>
       <button class="modal-close" onclick="closeWPVisibility()">✕</button>
     </div>
     <div class="modal-body" style="padding:20px 24px;min-height:420px">

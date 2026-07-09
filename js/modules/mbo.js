@@ -3137,7 +3137,7 @@ function exportCurrentWP(){
     var hdrs=['姓名','部门','岗位','序号','本周重点工作','优先级','启动日期','计划完成日期','实际完成日期','耗时','完成状态','协同人','遇到的问题/挑战','问题类型','是否需要上级介入','直属上级建议','AI分析建议'];
     
     // 构建数据行
-    var rows=[[title],[hdrs]];
+    var rows=[[title], hdrs];
     for(var i=0;i<p.tasks.length;i++){
       var t=p.tasks[i]||{};
       var _dur=_calcTaskDuration(t);
