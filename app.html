@@ -107,6 +107,8 @@ body{
 .btn-outline{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.3)}
 .modal-body .btn-outline{background:#fff;color:var(--text-secondary);border:1px solid var(--border)}
 .modal-body .btn-outline:hover{background:var(--secondary);color:var(--primary)}
+.btn-return-mbo{background:#fff;color:#3B7DB4;border:none;border-radius:8px;padding:7px 18px;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s ease;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+.btn-return-mbo:hover{background:#E8F4FE;transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.18)}
 .btn-sm{padding:6px 12px;font-size:14px}
 .btn-danger{background:var(--danger);color:#fff}
 
@@ -2368,7 +2370,7 @@ table.collab-table tbody tr:hover{background:#fffdf5}
       <button class="btn btn-outline btn-sm" id="btnAdd" onclick="showAddEmployee()" style="display:none">新增</button>
       <button class="btn btn-outline btn-sm" id="btnImport" onclick="showImport()">导入</button>
       <button class="btn btn-outline btn-sm" id="btnExport" onclick="showExport()" style="display:none">导出</button>
-      <button class="btn btn-outline btn-sm" onclick="goHome()">← 返回</button>
+      <button class="btn btn-return-mbo" onclick="goHome()">← 返回</button>
       <button type="button" onclick="toggleEmpStats()" id="empStatsToggleBtn" style="padding:2px 6px;border:none;border-radius:6px;background:transparent;color:#fff;font-size:13px;font-weight:400;cursor:pointer;display:inline-flex;align-items:center;gap:3px;transition:all .25s ease;white-space:nowrap"><span id="empStatsToggleIcon" style="color:rgba(255,255,255,.7)">▲</span><span id="empStatsToggleText">收起</span></button>
     </div>
   </div>
