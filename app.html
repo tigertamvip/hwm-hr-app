@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.5.66">
+<meta name="version" content="V0.5.66a">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1918,7 +1918,7 @@ body{
 .wp-sidebar-plan-item.active .task-count{color:rgba(255,255,255,.85)}
 .wp-sidebar-plan-delete{display:none;position:absolute;right:3px;top:3px;width:14px;height:14px;line-height:14px;text-align:center;border-radius:50%;font-size:9px;cursor:pointer;color:#fff;background:#D64352;z-index:2}
 .wp-sidebar-plan-item:hover .wp-sidebar-plan-delete{display:block}
-.wp-sidebar-plan-item.active .wp-sidebar-plan-delete{display:none}
+.wp-sidebar-plan-item.active .wp-sidebar-plan-delete{display:block;opacity:.6;background:rgba(214,67,82,.7)}
 .wp-sidebar-plan-delete:hover{background:#B91C1C;transform:scale(1.1)}
 
 .wp-content{flex:1;height:100%;overflow-y:auto;padding:16px 24px;background:#FBF8F3;display:flex;flex-direction:column}
@@ -16855,7 +16855,7 @@ function renderWPPlanList(year,month){
     var active=(_wpCurrent&&_wpCurrent.year===year&&_wpCurrent.month===month&&_wpCurrent.week===w);
     var taskCount=plan?plan.tasks.filter(function(t){return t.work;}).length:0;
     var delBtn='';
-    if(plan&&!active)delBtn='<span class="wp-sidebar-plan-delete" onclick="event.stopPropagation();delWPFromSidebar('+year+','+month+','+w+')">×</span>';
+    if(plan)delBtn='<span class="wp-sidebar-plan-delete" onclick="event.stopPropagation();delWPFromSidebar('+year+','+month+','+w+')">×</span>';
     html+='<div class="wp-sidebar-plan-item'+(active?' active':'')+'" onclick="selectWP('+year+','+month+','+w+')">'+delBtn+'<div class="week-label">'+weekLabels[w-1]+'</div><div class="task-count">('+taskCount+')</div></div>';
   }
   list.innerHTML=html;
