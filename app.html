@@ -6,8 +6,8 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.5.83">
-<!-- cache-bust: 2026-07-09-21-55 -->
+<meta name="version" content="V0.5.84">
+<!-- cache-bust: 2026-07-09-22-05 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1954,13 +1954,21 @@ body{
 .wp-toolbar button{padding:6px 18px;border:1px solid #3B7DB4;border-radius:8px;background:#fff;color:#3B7DB4;font-size:12px;cursor:pointer;transition:all .18s ease;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:5px;font-weight:500;min-width:118px;box-shadow:none;line-height:1.4}
 .wp-toolbar button:hover{background:#E8F4FE;border-color:#2A6A9A;color:#2A6A9A}
 .wp-toolbar button:active{background:#D0E8FD;border-color:#004A9E}
-/* 第一类：基准蓝填充主按钮（提交/保存等核心操作） */
-.wp-toolbar button.wp-btn-primary{background:#3B7DB4;color:#fff;border:1px solid #3B7DB4}
+/* 第一类：基准蓝填充主按钮（提交周计划） */
+.wp-toolbar button.wp-btn-primary{background:#3B7DB4;color:#fff;border-color:#3B7DB4}
 .wp-toolbar button.wp-btn-primary:hover{background:#2A6A9A;border-color:#2A6A9A;color:#fff}
-.wp-toolbar button.wp-btn-primary:disabled,.wp-toolbar button.wp-btn-disabled{background:#CBD5E1;color:#94A3B8;border-color:#CBD5E1;cursor:not-allowed}
-/* 第一类：删除危险按钮 */
-.wp-toolbar button.wp-btn-warn{background:#fff;color:#dc2626;border:1px solid #dc2626;font-weight:500}
-.wp-toolbar button.wp-btn-warn:hover{background:#FEF2F2;border-color:#b91c1c;color:#b91c1c}
+/* 第二类：暗灰蓝填充（提交周小结，沉稳低调） */
+.wp-toolbar button.wp-btn-summary{background:#4a6580;color:#fff;border-color:#4a6580}
+.wp-toolbar button.wp-btn-summary:hover{background:#3a5060;border-color:#3a5060;color:#fff}
+/* 第三类：深蓝灰填充（删除，最深邃低调） */
+.wp-toolbar button.wp-btn-delete{background:#2c3e5c;color:#fff;border-color:#2c3e5c}
+.wp-toolbar button.wp-btn-delete:hover{background:#1e2d42;border-color:#1e2d42;color:#fff}
+/* 第四类：中蓝填充（导出，温和辅助） */
+.wp-toolbar button.wp-btn-export{background:#6191D3;color:#fff;border-color:#6191D3}
+.wp-toolbar button.wp-btn-export:hover{background:#4a7bb5;border-color:#4a7bb5;color:#fff}
+/* 统一禁用状态 */
+.wp-toolbar button.wp-btn-primary:disabled,.wp-toolbar button.wp-btn-summary:disabled,.wp-toolbar button.wp-btn-delete:disabled,.wp-toolbar button.wp-btn-export:disabled,.wp-toolbar button.wp-btn-disabled{background:#CBD5E1;color:#94A3B8;border-color:#CBD5E1;cursor:not-allowed}
+/* 白底蓝框次要按钮（回到我的计划/查看评价等） */
 .wp-toolbar button.wp-btn-accent{background:#fff;color:#3B7DB4;border-color:#3B7DB4}
 .wp-toolbar button.wp-btn-accent:hover{background:#E8F4FE;border-color:#2A6A9A;color:#2A6A9A}
 .wp-toolbar button.wp-btn-ai{background:linear-gradient(135deg,var(--brand-accent) 0%,#8B5CF6 40%,#A78BFA 70%,#EC4899 100%);background-size:200% 200%;color:#fff;border:none;border-radius:16px;padding:0;width:64px;height:64px;font-size:12px;font-weight:600;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 4px 14px rgba(139,92,246,.25),0 0 18px rgba(236,72,153,.08),inset 0 1px 0 rgba(255,255,255,.2);animation:aiGlow 5s ease-in-out 2;position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.5}
@@ -1972,8 +1980,7 @@ body{
 .wp-toolbar button.wp-btn-ai span{position:relative;z-index:1;text-shadow:0 1px 4px rgba(99,102,241,.4)}
 .wp-toolbar button.wp-btn-freeze{background:#fff;color:#3B7DB4;border-color:#3B7DB4}
 .wp-toolbar button.wp-btn-freeze:hover{background:#E8F4FE;border-color:#2A6A9A;color:#2A6A9A}
-.wp-toolbar button:disabled,.wp-toolbar button.wp-btn-disabled:not(.wp-btn-primary){background:#F2F4F8;color:#94A3B8;border-color:#CBD5E1;cursor:not-allowed}
-/* ★ V0.1.30: 锁定视觉提示 — 本周重点工作/优先级/计划完成日期被锁定 */
+/* ★ V0.1.30: 锁定视觉提示 */
 .wp-table td.wp-cell-frozen{border-left:3px solid #3b82f6!important;border-right:none!important;position:relative;background:rgba(59,130,246,.04);cursor:not-allowed!important}
 .wp-toolbar-sep{width:1px;background:var(--border);margin:0 4px;display:inline-block}
 

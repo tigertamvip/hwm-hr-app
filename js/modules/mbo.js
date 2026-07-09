@@ -1931,7 +1931,7 @@ function renderWPTable(plan){
   if(_wpViewingShared){
     // ★ V0.5.79b: 只读模式 — 被授权查看他人周计划
     html+='<span style="color:#3B7DB4;font-weight:600">📖 只读模式 — 您正在查看 '+esc(_wpViewingShared)+' 分享的周计划</span>';
-    html+='<button onclick="exportCurrentWP()" style="margin-left:auto"><span style="color:#2A476A">📥</span> 导出周计划</button>';
+    html+='<button class="wp-btn-export" onclick="exportCurrentWP()" style="margin-left:auto"><span>📥</span> 导出周计划</button>';
   }else if(_wpViewingDeptMember){
     // 部门成员视图：审核锁定 + 上级评价（同直属下属）
     var isFrozen = _wpCurrent.plan && _wpCurrent.plan.frozen;
@@ -1958,14 +1958,14 @@ function renderWPTable(plan){
     }
   }else{
     // 自己的计划：完整编辑功能（去掉新增+转发，左下角已有新建）
-    html+='<button onclick="submitWPPlan()" '+(plan.firstSubmittedAt?'disabled':'')+' class="'+(plan.firstSubmittedAt?'wp-btn-disabled':'wp-btn-primary')+'"><span style="color:#2A476A">📋</span> 提交周计划</button>';
+    html+='<button onclick="submitWPPlan()" '+(plan.firstSubmittedAt?'disabled':'')+' class="'+(plan.firstSubmittedAt?'wp-btn-disabled':'wp-btn-primary')+'"><span>📋</span> 提交周计划</button>';
     // ★ V0.1.44: 撤销提交按钮（仅在已提交时显示）
     if(plan.firstSubmittedAt){
       html+='<button class="wp-btn-accent" onclick="undoWPSubmit()"><span style="color:#2A476A">↩</span> 撤销提交</button>';
     }
-    html+='<button onclick="submitWPWeekSummary()" '+(plan.summarySubmittedAt?'disabled':'')+' class="'+(plan.summarySubmittedAt?'wp-btn-disabled':'')+'"><span style="color:#2A476A">✅</span> 提交周小结</button>';
-    html+='<button class="wp-btn-warn" onclick="deleteCurrentWPPlan()"><span style="color:#B83645">🗑</span> 删除周计划</button>';
-    html+='<button onclick="exportCurrentWP()"><span style="color:#2A476A">📥</span> 导出周计划</button>';
+    html+='<button onclick="submitWPWeekSummary()" '+(plan.summarySubmittedAt?'disabled':'')+' class="'+(plan.summarySubmittedAt?'wp-btn-disabled':'wp-btn-summary')+'"><span>✅</span> 提交周小结</button>';
+    html+='<button class="wp-btn-delete" onclick="deleteCurrentWPPlan()"><span>🗑</span> 删除周计划</button>';
+    html+='<button class="wp-btn-export" onclick="exportCurrentWP()"><span>📥</span> 导出周计划</button>';
     if(plan.bossEvaluated){
       html+='<button onclick="viewBossEval()"><span style="color:#2A476A">📋</span> 查看上级评价</button>';
     }
@@ -1973,7 +1973,7 @@ function renderWPTable(plan){
   }
   // 安全兜底：确保工具栏至少有一个可见按钮（防止所有分支都未命中导致空白）
   if(html.indexOf('<button', html.lastIndexOf('wpToolbar')) < 0){
-    html+='<button onclick="exportCurrentWP()"><span style="color:#2A476A">📥</span> 导出周计划</button>';
+    html+='<button class="wp-btn-export" onclick="exportCurrentWP()"><span>📥</span> 导出周计划</button>';
   }
   html+='</div>';
 
