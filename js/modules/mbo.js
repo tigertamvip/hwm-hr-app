@@ -637,7 +637,7 @@ function renderWPSubSelect(){
       triggerText.textContent=_wpViewingDeptMember;
       _wpSubData.selected=_wpViewingDeptMember;
     }else{
-      triggerText.textContent='查阅下属周计划';triggerText.style.color='';
+      triggerText.textContent='View Team Plans';triggerText.style.color='';
       _wpSubData.selected='';
     }
   }
@@ -649,7 +649,7 @@ function renderWPSubSelect(){
     // 直属下属组
     var directOpts=_wpSubData.options.filter(function(o){return o.rel==='direct';});
     if(directOpts.length>0){
-      ddHtml+='<div style="font-size:11px;color:#9ca3af;padding:2px 0 4px">直属下属</div>';
+      ddHtml+='<div style="font-size:11px;color:#6b7280;padding:2px 0 4px">直属下属</div>';
       for(var i=0;i<directOpts.length;i++){
         var o=directOpts[i];
         var isActive=(o.name===_wpViewingSubordinate)?' active':'';
@@ -660,7 +660,7 @@ function renderWPSubSelect(){
     if(nonDirect.length>0){
       if(directOpts.length>0){
         ddHtml+='<div style="border-top:1px solid #e5e7eb;margin:6px 0"></div>';
-        ddHtml+='<div style="font-size:11px;color:#9ca3af;padding:2px 0 4px">间接下属</div>';
+        ddHtml+='<div style="font-size:11px;color:#6b7280;padding:2px 0 4px">间接下属</div>';
       }
       for(var i=0;i<nonDirect.length;i++){
         var isActive=(nonDirect[i]===_wpViewingDeptMember)?' active':'';
@@ -683,7 +683,7 @@ function switchToMyWP(){
   _wpCurrent={year:null,month:null,week:null,plan:null};
   _wpSubData.selected='';
   var triggerText=document.getElementById('wpSubTriggerText');
-  if(triggerText){triggerText.textContent='查阅下属周计划';triggerText.style.color='';}
+  if(triggerText){triggerText.textContent='View Team Plans';triggerText.style.color='';}
   loadWPData();
   renderWPUserInfo();
   renderWPSubSelect();
@@ -771,7 +771,7 @@ function selectWPSubOption(val,name,rel){
   _wpSubData.selected=val;
   var triggerText=document.getElementById('wpSubTriggerText');
   if(triggerText){
-    if(!val){triggerText.textContent='查阅下属周计划';triggerText.style.color='';}
+    if(!val){triggerText.textContent='View Team Plans';triggerText.style.color='';}
     else{triggerText.textContent=name||val;triggerText.style.color='';}
   }
   // ★ V0.5.80: 根据 rel 分流到直属或间接处理
