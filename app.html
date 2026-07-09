@@ -2283,8 +2283,8 @@ table.collab-table tbody tr:hover{background:#fffdf5}
 <!-- 门户首页 -->
 <div id="portalView" class="portal-view" style="display:none">
   <div class="portal-hero">
-    <div class="portal-cn-title">欢迎进入HWM-AI辅助信息管理系统</div>
-    <h1>Welcome to the HWM-AI Assisted Information Management System</h1>
+    <div class="portal-cn-title">欢迎进入HWM-AI辅助目标计划与激励信息管理系统</div>
+    <h1>Welcome to HWM-AI Assisted MBO & Incentive System</h1>
   </div>
   <div class="portal-grid">
     <div id="portalCard_kpi" class="portal-card" data-module="kpi" style="display:none" onclick="enterModule('kpi')">
@@ -2364,7 +2364,7 @@ table.collab-table tbody tr:hover{background:#fffdf5}
         <h1>AI辅助信息管理系统——员工档案</h1>
         <div class="header-sub" id="headerUser">随时随地查询员工信息</div>
       </div>
-    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:16px">
       <div style="display:flex;gap:8px">
         <button class="btn btn-outline btn-sm" id="btnAdd" onclick="showAddEmployee()" style="display:none">新增</button>
         <button class="btn btn-outline btn-sm" id="btnImport" onclick="showImport()">导入</button>
@@ -5909,6 +5909,7 @@ function getExportField(e, k){
   if(v===undefined||v===null)return '';
   if(k==='gender'){if(v==='男'||v==='male'||v==='Male')return'男';if(v==='女'||v==='female'||v==='Female')return'女';return v;}
   if(k==='age'){if(v==='-')return'';return v;}
+  if(k==='workYears'){var n=parseFloat(v);if(isNaN(n))return v;return Math.round(n*10)/10;}
   return v;
 }
 
