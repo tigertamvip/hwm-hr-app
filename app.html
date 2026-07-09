@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.5.88">
+<meta name="version" content="V0.5.89">
 <!-- cache-bust: 2026-07-09-23-20 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
@@ -1024,16 +1024,21 @@ body{
   justify-content:center;
   padding:48px 20px 36px;
   padding-top:max(48px,env(safe-area-inset-top));
-  /* ★ V0.1.72: 首页背景图片 + 遮罩 */
+  position:relative;
+  overflow:hidden;
+}
+/* V0.5.89: 背景图片移到伪元素做模糊柔化 */
+.portal-view::before{
+  content:'';
+  position:absolute;
+  inset:-10px;
   background-image: linear-gradient(rgba(10,30,60,.35), rgba(20,60,100,.25)), url('bg-login.jpg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  position:relative;
-  overflow:hidden;
+  filter:blur(3px);
+  z-index:0;
 }
-/* 背景光晕纹理 */
-.portal-view::before{content:none}
 .portal-hero,.portal-grid,.portal-footer,.portal-logout{position:relative;z-index:1}
 
 .portal-hero{
@@ -1081,7 +1086,8 @@ body{
 /* V0.1.77: 第4列纵向：决策数据链(上)→管理仪表盘(中)→系统维护(下)，研发PM换到第3列 */
 #portalCard_decision{grid-column:4;grid-row:1}
 #portalCard_dashboard{grid-column:4;grid-row:2}
-#portalCard_rd{grid-column:3;grid-row:3} /* V0.1.77: 与仪表盘对调 */
+#portalCard_hr{grid-column:3;grid-row:3} /* V0.5.89: 员工档案与研发PM互换位置 */
+#portalCard_rd{grid-column:3;grid-row:1} /* V0.5.89: 与员工档案互换位置 */
 #portalCard_maintenance{grid-column:4;grid-row:3}
 .portal-card{
   background:#1B4F72;
@@ -1102,7 +1108,7 @@ body{
   box-shadow:0 1px 4px rgba(0,0,0,.08);
 }
 .portal-card:hover{
-  opacity:.9;
+  opacity:.8;
   z-index:10;
 }
 .portal-card:active{}
@@ -1199,7 +1205,7 @@ body{
 .portal-card.disabled .portal-card-label{color:#0F2C4B;font-weight:300}
 .portal-card.disabled .portal-card-en{color:#6b7280}
 .portal-card.disabled .portal-card-badge{background:rgba(0,0,0,.08);color:#6b7280;border-color:rgba(0,0,0,.06)}
-.portal-card.disabled:hover{}
+.portal-card.disabled:hover{opacity:.8}
 
 .portal-footer{
   text-align:center;
@@ -1224,10 +1230,11 @@ body{
 @media(max-width:640px){
   .portal-view{
     padding:28px 16px 32px;
-    background-image:none;background:#F2F4F5;
+    background:#F2F4F5;
     padding-top:max(28px,env(safe-area-inset-top));
     justify-content:flex-start;
   }
+  .portal-view::before{display:none}
   .portal-hero{margin-bottom:48px}
   .portal-hero h1{font-size:20px;letter-spacing:1px;line-height:1.6}
   .portal-hero .portal-divider{margin:14px auto;width:40px}
@@ -1238,7 +1245,7 @@ body{
     max-width:100%;
   }
   /* 移动端：新模块取消固定定位，正常流动 */
-  #portalCard_decision,#portalCard_rd,#portalCard_maintenance{grid-column:auto!important;grid-row:auto!important}
+  #portalCard_decision,#portalCard_rd,#portalCard_hr,#portalCard_maintenance{grid-column:auto!important;grid-row:auto!important}
   /* 奇数卡片时最后一行右对齐（系统维护等特殊模块） */
   .portal-grid .portal-card:nth-last-child(1):nth-child(odd){
     grid-column:2;
