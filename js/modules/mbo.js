@@ -1969,7 +1969,7 @@ function renderWPTable(plan){
     if(plan.bossEvaluated){
       html+='<button onclick="viewBossEval()"><span style="color:#2A476A">📋</span> 查看上级评价</button>';
     }
-    html+='<button class="wp-btn-ai" onclick="aiAssessWP()" style="margin-left:auto"><span style="line-height:1.5">AI<br>分析建议</span></button>';
+    html+='<button class="wp-btn-ai" onclick="aiAssessWP()" style="margin-left:auto"><span style="line-height:1.5"><span style="font-size:16px;font-weight:700">AI</span><br>分析建议</span></button>';
   }
   // 安全兜底：确保工具栏至少有一个可见按钮（防止所有分支都未命中导致空白）
   if(html.indexOf('<button', html.lastIndexOf('wpToolbar')) < 0){
@@ -3129,6 +3129,7 @@ function exportCurrentWP(){
     var S_TD_AI_ALT={font:{sz:9,name:'Microsoft YaHei'},fill:{fgColor:{rgb:'FFF8E6'}},border:BDR.border};
     var S_TD_AI_G={font:{sz:9,name:'Microsoft YaHei'},fill:{fgColor:{rgb:'E2EFDA'}},border:BDR.border};
     var S_TD_AI_G_ALT={font:{sz:9,name:'Microsoft YaHei'},fill:{fgColor:{rgb:'EBF4EA'}},border:BDR.border};
+    var NO_BDR={border:{top:{style:'none'},bottom:{style:'none'},left:{style:'none'},right:{style:'none'}}};
     var AL_C={alignment:{horizontal:'center',vertical:'center',wrapText:true}};
     var AL_L={alignment:{horizontal:'left',vertical:'center',wrapText:true}};
     var AL_LT={alignment:{horizontal:'left',vertical:'top',wrapText:true}};
@@ -3197,8 +3198,8 @@ function exportCurrentWP(){
     // 表头行样式 (Row 2 = Row index 1)
     for(var hc=0;hc<hdrs.length;hc++){
       var ref=XLSX.utils.encode_cell({r:1,c:hc});
-      // AI分析建议列表头用深蓝 #002060
-      safeStyle(ref,hc===14?Object.assign({},S_TH_AI,AL_C):Object.assign({},hc===4?S_TH:S_TH,AL_C));
+      // AI分析建议列表头用深蓝 #002060 (第17列, index 16)
+      safeStyle(ref,hc===16?Object.assign({},S_TH_AI,AL_C):Object.assign({},S_TH,AL_C));
     }
 
     // 数据行样式
@@ -3206,12 +3207,12 @@ function exportCurrentWP(){
       var t=p.tasks[i]||{},r=i+2,isAlt=(i%2===0);
       var greenAI=(t.status&&(t.status.indexOf('完成')>=0));
       
-      for(var dc=0;dc<15;dc++){
+      for(var dc=0;dc<17;dc++){
         var cr=XLSX.utils.encode_cell({r:r,c:dc});
         var style;
         
-        if(dc===14){
-          // AI分析建议列
+        if(dc===16){
+          // AI分析建议列 (第17列, index 16)
           if(greenAI) style=isAlt?S_TD_AI_G_ALT:S_TD_AI_G;
           else style=isAlt?S_TD_AI_ALT:S_TD_AI;
           style=Object.assign({},style,AL_LT);
@@ -3223,6 +3224,15 @@ function exportCurrentWP(){
           style=Object.assign({},isAlt?S_TD_CN_ALT:S_TD_CN,AL_L);
         }
         safeStyle(cr,style);
+      }
+    }
+
+    // V0.5.90: 汇总行和空行无边框（取消底部多余线条）
+    var summaryStart=2+p.tasks.length;
+    for(var sr=summaryStart;sr<rows.length;sr++){
+      for(var sc=0;sc<17;sc++){
+        var srRef=XLSX.utils.encode_cell({r:sr,c:sc});
+        safeStyle(srRef,NO_BDR);
       }
     }
 
@@ -3775,11 +3785,11 @@ async function aiAssessWP() {
     saveWP(p.year, p.month, p.week, p);
     renderWPTable(p);
 
-    if (btn) { btn.disabled = false; btn.innerHTML = '<span style="line-height:1.5">AI<br>分析建议</span>'; }
+    if (btn) { btn.disabled = false; btn.innerHTML = '<span style="line-height:1.5"><span style="font-size:16px;font-weight:700">AI</span><br>分析建议</span>'; }
     _showAlert('AI 综合分析已生成，请查看下方「🤖 AI 综合分析」区域。');
   } catch (e) {
     console.error('[AI] 分析失败:', e);
-    if (btn) { btn.disabled = false; btn.innerHTML = '<span style="line-height:1.5">AI<br>分析建议</span>'; }
+    if (btn) { btn.disabled = false; btn.innerHTML = '<span style="line-height:1.5"><span style="font-size:16px;font-weight:700">AI</span><br>分析建议</span>'; }
     _showAlert('AI 分析失败：' + (e.message || '未知错误'));
   }
 }
