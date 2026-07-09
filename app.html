@@ -4578,35 +4578,37 @@ function handleFile(e){
       const data=new Uint8Array(ev.target.result);
       const wb=XLSX.read(data,{type:'array'});
       const ws=wb.Sheets[wb.SheetNames[0]];
-      // ★ V0.5.78k: 自动探测表头行（支持前几行为空行/标题的花名册）
-      var rawRows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
-      if(!rawRows||rawRows.length===0){showToast('Excel 中没有数据');return;}
-      // 查找包含"姓名"或"工号"的行作为表头
-      var headerIndex=-1, headerRow=null;
-      for(var i=0;i<Math.min(rawRows.length,20);i++){
-        var r=rawRows[i];
-        if(!r||!r.length)continue;
-        for(var j=0;j<r.length;j++){var v=String(r[j]||'').trim();if(v==='姓名'||v==='工号'||v==='员工姓名'){headerRow=r;headerIndex=i;break;}}
-        if(headerIndex>=0)break;
+      // ★ V0.5.78k: 双重导入策略 — 先尝试标准方法，失败则扫描表头行
+      var rows=XLSX.utils.sheet_to_json(ws,{defval:''});
+      var firstObj=rows[0]||{};
+      if(!(firstObj['姓名']||firstObj['name']||firstObj['工号']||firstObj['empId'])){
+        // 标准方法失败（表头不在第1行），扫描原始数据查找表头
+        var raw=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
+        var hIdx=-1;
+        for(var i=0;i<Math.min(raw.length,15);i++){
+          var rr=raw[i]||[];
+          for(var j=0;j<rr.length;j++){
+            var cell=rr[j];if(cell===null||cell===undefined)continue;
+            if(String(cell).trim()==='姓名'||String(cell).trim()==='工号'){hIdx=i;break;}
+          }
+          if(hIdx>=0)break;
+        }
+        if(hIdx<0){showToast('未找到表头行（需包含"姓名"或"工号"列），请检查文件格式');return;}
+        var hdr=raw[hIdx];
+        rows=[];
+        for(var r=hIdx+1;r<raw.length;r++){
+          var obj={};
+          for(var c=0;c<hdr.length;c++){if(hdr[c]!=null&&hdr[c]!=='')obj[String(hdr[c]).trim()]=raw[r][c];}
+          rows.push(obj);
+        }
       }
-      if(headerIndex<0){showToast('未找到表头行（需包含"姓名"或"工号"列），请检查文件格式');return;}
-      // 构建列名映射
-      var colMap={};for(var c=0;c<headerRow.length;c++){if(headerRow[c]!=null&&headerRow[c]!=='')colMap[c]=String(headerRow[c]).trim();}
-      // 转换数据行
-      var rows=[];
-      for(var r=headerIndex+1;r<rawRows.length;r++){
-        var rawRow=rawRows[r];
-        if(!rawRow||!rawRow.length)continue;
-        var obj={};for(var c=0;c<rawRow.length;c++){if(colMap[c]!==undefined)obj[colMap[c]]=rawRow[c];}
-        rows.push(obj);
-      }
-      if(rows.length===0){showToast('表头后无数据行，请检查文件格式');return;}
+      if(rows.length===0){showToast('Excel 中没有数据行');return;}
       var newRecords=[];
       for(var r=0;r<rows.length;r++){
         var emp=parseAllFields(rows[r]);
         if(emp.name&&emp.name!=='未知')newRecords.push(emp);
       }
-      if(newRecords.length===0){showToast('未识别到员工数据，表头: '+Object.keys(colMap).map(function(k){return colMap[k]}).join(', '));return;}
+      if(newRecords.length===0){showToast('未识别到员工数据，请检查表头或字段名称');return;}
       if(allEmployees.length===0||_importMode==='overwrite'){
         // 首次导入或完整覆盖：直接全量写入
         allEmployees=applyPhotos(ensureHRFields(newRecords));
