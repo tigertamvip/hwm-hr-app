@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.5.68">
+<meta name="version" content="V0.5.69">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -17875,7 +17875,7 @@ function renderWPTable(plan){
   }
 
   html+='<div class="wp-table-area"><div class="wp-table-wrap"><table class="wp-table"><colgroup><col style="width:56px"><col style="width:180px"><col style="width:80px"><col style="width:115px"><col style="width:115px"><col style="width:115px"><col style="width:56px"><col style="width:90px"><col style="width:48px"><col style="width:80px"><col style="width:150px"><col style="width:90px"><col style="width:56px"><col style="width:200px"><col></colgroup><thead><tr>';
-  html+='<th class="col-num">#</th><th class="col-work">本周重点工作</th><th class="col-goal">优先级</th><th class="col-hours">启动日期</th><th class="col-hours">计划完成日期</th><th class="col-hours">实际完成日期</th><th class="col-hours dur-tooltip" style="min-width:80px">计划/实际耗时</th><th class="col-status">完成状态</th><th class="col-score">积分</th><th class="col-supporters">协同人</th><th class="col-wide">遇到的问题/困难</th><th class="col-problemtype">问题类型</th><th class="col-needboss">需上级介入</th><th class="col-remarks">备注说明</th><th class="col-boss" style="white-space:normal;overflow:visible">上级评价与建议</th>';
+  html+='<th class="col-num">#</th><th class="col-work">本周重点工作</th><th class="col-goal">优先级</th><th class="col-hours">启动日期</th><th class="col-hours">计划完成日期</th><th class="col-hours">实际完成日期</th><th class="col-hours dur-tooltip" style="min-width:80px">计划/实际耗时</th><th class="col-status">完成状态</th><th class="col-score">积分</th><th class="col-supporters">协同人</th><th class="col-wide">遇到的问题/挑战</th><th class="col-problemtype">问题类型</th><th class="col-needboss">需上级介入</th><th class="col-remarks">备注说明</th><th class="col-boss" style="white-space:normal;overflow:visible">上级评价与建议</th>';
   html+='</tr></thead><tbody>';
 
   var seq=0;
@@ -18132,7 +18132,7 @@ function renderWPTable(plan){
     graceEl.addEventListener('mouseenter',function(){
       graceTip=document.createElement('div');
       graceTip.className='wp-tooltip';
-      graceTip.textContent='这5天内完成 → 状态是「逾期完成」，扣分但不算「未做」。\n超过5天 → 自动判定为「未做」，扣更大分值。\n宽限期是给员工「补救」的时间窗口，但只算真正的工作日，不算周末和假期。\n5个工作日一到，系统不再等待，自动判定为「未做」。';
+      graceTip.textContent='当工作逾期未完成，逾期未到5个工作日时 → 状态是「逾期完成」，超过5 → 系统自动判定为「未做」并扣较高分值。';
       document.body.appendChild(graceTip);
       var r=graceEl.getBoundingClientRect();
       graceTip.style.left=Math.max(8, r.left+r.width/2-graceTip.offsetWidth/2)+'px';
@@ -18239,7 +18239,7 @@ function startEditCell(cell){
     var sfParts=field.split('.');
     cur=(_wpCurrent.plan.tasks[parseInt(sfParts[1])]&&_wpCurrent.plan.tasks[parseInt(sfParts[1])].supporters)||'';
   }else{
-    cur=cell.textContent.replace(/来源[：:]\d{4}年\d{1,2}月第[1-4]周|点击填写|填写|选择|上级建议/g,'').trim();
+    cur=cell.textContent.replace(/来源[：:]\d{4}年\d{1,2}月第[1-4]周|点击填写|填写|选择|上级建议|备注/g,'').trim();
     // ★ V0.4.46: 旧状态值映射
     var _oldStatusMap={'✓完成':'按时完成','⚙推进中':'进行中','⏸暂停':'逾期完成','❌未完成':'暂停中'};
     if(_oldStatusMap[cur])cur=_oldStatusMap[cur];
@@ -18882,7 +18882,7 @@ function _renderTimeManagementPanel(plan){
   html+='<tr><td>重要不急</td><td class="td-val td-pos">+2</td><td class="td-val td-neg">−1</td><td class="td-val td-neg">−4</td></tr>';
   html+='<tr><td>日常紧急</td><td class="td-val td-pos">+1.5</td><td class="td-val td-neg">−1</td><td class="td-val td-neg">−3</td></tr>';
   html+='<tr><td>日常事项</td><td class="td-val td-pos">+1</td><td class="td-val td-neg">−0.5</td><td class="td-val td-neg">−2</td></tr>';
-  html+='<tr><td style="font-size:9px;color:#9ca3af;padding-top:6px;border-top:1px solid #e5e7eb;white-space:pre-line" colspan="4">注：\n手动选择"未做"→终止计算，积分=0</td></tr>';
+  html+='<tr><td style="font-size:9px;color:#9ca3af;padding-top:6px;border-top:1px solid #e5e7eb;white-space:pre-line" colspan="4">注：\n手动选择"暂停中"→终止计算，积分=0</td></tr>';
   html+='</table>';
   html+='</div>';
   html+='</div>';
@@ -18987,7 +18987,7 @@ function exportCurrentWP(){
     var AL_LT={alignment:{horizontal:'left',vertical:'top',wrapText:true}};
 
     var title=p.name+' '+p.year+'年'+p.month+'月 第'+p.week+'周 工作计划';
-    var hdrs=['姓名','部门','岗位','序号','本周重点工作','优先级','启动日期','计划完成日期','实际完成日期','耗时','完成状态','协同人','遇到的问题/困难','问题类型','是否需要上级介入','直属上级建议','AI分析建议'];
+    var hdrs=['姓名','部门','岗位','序号','本周重点工作','优先级','启动日期','计划完成日期','实际完成日期','耗时','完成状态','协同人','遇到的问题/挑战','问题类型','是否需要上级介入','直属上级建议','AI分析建议'];
     
     // 构建数据行
     var rows=[[title],[hdrs]];
