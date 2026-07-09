@@ -56,6 +56,20 @@ body{
 }
 
 .scrollable-content{/* 自然流式 */}
+.emp-stats-panel{
+  transition:max-height .35s ease,opacity .25s ease,padding .2s ease,margin .2s ease;
+  overflow:hidden;
+  max-height:600px;
+  opacity:1;
+}
+.emp-stats-panel.collapsed{
+  max-height:0;
+  opacity:0;
+  padding-top:0;
+  padding-bottom:0;
+  margin-top:0;
+  margin-bottom:0;
+}
 .header{
   /* ★ V0.1.77: 加大头部内边距(更大气)+深蓝遮罩(与登录页统一) */
   /* ★ V0.1.77: 减淡遮罩让风景图透出 */
@@ -2357,8 +2371,11 @@ table.collab-table tbody tr:hover{background:#fffdf5}
       <button class="btn btn-outline btn-sm" id="btnRefresh" onclick="forceRefreshFromCloud()" style="display:none" title="从云端强制刷新所有数据">🔄</button>
       <button class="btn btn-outline btn-sm" id="btnClear" onclick="resetDatabase()" style="display:none">清空</button>
       <button class="btn btn-outline btn-sm" onclick="goHome()">← 返回</button>
+      <button type="button" onclick="toggleEmpStats()" id="empStatsToggleBtn" style="padding:2px 6px;border:none;border-radius:6px;background:transparent;color:#fff;font-size:13px;font-weight:400;cursor:pointer;display:inline-flex;align-items:center;gap:3px;transition:all .25s ease;white-space:nowrap"><span id="empStatsToggleIcon" style="color:rgba(255,255,255,.7)">▲</span><span id="empStatsToggleText">收起</span></button>
     </div>
   </div>
+</div>
+<div class="emp-stats-panel" id="empStatsPanel">
   <div class="stats-bar" id="statsBar">
     <div class="stats-box" id="statsBox1"><div style="padding:10px;text-align:center;color:var(--text-hint);font-size:12px">加载中…</div></div>
     <div class="stats-box" id="statsBox2"><div style="padding:10px;text-align:center;color:var(--text-hint);font-size:12px">加载中…</div></div>
@@ -2404,6 +2421,7 @@ table.collab-table tbody tr:hover{background:#fffdf5}
       </div>
     </div>
   </div>
+</div>
 
 <div id="importArea" class="import-zone" style="display:none" onclick="document.getElementById('fileInput').click()">
   <div class="import-zone-icon">📂</div>
@@ -3448,6 +3466,26 @@ function applyRoleUI(){
   // 刷新列表
   doSearch();
   updateStats();
+}
+
+// ★ V0.5.78f: 统计卡片展开/收起
+var _empStatsExpanded=true;
+function toggleEmpStats(){
+  var panel=document.getElementById('empStatsPanel');
+  var icon=document.getElementById('empStatsToggleIcon');
+  var text=document.getElementById('empStatsToggleText');
+  if(!panel)return;
+  _empStatsExpanded=!_empStatsExpanded;
+  if(icon)icon.textContent=_empStatsExpanded?'▲':'▼';
+  if(text)text.textContent=_empStatsExpanded?'收起':'展开';
+  if(_empStatsExpanded){
+    panel.style.maxHeight=panel.scrollHeight+'px';
+    panel.classList.remove('collapsed');
+    setTimeout(function(){panel.style.maxHeight='';},350);
+  }else{
+    panel.style.maxHeight=panel.scrollHeight+'px';
+    setTimeout(function(){panel.classList.add('collapsed');panel.style.maxHeight='';},0);
+  }
 }
 
 function goHome(){
