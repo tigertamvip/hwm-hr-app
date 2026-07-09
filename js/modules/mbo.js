@@ -649,7 +649,7 @@ function renderWPSubSelect(){
     // 直属下属组
     var directOpts=_wpSubData.options.filter(function(o){return o.rel==='direct';});
     if(directOpts.length>0){
-      ddHtml+='<div style="font-size:11px;color:#6b7280;padding:2px 0 4px">直属下属</div>';
+      ddHtml+='<div style="font-size:13px;color:#6b7280;padding:2px 0 4px">直属下属</div>';
       for(var i=0;i<directOpts.length;i++){
         var o=directOpts[i];
         var isActive=(o.name===_wpViewingSubordinate)?' active':'';
@@ -660,7 +660,7 @@ function renderWPSubSelect(){
     if(nonDirect.length>0){
       if(directOpts.length>0){
         ddHtml+='<div style="border-top:1px solid #e5e7eb;margin:6px 0"></div>';
-        ddHtml+='<div style="font-size:11px;color:#6b7280;padding:2px 0 4px">间接下属</div>';
+        ddHtml+='<div style="font-size:13px;color:#6b7280;padding:2px 0 4px">间接下属</div>';
       }
       for(var i=0;i<nonDirect.length;i++){
         var isActive=(nonDirect[i]===_wpViewingDeptMember)?' active':'';
