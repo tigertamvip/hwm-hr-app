@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.5.67">
+<meta name="version" content="V0.5.68">
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -18124,6 +18124,26 @@ function renderWPTable(plan){
     });
   },10);
 
+  // ★ V0.5.68: 绑定计分规则宽限期 tooltip
+  setTimeout(function(){
+    var graceEl=content.querySelector('.wp-grace-tip');
+    if(!graceEl)return;
+    var graceTip=null;
+    graceEl.addEventListener('mouseenter',function(){
+      graceTip=document.createElement('div');
+      graceTip.className='wp-tooltip';
+      graceTip.textContent='这5天内完成 → 状态是「逾期完成」，扣分但不算「未做」。\n超过5天 → 自动判定为「未做」，扣更大分值。\n宽限期是给员工「补救」的时间窗口，但只算真正的工作日，不算周末和假期。\n5个工作日一到，系统不再等待，自动判定为「未做」。';
+      document.body.appendChild(graceTip);
+      var r=graceEl.getBoundingClientRect();
+      graceTip.style.left=Math.max(8, r.left+r.width/2-graceTip.offsetWidth/2)+'px';
+      graceTip.style.top=(r.top-graceTip.offsetHeight-8)+'px';
+      graceEl.style.cursor='help';
+    });
+    graceEl.addEventListener('mouseleave',function(){
+      if(graceTip){graceTip.remove();graceTip=null;}
+    });
+  },10);
+
   // ★ V0.5.0: 艾森豪威尔矩阵圆点点击跳转
   setTimeout(function(){
     content.querySelectorAll('.wp-em-dot').forEach(function(dot){
@@ -18847,7 +18867,7 @@ function _renderTimeManagementPanel(plan){
   html+='<tr><td style="color:#6b7280"><span style="margin-right:6px">—</span>法定节假日顺延</td><td class="td-val" style="color:#6b7280">—</td></tr>';
   html+='<tr><td style="color:#6b7280"><span style="margin-right:6px">○</span>每迟12h</td><td class="td-val" style="color:#6b7280;font-weight:500">−0.5</td></tr>';
   html+='<tr><td style="color:#6b7280"><span style="margin-right:6px">○</span>超48h未交</td><td class="td-val" style="color:#6b7280;font-weight:500">−1.5</td></tr>';
-  html+='<tr><td style="font-size:9px;color:#6b7280;padding-top:6px;border-top:1px solid #e5e7eb;white-space:pre-line" colspan="2">注：\n任务宽限期：5个工作日<span style="color:#9ca3af">（排除周末+法定节假日）</span></td></tr>';
+  html+='<tr><td class="wp-grace-tip" style="font-size:9px;color:#6b7280;padding-top:6px;border-top:1px solid #e5e7eb;white-space:pre-line;cursor:help" colspan="2">注：\n任务宽限期：5个工作日<span style="color:#9ca3af">（排除周末+法定节假日）</span></td></tr>';
   html+='</table>';
   html+='</div>';
   html+='</div>';
