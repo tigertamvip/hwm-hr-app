@@ -415,8 +415,8 @@ function sysRenderSubList(){
     var bg=i%2?'#FAFBFC':'white';
     html+='<tr style="background:'+bg+';border-bottom:1px solid var(--border-light, #eee)">';
     html+='<td style="padding:8px 12px;font-weight:500">'+_h(e.name)+'</td>';
-    html+='<td style="padding:8px 12px;color:var(--text-hint)">'+_h(e.dept)+'</td>';
-    html+='<td style="padding:8px 12px;color:var(--text-hint)">'+_h(e.position)+'</td>';
+    html+='<td style="padding:8px 12px;color:#797973">'+_h(e.dept)+'</td>';
+    html+='<td style="padding:8px 12px;color:#797973">'+_h(e.position)+'</td>';
     html+='<td style="padding:6px 12px;text-align:center"><select onchange="sysToggleSubRel(\''+_h(e.name)+'\',this.value)" style="font-size:12px;padding:4px 8px;border-radius:4px;border:1px solid var(--border);cursor:pointer">';
     html+='<option value="none"'+(rel==='none'?' selected':'')+'>无</option>';
     html+='<option value="direct"'+(rel==='direct'?' selected':'')+'>🟢 直属</option>';
@@ -424,7 +424,7 @@ function sysRenderSubList(){
     html+='</select></td>';
     html+='</tr>';
   }
-  if(emps.length===0)html+='<tr><td colspan="4" style="padding:30px;text-align:center;color:var(--text-hint)">无匹配员工</td></tr>';
+  if(emps.length===0)html+='<tr><td colspan="4" style="padding:30px;text-align:center;color:#797973">无匹配员工</td></tr>';
   html+='</tbody></table></div>';
   document.getElementById('sysSubList').innerHTML=html;
   document.getElementById('sysSubStats').textContent='共 '+emps.length+' 人 | 直属 '+direct+' | 间接 '+indirect;
