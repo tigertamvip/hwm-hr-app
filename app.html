@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.5.97">
+<meta name="version" content="V0.5.98">
 <!-- cache-bust: 2026-07-09-23-20 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
@@ -2345,31 +2345,31 @@ select.form-input{padding-right:28px;appearance:auto;-webkit-appearance:menulist
   </div>
   <div class="portal-grid">
     <div id="portalCard_decision" class="portal-card portal-card-orange disabled" data-module="decision" style="display:none" onclick="moduleBuilding()">
-      <div class="portal-card-label">三年目标（公司）</div>
-      <div class="portal-card-en">3-Year Plan (Co.)</div>
+      <div class="portal-card-label">三年规划</div>
+      <div class="portal-card-en">3-Year Plan</div>
       <div class="portal-card-badge">In Progress</div>
     </div>
     <div id="portalCard_kpi" class="portal-card" data-module="kpi" style="display:none" onclick="enterModule('kpi')">
-      <div class="portal-card-label">年度目标</div>
+      <div class="portal-card-label">本年目标</div>
       <div class="portal-card-en">Annual Goals</div>
     </div>
     <div id="portalCard_mbo" class="portal-card" data-module="mbo" style="display:none;overflow:visible" onclick="enterModule('workplan')">
-      <div class="portal-card-label">周计划</div>
+      <div class="portal-card-label">本周计划</div>
       <div class="portal-card-en">Weekly Plan</div>
       <div class="mbo-hover-tip">
-        <div class="tip-head">周计划 模块上线序言</div>
+        <div class="tip-head">本周计划 模块上线序言</div>
         <div class="tip-cn">把团队目标和计划管理好，绩效管理才有扎实根基。信息化系统内嵌管理规则与约束机制，自动追踪机制，将有效帮助管理者和员工提升目标一致性及进步力度。我们相信一个人如果周计划长期落实不到位，其绩效表现大概率不会理想。</div>
         <div class="tip-en">Proper team goal and plan management underpins sound performance management. Built-in rules, controls and auto-tracking in this system align goals and boost progress for managers and staff. Persistently unfulfilled weekly plans usually lead to poor performance results.</div>
       </div>
     </div>
     <div id="portalCard_rd" class="portal-card portal-card-orange disabled" data-module="rd" style="display:none" onclick="moduleBuilding()">
-      <div class="portal-card-label">月度目标</div>
+      <div class="portal-card-label">本月目标</div>
       <div class="portal-card-en">Monthly Goals</div>
       <div class="portal-card-badge">In Progress</div>
     </div>
     <div id="portalCard_decision" class="portal-card portal-card-orange disabled" data-module="decision" style="display:none" onclick="moduleBuilding()">
-      <div class="portal-card-label">三年目标（公司）</div>
-      <div class="portal-card-en">3-Year Plan (Co.)</div>
+      <div class="portal-card-label">三年规划</div>
+      <div class="portal-card-en">3-Year Plan</div>
       <div class="portal-card-badge">In Progress</div>
     </div>
     <div id="portalCard_hr" class="portal-card" data-module="hr" style="display:none" onclick="enterModule('hr')">
@@ -2892,17 +2892,17 @@ select.form-input{padding-right:28px;appearance:auto;-webkit-appearance:menulist
             <th class="sys-col-uid">用户名</th>
             <th class="sys-col-pwd">密码</th>
             <th class="sys-col-module">员工档案</th>
-            <th class="sys-col-module">周计划</th>
-            <th class="sys-col-module">年度目标</th>
+            <th class="sys-col-module">本周计划</th>
+            <th class="sys-col-module">本年目标</th>
             <th class="sys-col-module">人才梯队</th>
             <th class="sys-col-module">业务增长模型</th>
             <th class="sys-col-module">决策树模型</th>
             <th class="sys-col-module">合理化建议</th>
             <th class="sys-col-module">制度流程中心</th>
             <th class="sys-col-module">系统维护</th>
-            <th class="sys-col-module" style="color:rgba(255,255,255,.6)">三年目标</th>
+            <th class="sys-col-module" style="color:rgba(255,255,255,.6)">三年规划</th>
             <th class="sys-col-module" style="color:rgba(255,255,255,.6)">客户链模型</th>
-            <th class="sys-col-module" style="color:rgba(255,255,255,.6)">月度目标</th>
+            <th class="sys-col-module" style="color:rgba(255,255,255,.6)">本月目标</th>
             <th class="sys-col-action" style="width:70px">编辑</th>
             <th class="sys-col-action">下属</th>
           </tr>
@@ -3106,7 +3106,7 @@ var AUTH_UID_KEY='hr_auth_uid';
 // 用户数据库：用户名 → {pwd: SHA256哈希, name: 显示名, role: 角色, centerKeyword: 中心关键词}
 // 模块权限定义
 var HWM_MODULES=['hr','mbo','kpi','talent','learning','payroll','ideas','policies','maintenance','decision','dashboard','rd'];
-var HWM_MODULE_LABELS={hr:'员工档案',mbo:'周计划',kpi:'年度目标',talent:'人才梯队',learning:'业务增长模型',payroll:'决策树模型',ideas:'合理化建议',policies:'制度流程中心',maintenance:'系统维护',decision:'三年目标',dashboard:'客户链模型',rd:'月度目标'};
+var HWM_MODULE_LABELS={hr:'员工档案',mbo:'本周计划',kpi:'本年目标',talent:'人才梯队',learning:'业务增长模型',payroll:'决策树模型',ideas:'合理化建议',policies:'制度流程中心',maintenance:'系统维护',decision:'三年规划',dashboard:'客户链模型',rd:'本月目标'};
 
 // 默认权限：admin 全开，其余按角色
 function _defaultPerms(role){
