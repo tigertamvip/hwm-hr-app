@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.5.94">
+<meta name="version" content="V0.5.95">
 <!-- cache-bust: 2026-07-09-23-20 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
@@ -1085,11 +1085,18 @@ body{
   max-width:920px;
   margin-bottom:40px;
 }
-/* V0.5.94: 目标树(上col1)→CFT(中col1)→系统维护(下col4)；研发PM在col3row1 */
+/* V0.5.95: 12模块完整grid布局 */
 #portalCard_decision{grid-column:1;grid-row:1}
+#portalCard_kpi{grid-column:2;grid-row:1}
+#portalCard_mbo{grid-column:3;grid-row:1}
+#portalCard_rd{grid-column:4;grid-row:1}
 #portalCard_dashboard{grid-column:1;grid-row:2}
-#portalCard_hr{grid-column:3;grid-row:3} /* V0.5.89: 员工档案与研发PM互换位置 */
-#portalCard_rd{grid-column:3;grid-row:1} /* V0.5.89: 与员工档案互换位置 */
+#portalCard_talent{grid-column:2;grid-row:2}
+#portalCard_payroll{grid-column:3;grid-row:2}
+#portalCard_learning{grid-column:4;grid-row:2}
+#portalCard_ideas{grid-column:1;grid-row:3}
+#portalCard_policies{grid-column:2;grid-row:3}
+#portalCard_hr{grid-column:3;grid-row:3}
 #portalCard_maintenance{grid-column:4;grid-row:3}
 .portal-card{
   background:#1B4F72;
@@ -1272,8 +1279,8 @@ body{
     gap:12px;
     max-width:100%;
   }
-  /* 移动端：新模块取消固定定位，正常流动 */
-  #portalCard_decision,#portalCard_rd,#portalCard_hr,#portalCard_maintenance{grid-column:auto!important;grid-row:auto!important}
+  /* V0.5.95: 移动端全部取消固定定位，正常流动 */
+  #portalCard_decision,#portalCard_kpi,#portalCard_mbo,#portalCard_rd,#portalCard_dashboard,#portalCard_talent,#portalCard_payroll,#portalCard_learning,#portalCard_ideas,#portalCard_policies,#portalCard_hr,#portalCard_maintenance{grid-column:auto!important;grid-row:auto!important}
   /* 奇数卡片时最后一行右对齐（系统维护等特殊模块） */
   .portal-grid .portal-card:nth-last-child(1):nth-child(odd){
     grid-column:2;
@@ -2337,13 +2344,18 @@ select.form-input{padding-right:28px;appearance:auto;-webkit-appearance:menulist
     <h1>Welcome to the HWM-AI Assisted MBO Management System</h1>
   </div>
   <div class="portal-grid">
+    <div id="portalCard_decision" class="portal-card portal-card-orange disabled" data-module="decision" style="display:none" onclick="moduleBuilding()">
+      <div class="portal-card-label">三年目标（公司）</div>
+      <div class="portal-card-en">3-Year Plan (Co.)</div>
+      <div class="portal-card-badge">In Progress</div>
+    </div>
     <div id="portalCard_kpi" class="portal-card" data-module="kpi" style="display:none" onclick="enterModule('kpi')">
-      <div class="portal-card-label">KPI</div>
-      <div class="portal-card-en">KPI</div>
+      <div class="portal-card-label">年度目标（部门)</div>
+      <div class="portal-card-en">Annual Goals (Dept.)</div>
     </div>
     <div id="portalCard_mbo" class="portal-card" data-module="mbo" style="display:none;overflow:visible" onclick="enterModule('workplan')">
-      <div class="portal-card-label">MBO</div>
-      <div class="portal-card-en">MBO</div>
+      <div class="portal-card-label">岗位目标(员工）</div>
+      <div class="portal-card-en">Job Objectives (Staff)</div>
       <div class="mbo-hover-tip">
         <div class="tip-head">MBO 模块上线序言</div>
         <div class="tip-cn">把团队目标和计划管理好，绩效管理才有扎实根基。信息化系统内嵌管理规则与约束机制，自动追踪机制，将有效帮助管理者和员工提升目标一致性及进步力度。我们相信一个人如果周计划长期落实不到位，其绩效表现大概率不会理想。</div>
@@ -2356,8 +2368,8 @@ select.form-input{padding-right:28px;appearance:auto;-webkit-appearance:menulist
       <div class="portal-card-badge">In Progress</div>
     </div>
     <div id="portalCard_decision" class="portal-card portal-card-orange disabled" data-module="decision" style="display:none" onclick="moduleBuilding()">
-      <div class="portal-card-label">目标树</div>
-      <div class="portal-card-en">Objective Tree</div>
+      <div class="portal-card-label">三年目标（公司）</div>
+      <div class="portal-card-en">3-Year Plan (Co.)</div>
       <div class="portal-card-badge">In Progress</div>
     </div>
     <div id="portalCard_hr" class="portal-card" data-module="hr" style="display:none" onclick="enterModule('hr')">
@@ -2880,15 +2892,15 @@ select.form-input{padding-right:28px;appearance:auto;-webkit-appearance:menulist
             <th class="sys-col-uid">用户名</th>
             <th class="sys-col-pwd">密码</th>
             <th class="sys-col-module">员工档案</th>
-            <th class="sys-col-module">MBO</th>
-            <th class="sys-col-module">KPI</th>
+            <th class="sys-col-module">岗位目标</th>
+            <th class="sys-col-module">年度目标</th>
             <th class="sys-col-module">人才梯队</th>
             <th class="sys-col-module">业务目标复盘</th>
             <th class="sys-col-module">薪酬管理</th>
             <th class="sys-col-module">合理化建议</th>
             <th class="sys-col-module">制度流程中心</th>
             <th class="sys-col-module">系统维护</th>
-            <th class="sys-col-module" style="color:rgba(255,255,255,.6)">目标树</th>
+            <th class="sys-col-module" style="color:rgba(255,255,255,.6)">三年目标</th>
             <th class="sys-col-module" style="color:rgba(255,255,255,.6)">CFT</th>
             <th class="sys-col-module" style="color:rgba(255,255,255,.6)">研发PM</th>
             <th class="sys-col-action" style="width:70px">编辑</th>
@@ -3094,7 +3106,7 @@ var AUTH_UID_KEY='hr_auth_uid';
 // 用户数据库：用户名 → {pwd: SHA256哈希, name: 显示名, role: 角色, centerKeyword: 中心关键词}
 // 模块权限定义
 var HWM_MODULES=['hr','mbo','kpi','talent','learning','payroll','ideas','policies','maintenance','decision','dashboard','rd'];
-var HWM_MODULE_LABELS={hr:'员工档案',mbo:'MBO',kpi:'KPI',talent:'人才梯队',learning:'业务目标复盘',payroll:'薪酬管理',ideas:'合理化建议',policies:'制度流程中心',maintenance:'系统维护',decision:'目标树',dashboard:'CFT',rd:'研发PM'};
+var HWM_MODULE_LABELS={hr:'员工档案',mbo:'岗位目标',kpi:'年度目标',talent:'人才梯队',learning:'业务目标复盘',payroll:'薪酬管理',ideas:'合理化建议',policies:'制度流程中心',maintenance:'系统维护',decision:'三年目标',dashboard:'CFT',rd:'研发PM'};
 
 // 默认权限：admin 全开，其余按角色
 function _defaultPerms(role){
