@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.5.167">
+<meta name="version" content="V0.5.168">
 <!-- cache-bust: 2026-07-10-16-13 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
@@ -2387,9 +2387,9 @@ select.form-input{padding-right:28px;appearance:auto;-webkit-appearance:menulist
       <div class="portal-card-en">3-Year Plan</div>
       <div class="portal-card-badge">In Progress</div>
     </div>
-    <div id="portalCard_hr" class="portal-card" data-module="hr" style="display:none" data-tip-head="团队架构" data-tip-cn="管理团队信息、人员档案与组织架构。高效的团队管理是组织效能提升的基础。" data-tip-en="Manage team information, personnel files and organizational structure." onclick="enterModule('hr')">
-      <div class="portal-card-label">团队架构</div>
-      <div class="portal-card-en">Team</div>
+    <div id="portalCard_hr" class="portal-card" data-module="hr" style="display:none" data-tip-head="组织架构" data-tip-cn="管理团队信息、人员档案与组织架构。高效的团队管理是组织效能提升的基础。" data-tip-en="Manage team information, personnel files and organizational structure." onclick="enterModule('hr')">
+      <div class="portal-card-label">组织架构</div>
+      <div class="portal-card-en">Team &amp; Structure</div>
     </div>
     <div id="portalCard_talent" class="portal-card disabled" data-module="talent" style="display:none" data-tip-head="项目管理" data-tip-cn="该模块正在开发中，敬请期待。通过数据驱动的组织效能分析，帮助管理者优化团队结构与资源配置。" data-tip-en="This module is under development. Data-driven organizational efficiency analysis helps optimize team structure." onclick="moduleBuilding()">
       <div class="portal-card-label">项目管理</div>
@@ -2444,7 +2444,8 @@ select.form-input{padding-right:28px;appearance:auto;-webkit-appearance:menulist
 <div class="header">
   <div class="header-inner">
     <div>
-        <h1>HWM-AI 目标与效率驱动系统（团队信息）</h1>
+        <h1>HWM-AI 目标计划管理系统-组织</h1>
+        <div style="font-size:13px;color:rgba(255,255,255,.55);margin-top:2px;letter-spacing:.3px">HWM-AI Goal Plan System · Organization</div>
         <div class="header-sub" id="headerUser">随时随地查询员工信息</div>
       </div>
     <div style="display:flex;flex-direction:column;align-items:flex-end;gap:16px">
@@ -2913,7 +2914,7 @@ select.form-input{padding-right:28px;appearance:auto;-webkit-appearance:menulist
             <th class="sys-col-position">职务</th>
             <th class="sys-col-uid">用户名</th>
             <th class="sys-col-pwd">密码</th>
-            <th class="sys-col-module">团队架构</th>
+            <th class="sys-col-module">组织架构</th>
             <th class="sys-col-module">周计划</th>
             <th class="sys-col-module">年度目标</th>
             <th class="sys-col-module">项目管理</th>
@@ -3128,7 +3129,7 @@ var AUTH_UID_KEY='hr_auth_uid';
 // 用户数据库：用户名 → {pwd: SHA256哈希, name: 显示名, role: 角色, centerKeyword: 中心关键词}
 // 模块权限定义
 var HWM_MODULES=['hr','mbo','kpi','talent','learning','payroll','ideas','policies','maintenance','decision','dashboard','rd'];
-var HWM_MODULE_LABELS={hr:'团队架构',mbo:'周计划',kpi:'年度目标',talent:'项目管理',learning:'岗位胜任力',payroll:'决策工具',ideas:'敬业度',policies:'体系流程',maintenance:'系统维护',decision:'三年规划',dashboard:'数据中心',rd:'月计划'};
+var HWM_MODULE_LABELS={hr:'组织架构',mbo:'周计划',kpi:'年度目标',talent:'项目管理',learning:'岗位胜任力',payroll:'决策工具',ideas:'敬业度',policies:'体系流程',maintenance:'系统维护',decision:'三年规划',dashboard:'数据中心',rd:'月计划'};
 
 // 默认权限：admin 全开，其余按角色
 function _defaultPerms(role){
