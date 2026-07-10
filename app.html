@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.5.144">
+<meta name="version" content="V0.5.145">
 <!-- cache-bust: 2026-07-10-16-13 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
@@ -2061,7 +2061,6 @@ body{
 .wp-table th:nth-child(4),.wp-table td:nth-child(4){position:sticky;left:316px;z-index:2}
 .wp-table th:nth-child(5),.wp-table td:nth-child(5){position:sticky;left:431px;z-index:2}
 .wp-table td:nth-child(-n+5){background:#fff}
-.wp-table thead th:nth-child(-n+5){background:#E8EAED;z-index:4}
 .wp-table td:nth-child(5){box-shadow:3px 0 8px rgba(0,0,0,.08)}
   .wp-table td.col-hours{font-variant-numeric:tabular-nums;min-width:115px;text-align:center}
   .wp-table td.col-hours input[type="date"].wp-cell-input{width:110px!important;max-width:110px!important;min-width:0;padding:4px 8px 4px 2px;text-align:center;font-size:12px}
@@ -2200,6 +2199,32 @@ table.collab-table tbody tr:hover{background:#fffdf5}
 .wp-info-bar{display:flex;align-items:center;gap:16px;padding:8px 0;font-size:13px;color:var(--text-secondary);flex-shrink:0}
 .wp-info-bar strong{color:var(--primary);margin-right:8px}
 .wp-info-bar .sep{color:var(--text-hint);margin:0 4px}
+
+/* V0.5.145: 粘滞头部容器 — 包裹info-bar+toolbar+时间面板+summary-bar */
+.wp-sticky-head{
+  position:-webkit-sticky;
+  position:sticky;
+  top:0;
+  z-index:30;
+  background:#FBF8F3;
+  padding-top:2px;
+  flex-shrink:0;
+  box-shadow:0 2px 8px rgba(0,0,0,.06);
+}
+
+/* V0.5.145: 表头单元格粘滞（每个th独立粘滞，与冻结列left/z-index共存） */
+.wp-table thead th{
+  position:-webkit-sticky;
+  position:sticky;
+  top:80px; /* fallback，JS渲染后动态覆盖 */
+  z-index:3;
+}
+
+/* 冻结列表头在粘滞状态下需要高于冻结列内容(z-index:2) */
+.wp-table thead th:nth-child(-n+5){
+  background:#E8EAED;
+  z-index:4;
+}
 
 /* 评价弹窗 */
 .wp-eval-modal{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:300;display:none;align-items:center;justify-content:center}

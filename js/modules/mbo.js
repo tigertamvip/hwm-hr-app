@@ -1916,6 +1916,7 @@ function renderWPTable(plan){
     var weekLabel=plan.year+'年'+plan.month+'月 第'+plan.week+'周';
   var html='';
 
+  html+='<div class="wp-sticky-head">';
   html+='<div class="wp-info-bar"><strong>当前员工：</strong><strong>'+_h(plan.name)+'</strong>&nbsp;'+_h(plan.dept)+' | '+_h(plan.position)+'<span class="sep">|</span>'+weekLabel;
   if(_wpViewingSubordinate)html+='<span style="color:#E8622A;font-weight:500;margin-left:8px">（查看直属下属周计划）</span>';
   else if(_wpViewingDeptMember)html+='<span style="color:#E8622A;font-weight:500;margin-left:8px">（查看更多下属周计划）</span>';
@@ -2007,7 +2008,8 @@ function renderWPTable(plan){
     var tsSign=_taskTotal>0?'+':'';
     html+='<div class="wp-summary-item"><span class="wp-summary-label">📊 任务积分：</span><span class="wp-summary-value" style="color:'+tsColor+'">'+tsSign+_taskTotal+'</span></div>';
   }
-  html+='</div>';
+  html+='</div>';  // close wp-summary-bar
+  html+='</div>';  // close wp-sticky-head
 
   // ★ V0.1.39: 区分「上周转入」和「本周新增」（移到表格生成前）
   var carriedTasks=[], newTasks=[];
@@ -2219,6 +2221,15 @@ function renderWPTable(plan){
   html+='</div>';
 
   content.insertAdjacentHTML('beforeend',html);
+
+  // V0.5.145: 每个表头单元格粘滞在sticky-head下方
+  setTimeout(function(){
+    var sh=content.querySelector('.wp-sticky-head');
+    if(!sh)return;
+    var ht=sh.offsetHeight;
+    var ths=content.querySelectorAll('.wp-table thead th');
+    for(var i=0;i<ths.length;i++)ths[i].style.top=ht+'px';
+  },10);
 
   // ★ V0.5.67: 绑定拖拽事件
   setTimeout(function(){_bindWPDragEvents();},50);
