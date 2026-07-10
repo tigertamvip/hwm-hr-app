@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.5.158">
+<meta name="version" content="V0.5.159">
 <!-- cache-bust: 2026-07-10-16-13 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
@@ -2032,17 +2032,17 @@ body{
 .wp-table td.wp-cell-frozen{border-left:3px solid #3b82f6!important;border-right:none!important;position:relative;background:rgba(59,130,246,.04);cursor:not-allowed!important}
 .wp-toolbar-sep{width:1px;background:var(--border);margin:0 4px;display:inline-block}
 
-.wp-table-wrap{flex:1;background:var(--card);border-radius:8px;border:1px solid var(--border)}
+.wp-table-wrap{flex:1;background:#FBF8F3;border-radius:8px;border:1px solid var(--border)}
 .wp-table{width:100%;border-collapse:separate;border-spacing:0;font-size:12px;min-width:1200px;table-layout:auto}
 .wp-table tbody tr{min-height:38px}
 .wp-table th{background:#E8EAED;color:#002D4E;font-weight:600;padding:8px 6px;border-bottom:2px solid #C5C9CE;white-space:nowrap;position:sticky;top:0;z-index:1;font-size:11px;text-align:center;line-height:1}
 .wp-table th.col-fixed{background:#d5d8db}
 /* 冻结列表头高于冻结列内容(z-index:2) */
 .wp-table thead th:nth-child(-n+5){background:#E8EAED;z-index:4}
-.wp-table td{padding:6px 6px;border-bottom:1px solid #E2E4E7;border-right:1px solid rgba(0,0,0,.04);vertical-align:middle;text-align:center;color:#0F2C4B;min-height:36px;height:36px}
+.wp-table td{padding:6px 6px;border-bottom:1px solid #E2E4E7;border-right:1px solid rgba(0,0,0,.04);vertical-align:middle;text-align:center;color:#0F2C4B;min-height:36px;height:36px;background:#FBF8F3}
 .wp-table td.editable{cursor:pointer;transition:background .15s;position:relative}
-.wp-table td.editable:hover{background:#FFF9E6}
-.wp-table td.editable:nth-child(-n+5):hover{background:#FFF9E6}
+.wp-table td.editable:hover{background:#F5EDE0}
+.wp-table td.editable:nth-child(-n+5):hover{background:#F5EDE0}
 .wp-table td.editable.editing{background:#F8F9FA;box-shadow:inset 0 0 0 2px rgba(15,123,225,.25);padding:3px}
 .wp-table th,.wp-table td{overflow:hidden;text-overflow:ellipsis}
 .wp-table td.col-num{color:#5B6B7B;font-size:11px;min-width:56px}
@@ -2054,10 +2054,10 @@ body{
 .wp-table td.col-work{text-align:left;min-width:180px;font-weight:600}
 .wp-table td.col-goal{text-align:center;min-width:80px;font-size:12px;font-weight:600}
 /* ★ V0.3.101: 优先级纯文字标签 — 去彩色底色 */
-.wp-table td.col-goal.pri-urgent{background:#fff;color:#D64352;font-weight:600;border-left:3px solid #D64352}
-.wp-table td.col-goal.pri-important{background:#fff;color:#F97316;font-weight:500;border-left:3px solid #F97316}
-.wp-table td.col-goal.pri-daily-urgent{background:#fff;color:#0EA5E9;font-weight:500;border-left:3px solid #0EA5E9}
-.wp-table td.col-goal.pri-daily-routine{background:#fff;color:#5E7080;font-weight:400;border-left:3px solid rgba(94,112,128,.25)}
+.wp-table td.col-goal.pri-urgent{background:#FBF8F3;color:#D64352;font-weight:600;border-left:3px solid #D64352}
+.wp-table td.col-goal.pri-important{background:#FBF8F3;color:#F97316;font-weight:500;border-left:3px solid #F97316}
+.wp-table td.col-goal.pri-daily-urgent{background:#FBF8F3;color:#0EA5E9;font-weight:500;border-left:3px solid #0EA5E9}
+.wp-table td.col-goal.pri-daily-routine{background:#FBF8F3;color:#5E7080;font-weight:400;border-left:3px solid rgba(94,112,128,.25)}
 /* ★ V0.5.142: 冻结前5列 — 序号/重点工作/优先级/启动日期/计划完成日期（Excel式列锁定）*/
 /* ★ V0.5.142: 冻结前5列 — 仅 tbody 冻结，thead 由 JS transform 同步 */
 .wp-table th:nth-child(1),.wp-table td:nth-child(1){position:sticky;left:0;z-index:2}
@@ -2065,7 +2065,7 @@ body{
 .wp-table th:nth-child(3),.wp-table td:nth-child(3){position:sticky;left:236px;z-index:2}
 .wp-table th:nth-child(4),.wp-table td:nth-child(4){position:sticky;left:316px;z-index:2}
 .wp-table th:nth-child(5),.wp-table td:nth-child(5){position:sticky;left:431px;z-index:2}
-.wp-table td:nth-child(-n+5){background:#fff}
+.wp-table td:nth-child(-n+5){background:#FBF8F3}
 .wp-table td:nth-child(5){box-shadow:3px 0 8px rgba(0,0,0,.08)}
   .wp-table td.col-hours{font-variant-numeric:tabular-nums;min-width:115px;text-align:center}
   .wp-table td.col-hours input[type="date"].wp-cell-input{width:110px!important;max-width:110px!important;min-width:0;padding:4px 8px 4px 2px;text-align:center;font-size:12px}
@@ -2082,7 +2082,7 @@ body{
 .wp-table td.col-needboss{min-width:56px}
 .wp-table td.col-score{min-width:48px}
 .wp-table td.col-supporters{min-width:80px}
-.wp-table td.col-boss{background:#FFFDF5;text-align:left;border-left:2px solid #FFBB1C;min-width:120px;border-right:none;overflow:visible;white-space:normal;word-wrap:break-word;word-break:break-word}
+.wp-table td.col-boss{background:#FBF8F3;text-align:left;border-left:2px solid #FFBB1C;min-width:120px;border-right:none;overflow:visible;white-space:normal;word-wrap:break-word;word-break:break-word}
 .wp-table th.col-boss{overflow:visible;white-space:normal;min-width:120px}
 .wp-table td.col-remarks{min-width:200px;text-align:left;word-break:break-all;white-space:normal;overflow-wrap:break-word}
 /* ★ V0.4.91n: 表头自定义 tooltip（JS动态创建，避免sticky+overflow裁剪） */
@@ -2106,13 +2106,13 @@ body{
   transition:opacity 100ms ease;
 }
 /* V0.4.44: width:100%+min-width:1200px — 宽屏填满/boss列自适应，窄屏横向滚动 */
-.wp-table td.col-readonly{background:#FAFAFA;color:var(--text-hint);cursor:default}
+.wp-table td.col-readonly{background:#FBF8F3;color:var(--text-hint);cursor:default}
 .wp-table input.wp-cell-input{width:100%;max-width:100%;border:1px solid #E2E4E7;border-radius:3px;padding:5px 6px;font-size:12px;outline:none;box-sizing:border-box;background:#fff;min-width:0;height:26px;line-height:1}
 .wp-table input.wp-cell-input:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba(24,90,165,.12)}
 .wp-table select.wp-cell-select{width:100%;max-width:100%;border:1px solid #E2E4E7;border-radius:3px;padding:4px;font-size:12px;outline:none;box-sizing:border-box;background:#fff;cursor:pointer;height:26px}
 .wp-table textarea.wp-cell-textarea{width:100%;max-width:100%;border:1px solid #E2E4E7;border-radius:3px;padding:4px 6px;font-size:12px;outline:none;box-sizing:border-box;resize:vertical;height:42px;min-height:42px;background:#fff;line-height:1.4}
 
-.wp-total-row td{background:rgba(245,246,248,0.5);font-weight:600;border-top:1px solid rgba(200,205,212,0.6);padding:14px 6px;font-size:12px}
+.wp-total-row td{background:#FBF8F3;font-weight:600;border-top:1px solid rgba(200,205,212,0.6);padding:14px 6px;font-size:12px}
 .wp-total-row td.wp-total-num{color:var(--primary);font-size:13px}
 
 /* ===== 协同任务表格 ===== */
