@@ -3662,6 +3662,23 @@ function toggleWPCard(cardId){
     el.style.opacity = '0';
     if(btn) btn.textContent = '▼';
   }
+  // ★ V0.5.175: 更新自动收起监听
+  _updateAutoCollapseForWPCards();
+}
+// ★ V0.5.175: 时间管理卡片自动收起监听
+function _updateAutoCollapseForWPCards(){
+  var panel=document.getElementById('wpTimeMgmtPanel');
+  if(!panel)return;
+  var anyExpanded=false;
+  for(var k in _wpCardExpanded){if(_wpCardExpanded[k]){anyExpanded=true;break;}}
+  if(anyExpanded){
+    panel.onmouseenter=function(){if(typeof _stopAutoCollapse==='function')_stopAutoCollapse();};
+    panel.onmouseleave=function(){if(typeof _startAutoCollapse==='function')_startAutoCollapse();};
+  }else{
+    panel.onmouseenter=null;
+    panel.onmouseleave=null;
+    if(typeof _stopAutoCollapse==='function')_stopAutoCollapse();
+  }
 }
 var _yearGridExpanded = true;
 function toggleYearGrid(){

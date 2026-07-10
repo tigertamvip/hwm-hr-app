@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.5.174">
+<meta name="version" content="V0.5.175">
 <!-- cache-bust: 2026-07-10-16-13 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
@@ -3610,6 +3610,37 @@ function initPortalInfoPanel(){
 
 // ★ V0.5.78f: 统计卡片展开/收起
 var _empStatsExpanded=false;
+
+// ★ V0.5.175: 自动收起机制 — 鼠标离开展开区域连续5秒后自动收起所有展开模块
+var _autoCollapseTimer=null;
+function _startAutoCollapse(){
+  _stopAutoCollapse();
+  _autoCollapseTimer=setTimeout(_collapseAllExpandedPanels,5000);
+}
+function _stopAutoCollapse(){
+  if(_autoCollapseTimer){clearTimeout(_autoCollapseTimer);_autoCollapseTimer=null;}
+}
+function _collapseAllExpandedPanels(){
+  // 1. 收起组织架构统计面板
+  if(_empStatsExpanded)toggleEmpStats();
+  // 2. 收起周计划时间管理卡片
+  if(typeof _wpCardExpanded!=='undefined'){
+    var anyExpanded=false;
+    for(var k in _wpCardExpanded){if(_wpCardExpanded[k]){anyExpanded=true;break;}}
+    if(anyExpanded){
+      for(var k in _wpCardExpanded){
+        _wpCardExpanded[k]=false;
+        var el=document.getElementById('wpCardContent_'+k);
+        var btn=document.getElementById('wpCardBtn_'+k);
+        if(el){el.style.maxHeight='0';el.style.opacity='0';}
+        if(btn)btn.textContent='▼';
+      }
+      var wpPanel=document.getElementById('wpTimeMgmtPanel');
+      if(wpPanel){wpPanel.onmouseenter=null;wpPanel.onmouseleave=null;}
+    }
+  }
+}
+
 function toggleEmpStats(){
   var panel=document.getElementById('empStatsPanel');
   var icon=document.getElementById('empStatsToggleIcon');
@@ -3622,9 +3653,19 @@ function toggleEmpStats(){
     panel.style.maxHeight=panel.scrollHeight+'px';
     panel.classList.remove('collapsed');
     setTimeout(function(){panel.style.maxHeight='';},350);
+    // ★ V0.5.175: 自动收起监听 - 面板 & 按钮
+    panel.onmouseenter=_stopAutoCollapse;
+    panel.onmouseleave=function(){_startAutoCollapse();};
+    var tb=document.getElementById('empStatsToggleBtn');
+    if(tb){tb.onmouseenter=_stopAutoCollapse;tb.onmouseleave=function(){_startAutoCollapse();};}
   }else{
     panel.style.maxHeight=panel.scrollHeight+'px';
     setTimeout(function(){panel.classList.add('collapsed');panel.style.maxHeight='';},0);
+    // ★ V0.5.175: 清除监听
+    panel.onmouseenter=null;panel.onmouseleave=null;
+    var tb=document.getElementById('empStatsToggleBtn');
+    if(tb){tb.onmouseenter=null;tb.onmouseleave=null;}
+    _stopAutoCollapse();
   }
 }
 
