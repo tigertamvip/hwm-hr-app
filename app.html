@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.5.175">
+<meta name="version" content="V0.5.176">
 <!-- cache-bust: 2026-07-10-16-13 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
@@ -3623,7 +3623,7 @@ function _stopAutoCollapse(){
 function _collapseAllExpandedPanels(){
   // 1. 收起组织架构统计面板
   if(_empStatsExpanded)toggleEmpStats();
-  // 2. 收起周计划时间管理卡片
+  // 2. 收起周计划时间管理卡片（4个基础卡片）
   if(typeof _wpCardExpanded!=='undefined'){
     var anyExpanded=false;
     for(var k in _wpCardExpanded){if(_wpCardExpanded[k]){anyExpanded=true;break;}}
@@ -3635,10 +3635,26 @@ function _collapseAllExpandedPanels(){
         if(el){el.style.maxHeight='0';el.style.opacity='0';}
         if(btn)btn.textContent='▼';
       }
-      var wpPanel=document.getElementById('wpTimeMgmtPanel');
-      if(wpPanel){wpPanel.onmouseenter=null;wpPanel.onmouseleave=null;}
     }
   }
+  // ★ V0.5.175b: 收起艾森豪威尔矩阵 & 年度计划完成率
+  if(typeof _matrixExpanded!=='undefined' && _matrixExpanded){
+    var mel=document.getElementById('matrixContent'),mic=document.getElementById('matrixToggleIcon'),mit=document.getElementById('matrixToggleText');
+    _matrixExpanded=false;
+    if(mel){mel.style.maxHeight='0';mel.style.opacity='0';}
+    if(mic)mic.textContent='▼';
+    if(mit)mit.textContent='展开';
+  }
+  if(typeof _progressExpanded!=='undefined' && _progressExpanded){
+    var pel=document.getElementById('progressContent'),pic=document.getElementById('progressToggleIcon'),pit=document.getElementById('progressToggleText');
+    _progressExpanded=false;
+    if(pel){pel.style.maxHeight='0';pel.style.opacity='0';}
+    if(pic)pic.textContent='▼';
+    if(pit)pit.textContent='展开';
+  }
+  // 清除面板监听
+  var wpPanel=document.getElementById('wpTimeMgmtPanel');
+  if(wpPanel){wpPanel.onmouseenter=null;wpPanel.onmouseleave=null;}
 }
 
 function toggleEmpStats(){

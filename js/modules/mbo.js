@@ -3627,6 +3627,7 @@ function toggleAnnualProgress(){
     icon.textContent = '▼';
     text.textContent = '展开';
   }
+  _updateAutoCollapseForWPCards(); // ★ V0.5.175b
 }
 // ★ V0.5.27: 艾森豪威尔矩阵折叠/展开
 function toggleEisenhowerMatrix(){
@@ -3646,6 +3647,7 @@ function toggleEisenhowerMatrix(){
     icon.textContent = '▼';
     text.textContent = '展开';
   }
+  _updateAutoCollapseForWPCards(); // ★ V0.5.175b
 }
 // ★ V0.5.28: 通用卡片折叠/展开
 function toggleWPCard(cardId){
@@ -3665,12 +3667,14 @@ function toggleWPCard(cardId){
   // ★ V0.5.175: 更新自动收起监听
   _updateAutoCollapseForWPCards();
 }
-// ★ V0.5.175: 时间管理卡片自动收起监听
+// ★ V0.5.175: 时间管理卡片自动收起监听（修正：纳入所有展开状态）
 function _updateAutoCollapseForWPCards(){
   var panel=document.getElementById('wpTimeMgmtPanel');
   if(!panel)return;
   var anyExpanded=false;
   for(var k in _wpCardExpanded){if(_wpCardExpanded[k]){anyExpanded=true;break;}}
+  if(!anyExpanded)anyExpanded=!!_matrixExpanded;  // 艾森豪威尔矩阵
+  if(!anyExpanded)anyExpanded=!!_progressExpanded;  // 年度计划完成率
   if(anyExpanded){
     panel.onmouseenter=function(){if(typeof _stopAutoCollapse==='function')_stopAutoCollapse();};
     panel.onmouseleave=function(){if(typeof _startAutoCollapse==='function')_startAutoCollapse();};
