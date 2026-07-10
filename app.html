@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.5.123">
+<meta name="version" content="V0.5.124">
 <!-- cache-bust: 2026-07-09-23-20 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
@@ -731,8 +731,8 @@ body{
 }
 .detail-successor-item span{color:var(--text-hint)}
 .detail-value-empty{color:var(--text-hint);font-style:italic}
-.detail-avatar{width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-light));display:flex;align-items:center;justify-content:center;color:#fff;font-size:24px;font-weight:600;margin-bottom:12px;overflow:hidden;flex-shrink:0}
-.list-avatar{width:36px;height:36px;border-radius:50%;overflow:hidden;flex-shrink:0;background:var(--border)}
+.detail-avatar{width:60px;height:60px;border-radius:50%;background:#8D8D8D;display:flex;align-items:center;justify-content:center;color:#fff;font-size:24px;font-weight:600;margin-bottom:12px;overflow:hidden;flex-shrink:0}
+.list-avatar{width:36px;height:36px;border-radius:50%;overflow:hidden;flex-shrink:0;background:#8D8D8D}
 .list-avatar img{width:100%;height:100%;object-fit:cover}
 
 .toast{
@@ -3559,7 +3559,7 @@ function initPortalInfoPanel(){
 }
 
 // ★ V0.5.78f: 统计卡片展开/收起
-var _empStatsExpanded=true;
+var _empStatsExpanded=false;
 function toggleEmpStats(){
   var panel=document.getElementById('empStatsPanel');
   var icon=document.getElementById('empStatsToggleIcon');
@@ -5793,7 +5793,8 @@ function importDiffOnly(){
 }
 
 async function softDeleteEmp(empId){
-  if(!confirm('⚠️ 确认删除该员工信息？\n\n删除后数据不会丢失，可通过筛选→状态→"已删除员工"查找并恢复。'))return;
+  var ok=await _showConfirm('删除后数据不会丢失，可通过筛选→状态→"已删除员工"查找并恢复。','确认删除该员工信息？');
+  if(!ok)return;
   var emp=allEmployees.find(function(x){return x.empId===empId});
   if(!emp)return;
   emp.deleted=true;
@@ -5808,7 +5809,8 @@ async function softDeleteEmp(empId){
 }
 
 async function recoverEmp(empId){
-  if(!confirm('确认将该员工恢复进档案库？'))return;
+  var ok=await _showConfirm('','确认将该员工恢复进档案库？');
+  if(!ok)return;
   var emp=allEmployees.find(function(x){return x.empId===empId});
   if(!emp)return;
   emp.deleted=false;
@@ -5823,11 +5825,13 @@ async function recoverEmp(empId){
 }
 
 async function permDeleteEmp(empId){
-  if(!confirm('彻底删除后将无法恢复，\n\n点击"确定"彻底删除，点击"取消"放弃。'))return;
+  var ok1=await _showConfirm('彻底删除后将无法恢复。','确认彻底删除？');
+  if(!ok1)return;
   var emp=allEmployees.find(function(x){return x.empId===empId});
   if(!emp)return;
   // 二次确认
-  if(!confirm('请再次确认：一旦彻底删除，该员工所有档案信息（含照片、敏感信息）将永久丢失，不可恢复。\n\n确定要彻底删除 '+esc(emp.name)+' 吗？'))return;
+  var ok2=await _showConfirm('一旦彻底删除，该员工所有档案信息（含照片、敏感信息）将永久丢失，不可恢复。\n\n确定要彻底删除 '+esc(emp.name)+' 吗？','请再次确认');
+  if(!ok2)return;
   // 从数组中移除
   allEmployees=allEmployees.filter(function(x){return x.empId!==empId});
   // 从 DB 中删除
