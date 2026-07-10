@@ -6,8 +6,8 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.5.131">
-<!-- cache-bust: 2026-07-10-15-00 -->
+<meta name="version" content="V0.5.132">
+<!-- cache-bust: 2026-07-10-15-13 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -792,6 +792,14 @@ body{
   align-items:center;
   justify-content:space-between;
   padding:40px 60px;
+}
+/* ★ V0.5.132: 登录页顶部横条 */
+.login-topbar{
+  position:absolute; top:0; left:0; right:0;
+  height:40px; background:#284467;
+  display:flex; align-items:center; justify-content:center;
+  color:#fff; font-size:16px; font-weight:600;
+  z-index:1000; letter-spacing:1px;
 }
 /* ★ V0.1.96: 登录页左侧内容区 */
 .login-left{
@@ -2296,6 +2304,7 @@ select.form-input{padding-right:28px;appearance:auto;-webkit-appearance:menulist
 <script>document.getElementById('appVersionBadgeText').textContent=document.querySelector('meta[name="version"]').content</script>
 
 <div class="password-overlay" id="passwordGate">
+  <div class="login-topbar">HWM</div>
   <!-- ★ V0.1.96: 左侧使命/价值观 -->
   <div class="login-left">
     <div class="title-block">
