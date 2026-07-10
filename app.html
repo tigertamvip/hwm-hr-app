@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.5.125">
+<meta name="version" content="V0.5.126">
 <!-- cache-bust: 2026-07-09-23-20 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
@@ -655,14 +655,14 @@ body{
 }
 @keyframes modalFadeIn{from{opacity:0;transform:translateY(16px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
 .modal-handle{width:36px;height:5px;background:var(--border);border-radius:3px;margin:12px auto 0}
-.modal-header{padding:16px 20px 12px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:rgba(255,255,255,.82);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);z-index:1}
+.modal-header{padding:16px 20px 16px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:rgba(255,255,255,.82);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);z-index:1;min-height:76px;box-sizing:border-box}
 .modal-header h2{font-size:17px;font-weight:600}
 .modal-close{width:32px;height:32px;border-radius:50%;border:1px solid var(--border);background:var(--card);font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary)}
 .modal-body{padding:0 20px}
 /* ★ V0.5.123: 弹窗顶部固定操作栏（sticky，不随滚动消失） */
 .modal-action-bar{
   position:sticky;
-  top:52px;
+  top:76px;
   background:rgba(255,255,255,.82);
   backdrop-filter:blur(12px);
   -webkit-backdrop-filter:blur(12px);
@@ -2799,7 +2799,7 @@ select.form-input{padding-right:28px;appearance:auto;-webkit-appearance:menulist
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-header">
-      <h2 id="modalName"></h2>
+      <div id="modalHeaderContent" style="display:flex;align-items:center;gap:14px;flex:1"></div>
       <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
     <div class="modal-body" id="modalBody"></div>
@@ -5449,7 +5449,18 @@ function showDetail(empId){
   currentDetailEmpId=empId;
   const e=allEmployees.find(function(x){return (x.empId||x.empid)===empId;});
   if(!e)return;
-  document.getElementById('modalName').textContent=e.name;
+  var initials=e.name?e.name.slice(0,1):'?';
+  var avatarHtml=e.photo?
+    '<div class="detail-avatar" style="background:none;position:relative;flex-shrink:0;margin-bottom:0" id="detailAvatar"><img src="'+e.photo+'" style="width:100%;height:100%;border-radius:50%;object-fit:cover" alt=""></div>':
+    '<div class="detail-avatar" id="detailAvatar" style="flex-shrink:0;margin-bottom:0">'+esc(initials)+'</div>';
+  // 有编辑权限时，头像区域支持拖拽换照片
+  if(canEditBasic){
+    avatarHtml=avatarHtml.replace('detailAvatar"','detailAvatar" ondrop="handlePhotoDrop(event,\''+e.empId+'\')" ondragover="event.preventDefault();this.style.border=\'3px dashed var(--gold)\'" ondragleave="this.style.border=\'\'" style="cursor:pointer;border:2px dashed rgba(0,0,0,.1);flex-shrink:0;margin-bottom:0" title="拖拽照片到此处更换"');
+  }
+  // 设置弹窗标题栏内容（头像+姓名+职位）
+  document.getElementById('modalHeaderContent').innerHTML=
+    avatarHtml+
+    '<div><div style="font-size:18px;font-weight:600;color:var(--text)">'+esc(e.name)+'</div><div style="font-size:13px;color:var(--text-secondary)">'+esc(e.position||'')+(e.dept?' · '+esc(e.dept):'')+'</div></div>';
   const fields=[
     {label:'工号',value:e.empId},
     {label:'姓名',value:e.name},
@@ -5643,14 +5654,6 @@ function showDetail(empId){
       '<button class="btn-save-hr show" id="btnSaveHR" style="background:#3B7DB4;color:#fff;flex:1;margin-top:0" onclick="saveHREdits(\''+e.empId+'\')">💾 保存修改</button>'+
       '</div>';
   }
-  var initials=e.name?e.name.slice(0,1):'?';
-  var avatarHtml=e.photo?
-    '<div class="detail-avatar" style="background:none;position:relative" id="detailAvatar"><img src="'+e.photo+'" style="width:100%;height:100%;border-radius:50%;object-fit:cover" alt=""></div>':
-    '<div class="detail-avatar" id="detailAvatar">'+esc(initials)+'</div>';
-  // 有编辑权限时，头像区域支持拖拽换照片
-  if(canEditBasic){
-    avatarHtml=avatarHtml.replace('detailAvatar"','detailAvatar" ondrop="handlePhotoDrop(event,\''+e.empId+'\')" ondragover="event.preventDefault();this.style.border=\'3px dashed var(--gold)\'" ondragleave="this.style.border=\'\'" style="cursor:pointer;border:2px dashed rgba(0,0,0,.1)" title="拖拽照片到此处更换"');
-  }
   var actionBar='';
   if(saveBtn||deleteBtn){
     // 删除按钮样式调整（去掉旧margin）
@@ -5659,10 +5662,6 @@ function showDetail(empId){
   }
   document.getElementById('modalBody').innerHTML=
     actionBar+
-    '<div style="display:flex;align-items:center;gap:14px;margin-bottom:8px">'+
-      avatarHtml+
-      '<div><div style="font-size:18px;font-weight:600">'+esc(e.name)+'</div><div style="font-size:13px;color:var(--text-secondary)">'+esc(e.position||'')+(e.dept?' · '+esc(e.dept):'')+'</div></div>'+
-    '</div>'+
     basicRows+
     hrRows;
   document.getElementById('modalOverlay').style.display='flex';
