@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.5.121">
+<meta name="version" content="V0.5.122">
 <!-- cache-bust: 2026-07-09-23-20 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
@@ -5626,9 +5626,9 @@ function showDetail(empId){
   var hasEditableNow=hasEditable||canEditBasic;
   var saveBtn='';
   if(hasEditableNow){
-    saveBtn='<div style="display:flex;gap:10px;margin-top:12px">'+
-      '<button class="btn-save-hr show" style="background:#C8CCCF;color:#fff;flex:1" onclick="closeModal()">取消修改</button>'+
-      '<button class="btn-save-hr show" id="btnSaveHR" style="background:#3B7DB4;color:#fff;flex:1" onclick="saveHREdits(\''+e.empId+'\')">💾 保存修改</button>'+
+    saveBtn='<div style="display:flex;gap:10px;margin-bottom:12px">'+
+      '<button class="btn-save-hr show" style="background:#C8CCCF;color:#fff;flex:1;margin-top:0" onclick="closeModal()">取消修改</button>'+
+      '<button class="btn-save-hr show" id="btnSaveHR" style="background:#3B7DB4;color:#fff;flex:1;margin-top:0" onclick="saveHREdits(\''+e.empId+'\')">💾 保存修改</button>'+
       '</div>';
   }
   var initials=e.name?e.name.slice(0,1):'?';
@@ -5640,14 +5640,15 @@ function showDetail(empId){
     avatarHtml=avatarHtml.replace('detailAvatar"','detailAvatar" ondrop="handlePhotoDrop(event,\''+e.empId+'\')" ondragover="event.preventDefault();this.style.border=\'3px dashed var(--gold)\'" ondragleave="this.style.border=\'\'" style="cursor:pointer;border:2px dashed rgba(0,0,0,.1)" title="拖拽照片到此处更换"');
   }
   document.getElementById('modalBody').innerHTML=
+    saveBtn+
+    deleteBtn.replace('margin-top:12px','margin-top:0;margin-bottom:12px')+
+    '<div style="border-bottom:1px solid #E8EEF2;margin-bottom:16px"></div>'+
     '<div style="display:flex;align-items:center;gap:14px;margin-bottom:8px">'+
       avatarHtml+
       '<div><div style="font-size:18px;font-weight:600">'+esc(e.name)+'</div><div style="font-size:13px;color:var(--text-secondary)">'+esc(e.position||'')+(e.dept?' · '+esc(e.dept):'')+'</div></div>'+
     '</div>'+
     basicRows+
-    hrRows+
-    saveBtn+
-    deleteBtn;
+    hrRows;
   document.getElementById('modalOverlay').style.display='flex';
 }
 
