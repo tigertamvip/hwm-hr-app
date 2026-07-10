@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.5.169">
+<meta name="version" content="V0.5.170">
 <!-- cache-bust: 2026-07-10-16-13 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
@@ -6029,9 +6029,35 @@ function getExportData(){
 function getExportField(e, k){
   var v=e[k];
   if(v===undefined||v===null)return '';
+  // ★ V0.5.170: 日期字段统一转为 Date 对象（Excel 序列号或字符串 → JS Date）
+  var dateFields=['joinDate','regularDate','ssStartDate','resignDate','birthDate'];
+  if(dateFields.indexOf(k)>=0){
+    return parseExportDate(v);
+  }
   if(k==='gender'){if(v==='男'||v==='male'||v==='Male')return'男';if(v==='女'||v==='female'||v==='Female')return'女';return v;}
   if(k==='age'){if(v==='-')return'';return v;}
   if(k==='workYears'){var n=parseFloat(v);if(isNaN(n))return v;return Math.round(n*10)/10;}
+  return v;
+}
+
+function parseExportDate(v){
+  if(!v && v!==0)return '';
+  if(typeof v==='number'){
+    // Excel 序列号 → JS Date（Excel 纪元 1899-12-30）
+    var epoch=Date.UTC(1899,11,30);
+    var d=new Date(epoch+v*86400000);
+    return isNaN(d.getTime())?'':d;
+  }
+  if(typeof v==='string'){
+    v=v.trim();
+    if(!v)return '';
+    // 处理 "1970年09月19日" 格式
+    var m=v.match(/(\d{4})年(\d{2})月(\d{2})日/);
+    if(m){var d=new Date(m[1]+'-'+m[2]+'-'+m[3]);return isNaN(d.getTime())?'':d;}
+    // 处理标准日期字符串
+    var d2=new Date(v);
+    return isNaN(d2.getTime())?v:d2;
+  }
   return v;
 }
 
@@ -6072,6 +6098,10 @@ function exportToExcel(){
       if(EXPORT_COLS[j].k==='seq'){v=i+1;cell.alignment={horizontal:'center',vertical:'middle'};}
       else{v=getExportField(e,EXPORT_COLS[j].k);cell.alignment={vertical:'middle'};}
       if(v===undefined||v===null)v='';
+      // ★ V0.5.170: 日期字段设置 Excel 短日期格式
+      if(v && ['joinDate','regularDate','ssStartDate','resignDate','birthDate'].indexOf(EXPORT_COLS[j].k)>=0){
+        cell.numFmt='yyyy-mm-dd';
+      }
       cell.value=v;
       cell.font={name:'Microsoft YaHei',size:9,color:{argb:'FF1E3A5F'}};
       cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:bg}};
