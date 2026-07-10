@@ -6,8 +6,8 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.5.128">
-<!-- cache-bust: 2026-07-10-14-15 -->
+<meta name="version" content="V0.5.129">
+<!-- cache-bust: 2026-07-10-14-33 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -4526,43 +4526,16 @@ var HR_FIELD_CONFIG=[
   {section:'薪酬信息',key:'otherBonus',label:'当前其他奖金（元）',type:'text',editors:'admin,data_admin'},
   {section:'薪酬信息',key:'lastSalaryAdjDate',label:'最近一次薪资调整日期',type:'date',editors:'admin,data_admin'},
   {section:'薪酬信息',key:'preAdjMonthlySalary',label:'调整前固定月薪（元）',type:'text',editors:'admin,data_admin'},
-  {section:'薪酬信息',key:'salaryAdjReason',label:'本次薪资调整原因',type:'dropdown',opts:['依据年度薪资调整政策','依据个人绩效表现','其他原因'],editors:'admin,data_admin'},
+  {section:'薪酬信息',key:'salaryAdjReason',label:'本次薪资调整原因',type:'dropdown',opts:['职务晋升','职务代理','兼任职责','年度调整','绩效优异','其他原因'],editors:'admin,data_admin'},
   {section:'薪酬信息',key:'lastYearTotalIncome',label:'最近一年全年总收入（元）',type:'text',editors:'admin,data_admin'},
   {section:'薪酬信息',key:'lastYearMonthlyAvgIncome',label:'最近一年月均总收入（元）',type:'text',editors:'admin,data_admin'},
   {section:'薪酬信息',key:'insuranceCity',label:'当前五险一金缴纳地',type:'text',editors:'admin,data_admin'},
   {section:'薪酬信息',key:'insuranceMethod',label:'当前五险一金缴纳方式',type:'dropdown',opts:['公司缴纳','委托第三方缴纳','其他方式代缴'],editors:'admin,data_admin'},
   {section:'薪酬信息',key:'socialInsuranceBase',label:'当前五险一金基数（元）',type:'text',editors:'admin,data_admin'},
   {section:'薪酬信息',key:'housingFundBase',label:'当前公积金缴纳基数（元）',type:'text',editors:'admin,data_admin'},
-  // === 人才评估 ===
-  {section:'人才评估',key:'top5',label:'TOP5（Strengths Finder）',type:'text',editors:'admin,data_admin'},
-  {section:'人才评估',key:'potential',label:'综合发展潜力',type:'dropdown',opts:['High','Medium','Low','N/A'],editors:'admin,data_admin,center_head'},
-  {section:'人才评估',key:'turnoverRisk',label:'主动离职风险',type:'dropdown',opts:['High','Medium','Low','N/A'],editors:'admin,data_admin,center_head'},
-  {section:'人才评估',key:'__INTERNAL_SUCCESSOR__',label:'部门内部首选继任者',type:'successor',prefix:'successor',editors:'admin,data_admin,center_head'},
-  {section:'人才评估',key:'__EXTERNAL_SUCCESSOR__',label:'部门外部首选继任者',type:'successor',prefix:'extSuccessor',editors:'admin,data_admin,center_head'},
-  {section:'人才评估',key:'successorReadiness',label:'内部继任者准备度',type:'dropdown',opts:['Ready Now','Ready 1-2 Years','Ready 3-5 Years','Emergency Replacement'],editors:'admin,data_admin,center_head'},
-  {section:'人才评估',key:'lastYearPerformance',label:'最近一年综合绩效等级',type:'dropdown',opts:['+2（优异）','+1（良好）','0（合格）','-1（有差距）','-2（严重偏离目标）'],editors:'admin,data_admin,center_head'},
-  {section:'人才评估',key:'prevYearPerformance',label:'再前一年综合绩效等级',type:'dropdown',opts:['+2（优异）','+1（良好）','0（合格）','-1（有差距）','-2（严重偏离目标）'],editors:'admin,data_admin,center_head'},
-  {section:'人才评估',key:'otherInfo',label:'其他信息',type:'text',editors:'admin,data_admin,center_head'},
-  // === 奖惩信息 ===
-  {section:'奖惩信息',key:'awardsRecord',label:'受到的荣誉表彰',type:'text',editors:'admin,data_admin'},
-  {section:'奖惩信息',key:'accountabilityRecord',label:'受到的问责',type:'text',editors:'admin,data_admin'},
-  // === 兴趣爱好 ===
-  {section:'兴趣爱好',key:'professionalSkills',label:'专业技能特长',type:'text',editors:'admin,data_admin,center_head'},
-  {section:'兴趣爱好',key:'personalInterests',label:'个人兴趣爱好',type:'text',editors:'admin,data_admin'},
-  // === 家庭情况 ===
-  {section:'家庭情况',key:'fatherName',label:'父亲姓名',type:'text',editors:'admin,data_admin,center_head'},
-  {section:'家庭情况',key:'fatherBirthday',label:'父亲生日',type:'date',editors:'admin,data_admin'},
-  {section:'家庭情况',key:'motherName',label:'母亲姓名',type:'text',editors:'admin,data_admin,center_head'},
-  {section:'家庭情况',key:'motherBirthday',label:'母亲生日',type:'date',editors:'admin,data_admin'},
-  {section:'家庭情况',key:'child1Name',label:'子女1 · 姓名',type:'text',editors:'admin,data_admin'},
-  {section:'家庭情况',key:'child1Gender',label:'子女1 · 性别',type:'dropdown',opts:['男','女'],editors:'admin,data_admin'},
-  {section:'家庭情况',key:'child1Birthday',label:'子女1 · 生日',type:'date',editors:'admin,data_admin'},
-  {section:'家庭情况',key:'child1Interests',label:'子女1 · 兴趣爱好',type:'text',editors:'admin,data_admin'},
-  {section:'家庭情况',key:'child2Name',label:'子女2 · 姓名',type:'text',editors:'admin,data_admin'},
-  {section:'家庭情况',key:'child2Gender',label:'子女2 · 性别',type:'dropdown',opts:['男','女'],editors:'admin,data_admin'},
-  {section:'家庭情况',key:'child2Birthday',label:'子女2 · 生日',type:'date',editors:'admin,data_admin'},
-  {section:'家庭情况',key:'child2Interests',label:'子女2 · 兴趣爱好',type:'text',editors:'admin,data_admin'},
-  {section:'家庭情况',key:'familyOtherInfo',label:'家庭其他信息',type:'text',editors:'admin,data_admin,center_head'}
+  {section:'薪酬信息',key:'lastYearPerformance',label:'上年绩效等级',type:'dropdown',opts:['+2（优异）','+1（良好）','0（合格）','-1（有差距）','-2（严重偏离目标）'],editors:'admin,data_admin,center_head'},
+  {section:'薪酬信息',key:'prevYearPerformance',label:'前年绩效等级',type:'dropdown',opts:['+2（优异）','+1（良好）','0（合格）','-1（有差距）','-2（严重偏离目标）'],editors:'admin,data_admin,center_head'},
+  {section:'薪酬信息',key:'awardsRecord',label:'获得荣誉',type:'text',editors:'admin,data_admin'}
 ];
 
 function canEditField(cfg){
@@ -5479,7 +5452,7 @@ function showDetail(empId){
     {label:'年龄',value:e.age},
     {label:'民族',value:e.ethnicity},
     {label:'政治面貌',value:e.politicalStatus},
-    {label:'职称',value:e.title},
+    {label:'专业职称',value:e.title},
     {label:'学历',value:e.education},
     {label:'毕业学校',value:e.school},
     {label:'专业',value:e.major},
@@ -5582,7 +5555,7 @@ function showDetail(empId){
     {key:'highestMajor',label:'最高学历专业',type:'text'},
     {key:'highestGraduationDate',label:'最高学历毕业时间',type:'date'},
     {key:'resignDate',label:'离职日期',type:'date'},
-    {key:'title',label:'职称',type:'text'}
+    {key:'title',label:'专业职称',type:'text'}
   ];
   // 自动计算年龄
   function calcAge(birthStr){
@@ -5650,7 +5623,7 @@ function showDetail(empId){
   var saveBtn='';
   if(hasEditableNow){
     saveBtn='<div style="display:flex;gap:10px;margin-bottom:12px">'+
-      '<button class="btn-save-hr show" style="background:#C8CCCF;color:#fff;flex:1;margin-top:0" onclick="closeModal()">取消修改</button>'+
+      '<button class="btn-save-hr show" style="background:#8D8D8D;color:#fff;flex:1;margin-top:0" onclick="closeModal()">取消修改</button>'+
       '<button class="btn-save-hr show" id="btnSaveHR" style="background:#3B7DB4;color:#fff;flex:1;margin-top:0" onclick="saveHREdits(\''+e.empId+'\')">💾 保存修改</button>'+
       '</div>';
   }
@@ -5986,7 +5959,7 @@ var EXPORT_COLS=[
   {h:'学历', k:'education'},
   {h:'毕业学校', k:'school'},
   {h:'专业', k:'major'},
-  {h:'职称', k:'title'},
+  {h:'专业职称', k:'title'},
   {h:'工作邮箱', k:'email'}
 ];
 
