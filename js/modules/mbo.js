@@ -2125,16 +2125,16 @@ function renderWPTable(plan){
   }
 
   html+='<tr class="wp-total-row">';
-  html+='<td colspan="3" style="text-align:right;padding-right:12px;background:#F5F6F8">📊 本周合计</td>';
-  html+='<td style="background:#F5F6F8"></td>'; // 启动日期
+  html+='<td colspan="3" style="text-align:right;padding-right:12px;background:#FBF8F3">📊 本周合计</td>';
+  html+='<td style="background:#FBF8F3"></td>'; // 启动日期
   html+='<td class="wp-total-num">'+hasPlan+' 项排期</td>'; // 计划完成日期
   html+='<td class="wp-total-num">'+hasActual+' 项完成</td>'; // 实际完成日期
-  html+='<td style="background:#F5F6F8"></td>'; // 耗时
-  html+='<td style="text-align:center;background:#F5F6F8"></td>'; // 状态
-  html+='<td style="text-align:center;background:#F5F6F8;font-weight:600;font-size:12px;color:#2A476A">'+(taskScoreDisplay||'')+'</td>'; // 积分
-  html+='<td colspan="2" style="text-align:right;padding-right:12px;background:#F5F6F8">逾期任务</td>'; // 协同+问题
+  html+='<td style="background:#FBF8F3"></td>'; // 耗时
+  html+='<td style="text-align:center;background:#FBF8F3"></td>'; // 状态
+  html+='<td style="text-align:center;background:#FBF8F3;font-weight:600;font-size:12px;color:#2A476A">'+(taskScoreDisplay||'')+'</td>'; // 积分
+  html+='<td colspan="2" style="text-align:right;padding-right:12px;background:#FBF8F3">逾期任务</td>'; // 协同+问题
   html+='<td class="wp-total-num" style="color:'+(overdue>0?'var(--danger)':'var(--success)')+'">'+overdue+' 项</td>'; // 问题类型
-  html+='<td colspan="3" style="background:#F5F6F8"></td>'; // 需上级+备注+上级评价
+  html+='<td colspan="3" style="background:#FBF8F3"></td>'; // 需上级+备注+上级评价
   html+='</tr>';
   html+='</tbody></table></div>';
 
