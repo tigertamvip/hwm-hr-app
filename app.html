@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.5.168">
+<meta name="version" content="V0.5.169">
 <!-- cache-bust: 2026-07-10-16-13 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
@@ -1117,9 +1117,9 @@ body{
 #portalCard_kpi{grid-column:2;grid-row:1}
 #portalCard_mbo{grid-column:4;grid-row:1}
 #portalCard_rd{grid-column:3;grid-row:1}
-#portalCard_dashboard{grid-column:3;grid-row:2}
+#portalCard_dashboard{grid-column:4;grid-row:2}
 #portalCard_talent{grid-column:1;grid-row:2}
-#portalCard_payroll{grid-column:4;grid-row:2}
+#portalCard_payroll{grid-column:3;grid-row:2}
 #portalCard_learning{grid-column:2;grid-row:2}
 #portalCard_ideas{grid-column:1;grid-row:3}
 #portalCard_policies{grid-column:2;grid-row:3}
@@ -3586,11 +3586,11 @@ function initPortalInfoPanel(){
     else{en.style.display='none';}
     panel.style.opacity='1';
     panel.style.visibility='visible';
-    // 8秒后自动渐隐
+    // 6秒后自动渐隐
     hideTimer=setTimeout(function(){
       doHide();
       hideTimer=null;
-    },8000);
+    },6000);
   }
   cards.forEach(function(card){
     card.addEventListener('mouseenter',function(){
