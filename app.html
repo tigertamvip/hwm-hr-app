@@ -6,8 +6,8 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.5.133">
-<!-- cache-bust: 2026-07-10-15-22 -->
+<meta name="version" content="V0.5.134">
+<!-- cache-bust: 2026-07-10-15-37 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -800,7 +800,7 @@ body{
   display:flex; align-items:center; justify-content:center;
   color:#fff; font-size:15px; font-weight:600;
   z-index:1000; letter-spacing:1px;
-  box-shadow:0 4px 16px rgba(0,0,0,.35);
+  box-shadow:0 2px 12px rgba(0,0,0,.22);
 }
 /* ★ V0.1.96: 登录页左侧内容区 */
 .login-left{
@@ -1047,6 +1047,15 @@ body{
   position:relative;
   overflow:hidden;
 }
+/* ★ V0.5.134: 门户顶部横条 */
+.portal-topbar{
+  position:fixed; top:0; left:0; right:0;
+  height:36px; background:#02314D;
+  display:flex; align-items:center; justify-content:center;
+  color:#fff; font-size:15px; font-weight:600;
+  z-index:1000; letter-spacing:1px;
+  box-shadow:0 2px 10px rgba(0,0,0,.18);
+}
 /* V0.5.89: 背景图片移到伪元素做模糊柔化 */
 .portal-view::before{
   content:'';
@@ -1166,7 +1175,7 @@ body{
   bottom:54px;
   left:50%;
   transform:translateX(-50%);
-  width:1200px;
+  width:960px;
   max-width:96vw;
   background:rgba(255,255,255,0.50);
   backdrop-filter:blur(12px);
@@ -2337,8 +2346,8 @@ select.form-input{padding-right:28px;appearance:auto;-webkit-appearance:menulist
 
 <!-- 门户首页 -->
 <div id="portalView" class="portal-view" style="display:none">
-  <div class="portal-hero">
-    <div class="portal-cn-title">欢迎进入 HWM-AI 目标与效率驱动系统</div>
+  <div class="portal-topbar">HWM</div>
+  <div class="portal-hero">欢迎进入 HWM-AI 目标与效率驱动系统</div>
     <h1>Welcome to the HWM-AI Goal &amp; Efficiency Driven System</h1>
   </div>
   <div class="portal-grid">
@@ -2414,7 +2423,7 @@ select.form-input{padding-right:28px;appearance:auto;-webkit-appearance:menulist
     如果使用过程中有任何问题，请咨询人力资源部<br>
     <span id="footer-copy">&copy; 安徽省幸福工场医疗设备有限公司 版权所有</span>
   </div>
-  <button style="position:fixed;top:28px;right:24px;z-index:100;padding:10px 28px;background:#3B7DB4;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;box-shadow:0 2px 8px rgba(59,125,180,.25);transition:all .15s" onclick="logout()" onmouseover="this.style.opacity=0.85" onmouseout="this.style.opacity=1"><span style="margin-right:6px">←</span>退出登录</button>
+  <button style="position:fixed;top:48px;right:24px;z-index:100;padding:10px 28px;background:#3B7DB4;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;box-shadow:0 2px 8px rgba(59,125,180,.25);transition:all .15s" onclick="logout()" onmouseover="this.style.opacity=0.85" onmouseout="this.style.opacity=1"><span style="margin-right:6px">←</span>退出登录</button>
 </div>
 
 <div id="appView" style="display:none">
