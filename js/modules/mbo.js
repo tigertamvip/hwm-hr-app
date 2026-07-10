@@ -2230,7 +2230,7 @@ function renderWPTable(plan){
     var sc=content.querySelector('.wp-scroll-area')||content;
     sc.addEventListener('scroll',function(){
       var sl=sc.scrollLeft;
-      var els=content.querySelectorAll('.wp-info-bar, .wp-toolbar, .wp-summary-bar, .wp-feedback-sections, #collabTaskArea');
+      var els=content.querySelectorAll('.wp-info-bar, .wp-toolbar, .wp-summary-bar, .wp-feedback-sections, #collabTaskArea, #wpTimeMgmtPanel');
       for(var i=0;i<els.length;i++)els[i].style.transform='translateX('+sl+'px)';
     });
   },10);
