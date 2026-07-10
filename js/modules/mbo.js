@@ -2024,7 +2024,7 @@ function renderWPTable(plan){
   html+='<table class="wp-table wp-table-head">'+colgroupHtml+'<thead><tr>';
   html+='<th class="col-num">#</th><th class="col-work">本周重点工作</th><th class="col-goal">优先级</th><th class="col-hours">启动日期</th><th class="col-hours">计划完成日期</th><th class="col-hours">实际完成日期</th><th class="col-hours dur-tooltip" style="min-width:80px">计划/实际耗时</th><th class="col-status">完成状态</th><th class="col-score">积分</th><th class="col-supporters">协同人</th><th class="col-wide">遇到的问题/挑战</th><th class="col-problemtype">问题类型</th><th class="col-needboss">需上级介入</th><th class="col-remarks">备注说明</th><th class="col-boss" style="white-space:normal;overflow:visible">上级评价与建议</th>';
   html+='</tr></thead></table>';
-  html+='<div class="wp-table-scroll-x"><table class="wp-table wp-table-body">'+colgroupHtml+'<tbody>';
+  html+='<div class="wp-table-scroll-x"><table class="wp-table wp-table-body">'+colgroupHtml+'<thead style="display:none"><tr><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th></tr></thead><tbody>';
 
   var seq=0;
 
