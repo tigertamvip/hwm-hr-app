@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.5.110">
+<meta name="version" content="V0.5.111">
 <!-- cache-bust: 2026-07-09-23-20 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
@@ -1140,13 +1140,16 @@ body{
 }
 .portal-card:hover .portal-card-en{color:rgba(255,255,255,.65)}
 
-/* ★ V0.1.99d: MBO模块悬停弹窗 */
-.mbo-hover-tip{
+/* ★ V0.5.111: 统一模块悬停弹窗（底部居中+毛玻璃） */
+.portal-card-tip{
   position:absolute;
-  left:calc(100% + 20px);
-  top:-4px;
-  background:#fff;
-  border:1px solid rgba(0,0,0,.08);
+  top:calc(100% + 12px);
+  left:50%;
+  transform:translateX(-50%) translateY(6px);
+  background:rgba(255,255,255,0.92);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  border:1px solid rgba(255,255,255,0.3);
   border-radius:12px;
   box-shadow:0 12px 40px rgba(0,0,0,.18);
   padding:20px 24px;
@@ -1155,57 +1158,54 @@ body{
   z-index:100;
   pointer-events:none;
   white-space:normal;
-  /* V0.5.93: 同步淡入动画 */
   opacity:0;
   visibility:hidden;
-  transform:translateX(6px);
   transition:opacity .2s ease,transform .2s ease,visibility .2s ease;
 }
-/* V0.5.93: 小三角箭头 */
-.mbo-hover-tip::before{
+/* V0.5.111: 顶部小三角箭头 */
+.portal-card-tip::before{
   content:'';
   position:absolute;
-  left:0;
-  top:18px;
+  left:50%;
+  top:-9px;
+  transform:translateX(-50%);
   width:0;
   height:0;
-  border-top:7px solid transparent;
-  border-right:0;
-  border-bottom:7px solid transparent;
-  border-left:9px solid #fff;
-  transition:opacity .2s ease,transform .2s ease;
+  border-left:9px solid transparent;
+  border-right:9px solid transparent;
+  border-bottom:9px solid rgba(255,255,255,0.92);
+  transition:opacity .2s ease;
 }
-.portal-card:hover .mbo-hover-tip{
+.portal-card:hover .portal-card-tip{
   opacity:1;
   visibility:visible;
-  transform:translateX(0);
+  transform:translateX(-50%) translateY(0);
 }
-.portal-card:hover .mbo-hover-tip::before{
+.portal-card:hover .portal-card-tip::before{
   opacity:1;
-  transform:translateX(0);
 }
-.mbo-hover-tip .tip-head{
+.portal-card-tip .tip-head{
   font-size:14px;
   font-weight:600;
-  color:#034870;
+  color:#3B7DB4;
   margin-bottom:12px;
   padding-bottom:10px;
   border-bottom:1px solid #E8EEF2;
 }
-.mbo-hover-tip .tip-cn{
+.portal-card-tip .tip-cn{
   font-size:13px;
   color:#333;
   line-height:1.8;
   margin-bottom:10px;
 }
-.mbo-hover-tip .tip-en{
+.portal-card-tip .tip-en{
   font-size:12px;
   color:#888;
   line-height:1.7;
   font-style:italic;
 }
 @media (max-width:1024px){
-  .mbo-hover-tip{display:none!important}
+  .portal-card-tip{display:none!important}
 }
 .portal-card-badge{
   position:absolute;
@@ -2344,70 +2344,130 @@ select.form-input{padding-right:28px;appearance:auto;-webkit-appearance:menulist
     <h1>Welcome to the HWM-AI Goal &amp; Efficiency Driven System</h1>
   </div>
   <div class="portal-grid">
-    <div id="portalCard_decision" class="portal-card portal-card-orange disabled" data-module="decision" style="display:none" onclick="moduleBuilding()">
+    <div id="portalCard_decision" class="portal-card portal-card-orange disabled" data-module="decision" style="display:none;overflow:visible" onclick="moduleBuilding()">
       <div class="portal-card-label">公司三年规划</div>
       <div class="portal-card-en">3-Year Plan</div>
       <div class="portal-card-badge">In Progress</div>
+      <div class="portal-card-tip">
+        <div class="tip-head">公司三年规划</div>
+        <div class="tip-cn">该模块正在开发中，敬请期待。战略规划是企业长远发展的基石，我们将为您提供科学的三年规划工具。</div>
+        <div class="tip-en">This module is under development. Strategic planning is the cornerstone of long-term business development.</div>
+      </div>
     </div>
-    <div id="portalCard_kpi" class="portal-card" data-module="kpi" style="display:none" onclick="enterModule('kpi')">
+    <div id="portalCard_kpi" class="portal-card" data-module="kpi" style="display:none;overflow:visible" onclick="enterModule('kpi')">
       <div class="portal-card-label">年度目标</div>
       <div class="portal-card-en">Annual Goals</div>
+      <div class="portal-card-tip">
+        <div class="tip-head">年度目标</div>
+        <div class="tip-cn">设定并追踪年度关键目标，确保个人目标与团队战略一致。目标驱动的绩效管理帮助您聚焦重点、持续进步。</div>
+        <div class="tip-en">Set and track annual key goals, ensuring alignment between individual objectives and team strategy.</div>
+      </div>
     </div>
     <div id="portalCard_mbo" class="portal-card" data-module="mbo" style="display:none;overflow:visible" onclick="enterModule('workplan')">
       <div class="portal-card-label">我的周计划</div>
       <div class="portal-card-en">Weekly Plan</div>
-      <div class="mbo-hover-tip">
-        <div class="tip-head">我的周计划 模块上线序言</div>
+      <div class="portal-card-tip">
+        <div class="tip-head">我的周计划</div>
         <div class="tip-cn">把团队目标和计划管理好，绩效管理才有扎实根基。信息化系统内嵌管理规则与约束机制，自动追踪机制，将有效帮助管理者和员工提升目标一致性及进步力度。我们相信一个人如果周计划长期落实不到位，其绩效表现大概率不会理想。</div>
         <div class="tip-en">Proper team goal and plan management underpins sound performance management. Built-in rules, controls and auto-tracking in this system align goals and boost progress for managers and staff. Persistently unfulfilled weekly plans usually lead to poor performance results.</div>
       </div>
     </div>
-    <div id="portalCard_rd" class="portal-card portal-card-orange disabled" data-module="rd" style="display:none" onclick="moduleBuilding()">
+    <div id="portalCard_rd" class="portal-card portal-card-orange disabled" data-module="rd" style="display:none;overflow:visible" onclick="moduleBuilding()">
       <div class="portal-card-label">我的月计划</div>
       <div class="portal-card-en">Monthly Plan</div>
       <div class="portal-card-badge">In Progress</div>
+      <div class="portal-card-tip">
+        <div class="tip-head">我的月计划</div>
+        <div class="tip-cn">该模块正在开发中，敬请期待。月度计划是连接年度目标与周执行的关键桥梁。</div>
+        <div class="tip-en">This module is under development. Monthly plans bridge the gap between annual goals and weekly execution.</div>
+      </div>
     </div>
-    <div id="portalCard_decision" class="portal-card portal-card-orange disabled" data-module="decision" style="display:none" onclick="moduleBuilding()">
+    <div id="portalCard_decision2" class="portal-card portal-card-orange disabled" data-module="decision" style="display:none;overflow:visible" onclick="moduleBuilding()">
       <div class="portal-card-label">公司三年规划</div>
       <div class="portal-card-en">3-Year Plan</div>
       <div class="portal-card-badge">In Progress</div>
+      <div class="portal-card-tip">
+        <div class="tip-head">公司三年规划</div>
+        <div class="tip-cn">该模块正在开发中，敬请期待。战略规划是企业长远发展的基石，我们将为您提供科学的三年规划工具。</div>
+        <div class="tip-en">This module is under development. Strategic planning is the cornerstone of long-term business development.</div>
+      </div>
     </div>
-    <div id="portalCard_hr" class="portal-card" data-module="hr" style="display:none" onclick="enterModule('hr')">
+    <div id="portalCard_hr" class="portal-card" data-module="hr" style="display:none;overflow:visible" onclick="enterModule('hr')">
       <div class="portal-card-label">团队</div>
       <div class="portal-card-en">Team</div>
+      <div class="portal-card-tip">
+        <div class="tip-head">团队</div>
+        <div class="tip-cn">管理团队信息、人员档案与组织架构。高效的团队管理是组织效能提升的基础。</div>
+        <div class="tip-en">Manage team information, personnel files and organizational structure.</div>
+      </div>
     </div>
-    <div id="portalCard_talent" class="portal-card disabled" data-module="talent" style="display:none" onclick="moduleBuilding()">
+    <div id="portalCard_talent" class="portal-card disabled" data-module="talent" style="display:none;overflow:visible" onclick="moduleBuilding()">
       <div class="portal-card-label">组织人效模型</div>
       <div class="portal-card-en">Org Efficiency</div>
       <div class="portal-card-badge">In Progress</div>
+      <div class="portal-card-tip">
+        <div class="tip-head">组织人效模型</div>
+        <div class="tip-cn">该模块正在开发中，敬请期待。通过数据驱动的组织效能分析，帮助管理者优化团队结构与资源配置。</div>
+        <div class="tip-en">This module is under development. Data-driven organizational efficiency analysis helps optimize team structure.</div>
+      </div>
     </div>
-    <div id="portalCard_payroll" class="portal-card disabled" data-module="payroll" style="display:none" onclick="moduleBuilding()">
+    <div id="portalCard_payroll" class="portal-card disabled" data-module="payroll" style="display:none;overflow:visible" onclick="moduleBuilding()">
       <div class="portal-card-label">决策树模型</div>
       <div class="portal-card-en">Decision Tree</div>
       <div class="portal-card-badge">In Progress</div>
+      <div class="portal-card-tip">
+        <div class="tip-head">决策树模型</div>
+        <div class="tip-cn">该模块正在开发中，敬请期待。智能决策辅助工具，将为您提供科学的决策路径与风险评估。</div>
+        <div class="tip-en">This module is under development. Intelligent decision support tools will provide scientific decision paths.</div>
+      </div>
     </div>
-    <div id="portalCard_dashboard" class="portal-card portal-card-orange disabled" data-module="dashboard" style="display:none" onclick="moduleBuilding()">
+    <div id="portalCard_dashboard" class="portal-card portal-card-orange disabled" data-module="dashboard" style="display:none;overflow:visible" onclick="moduleBuilding()">
       <div class="portal-card-label">客户驱动模型</div>
       <div class="portal-card-en">Customer-Driven</div>
       <div class="portal-card-badge">In Progress</div>
+      <div class="portal-card-tip">
+        <div class="tip-head">客户驱动模型</div>
+        <div class="tip-cn">该模块正在开发中，敬请期待。以客户为中心的业务驱动模型，帮助团队聚焦客户需求与价值创造。</div>
+        <div class="tip-en">This module is under development. Customer-centric business driver model to focus on customer needs.</div>
+      </div>
     </div>
-    <div id="portalCard_learning" class="portal-card disabled" data-module="learning" style="display:none" onclick="moduleBuilding()">
+    <div id="portalCard_learning" class="portal-card disabled" data-module="learning" style="display:none;overflow:visible" onclick="moduleBuilding()">
       <div class="portal-card-label">业务增长模型</div>
       <div class="portal-card-en">BLM</div>
       <div class="portal-card-badge">In Progress</div>
+      <div class="portal-card-tip">
+        <div class="tip-head">业务增长模型</div>
+        <div class="tip-cn">该模块正在开发中，敬请期待。基于BLM方法论的业务增长分析工具，助力战略落地与业务突破。</div>
+        <div class="tip-en">This module is under development. BLM-based business growth analysis tools to support strategy execution.</div>
+      </div>
     </div>
-    <div id="portalCard_policies" class="portal-card" data-module="policies" style="display:none" onclick="enterModule('policies')">
+    <div id="portalCard_policies" class="portal-card" data-module="policies" style="display:none;overflow:visible" onclick="enterModule('policies')">
       <div class="portal-card-label">体系流程驱动</div>
       <div class="portal-card-en">System Flow Driver</div>
+      <div class="portal-card-tip">
+        <div class="tip-head">体系流程驱动</div>
+        <div class="tip-cn">管理人力资源相关制度、流程与文档。完善的制度体系是企业规范化运营的保障。</div>
+        <div class="tip-en">Manage HR policies, processes and documents. Sound policy systems ensure standardized operations.</div>
+      </div>
     </div>
-    <div id="portalCard_ideas" class="portal-card portal-card-orange disabled" data-module="ideas" style="display:none" onclick="moduleBuilding()">
+    <div id="portalCard_ideas" class="portal-card portal-card-orange disabled" data-module="ideas" style="display:none;overflow:visible" onclick="moduleBuilding()">
       <div class="portal-card-label">敬业度驱动</div>
       <div class="portal-card-en">Engagement Driver</div>
       <div class="portal-card-badge">In Progress</div>
+      <div class="portal-card-tip">
+        <div class="tip-head">敬业度驱动</div>
+        <div class="tip-cn">该模块正在开发中，敬请期待。员工敬业度是组织活力的核心指标，我们将为您提供专业的敬业度分析工具。</div>
+        <div class="tip-en">This module is under development. Employee engagement is a core indicator of organizational vitality.</div>
+      </div>
     </div>
-    <div id="portalCard_maintenance" class="portal-card portal-card-special" data-module="maintenance" style="display:none" onclick="enterModule('system')">
+    <div id="portalCard_maintenance" class="portal-card portal-card-special" data-module="maintenance" style="display:none;overflow:visible" onclick="enterModule('system')">
       <div class="portal-card-label">系统维护</div>
       <div class="portal-card-en">System Maintenance</div>
+      <div class="portal-card-tip">
+        <div class="tip-head">系统维护</div>
+        <div class="tip-cn">系统配置与维护工具。管理员可在此进行系统设置、数据管理与权限配置。</div>
+        <div class="tip-en">System configuration and maintenance tools. Administrators can manage settings, data and permissions.</div>
+      </div>
     </div>
   </div>
   <div class="portal-footer">
