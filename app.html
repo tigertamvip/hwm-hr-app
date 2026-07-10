@@ -6,8 +6,8 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.5.129">
-<!-- cache-bust: 2026-07-10-14-33 -->
+<meta name="version" content="V0.5.130">
+<!-- cache-bust: 2026-07-10-14-51 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -4535,7 +4535,12 @@ var HR_FIELD_CONFIG=[
   {section:'薪酬信息',key:'housingFundBase',label:'当前公积金缴纳基数（元）',type:'text',editors:'admin,data_admin'},
   {section:'薪酬信息',key:'lastYearPerformance',label:'上年绩效等级',type:'dropdown',opts:['+2（优异）','+1（良好）','0（合格）','-1（有差距）','-2（严重偏离目标）'],editors:'admin,data_admin,center_head'},
   {section:'薪酬信息',key:'prevYearPerformance',label:'前年绩效等级',type:'dropdown',opts:['+2（优异）','+1（良好）','0（合格）','-1（有差距）','-2（严重偏离目标）'],editors:'admin,data_admin,center_head'},
-  {section:'薪酬信息',key:'awardsRecord',label:'获得荣誉',type:'text',editors:'admin,data_admin'}
+  {section:'薪酬信息',key:'awardsRecord',label:'获得荣誉',type:'text',editors:'admin,data_admin'},
+  // === 家庭情况 ===
+  {section:'家庭情况',key:'fatherBirthday',label:'父亲生日',type:'date',editors:'admin,data_admin'},
+  {section:'家庭情况',key:'motherBirthday',label:'母亲生日',type:'date',editors:'admin,data_admin'},
+  {section:'家庭情况',key:'child1Birthday',label:'子女1 · 生日',type:'date',editors:'admin,data_admin'},
+  {section:'家庭情况',key:'child2Birthday',label:'子女2 · 生日',type:'date',editors:'admin,data_admin'}
 ];
 
 function canEditField(cfg){
