@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.5.122">
+<meta name="version" content="V0.5.123">
 <!-- cache-bust: 2026-07-09-23-20 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
@@ -659,6 +659,17 @@ body{
 .modal-header h2{font-size:17px;font-weight:600}
 .modal-close{width:32px;height:32px;border-radius:50%;border:1px solid var(--border);background:var(--card);font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary)}
 .modal-body{padding:0 20px}
+/* ★ V0.5.123: 弹窗顶部固定操作栏（sticky，不随滚动消失） */
+.modal-action-bar{
+  position:sticky;
+  top:52px;
+  background:rgba(255,255,255,.82);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  z-index:2;
+  margin:0 -20px;
+  padding:12px 20px;
+}
 #exportModal,#clearPwdModal{align-items:center}
 #exportModal .modal,#clearPwdModal .modal{max-width:420px;border-radius:8px;max-height:none;overflow:visible;padding:0 0 20px}
 .pwd-input{
@@ -967,6 +978,7 @@ body{
   /* 弹窗全宽 */
   .modal{max-width:100%;min-width:unset;border-radius:20px 20px 0 0}
   .modal-body{padding:0 16px}
+  .modal-action-bar{top:42px;margin:0 -16px;padding:8px 16px}
   .modal-header{padding:12px 16px 8px}
   .modal-header h2{font-size:16px}
   #exportModal .modal,#clearPwdModal .modal{max-width:92%;margin:0 auto}
@@ -5639,10 +5651,14 @@ function showDetail(empId){
   if(canEditBasic){
     avatarHtml=avatarHtml.replace('detailAvatar"','detailAvatar" ondrop="handlePhotoDrop(event,\''+e.empId+'\')" ondragover="event.preventDefault();this.style.border=\'3px dashed var(--gold)\'" ondragleave="this.style.border=\'\'" style="cursor:pointer;border:2px dashed rgba(0,0,0,.1)" title="拖拽照片到此处更换"');
   }
+  var actionBar='';
+  if(saveBtn||deleteBtn){
+    // 删除按钮样式调整（去掉旧margin）
+    var cleanDeleteBtn=deleteBtn.replace('margin-top:12px','margin-top:0').replace('margin-top:0;margin-bottom:12px','margin-top:0');
+    actionBar='<div class="modal-action-bar">'+saveBtn+cleanDeleteBtn+'</div>';
+  }
   document.getElementById('modalBody').innerHTML=
-    saveBtn+
-    deleteBtn.replace('margin-top:12px','margin-top:0;margin-bottom:12px')+
-    '<div style="border-bottom:1px solid #E8EEF2;margin-bottom:16px"></div>'+
+    actionBar+
     '<div style="display:flex;align-items:center;gap:14px;margin-bottom:8px">'+
       avatarHtml+
       '<div><div style="font-size:18px;font-weight:600">'+esc(e.name)+'</div><div style="font-size:13px;color:var(--text-secondary)">'+esc(e.position||'')+(e.dept?' · '+esc(e.dept):'')+'</div></div>'+
