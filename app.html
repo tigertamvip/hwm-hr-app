@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.5.102">
+<meta name="version" content="V0.5.103">
 <!-- cache-bust: 2026-07-09-23-20 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
@@ -2374,8 +2374,8 @@ select.form-input{padding-right:28px;appearance:auto;-webkit-appearance:menulist
       <div class="portal-card-badge">In Progress</div>
     </div>
     <div id="portalCard_hr" class="portal-card" data-module="hr" style="display:none" onclick="enterModule('hr')">
-      <div class="portal-card-label">员工信息</div>
-      <div class="portal-card-en">Employee Profile</div>
+      <div class="portal-card-label">团队</div>
+      <div class="portal-card-en">Team</div>
     </div>
     <div id="portalCard_talent" class="portal-card disabled" data-module="talent" style="display:none" onclick="moduleBuilding()">
       <div class="portal-card-label">组织人效模型</div>
@@ -2892,7 +2892,7 @@ select.form-input{padding-right:28px;appearance:auto;-webkit-appearance:menulist
             <th class="sys-col-position">职务</th>
             <th class="sys-col-uid">用户名</th>
             <th class="sys-col-pwd">密码</th>
-            <th class="sys-col-module">员工信息</th>
+            <th class="sys-col-module">团队</th>
             <th class="sys-col-module">本周计划</th>
             <th class="sys-col-module">本年目标</th>
             <th class="sys-col-module">组织人效模型</th>
@@ -3107,7 +3107,7 @@ var AUTH_UID_KEY='hr_auth_uid';
 // 用户数据库：用户名 → {pwd: SHA256哈希, name: 显示名, role: 角色, centerKeyword: 中心关键词}
 // 模块权限定义
 var HWM_MODULES=['hr','mbo','kpi','talent','learning','payroll','ideas','policies','maintenance','decision','dashboard','rd'];
-var HWM_MODULE_LABELS={hr:'员工信息',mbo:'本周计划',kpi:'本年目标',talent:'组织人效模型',learning:'业务增长模型',payroll:'决策树模型',ideas:'敬业度驱动',policies:'体系流程驱动',maintenance:'系统维护',decision:'三年规划',dashboard:'客户驱动模型',rd:'本月计划'};
+var HWM_MODULE_LABELS={hr:'团队',mbo:'本周计划',kpi:'本年目标',talent:'组织人效模型',learning:'业务增长模型',payroll:'决策树模型',ideas:'敬业度驱动',policies:'体系流程驱动',maintenance:'系统维护',decision:'三年规划',dashboard:'客户驱动模型',rd:'本月计划'};
 
 // 默认权限：admin 全开，其余按角色
 function _defaultPerms(role){
