@@ -1070,7 +1070,7 @@ function renderWPYearGrid(year){
   var sysWeek=(nowInfo.year===year)?nowInfo.week:null;
   // 构建网格
   var toggleIcon = _yearGridExpanded ? '▲' : '▼';
-  var contentStyle = _yearGridExpanded ? 'transition:max-height 0.7s cubic-bezier(.25,.1,.25,1),opacity 0.7s cubic-bezier(.25,.1,.25,1);overflow:hidden' : 'transition:max-height 0.7s cubic-bezier(.25,.1,.25,1),opacity 0.7s cubic-bezier(.25,.1,.25,1);overflow:hidden;max-height:0;opacity:0';
+  var contentStyle = _yearGridExpanded ? 'transition:max-height 0.6s cubic-bezier(.25,.1,.25,1),opacity 0.6s cubic-bezier(.25,.1,.25,1);overflow:hidden' : 'transition:max-height 0.6s cubic-bezier(.25,.1,.25,1),opacity 0.6s cubic-bezier(.25,.1,.25,1);overflow:hidden;max-height:0;opacity:0';
   var html='<div class="wp-year-grid-title" onclick="toggleYearGrid()">'+year+'年全年周度 <span id="wpYearGridToggle" style="font-size:13px;color:#9ca3af;cursor:pointer">'+toggleIcon+'</span></div>';
   html+='<div id="wpYearGridContent" style="'+contentStyle+'">';
   html+='<div class="wp-year-grid-grid">';
@@ -2156,9 +2156,9 @@ function renderWPTable(plan){
     html+='<button type="button" onclick="toggleAIAnalysis()" id="aiAnalysisToggleBtn" style="padding:3px 12px;border:1px solid #d4c8f0;border-radius:8px;background:#fff;color:#6b5b95;font-size:11px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:3px;transition:all .25s ease;white-space:nowrap"><span id="aiToggleIcon">▼</span><span id="aiToggleText">展开</span></button>';
     html+='</div>';
   if(plan.aiAnalysis && plan.aiAnalysis.trim()){
-    html+='<div class="wp-feedback-textarea" id="aiAnalysisContent" style="background:#F4F0FF;border:1px solid #d4c8f0;font-size:13px;line-height:1.8;white-space:pre-wrap;transition:max-height 0.7s cubic-bezier(.25,.1,.25,1),opacity 0.7s cubic-bezier(.25,.1,.25,1),padding 0.7s cubic-bezier(.25,.1,.25,1);overflow:hidden;max-height:0;opacity:0;padding:0;margin-top:0">'+_h(plan.aiAnalysis)+'</div>';
+    html+='<div class="wp-feedback-textarea" id="aiAnalysisContent" style="background:#F4F0FF;border:1px solid #d4c8f0;font-size:13px;line-height:1.8;white-space:pre-wrap;transition:max-height 0.6s cubic-bezier(.25,.1,.25,1),opacity 0.6s cubic-bezier(.25,.1,.25,1),padding 0.6s cubic-bezier(.25,.1,.25,1);overflow:hidden;max-height:0;opacity:0;padding:0;margin-top:0">'+_h(plan.aiAnalysis)+'</div>';
   }else{
-    html+='<div class="wp-feedback-empty" id="aiAnalysisContent" style="background:#F4F0FF;border:1px dashed #d4c8f0;transition:max-height 0.7s cubic-bezier(.25,.1,.25,1),opacity 0.7s cubic-bezier(.25,.1,.25,1),padding 0.7s cubic-bezier(.25,.1,.25,1);max-height:0;opacity:0;padding:0">点击上方「AI-分析建议」按钮，生成本周整体分析报告</div>';
+    html+='<div class="wp-feedback-empty" id="aiAnalysisContent" style="background:#F4F0FF;border:1px dashed #d4c8f0;transition:max-height 0.6s cubic-bezier(.25,.1,.25,1),opacity 0.6s cubic-bezier(.25,.1,.25,1),padding 0.6s cubic-bezier(.25,.1,.25,1);max-height:0;opacity:0;padding:0">点击上方「AI-分析建议」按钮，生成本周整体分析报告</div>';
   }
   html+='</div>';
 
@@ -2867,7 +2867,7 @@ function _renderEisenhowerMatrix(year){
   var html='<div class="wp-card">';
   var toggleIcon=_matrixExpanded?'▲':'▼';
   var toggleText=_matrixExpanded?'收起':'展开';
-  var contentStyle=_matrixExpanded?'transition:max-height 0.7s cubic-bezier(.25,.1,.25,1),opacity 0.7s cubic-bezier(.25,.1,.25,1);overflow:hidden':'transition:max-height 0.7s cubic-bezier(.25,.1,.25,1),opacity 0.7s cubic-bezier(.25,.1,.25,1);overflow:hidden;max-height:0;opacity:0';
+  var contentStyle=_matrixExpanded?'transition:max-height 0.6s cubic-bezier(.25,.1,.25,1),opacity 0.6s cubic-bezier(.25,.1,.25,1);overflow:hidden':'transition:max-height 0.6s cubic-bezier(.25,.1,.25,1),opacity 0.6s cubic-bezier(.25,.1,.25,1);overflow:hidden;max-height:0;opacity:0';
   html+='<div class="wp-card-title">🎯 艾森豪威尔矩阵<button type="button" onclick="toggleEisenhowerMatrix()" id="matrixToggleBtn" style="margin-left:auto;padding:2px;border:none;border-radius:6px;background:transparent;color:#6b7280;font-size:13px;font-weight:400;cursor:pointer;display:inline-flex;align-items:center;gap:3px;transition:all .25s ease;white-space:nowrap"><span id="matrixToggleIcon" style="color:#9ca3af">'+toggleIcon+'</span><span id="matrixToggleText">'+toggleText+'</span></button></div>';
   html+='<div id="matrixContent" style="'+contentStyle+'">';
   if(tasks.length===0){
@@ -2957,7 +2957,7 @@ function _renderAnnualProgress(year){
   var totalCount=0,totalDone=0;
   var toggleIcon = _progressExpanded ? '▲' : '▼';
   var toggleText = _progressExpanded ? '收起' : '展开';
-  var contentStyle = _progressExpanded ? 'transition:max-height 0.7s cubic-bezier(.25,.1,.25,1),opacity 0.7s cubic-bezier(.25,.1,.25,1);overflow:hidden' : 'transition:max-height 0.7s cubic-bezier(.25,.1,.25,1),opacity 0.7s cubic-bezier(.25,.1,.25,1);overflow:hidden;max-height:0;opacity:0';
+  var contentStyle = _progressExpanded ? 'transition:max-height 0.6s cubic-bezier(.25,.1,.25,1),opacity 0.6s cubic-bezier(.25,.1,.25,1);overflow:hidden' : 'transition:max-height 0.6s cubic-bezier(.25,.1,.25,1),opacity 0.6s cubic-bezier(.25,.1,.25,1);overflow:hidden;max-height:0;opacity:0';
   var html='<div class="wp-card wp-progress-card"><div class="wp-card-title">⏰ '+year+'年年度计划完成率<button type="button" onclick="toggleAnnualProgress()" id="progressToggleBtn" style="margin-left:auto;padding:2px;border:none;border-radius:6px;background:transparent;color:#6b7280;font-size:13px;font-weight:400;cursor:pointer;display:inline-flex;align-items:center;gap:3px;transition:all .25s ease;white-space:nowrap"><span id="progressToggleIcon" style="color:#9ca3af">'+toggleIcon+'</span><span id="progressToggleText">'+toggleText+'</span></button></div>';
   html+='<div id="progressContent" style="'+contentStyle+'">';
   for(var qi=0;qi<allQuads.length;qi++){
@@ -3016,7 +3016,7 @@ function _renderTimeManagementPanel(plan){
 
   var html='';
   var _ce=function(id){return _wpCardExpanded[id]?'▲':'▼';};
-  var _cs=function(id){return _wpCardExpanded[id]?'transition:max-height 0.7s cubic-bezier(.25,.1,.25,1),opacity 0.7s cubic-bezier(.25,.1,.25,1);overflow:hidden':'transition:max-height 0.7s cubic-bezier(.25,.1,.25,1),opacity 0.7s cubic-bezier(.25,.1,.25,1);overflow:hidden;max-height:0;opacity:0';};
+  var _cs=function(id){return _wpCardExpanded[id]?'transition:max-height 0.6s cubic-bezier(.25,.1,.25,1),opacity 0.6s cubic-bezier(.25,.1,.25,1);overflow:hidden':'transition:max-height 0.6s cubic-bezier(.25,.1,.25,1),opacity 0.6s cubic-bezier(.25,.1,.25,1);overflow:hidden;max-height:0;opacity:0';};
   html+='<div class="wp-cards-grid" id="wpTimeMgmtPanel">';
 
   // ★ Card 1: 计分规则（V0.4.91 新规则）
