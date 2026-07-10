@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.5.124">
+<meta name="version" content="V0.5.125">
 <!-- cache-bust: 2026-07-09-23-20 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
@@ -554,7 +554,7 @@ body{
   border-radius:50%;
   overflow:hidden;
   flex-shrink:0;
-  background:linear-gradient(135deg,var(--primary),var(--primary-light));
+  background:#8D8D8D;
   display:flex;
   align-items:center;
   justify-content:center;
@@ -2423,11 +2423,11 @@ select.form-input{padding-right:28px;appearance:auto;-webkit-appearance:menulist
         <button class="btn btn-outline btn-sm" id="btnExport" onclick="showExport()" style="display:none">导出</button>
         <button class="btn btn-return-mbo" onclick="goHome()">← 返回首页</button>
       </div>
-      <button type="button" onclick="toggleEmpStats()" id="empStatsToggleBtn" style="padding:2px 6px;border:none;border-radius:6px;background:transparent;color:#fff;font-size:13px;font-weight:400;cursor:pointer;display:inline-flex;align-items:center;gap:3px;transition:all .25s ease;white-space:nowrap"><span id="empStatsToggleIcon" style="color:rgba(255,255,255,.7)">▲</span><span id="empStatsToggleText">收起</span></button>
+      <button type="button" onclick="toggleEmpStats()" id="empStatsToggleBtn" style="padding:2px 6px;border:none;border-radius:6px;background:transparent;color:#fff;font-size:13px;font-weight:400;cursor:pointer;display:inline-flex;align-items:center;gap:3px;transition:all .25s ease;white-space:nowrap"><span id="empStatsToggleIcon" style="color:rgba(255,255,255,.7)">▼</span><span id="empStatsToggleText">展开</span></button>
     </div>
   </div>
 </div>
-<div class="emp-stats-panel" id="empStatsPanel">
+<div class="emp-stats-panel collapsed" id="empStatsPanel">
   <div class="stats-bar" id="statsBar">
     <div class="stats-box" id="statsBox1"><div style="padding:10px;text-align:center;color:var(--text-hint);font-size:12px">加载中…</div></div>
     <div class="stats-box" id="statsBox2"><div style="padding:10px;text-align:center;color:var(--text-hint);font-size:12px">加载中…</div></div>
@@ -5874,7 +5874,7 @@ function _showConfirm(message,title){
   return new Promise(function(resolve){
     var overlay=document.createElement('div');
     overlay.className='_confirm-overlay';
-    overlay.innerHTML='<div class="_confirm-card"><div class="_confirm-title">'+(title||'请注意：')+'</div><div class="_confirm-body">'+message+'</div><div class="_confirm-actions"><button class="_confirm-btn-cancel">取消</button><button class="_confirm-btn-ok">确定</button></div></div>';
+    overlay.innerHTML='<div class="_confirm-card"><div class="_confirm-title">⚠️ '+(title||'请注意：')+'</div><div class="_confirm-body">'+message+'</div><div class="_confirm-actions"><button class="_confirm-btn-cancel">取消</button><button class="_confirm-btn-ok">确定</button></div></div>';
     document.body.appendChild(overlay);
     var okBtn=overlay.querySelector('._confirm-btn-ok');
     var cancelBtn=overlay.querySelector('._confirm-btn-cancel');
