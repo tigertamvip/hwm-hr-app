@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.5.152">
+<meta name="version" content="V0.5.153">
 <!-- cache-bust: 2026-07-10-16-13 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
@@ -2033,9 +2033,13 @@ body{
 .wp-toolbar-sep{width:1px;background:var(--border);margin:0 4px;display:inline-block}
 
 .wp-table-wrap{flex:1;background:var(--card);border-radius:8px;border:1px solid var(--border)}
-.wp-table{width:100%;border-collapse:separate;border-spacing:0;font-size:12px;min-width:1200px;table-layout:auto}
+.wp-table{width:100%;border-collapse:separate;border-spacing:0;font-size:12px;min-width:1200px;table-layout:fixed}
 .wp-table tbody tr{min-height:38px}
-.wp-table th{background:#E8EAED;color:#002D4E;font-weight:600;padding:8px 6px;border-bottom:2px solid #C5C9CE;white-space:nowrap;position:sticky;top:0;z-index:1;font-size:11px;text-align:center}
+.wp-table th{background:#E8EAED;color:#002D4E;font-weight:600;padding:8px 6px;border-bottom:2px solid #C5C9CE;white-space:nowrap;font-size:11px;text-align:center}
+.wp-table-head{position:sticky;top:0;z-index:3}
+.wp-table-head th{background:#E8EAED;z-index:3}
+.wp-table-head th:nth-child(-n+5){z-index:4}
+.wp-table-scroll-x{overflow-x:auto;overflow-y:visible}
 .wp-table th.col-fixed{background:#d5d8db}
 .wp-table td{padding:6px 6px;border-bottom:1px solid #E2E4E7;border-right:1px solid rgba(0,0,0,.04);vertical-align:middle;text-align:center;color:#0F2C4B;min-height:36px;height:36px}
 .wp-table td.editable{cursor:pointer;transition:background .15s;position:relative}
@@ -2057,13 +2061,14 @@ body{
 .wp-table td.col-goal.pri-daily-urgent{background:#fff;color:#0EA5E9;font-weight:500;border-left:3px solid #0EA5E9}
 .wp-table td.col-goal.pri-daily-routine{background:#fff;color:#5E7080;font-weight:400;border-left:3px solid rgba(94,112,128,.25)}
 /* ★ V0.5.142: 冻结前5列 — 序号/重点工作/优先级/启动日期/计划完成日期（Excel式列锁定）*/
-.wp-table th:nth-child(1),.wp-table td:nth-child(1){position:sticky;left:0;z-index:2}
-.wp-table th:nth-child(2),.wp-table td:nth-child(2){position:sticky;left:56px;z-index:2}
-.wp-table th:nth-child(3),.wp-table td:nth-child(3){position:sticky;left:236px;z-index:2}
-.wp-table th:nth-child(4),.wp-table td:nth-child(4){position:sticky;left:316px;z-index:2}
-.wp-table th:nth-child(5),.wp-table td:nth-child(5){position:sticky;left:431px;z-index:2}
-.wp-table td:nth-child(-n+5){background:#fff}
-.wp-table td:nth-child(5){box-shadow:3px 0 8px rgba(0,0,0,.08)}
+/* ★ V0.5.142: 冻结前5列 — 仅 tbody 冻结，thead 由 JS transform 同步 */
+.wp-table-body td:nth-child(1){position:sticky;left:0;z-index:2}
+.wp-table-body td:nth-child(2){position:sticky;left:56px;z-index:2}
+.wp-table-body td:nth-child(3){position:sticky;left:236px;z-index:2}
+.wp-table-body td:nth-child(4){position:sticky;left:316px;z-index:2}
+.wp-table-body td:nth-child(5){position:sticky;left:431px;z-index:2}
+.wp-table-body td:nth-child(-n+5){background:#fff}
+.wp-table-body td:nth-child(5){box-shadow:3px 0 8px rgba(0,0,0,.08)}
   .wp-table td.col-hours{font-variant-numeric:tabular-nums;min-width:115px;text-align:center}
   .wp-table td.col-hours input[type="date"].wp-cell-input{width:110px!important;max-width:110px!important;min-width:0;padding:4px 8px 4px 2px;text-align:center;font-size:12px}
   .wp-table td.col-hours input[type="date"].wp-cell-input::-webkit-datetime-edit{padding:0;margin:0;width:80px}
@@ -2201,20 +2206,6 @@ table.collab-table tbody tr:hover{background:#fffdf5}
 .wp-info-bar{display:flex;align-items:center;gap:16px;padding:8px 0;font-size:13px;color:var(--text-secondary);flex-shrink:0;margin-top:16px}
 .wp-info-bar strong{color:var(--primary);margin-right:8px}
 .wp-info-bar .sep{color:var(--text-hint);margin:0 4px}
-
-/* V0.5.146: 表头粘滞 — 仅锁定表头一行，工具栏/统计行正常滚出视野 */
-.wp-table thead th{
-  position:-webkit-sticky;
-  position:sticky;
-  top:0;
-  z-index:3;
-}
-
-/* 冻结列表头在粘滞状态下需要高于冻结列内容(z-index:2) */
-.wp-table thead th:nth-child(-n+5){
-  background:#E8EAED;
-  z-index:4;
-}
 
 /* 评价弹窗 */
 .wp-eval-modal{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:300;display:none;align-items:center;justify-content:center}
