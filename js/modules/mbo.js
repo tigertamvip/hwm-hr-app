@@ -3591,7 +3591,7 @@ function toggleAIAnalysis(){
   if(!el) return;
   if(_aiExpanded){
     section.classList.remove('ai-section-collapsed');
-    el.style.maxHeight = '800px';
+    el.style.maxHeight = '600px';
     el.style.opacity = '1';
     el.style.padding = '12px 16px';
     el.style.marginTop = '0';
@@ -3617,7 +3617,7 @@ function toggleAnnualProgress(){
   var text = document.getElementById('progressToggleText');
   if(!el) return;
   if(_progressExpanded){
-    el.style.maxHeight = '300px';
+    el.style.maxHeight = '250px'; // annual progress
     el.style.opacity = '1';
     icon.textContent = '▲';
     text.textContent = '收起';
@@ -3637,7 +3637,7 @@ function toggleEisenhowerMatrix(){
   var text = document.getElementById('matrixToggleText');
   if(!el) return;
   if(_matrixExpanded){
-    el.style.maxHeight = '600px';
+    el.style.maxHeight = '500px';
     el.style.opacity = '1';
     icon.textContent = '▲';
     text.textContent = '收起';
@@ -3656,7 +3656,7 @@ function toggleWPCard(cardId){
   var btn = document.getElementById('wpCardBtn_'+cardId);
   if(!el) return;
   if(_wpCardExpanded[cardId]){
-    el.style.maxHeight = '800px';
+    el.style.maxHeight = '350px';
     el.style.opacity = '1';
     if(btn) btn.textContent = '▲';
   }else{
@@ -3691,7 +3691,7 @@ function toggleYearGrid(){
   var btn = document.getElementById('wpYearGridToggle');
   if(!el) return;
   if(_yearGridExpanded){
-    el.style.maxHeight = '500px';
+    el.style.maxHeight = '400px';
     el.style.opacity = '1';
     if(btn) btn.textContent = '▲';
   }else{
