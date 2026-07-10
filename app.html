@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.5.145">
+<meta name="version" content="V0.5.146">
 <!-- cache-bust: 2026-07-10-16-13 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
@@ -2200,23 +2200,11 @@ table.collab-table tbody tr:hover{background:#fffdf5}
 .wp-info-bar strong{color:var(--primary);margin-right:8px}
 .wp-info-bar .sep{color:var(--text-hint);margin:0 4px}
 
-/* V0.5.145: 粘滞头部容器 — 包裹info-bar+toolbar+时间面板+summary-bar */
-.wp-sticky-head{
-  position:-webkit-sticky;
-  position:sticky;
-  top:0;
-  z-index:30;
-  background:#FBF8F3;
-  padding-top:2px;
-  flex-shrink:0;
-  box-shadow:0 2px 8px rgba(0,0,0,.06);
-}
-
-/* V0.5.145: 表头单元格粘滞（每个th独立粘滞，与冻结列left/z-index共存） */
+/* V0.5.146: 表头粘滞 — 仅锁定表头一行，工具栏/统计行正常滚出视野 */
 .wp-table thead th{
   position:-webkit-sticky;
   position:sticky;
-  top:80px; /* fallback，JS渲染后动态覆盖 */
+  top:0;
   z-index:3;
 }
 
