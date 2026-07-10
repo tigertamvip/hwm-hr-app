@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.5.136">
+<meta name="version" content="V0.5.137">
 <!-- cache-bust: 2026-07-10-16-13 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
@@ -1041,9 +1041,7 @@ body{
   display:flex;
   flex-direction:column;
   align-items:center;
-  justify-content:center;
-  padding:48px 20px 36px;
-  padding-top:max(48px,env(safe-area-inset-top));
+  padding:32px 20px 20px;
   position:relative;
   overflow:hidden;
 }
@@ -1072,7 +1070,8 @@ body{
 
 .portal-hero{
   text-align:center;
-  margin-bottom:66px;
+  margin-top:auto;
+  margin-bottom:20px;
 }
 .portal-hero h1{
   font-family:"Microsoft YaHei Light","微软雅黑 Light",sans-serif;
@@ -1112,7 +1111,7 @@ body{
   gap:24px;
   width:100%;
   max-width:920px;
-  margin-bottom:40px;
+  margin-bottom:20px;
 }
 /* V0.5.95: 12模块完整grid布局 */
 #portalCard_decision{grid-column:1;grid-row:1}
@@ -1276,7 +1275,7 @@ body{
     justify-content:flex-start;
   }
   .portal-view::before{display:none}
-  .portal-hero{margin-bottom:48px}
+  .portal-hero{margin-bottom:48px;margin-top:0}
   .portal-hero h1{font-size:20px;letter-spacing:1px;line-height:1.6}
   .portal-hero .portal-divider{margin:14px auto;width:40px}
   .portal-hero .portal-subtitle{font-size:15px}
@@ -3554,19 +3553,28 @@ function initPortalInfoPanel(){
   var en=document.getElementById('panelTipEn');
   if(!panel||!head||!cn||!en)return;
   cards.forEach(function(card){
+    var hoverTimer=null;
     card.addEventListener('mouseenter',function(){
-      var h=card.getAttribute('data-tip-head')||'';
-      var c=card.getAttribute('data-tip-cn')||'';
-      var e=card.getAttribute('data-tip-en')||'';
-      if(h){head.textContent=h;}
-      if(c){cn.textContent=c;cn.style.display='';}
-      else{cn.style.display='none';}
-      if(e){en.textContent=e;en.style.display='';}
-      else{en.style.display='none';}
-      panel.style.opacity='1';
-      panel.style.visibility='visible';
+      // 清除之前的定时器（防止重复触发）
+      if(hoverTimer){clearTimeout(hoverTimer);hoverTimer=null;}
+      // 3秒后显示面板
+      hoverTimer=setTimeout(function(){
+        var h=card.getAttribute('data-tip-head')||'';
+        var c=card.getAttribute('data-tip-cn')||'';
+        var e=card.getAttribute('data-tip-en')||'';
+        if(h){head.textContent=h;}
+        if(c){cn.textContent=c;cn.style.display='';}
+        else{cn.style.display='none';}
+        if(e){en.textContent=e;en.style.display='';}
+        else{en.style.display='none';}
+        panel.style.opacity='1';
+        panel.style.visibility='visible';
+        hoverTimer=null;
+      },3000);
     });
     card.addEventListener('mouseleave',function(){
+      // 清除延迟定时器
+      if(hoverTimer){clearTimeout(hoverTimer);hoverTimer=null;}
       setTimeout(function(){
         var hovered=document.querySelector('.portal-card:hover');
         if(!hovered){
