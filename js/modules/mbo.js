@@ -2019,12 +2019,9 @@ function renderWPTable(plan){
     else newTasks.push(j);
   }
 
-  var colgroupHtml='<colgroup><col style="width:56px"><col style="width:180px"><col style="width:80px"><col style="width:115px"><col style="width:115px"><col style="width:115px"><col style="width:56px"><col style="width:90px"><col style="width:48px"><col style="width:80px"><col style="width:150px"><col style="width:90px"><col style="width:56px"><col style="width:200px"><col style="width:200px"></colgroup>';
-  html+='<div class="wp-table-area">';
-  html+='<table class="wp-table wp-table-head">'+colgroupHtml+'<thead><tr>';
+  html+='<div class="wp-table-area"><div class="wp-table-wrap"><table class="wp-table"><colgroup><col style="width:56px"><col style="width:180px"><col style="width:80px"><col style="width:115px"><col style="width:115px"><col style="width:115px"><col style="width:56px"><col style="width:90px"><col style="width:48px"><col style="width:80px"><col style="width:150px"><col style="width:90px"><col style="width:56px"><col style="width:200px"><col style="width:200px"></colgroup><thead><tr>';
   html+='<th class="col-num">#</th><th class="col-work">本周重点工作</th><th class="col-goal">优先级</th><th class="col-hours">启动日期</th><th class="col-hours">计划完成日期</th><th class="col-hours">实际完成日期</th><th class="col-hours dur-tooltip" style="min-width:80px">计划/实际耗时</th><th class="col-status">完成状态</th><th class="col-score">积分</th><th class="col-supporters">协同人</th><th class="col-wide">遇到的问题/挑战</th><th class="col-problemtype">问题类型</th><th class="col-needboss">需上级介入</th><th class="col-remarks">备注说明</th><th class="col-boss" style="white-space:normal;overflow:visible">上级评价与建议</th>';
-  html+='</tr></thead></table>';
-  html+='<div class="wp-table-scroll-x"><table class="wp-table wp-table-body">'+colgroupHtml+'<thead style="display:none"><tr><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th></tr></thead><tbody>';
+  html+='</tr></thead><tbody>';
 
   var seq=0;
 
@@ -2139,7 +2136,7 @@ function renderWPTable(plan){
   html+='<td class="wp-total-num" style="color:'+(overdue>0?'var(--danger)':'var(--success)')+'">'+overdue+' 项</td>'; // 问题类型
   html+='<td colspan="3" style="background:#F5F6F8"></td>'; // 需上级+备注+上级评价
   html+='</tr>';
-  html+='</tbody></table></div></div>';
+  html+='</tbody></table></div>';
 
   // ===== 协同任务区域（独立表格，来自其他同事的协同请求）=====
   html+=_renderCollabTasksSection(plan);
@@ -2228,15 +2225,14 @@ function renderWPTable(plan){
 
   content.insertAdjacentHTML('beforeend',html);
 
-  // V0.5.153: 同步 thead 与 tbody 水平滚动
+  // V0.5.157: 水平滚动时反向移动工具栏等非表格元素
   setTimeout(function(){
-    var head=content.querySelector('.wp-table-head');
-    var wrap=content.querySelector('.wp-table-scroll-x');
-    if(head&&wrap){
-      wrap.addEventListener('scroll',function(){
-        head.style.transform='translateX(-'+wrap.scrollLeft+'px)';
-      });
-    }
+    var sc=content.querySelector('.wp-scroll-area')||content;
+    sc.addEventListener('scroll',function(){
+      var sl=sc.scrollLeft;
+      var els=content.querySelectorAll('.wp-info-bar, .wp-toolbar, .wp-summary-bar, .wp-feedback-sections, #collabTaskArea');
+      for(var i=0;i<els.length;i++)els[i].style.transform='translateX('+sl+'px)';
+    });
   },10);
 
   // ★ V0.5.67: 绑定拖拽事件
