@@ -6,8 +6,8 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.5.130">
-<!-- cache-bust: 2026-07-10-14-51 -->
+<meta name="version" content="V0.5.131">
+<!-- cache-bust: 2026-07-10-15-00 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -657,19 +657,19 @@ body{
 .modal-handle{width:36px;height:5px;background:var(--border);border-radius:3px;margin:12px auto 0}
 .modal-header{padding:16px 20px 16px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:rgba(255,255,255,.82);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);z-index:1;min-height:76px;box-sizing:border-box}
 .modal-header h2{font-size:17px;font-weight:600}
+.modal-header-actions{display:flex;align-items:center;gap:8px;margin-right:8px}
+.modal-header-btn{
+  padding:8px 16px;border-radius:6px;border:none;
+  font-size:13px;font-weight:500;cursor:pointer;
+  transition:all .2s;color:#fff;
+}
+.modal-header-btn:hover{opacity:.9;transform:translateY(-1px)}
+.modal-header-btn:active{transform:translateY(0)}
+.modal-header-btn--save{background:#3B7DB4}
+.modal-header-btn--cancel{background:#8D8D8D}
+.modal-header-btn--delete{background:#F57770}
 .modal-close{width:32px;height:32px;border-radius:50%;border:1px solid var(--border);background:var(--card);font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary)}
 .modal-body{padding:0 20px}
-/* ★ V0.5.123: 弹窗顶部固定操作栏（sticky，不随滚动消失） */
-.modal-action-bar{
-  position:sticky;
-  top:76px;
-  background:rgba(255,255,255,.82);
-  backdrop-filter:blur(12px);
-  -webkit-backdrop-filter:blur(12px);
-  z-index:2;
-  margin:0 -20px;
-  padding:12px 20px;
-}
 #exportModal,#clearPwdModal{align-items:center}
 #exportModal .modal,#clearPwdModal .modal{max-width:420px;border-radius:8px;max-height:none;overflow:visible;padding:0 0 20px}
 .pwd-input{
@@ -978,7 +978,6 @@ body{
   /* 弹窗全宽 */
   .modal{max-width:100%;min-width:unset;border-radius:20px 20px 0 0}
   .modal-body{padding:0 16px}
-  .modal-action-bar{top:42px;margin:0 -16px;padding:8px 16px}
   .modal-header{padding:12px 16px 8px}
   .modal-header h2{font-size:16px}
   #exportModal .modal,#clearPwdModal .modal{max-width:92%;margin:0 auto}
@@ -2800,6 +2799,7 @@ select.form-input{padding-right:28px;appearance:auto;-webkit-appearance:menulist
     <div class="modal-handle"></div>
     <div class="modal-header">
       <div id="modalHeaderContent" style="display:flex;align-items:center;gap:14px;flex:1"></div>
+      <div id="modalHeaderActions" style="display:flex;align-items:center;gap:8px;margin-right:8px"></div>
       <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
     <div class="modal-body" id="modalBody"></div>
@@ -5620,26 +5620,22 @@ function showDetail(empId){
   // admin/data_admin 的删除/恢复按钮
   var deleteBtn='';
   if(canEditBasic&&!e.deleted){
-    deleteBtn='<button class="btn-save-hr show" style="background:#dc2626;margin-top:12px" onclick="softDeleteEmp(\''+e.empId+'\')">🗑 删除该员工信息</button>';
+    deleteBtn='<button class="modal-header-btn modal-header-btn--delete" onclick="softDeleteEmp(\''+e.empId+'\')">删除该员工信息</button>';
   }else if(canEditBasic&&e.deleted){
-    deleteBtn='<button class="btn-save-hr show" style="background:#059669;margin-top:12px" onclick="recoverEmp(\''+e.empId+'\')">↩ 恢复进档案库</button>';
+    deleteBtn='<button class="modal-header-btn modal-header-btn--delete" onclick="recoverEmp(\''+e.empId+'\')">恢复进档案库</button>';
   }
   var hasEditableNow=hasEditable||canEditBasic;
-  var saveBtn='';
+  var headerActions='';
   if(hasEditableNow){
-    saveBtn='<div style="display:flex;gap:10px;margin-bottom:12px">'+
-      '<button class="btn-save-hr show" style="background:#8D8D8D;color:#fff;flex:1;margin-top:0" onclick="closeModal()">取消修改</button>'+
-      '<button class="btn-save-hr show" id="btnSaveHR" style="background:#3B7DB4;color:#fff;flex:1;margin-top:0" onclick="saveHREdits(\''+e.empId+'\')">💾 保存修改</button>'+
-      '</div>';
+    headerActions=
+      '<button class="modal-header-btn modal-header-btn--cancel" onclick="closeModal()">取消修改</button>'+
+      '<button class="modal-header-btn modal-header-btn--save" id="btnSaveHR" onclick="saveHREdits(\''+e.empId+'\')">保存修改</button>';
   }
-  var actionBar='';
-  if(saveBtn||deleteBtn){
-    // 删除按钮样式调整（去掉旧margin）
-    var cleanDeleteBtn=deleteBtn.replace('margin-top:12px','margin-top:0').replace('margin-top:0;margin-bottom:12px','margin-top:0');
-    actionBar='<div class="modal-action-bar">'+saveBtn+cleanDeleteBtn+'</div>';
+  if(deleteBtn){
+    headerActions+=deleteBtn;
   }
+  document.getElementById('modalHeaderActions').innerHTML=headerActions;
   document.getElementById('modalBody').innerHTML=
-    actionBar+
     basicRows+
     hrRows;
   document.getElementById('modalOverlay').style.display='flex';
@@ -5745,6 +5741,7 @@ function closeModal(){
     }
     currentDetailEmpId='';
   }
+  document.getElementById('modalHeaderActions').innerHTML='';
   document.getElementById('modalOverlay').style.display='none';
   __hasUnsavedEdits=false;
 }
