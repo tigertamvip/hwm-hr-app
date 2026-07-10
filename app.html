@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.5.146">
+<meta name="version" content="V0.5.147">
 <!-- cache-bust: 2026-07-10-16-13 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
@@ -1989,7 +1989,7 @@ body{
 .wp-sidebar-plan-item.active .wp-sidebar-plan-delete{display:block;opacity:.6;background:rgba(214,67,82,.7)}
 .wp-sidebar-plan-delete:hover{background:#B91C1C;transform:scale(1.1)}
 
-.wp-content{flex:1;height:100%;overflow-y:auto;padding:16px 24px;background:#FBF8F3;display:flex;flex-direction:column}
+.wp-content{flex:1;height:100%;overflow:auto;padding:16px 24px;background:#FBF8F3;display:flex;flex-direction:column}
 .wp-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--text-hint)}
 .wp-empty-icon{font-size:48px;margin-bottom:16px;opacity:.5}
 .wp-empty-title{font-size:18px;font-weight:500;margin-bottom:8px;color:var(--text-secondary)}
@@ -2030,8 +2030,8 @@ body{
 .wp-table td.wp-cell-frozen{border-left:3px solid #3b82f6!important;border-right:none!important;position:relative;background:rgba(59,130,246,.04);cursor:not-allowed!important}
 .wp-toolbar-sep{width:1px;background:var(--border);margin:0 4px;display:inline-block}
 
-.wp-table-wrap{flex:1;overflow-x:auto;background:var(--card);border-radius:8px;border:1px solid var(--border)}
-.wp-table{width:100%;border-collapse:collapse;font-size:12px;min-width:1200px;table-layout:auto}
+.wp-table-wrap{flex:1;background:var(--card);border-radius:8px;border:1px solid var(--border)}
+.wp-table{width:100%;border-collapse:separate;border-spacing:0;font-size:12px;min-width:1200px;table-layout:auto}
 .wp-table tbody tr{min-height:38px}
 .wp-table th{background:#E8EAED;color:#002D4E;font-weight:600;padding:8px 6px;border-bottom:2px solid #C5C9CE;white-space:nowrap;position:sticky;top:0;z-index:1;font-size:11px;text-align:center}
 .wp-table th.col-fixed{background:#d5d8db}
