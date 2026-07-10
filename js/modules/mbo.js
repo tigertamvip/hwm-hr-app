@@ -1211,6 +1211,7 @@ function showWPEmpty(){
   if(ta)ta.remove();
   if(ib)ib.remove();
   if(sb)sb.remove();
+  var sc=content.querySelector('.wp-scroll-area');if(sc)sc.remove();
   dd.style.display='flex';
 }
 
@@ -1908,6 +1909,7 @@ function renderWPTable(plan){
   var fb=content.querySelector('.wp-feedback-sections');
   var cb=content.querySelector('#collabTaskArea');
   if(tb)tb.remove();if(ta)ta.remove();if(ib)ib.remove();if(sb)sb.remove();if(fb)fb.remove();if(cb)cb.remove();
+  var sc=content.querySelector('.wp-scroll-area');if(sc)sc.remove();
   var mp=content.querySelector('#wpTimeMgmtPanel');if(mp)mp.remove();
   if(dd)dd.style.display='none';
 
@@ -1915,6 +1917,7 @@ function renderWPTable(plan){
   if(!plan.year||!plan.month||!plan.week){console.warn('renderWPTable: plan missing year/month/week',plan);return;}
     var weekLabel=plan.year+'年'+plan.month+'月 第'+plan.week+'周';
   var html='';
+  html+='<div class="wp-scroll-area">';
 
   html+='<div class="wp-info-bar"><strong>当前员工：</strong><strong>'+_h(plan.name)+'</strong>&nbsp;'+_h(plan.dept)+' | '+_h(plan.position)+'<span class="sep">|</span>'+weekLabel;
   if(_wpViewingSubordinate)html+='<span style="color:#E8622A;font-weight:500;margin-left:8px">（查看直属下属周计划）</span>';
@@ -2217,6 +2220,8 @@ function renderWPTable(plan){
   html+='</div>';
   
   html+='</div>';
+
+  html+='</div>'; /* close wp-scroll-area */
 
   content.insertAdjacentHTML('beforeend',html);
 
