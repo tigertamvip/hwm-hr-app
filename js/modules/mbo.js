@@ -421,7 +421,7 @@ function _autoCarryTasks(plan,y,m,w){
   for(var i=0;i<prevPlan.tasks.length;i++){
     var t=prevPlan.tasks[i];
     if(!t.work || !t.work.trim())continue;   // 空任务不转
-    if(t.status==='✓完成'||t.status==='已完成')continue;           // 已完成不转
+    if(t.status==='按时完成'||t.status==='逾期完成')continue;           // 已完成不转
     if(t.collab_from)continue;                // 协同任务不转
     // 去重：同一工作内容只转一次
     var dup=carried.some(function(c){return c.work===t.work;});
@@ -2784,19 +2784,21 @@ function _calcWeekScore(plan){
   var revStatus=_checkSubmissionStatus(plan,'review');
   var weekScore=0;
 
+  // ★ 分类统计（用于明细面板）
+  var onTimeScore=0,overdueScore=0,notDoneScore=0,lateSubmitScore=0,reviewScore=0;
+
   // 提交评分
-  if(subStatus==='on_time')weekScore+=2;
+  if(subStatus==='on_time'){weekScore+=2;}
   else if(subStatus==='late'&&plan.firstSubmittedAt){
     var deadline=_getWeekDeadline(plan.year,plan.month,plan.week);
     var diffHrs=(new Date(plan.firstSubmittedAt)-deadline)/(1000*3600);
-    if(diffHrs>48)weekScore-=5;
-    else weekScore-=Math.ceil(diffHrs/12);
-    // 扣分上限为-5
-    if(weekScore<-5)weekScore=-5;
+    if(diffHrs>24){lateSubmitScore=-2;}
+    else{lateSubmitScore=-Math.ceil(diffHrs/12);if(lateSubmitScore<-2)lateSubmitScore=-2;}
+    weekScore+=lateSubmitScore;
   }
 
   // 评价奖励（仅上级按时完成时给下属加分）
-  if(revStatus==='on_time')weekScore+=2;
+  if(revStatus==='on_time'){weekScore+=2;reviewScore=2;}
 
   // ★ V0.4.91: 任务完成评分（新积分规则+5工作日宽限期+法定节假日排除）
   var taskScore=0;
@@ -2820,18 +2822,18 @@ function _calcWeekScore(plan){
         // 暂停中 → 0分，不自动判定
         pts=0;
       }else if(tt.status==='未做' && tt._manualNotDone){
-        // 用户手动选择"暂停中"→ 终止计算时间，积分=0
+        // 用户手动选择"未做"→ 终止计算时间，积分=0
         pts=0;
       }else if(actualDate){
         // ★ 有实际完成日期
         if(actualDate<=tt.plannedDate){
-          tt.status='按时完成'; pts=sc.onTime;
+          tt.status='按时完成'; pts=sc.onTime; onTimeScore+=pts;
         }else{
           var wdOverdue=_countWorkdays(tt.plannedDate,actualDate);
           if(wdOverdue>5){
-            tt.status='未做'; delete tt._manualNotDone; pts=sc.notDone;
+            tt.status='未做'; delete tt._manualNotDone; pts=sc.notDone; notDoneScore+=pts;
           }else{
-            tt.status='逾期完成'; pts=sc.overdue;
+            tt.status='逾期完成'; pts=sc.overdue; overdueScore+=pts;
           }
         }
       }else{
@@ -2841,7 +2843,7 @@ function _calcWeekScore(plan){
         }else{
           var wdPassed=_countWorkdays(tt.plannedDate,today);
           if(wdPassed>5){
-            tt.status='未做'; delete tt._manualNotDone; pts=sc.notDone;
+            tt.status='未做'; delete tt._manualNotDone; pts=sc.notDone; notDoneScore+=pts;
           }else{
             tt.status='进行中'; pts=0;
           }
@@ -2857,21 +2859,33 @@ function _calcWeekScore(plan){
   // 豁免时归零
   if(plan.exempted)weekScore=0;
 
-  // 记录本周
+  // 记录本周（含明细）
   scores.weeks[weekId]={
     submittedStatus:subStatus, reviewedStatus:revStatus,
     exempted:!!plan.exempted, score:weekScore,
-    taskScore:taskScore
+    taskScore:taskScore,
+    onTimeScore:onTimeScore, overdueScore:overdueScore,
+    notDoneScore:notDoneScore, lateSubmitScore:lateSubmitScore,
+    reviewScore:reviewScore
   };
 
-  // 重新汇总
-  var total=0,deducted=0;
+  // 重新汇总（含明细）
+  var total=0,deducted=0,totalOnTime=0,totalOverdue=0,totalNotDone=0,totalLateSubmit=0,totalReview=0;
   for(var wid in scores.weeks){
-    var ws=scores.weeks[wid].score||0;
-    if(ws>0)total+=ws;
-    if(ws<0)deducted+=ws;
+    var ws=scores.weeks[wid];
+    var s=ws.score||0;
+    if(s>0)total+=s;
+    if(s<0)deducted+=s;
+    totalOnTime+=ws.onTimeScore||0;
+    totalOverdue+=ws.overdueScore||0;
+    totalNotDone+=ws.notDoneScore||0;
+    totalLateSubmit+=ws.lateSubmitScore||0;
+    totalReview+=ws.reviewScore||0;
   }
   scores.total=total; scores.deducted=deducted; scores.net=total+deducted;
+  scores.totalOnTime=totalOnTime; scores.totalOverdue=totalOverdue;
+  scores.totalNotDone=totalNotDone; scores.totalLateSubmit=totalLateSubmit;
+  scores.totalReview=totalReview;
   _saveAnnualScores(uid,year,scores);
   return scores;
 }
@@ -3084,8 +3098,8 @@ function _renderTimeManagementPanel(plan){
   html+='<tr><td><span style="color:#059669;margin-right:6px">✓</span>周六12:00前提交</td><td class="td-val td-pos" style="width:24px">✓</td></tr>';
   html+='<tr><td><span style="color:#059669;margin-right:6px">✓</span>上级周一12:00评价</td><td class="td-val td-pos">✓</td></tr>';
   html+='<tr><td style="color:#6b7280"><span style="margin-right:6px">—</span>法定节假日顺延</td><td class="td-val" style="color:#6b7280">—</td></tr>';
-  html+='<tr><td style="color:#6b7280"><span style="margin-right:6px">○</span>每迟12h</td><td class="td-val" style="color:#6b7280;font-weight:500">−0.5</td></tr>';
-  html+='<tr><td style="color:#6b7280"><span style="margin-right:6px">○</span>超48h未交</td><td class="td-val" style="color:#6b7280;font-weight:500">−1.5</td></tr>';
+  html+='<tr><td style="color:#6b7280"><span style="margin-right:6px">○</span>每迟12h</td><td class="td-val" style="color:#6b7280;font-weight:500">−1</td></tr>';
+  html+='<tr><td style="color:#6b7280"><span style="margin-right:6px">○</span>超24h未交</td><td class="td-val" style="color:#6b7280;font-weight:500">−2</td></tr>';
   html+='<tr><td class="wp-grace-tip" style="font-size:9px;color:#6b7280;padding-top:6px;border-top:1px solid #e5e7eb;white-space:pre-line;cursor:help" colspan="2">注：\n任务宽限期：5个工作日<span style="color:#9ca3af">（排除周末+法定节假日）</span></td></tr>';
   html+='</table>';
   html+='</div>';
@@ -3122,13 +3136,24 @@ function _renderTimeManagementPanel(plan){
   html+='</div>';
   html+='</div>';
 
-  // ★ Card 4: 年度积分
+  // ★ Card 4: 年度积分（明细版）
   var netVal=scores.net||0;
   html+='<div class="wp-card">';
   html+='<div class="wp-card-title">📊 '+year+'年积分<button type="button" onclick="toggleWPCard(\'points\')" id="wpCardBtn_points" style="margin-left:auto;padding:2px;border:none;border-radius:6px;background:transparent;color:#9ca3af;font-size:12px;font-weight:400;cursor:pointer;display:inline-flex;align-items:center;gap:2px;transition:all .25s ease;white-space:nowrap">'+_ce('points')+'</button></div>';
   html+='<div id="wpCardContent_points" style="'+_cs('points')+'">';
-  html+='<div class="wp-card-score-row"><span class="wp-card-score-label">累计</span><span class="wp-card-score-val">'+((scores.total||0)>=0?'+':'')+(scores.total||0)+'</span></div>';
-  html+='<div class="wp-card-score-row"><span class="wp-card-score-label">扣除</span><span class="wp-card-score-val">'+(scores.deducted||0)+'</span></div>';
+  // 加分项
+  var tos=scores.totalOnTime||0;
+  if(tos>0)html+='<div class="wp-card-score-row"><span class="wp-card-score-label">按时完成</span><span class="wp-card-score-val" style="color:#059669">+'+tos+'</span></div>';
+  var trs=scores.totalReview||0;
+  if(trs>0)html+='<div class="wp-card-score-row"><span class="wp-card-score-label">上级评价</span><span class="wp-card-score-val" style="color:#059669">+'+trs+'</span></div>';
+  // 扣分项
+  var tds=scores.totalOverdue||0;
+  if(tds<0)html+='<div class="wp-card-score-row"><span class="wp-card-score-label">逾期完成</span><span class="wp-card-score-val" style="color:#dc2626">'+tds+'</span></div>';
+  var tns=scores.totalNotDone||0;
+  if(tns<0)html+='<div class="wp-card-score-row"><span class="wp-card-score-label">未做</span><span class="wp-card-score-val" style="color:#dc2626">'+tns+'</span></div>';
+  var tls=scores.totalLateSubmit||0;
+  if(tls<0)html+='<div class="wp-card-score-row"><span class="wp-card-score-label">延迟提交</span><span class="wp-card-score-val" style="color:#dc2626">'+tls+'</span></div>';
+  // 净积分
   html+='<div class="wp-card-divider"><div style="display:flex;justify-content:space-between"><span style="color:#0F2C4B;font-size:12px;font-weight:500">净积分</span><span class="wp-card-score-bold">'+(netVal>=0?'+':'')+netVal+'</span></div></div>';
   if((scores.net||0)<=-20){
     html+='<div style="color:#6b7280;font-size:11px;margin-top:4px">⚠️ 不能胜任</div>';
@@ -3777,10 +3802,10 @@ async function aiAssessWP() {
       var t = p.tasks[i];
       if (!t || !t.work || !t.work.trim()) continue;
       validTasks.push(t);
-      if (t.status === '✓完成' || t.status === '已完成') completed++;
+      if (t.status === '按时完成' || t.status === '逾期完成') completed++;
       else if (t.status === '⚙推进中' || t.status === '进行中') inProgress++;
       else if (t.status === '⏸暂停' || t.status === '已逾期') paused++;
-      if (t.plannedDate && t.plannedDate < todayStr && t.status !== '✓完成' && t.status !== '已完成') overdue++;
+      if (t.plannedDate && t.plannedDate < todayStr && t.status !== '按时完成' && t.status !== '逾期完成') overdue++;
       if (t.problems && t.problems.trim()) problemCount++;
       if (t.needBoss === '是') needBossCount++;
     }
@@ -3833,7 +3858,7 @@ async function aiAssessWP() {
         analysis.push('【🕐 逾期预警】');
         for (var i = 0; i < validTasks.length; i++) {
           var ti = validTasks[i];
-          if (ti.plannedDate && ti.plannedDate < todayStr && ti.status !== '✓完成' && ti.status !== '已完成') {
+          if (ti.plannedDate && ti.plannedDate < todayStr && ti.status !== '按时完成' && ti.status !== '逾期完成') {
             analysis.push('🔴「' + ti.work + '」计划 ' + ti.plannedDate + ' 完成，已逾期。');
           }
         }
@@ -3856,7 +3881,7 @@ async function aiAssessWP() {
           var hw = history[i];
           if (hw && hw.tasks) {
             for (var j = 0; j < hw.tasks.length; j++) {
-              if (hw.tasks[j].work && hw.tasks[j].work.trim()) { histTotal++; if (hw.tasks[j].status === '✓完成' || hw.tasks[j].status === '已完成') histComp++; }
+              if (hw.tasks[j].work && hw.tasks[j].work.trim()) { histTotal++; if (hw.tasks[j].status === '按时完成' || hw.tasks[j].status === '逾期完成') histComp++; }
             }
           }
         }
