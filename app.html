@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.6.1aj">
+<meta name="version" content="V0.6.1ak">
 <!-- cache-bust: 2026-07-11-09-15 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
@@ -702,11 +702,19 @@ body{
 .detail-row{display:flex;align-items:center;padding:6px 0;border-bottom:1px solid #EBEEF0}
 .detail-label{width:100px;flex-shrink:0;font-size:13px;color:var(--text);text-align:right;padding-right:16px}
 .detail-value{font-size:14px;color:var(--text);flex:1}
-/* ★ V0.6.1aj: 合并行内联字段 */
-.detail-inline-fields{display:flex;flex-wrap:wrap;gap:4px 16px;flex:1}
-.detail-inline-item{display:inline-flex;align-items:center;gap:4px;font-size:13px;white-space:nowrap}
-.detail-inline-label{color:var(--text-secondary);font-size:12px}
-.detail-inline-value{color:var(--text);font-weight:500}
+/* ★ V0.6.1ak: 两列网格表单布局 — 分组+固定对齐 */
+.detail-form-group{padding:0 0 8px;margin-bottom:8px;border-bottom:1px solid #EBEEF0}
+.detail-form-group:last-child{border-bottom:none;margin-bottom:0}
+.detail-form-group-title{font-size:13px;font-weight:600;color:var(--text-secondary);margin:10px 0 6px;padding-left:4px;border-left:3px solid #3B7DB4}
+.detail-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 20px;padding:4px 0}
+.detail-form-field{display:flex;align-items:center;gap:6px}
+.detail-form-label{font-size:12px;color:var(--text-secondary);text-align:right;white-space:nowrap;flex-shrink:0;width:70px}
+.detail-form-input-wrap{flex:1;min-width:0}
+.detail-form-input-wrap input,.detail-form-input-wrap select{width:100%;padding:6px 8px;border:1px solid #E0E4E8;border-radius:6px;font-size:13px;background:#F8FAFB;outline:none;box-sizing:border-box;height:34px;line-height:1}
+.detail-form-input-wrap input:focus,.detail-form-input-wrap select:focus{border-color:#3B7DB4;box-shadow:0 0 0 2px rgba(59,125,180,.08)}
+.detail-form-input-wrap input[type="date"]{padding-right:4px}
+.detail-form-value{font-size:13px;color:var(--text);font-weight:500;word-break:break-word}
+.detail-form-value-empty{color:var(--text-hint);font-style:italic;font-size:12px}
 .detail-section-header{
   margin:16px 0 4px;
   padding:10px 0 8px;
@@ -5730,71 +5738,76 @@ function showDetail(empId){
     if(today.getMonth()+1<dm||(today.getMonth()+1===dm&&today.getDate()<dd))years--;
     return years.toFixed(1)+'年';
   }
-  // ★ V0.6.1aj: 内联字段渲染 — 合并关联字段到一行
-  function _renderInlineField(key,val,label,editable,type,opts){
-    // 返回一个 inline-item 片段：label + value/input
-    var item='<span class="detail-inline-item"><span class="detail-inline-label">'+esc(label)+'</span> ';
-    if(editable&&type!=='auto'){
-      var attrs='data-field="'+key+'"';
+  // ★ V0.6.1ak: 两列网格表单布局 — 分组+固定对齐
+  function _renderField(key,label,type,opts,val,readonly){
+    var rkey=(key==='_age'?'':key);
+    var displayVal=val||'';
+    if(type==='auto')displayVal=val||'—';
+    if(!readonly){
+      var input='';
       if(type==='dropdown'){
-        item+='<select '+attrs+' style="padding:4px 8px;border-radius:6px;border:1px solid var(--border);font-size:12px;background:#F6F8F9;outline:none;max-width:120px">';
-        item+='<option value="">-</option>';
-        if(opts){for(var o=0;o<opts.length;o++){item+='<option value="'+esc(opts[o])+'"'+(val===opts[o]?' selected':'')+'>'+esc(opts[o])+'</option>';}}
-        item+='</select>';
+        input='<select data-field="'+rkey+'" class="detail-form-select">';
+        input+='<option value="">- 请选择 -</option>';
+        if(opts){for(var o=0;o<opts.length;o++){input+='<option value="'+esc(opts[o])+'"'+(displayVal===opts[o]?' selected':'')+'>'+esc(opts[o])+'</option>';}}
+        input+='</select>';
       }else if(type==='date'){
-        item+='<input type="date" '+attrs+' value="'+esc(val||'')+'" style="padding:4px 6px;border-radius:6px;border:1px solid var(--border);font-size:12px;background:#F6F8F9;outline:none;max-width:130px">';
+        input='<input type="date" data-field="'+rkey+'" value="'+esc(displayVal)+'">';
       }else{
-        item+='<input '+attrs+' value="'+esc(val||'')+'" placeholder="'+esc(label)+'" style="padding:4px 6px;border-radius:6px;border:1px solid var(--border);font-size:12px;background:#F6F8F9;outline:none;width:80px">';
+        input='<input type="text" data-field="'+rkey+'" value="'+esc(displayVal)+'" placeholder="'+esc(label)+'">';
       }
+      return '<div class="detail-form-field"><div class="detail-form-label">'+esc(label)+'</div><div class="detail-form-input-wrap">'+input+'</div></div>';
     }else{
-      item+='<span class="detail-inline-value">'+(val?esc(val):'<span class="detail-value-empty">—</span>')+'</span>';
+      var disp=displayVal?'<span class="detail-form-value">'+esc(displayVal)+'</span>':'<span class="detail-form-value-empty">—</span>';
+      return '<div class="detail-form-field"><div class="detail-form-label">'+esc(label)+'</div><div class="detail-form-input-wrap">'+disp+'</div></div>';
     }
-    item+='</span>';
-    return item;
   }
-  // ★ 辅助：从 basicConfig 找字段配置
-  function _findCfg(key){
-    for(var i=0;i<basicConfig.length;i++){if(basicConfig[i].key===key)return basicConfig[i];}
-    return {type:'text'};
-  }
-  // ★ 取值辅助
-  function _v(key,autoFn){
-    if(autoFn)return autoFn(e);
-    return e[key]||'';
-  }
-  var _ageVal=calcAge(e.birthDate||e.birthDay||'');
-  var _wYVal=calcWorkYears(e.entryDate);
-  var editable=!!canEditBasic;
-  // ★ V0.6.1aj: 合并行定义
-  var _rows=[
-    [{k:'empId',l:'工号',t:'text'},{k:'name',l:'姓名',t:'text'},{k:'gender',l:'性别',t:'dropdown',o:['男','女']},{k:'status',l:'状态',t:'dropdown',o:['已转正','试用期','已离职']}],
-    [{k:'center',l:'中心',t:'text'},{k:'dept',l:'部门',t:'text'},{k:'position',l:'岗位',t:'text'}],
-    [{k:'phone',l:'手机号',t:'text'},{k:'email',l:'邮箱',t:'text'}],
-    [{k:'entryDate',l:'入职日期',t:'date'},{k:'workplace',l:'工作地点',t:'text'}],
-    [{k:'idCard',l:'身份证号',t:'text'}],
-    [{k:'birthDate',l:'出生年月',t:'date'},{k:'_age',l:'年龄',t:'auto'},{k:'ethnicity',l:'民族',t:'text'},{k:'politicalStatus',l:'政治面貌',t:'text'}],
-    [{k:'education',l:'学历',t:'dropdown',o:['博士','普通硕士','其他硕士','普通本科','其他本科','普通专科','其他专科','职业高中','高中','初中','初中以下']},{k:'school',l:'毕业学校',t:'text'},{k:'major',l:'专业',t:'text'},{k:'graduationDate',l:'毕业时间',t:'date'}],
-    [{k:'educationMax',l:'最高学历',t:'dropdown',o:['博士','普通硕士','其他硕士','普通本科','其他本科','普通专科','其他专科','职业高中','高中','初中','初中以下']},{k:'highestSchool',l:'毕业学校',t:'text'},{k:'highestMajor',l:'专业',t:'text'},{k:'highestGraduationDate',l:'毕业时间',t:'date'}],
-    [{k:'title',l:'专业职称',t:'text'},{k:'professionalSkills',l:'技能特长',t:'text'}]
+  function _v2(key){return e[key]||'';}
+  // ★ 分组定义：每组 = {title, fields: [ {key,label,type,opts} ]}
+  var _groups=[
+    {title:'基本信息', fields:[
+      {k:'empId',l:'工号',t:'text'},{k:'name',l:'姓名',t:'text'},
+      {k:'gender',l:'性别',t:'dropdown',o:['男','女']},{k:'status',l:'状态',t:'dropdown',o:['已转正','试用期','已离职']},
+      {k:'birthDate',l:'出生年月',t:'date'},{k:'_age',l:'年龄',t:'auto'},
+      {k:'ethnicity',l:'民族',t:'text'},{k:'politicalStatus',l:'政治面貌',t:'text'},
+      {k:'idCard',l:'身份证号',t:'text'}
+    ]},
+    {title:'工作信息', fields:[
+      {k:'center',l:'中心',t:'text'},{k:'dept',l:'部门',t:'text'},
+      {k:'position',l:'岗位',t:'text'},{k:'title',l:'专业职称',t:'text'},
+      {k:'entryDate',l:'入职日期',t:'date'},{k:'workplace',l:'工作地点',t:'text'},
+      {k:'professionalSkills',l:'技能特长',t:'text'}
+    ]},
+    {title:'联系信息', fields:[
+      {k:'phone',l:'手机号',t:'text'},{k:'email',l:'邮箱',t:'text'}
+    ]},
+    {title:'第一学历', fields:[
+      {k:'education',l:'学历',t:'dropdown',o:['博士','普通硕士','其他硕士','普通本科','其他本科','普通专科','其他专科','职业高中','高中','初中','初中以下']},{k:'school',l:'毕业学校',t:'text'},
+      {k:'major',l:'专业',t:'text'},{k:'graduationDate',l:'毕业时间',t:'date'}
+    ]},
+    {title:'最高学历', fields:[
+      {k:'educationMax',l:'最高学历',t:'dropdown',o:['博士','普通硕士','其他硕士','普通本科','其他本科','普通专科','其他专科','职业高中','高中','初中','初中以下']},{k:'highestSchool',l:'毕业学校',t:'text'},
+      {k:'highestMajor',l:'专业',t:'text'},{k:'highestGraduationDate',l:'毕业时间',t:'date'}
+    ]}
   ];
   var basicRows='';
-  for(var ri=0;ri<_rows.length;ri++){
-    var row=_rows[ri];
-    // 只读模式下，如果整行都没数据，跳过
+  for(var gi=0;gi<_groups.length;gi++){
+    var grp=_groups[gi];
+    // 只读模式下：如果整组都没数据，跳过
     if(!editable){
-      var hasAny=false;
-      for(var ci=0;ci<row.length;ci++){
-        var val=row[ci].k==='_age'?_ageVal:_v(row[ci].k);
-        if(val){hasAny=true;break;}
+      var grpHasAny=false;
+      for(var fi=0;fi<grp.fields.length;fi++){
+        var fv=grp.fields[fi].k==='_age'?_ageVal:_v2(grp.fields[fi].k);
+        if(fv){grpHasAny=true;break;}
       }
-      if(!hasAny)continue;
+      if(!grpHasAny)continue;
     }
-    basicRows+='<div class="detail-row"><div class="detail-inline-fields">';
-    for(var ci=0;ci<row.length;ci++){
-      var col=row[ci];
-      var val=col.k==='_age'?_ageVal:_v(col.k);
-      var _rkey=(col.k==='_age'?'':col.k);
-      basicRows+=_renderInlineField(_rkey,val||'',col.l,editable,col.t,col.o);
+    basicRows+='<div class="detail-form-group">';
+    basicRows+='<div class="detail-form-group-title">'+esc(grp.title)+'</div>';
+    basicRows+='<div class="detail-form-grid">';
+    for(var fi=0;fi<grp.fields.length;fi++){
+      var f=grp.fields[fi];
+      var fv=f.k==='_age'?_ageVal:_v2(f.k);
+      basicRows+=_renderField(f.k,f.l,f.t,f.o,fv,!editable);
     }
     basicRows+='</div></div>';
   }
