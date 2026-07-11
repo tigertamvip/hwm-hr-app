@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.6.1am">
+<meta name="version" content="V0.6.1an">
 <!-- cache-bust: 2026-07-11-09-15 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
@@ -708,13 +708,13 @@ body{
 .detail-form-group-title{font-size:13px;font-weight:600;color:var(--text-secondary);margin:10px 0 6px;padding-left:4px;border-left:3px solid #3B7DB4}
 .detail-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 20px;padding:4px 0}
 .detail-form-field{display:flex;align-items:center;gap:6px}
-.detail-form-label{font-size:12px;color:var(--text-secondary);text-align:right;white-space:nowrap;flex-shrink:0;width:70px}
-.detail-form-input-wrap{flex:1;min-width:0}
+.detail-form-label{font-size:12px;color:var(--text-secondary);text-align:right;white-space:nowrap;flex-shrink:0;width:100px;overflow:hidden;text-overflow:ellipsis}
+.detail-form-input-wrap{flex:1;min-width:0;max-width:220px}
 .detail-form-input-wrap input,.detail-form-input-wrap select{width:100%;padding:6px 8px;border:1px solid #E0E4E8;border-radius:6px;font-size:13px;background:#F8FAFB;outline:none;box-sizing:border-box;height:34px;line-height:1}
 .detail-form-input-wrap input:focus,.detail-form-input-wrap select:focus{border-color:#3B7DB4;box-shadow:0 0 0 2px rgba(59,125,180,.08)}
 .detail-form-input-wrap input[type="date"]{padding-right:4px}
-.detail-form-value{font-size:13px;color:var(--text);font-weight:500;word-break:break-word}
-.detail-form-value-empty{color:var(--text-hint);font-style:italic;font-size:12px}
+.detail-form-value{font-size:13px;color:var(--text);font-weight:500;word-break:break-word;padding:6px 0}
+.detail-form-value-empty{color:var(--text-hint);font-style:italic;font-size:12px;padding:6px 0}
 .detail-section-header{
   margin:16px 0 4px;
   padding:10px 0 8px;
