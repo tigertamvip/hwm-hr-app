@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.5.186">
+<meta name="version" content="V0.5.187">
 <!-- cache-bust: 2026-07-10-16-13 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
@@ -108,9 +108,9 @@ body{
 .btn-outline{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.3)}
 .modal-body .btn-outline{background:#fff;color:var(--text-secondary);border:1px solid var(--border)}
 .modal-body .btn-outline:hover{background:var(--secondary);color:var(--primary)}
-.btn-return-mbo{background:#fff;color:#3B7DB4;border:none;border-radius:8px;padding:7px 18px;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s ease;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+.btn-return-mbo{background:#fff;color:#3B7DB4;border:none;border-radius:8px;padding:5px 18px;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s ease;box-shadow:0 2px 8px rgba(0,0,0,.12)}
 .btn-return-mbo:hover{background:#E8F4FE;transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.18)}
-.btn-sm{padding:6px 12px;font-size:14px}
+.btn-sm{padding:5px 12px;font-size:14px}
 .btn-danger{background:var(--danger);color:#fff}
 
 .stats-bar{
@@ -1999,7 +1999,7 @@ body{
 
 .wp-toolbar{display:flex;flex-wrap:wrap;gap:16px;padding:14px 0;margin-bottom:7px;border-bottom:1px solid var(--border);flex-shrink:0}
 /* ★ V0.3.140: 全局按钮标准化 — 三类基准样式 + 8px圆角 */
-.wp-toolbar button{padding:6px 18px;border:1px solid #3B7DB4;border-radius:8px;background:#fff;color:#3B7DB4;font-size:12px;cursor:pointer;transition:all .18s ease;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:5px;font-weight:500;min-width:118px;box-shadow:none;line-height:1.4}
+.wp-toolbar button{padding:5px 18px;border:1px solid #3B7DB4;border-radius:8px;background:#fff;color:#3B7DB4;font-size:12px;cursor:pointer;transition:all .18s ease;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:5px;font-weight:500;min-width:118px;box-shadow:none;line-height:1.4}
 .wp-toolbar button:hover{background:#E8F4FE;border-color:#2A6A9A;color:#2A6A9A}
 .wp-toolbar button:active{background:#D0E8FD;border-color:#004A9E}
 /* 第一类：绿色填充（提交周计划） */
@@ -2019,7 +2019,7 @@ body{
 /* 白底蓝框次要按钮（回到我的计划/查看评价等） */
 .wp-toolbar button.wp-btn-accent{background:#fff;color:#3B7DB4;border-color:#3B7DB4}
 .wp-toolbar button.wp-btn-accent:hover{background:#E8F4FE;border-color:#2A6A9A;color:#2A6A9A}
-.wp-toolbar button.wp-btn-ai{background:linear-gradient(135deg,var(--brand-accent) 0%,#8B5CF6 40%,#A78BFA 70%,#EC4899 100%);background-size:200% 200%;color:#fff;border:none;border-radius:16px;padding:0;width:64px;height:64px;font-size:12px;font-weight:600;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 4px 14px rgba(139,92,246,.25),0 0 18px rgba(236,72,153,.08),inset 0 1px 0 rgba(255,255,255,.2);animation:aiGlow 5s ease-in-out 2;position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.5}
+.wp-toolbar button.wp-btn-ai{background:linear-gradient(135deg,var(--brand-accent) 0%,#8B5CF6 40%,#A78BFA 70%,#EC4899 100%);background-size:200% 200%;color:#fff;border:none;border-radius:16px;padding:0;width:52px;height:52px;font-size:12px;font-weight:600;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 4px 14px rgba(139,92,246,.25),0 0 18px rgba(236,72,153,.08),inset 0 1px 0 rgba(255,255,255,.2);animation:aiGlow 5s ease-in-out 2;position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.5}
 .wp-toolbar button.wp-btn-ai::before{content:'';position:absolute;inset:0;border-radius:16px;background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.15) 50%,transparent 100%);background-size:200% 100%;animation:aiSlide 4s linear 2}
 @keyframes aiGlow{0%,100%{box-shadow:0 4px 14px rgba(139,92,246,.25),0 0 18px rgba(236,72,153,.08)}50%{box-shadow:0 5px 20px rgba(139,92,246,.40),0 0 28px rgba(168,85,247,.20),0 0 36px rgba(236,72,153,.10)}}
 @keyframes aiShimmer{0%{background-position:-100% 0}100%{background-position:200% 0}}
