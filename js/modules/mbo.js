@@ -2010,14 +2010,25 @@ function renderWPTable(plan){
     }
   }else{
     // 自己的计划：完整编辑功能（去掉新增+转发，左下角已有新建）
-    // ★ V0.6.1z: Toggle 按钮 — 提交/撤回合二为一
+    // ★ V0.6.1aa: Toggle 按钮 + 撤回约束逻辑
+    //   规则：上级已评价 → 两者皆锁定；小结已提交 → 必须先撤回小结才能撤回计划
     if(plan.firstSubmittedAt){
-      html+='<button onclick="undoWPSubmit()" class="wp-btn-toggle-submitted"><span>✓</span> 周计划已提交 · 点击撤回</button>';
+      if(plan.bossEvaluated){
+        html+='<button disabled class="wp-btn-toggle-locked" title="上级已评价，无法撤回"><span>🔒</span> 周计划已提交</button>';
+      }else if(plan.summarySubmittedAt){
+        html+='<button disabled class="wp-btn-toggle-locked" title="请先撤回周小结"><span>🔒</span> 周计划已提交</button>';
+      }else{
+        html+='<button onclick="undoWPSubmit()" class="wp-btn-toggle-submitted"><span>↩</span> 撤回周计划</button>';
+      }
     }else{
       html+='<button onclick="submitWPPlan()" class="wp-btn-primary"><span>📋</span> 提交周计划</button>';
     }
     if(plan.summarySubmittedAt){
-      html+='<button onclick="undoWPWeekSummary()" class="wp-btn-toggle-submitted"><span>✓</span> 周小结已提交 · 点击撤回</button>';
+      if(plan.bossEvaluated){
+        html+='<button disabled class="wp-btn-toggle-locked" title="上级已评价，无法撤回"><span>🔒</span> 周小结已提交</button>';
+      }else{
+        html+='<button onclick="undoWPWeekSummary()" class="wp-btn-toggle-submitted"><span>↩</span> 撤回周小结</button>';
+      }
     }else{
       html+='<button onclick="submitWPWeekSummary()" class="wp-btn-summary"><span>✅</span> 提交周小结</button>';
     }
@@ -2687,6 +2698,10 @@ async function submitWPPlan(){
 // ★ V0.1.44: 撤销提交 — 清除提交时间戳+解除锁定，允许员工重新提交
 async function undoWPSubmit(){
   var p=_wpCurrent.plan;if(!p){return;}
+  // ★ V0.6.1aa: 运行时守卫 — 上级已评价不能撤回
+  if(p.bossEvaluated){_showAlert('上级已完成评价，无法撤回周计划。');return;}
+  // ★ V0.6.1aa: 运行时守卫 — 需先撤回周小结
+  if(p.summarySubmittedAt){_showAlert('请先撤回周小结，再撤回周计划。');return;}
   var ok=await _showConfirm('确认撤销本次提交？\n\n撤销后：\n① 首次提交时间将被清除\n② 三列锁定将解除，可重新修改\n③ 最终提交时间以最后一次提交为准。'+'\n\n—\n\nConfirm undo?\n\nAfter undo:\n① First submission timestamp will be cleared\n② Column locks will be released, allowing re-edit\n③ Final submission time will be based on the last submission.','⚠️ 注意 / Attention');
   if(!ok)return;
   p.firstSubmittedAt=null;
@@ -2728,6 +2743,8 @@ async function submitWPWeekSummary(){
 // ★ V0.6.1z: 撤回周小结 — 清除小结提交时间戳+解除自锁定
 async function undoWPWeekSummary(){
   var p=_wpCurrent.plan;if(!p){return;}
+  // ★ V0.6.1aa: 运行时守卫 — 上级已评价不能撤回
+  if(p.bossEvaluated){_showAlert('上级已完成评价，无法撤回周小结。');return;}
   var ok=await _showConfirm('确认撤回本周小结？\n\n撤回后：\n① 小结提交时间将被清除\n② 锁定将解除，可重新修改后再提交。'+'\n\n—\n\nConfirm undo summary?\n\nAfter undo:\n① Summary submission timestamp will be cleared\n② Locks will be released, allowing re-edit and re-submit.','⚠️ 注意 / Attention');
   if(!ok)return;
   p.summarySubmittedAt=null;
