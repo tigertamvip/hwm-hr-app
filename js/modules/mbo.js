@@ -2654,14 +2654,15 @@ async function undoWPSubmit(){
 }
 
 // ★ V0.1.41: 员工完成周工作小结（记录小结时间用于考勤积分）+ 锁定三列
-function submitWPWeekSummary(){
+async function submitWPWeekSummary(){
   var p=_wpCurrent.plan;if(!p){_showAlert('请先选择一个周计划');return;}
   // 检查是否已填写小结
   if(!p.weekSummary||!p.weekSummary.trim()){
     _showAlert('请先在下方「一周工作小结」区域填写本周工作总结后再点击「完成小结」。');
     return;
   }
-  if(!confirm('确认完成本周工作小结？\n\n提交后将记录完成时间用于考勤积分计算，同时锁定工作内容/优先级/计划完成日期。'))return;
+  var confirmed=await _showConfirm('确认完成本周工作小结？<br><br>提交后将记录完成时间用于考勤积分计算，同时锁定工作内容/优先级/计划完成日期。<br><br>—<br><br>Confirm completion of this week\'s work summary?<br><br>After submission, the completion time will be recorded for attendance score calculation, and the work content/priority/planned completion date will be locked.','⚠️ 工作小结确认 / Work Summary Confirmation');
+  if(!confirmed)return;
   p.summarySubmittedAt=new Date().toISOString();
   // ★ V0.3.126: 完成小结也锁定三列
   p.frozen=true;
