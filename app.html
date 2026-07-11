@@ -6,8 +6,8 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.6.1a">
-<!-- cache-bust: 2026-07-11-08-55 -->
+<meta name="version" content="V0.6.1b">
+<!-- cache-bust: 2026-07-11-09-00 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -666,8 +666,11 @@ body{
 .modal-header-btn:hover{opacity:.9;transform:translateY(-1px)}
 .modal-header-btn:active{transform:translateY(0)}
 .modal-header-btn--save{background:#3B7DB4}
+.modal-header-btn--save:hover{background:rgba(59,125,180,.2);color:#3B7DB4}
 .modal-header-btn--cancel{background:#8D8D8D}
+.modal-header-btn--cancel:hover{background:rgba(141,141,141,.2);color:#616161}
 .modal-header-btn--delete{background:#F57770}
+.modal-header-btn--delete:hover{background:rgba(245,119,112,.2);color:#D64352}
 .modal-close{width:32px;height:32px;border-radius:50%;border:1px solid var(--border);background:var(--card);font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary)}
 .modal-body{padding:0 20px}
 #exportModal,#clearPwdModal{align-items:center}
@@ -2005,16 +2008,16 @@ body{
 .wp-toolbar button:active{background:#D0E8FD;border-color:#004A9E}
 /* 第一类：绿色填充（提交周计划） */
 .wp-toolbar button.wp-btn-primary{background:rgba(109,157,57,.9);color:#fff;border-color:rgba(109,157,57,.9)}
-.wp-toolbar button.wp-btn-primary:hover{background:#5a8530;border-color:#5a8530;color:#fff}
+.wp-toolbar button.wp-btn-primary:hover{background:rgba(109,157,57,.2);border-color:rgba(109,157,57,.2);color:#5a8530}
 /* 第二类：蓝绿填充（提交周小结） */
 .wp-toolbar button.wp-btn-summary{background:rgba(40,159,183,.9);color:#fff;border-color:rgba(40,159,183,.9)}
-.wp-toolbar button.wp-btn-summary:hover{background:#1f7a8f;border-color:#1f7a8f;color:#fff}
+.wp-toolbar button.wp-btn-summary:hover{background:rgba(40,159,183,.2);border-color:rgba(40,159,183,.2);color:#1f7a8f}
 /* 第三类：珊瑚红填充（删除） */
 .wp-toolbar button.wp-btn-delete{background:rgba(240,113,103,.9);color:#fff;border-color:rgba(240,113,103,.9)}
-.wp-toolbar button.wp-btn-delete:hover{background:#d65a52;border-color:#d65a52;color:#fff}
+.wp-toolbar button.wp-btn-delete:hover{background:rgba(240,113,103,.2);border-color:rgba(240,113,103,.2);color:#d65a52}
 /* 第四类：中蓝填充（导出） */
 .wp-toolbar button.wp-btn-export{background:rgba(97,145,211,.9);color:#fff;border-color:rgba(97,145,211,.9)}
-.wp-toolbar button.wp-btn-export:hover{background:#4a7bb5;border-color:#4a7bb5;color:#fff}
+.wp-toolbar button.wp-btn-export:hover{background:rgba(97,145,211,.2);border-color:rgba(97,145,211,.2);color:#4a7bb5}
 /* 统一禁用状态 */
 .wp-toolbar button.wp-btn-primary:disabled,.wp-toolbar button.wp-btn-summary:disabled,.wp-toolbar button.wp-btn-delete:disabled,.wp-toolbar button.wp-btn-export:disabled,.wp-toolbar button.wp-btn-disabled{background:#CBD5E1;color:#94A3B8;border-color:#CBD5E1;cursor:not-allowed}
 /* 白底蓝框次要按钮（回到我的计划/查看评价等） */
