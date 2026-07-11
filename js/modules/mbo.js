@@ -2785,10 +2785,10 @@ function _calcWeekScore(plan){
   var weekScore=0;
 
   // ★ 分类统计（用于明细面板）
-  var onTimeScore=0,overdueScore=0,notDoneScore=0,lateSubmitScore=0,reviewScore=0;
+  var onTimeScore=0,overdueScore=0,notDoneScore=0,lateSubmitScore=0,reviewScore=0,onTimeSubmitScore=0;
 
   // 提交评分
-  if(subStatus==='on_time'){weekScore+=2;}
+  if(subStatus==='on_time'){weekScore+=2;onTimeSubmitScore=2;}
   else if(subStatus==='late'&&plan.firstSubmittedAt){
     var deadline=_getWeekDeadline(plan.year,plan.month,plan.week);
     var diffHrs=(new Date(plan.firstSubmittedAt)-deadline)/(1000*3600);
@@ -2866,26 +2866,31 @@ function _calcWeekScore(plan){
     taskScore:taskScore,
     onTimeScore:onTimeScore, overdueScore:overdueScore,
     notDoneScore:notDoneScore, lateSubmitScore:lateSubmitScore,
-    reviewScore:reviewScore
+    reviewScore:reviewScore, onTimeSubmitScore:onTimeSubmitScore
   };
 
-  // 重新汇总（含明细）
-  var total=0,deducted=0,totalOnTime=0,totalOverdue=0,totalNotDone=0,totalLateSubmit=0,totalReview=0;
+  // 重新汇总（含明细 + 兼容旧数据）
+  var totalOnTime=0,totalOverdue=0,totalNotDone=0,totalLateSubmit=0,totalReview=0,totalOnTimeSubmit=0,legacyScore=0;
   for(var wid in scores.weeks){
     var ws=scores.weeks[wid];
-    var s=ws.score||0;
-    if(s>0)total+=s;
-    if(s<0)deducted+=s;
-    totalOnTime+=ws.onTimeScore||0;
-    totalOverdue+=ws.overdueScore||0;
-    totalNotDone+=ws.notDoneScore||0;
-    totalLateSubmit+=ws.lateSubmitScore||0;
-    totalReview+=ws.reviewScore||0;
+    var hasNewFields=(ws.onTimeScore!==undefined)||(ws.lateSubmitScore!==undefined);
+    if(hasNewFields){
+      totalOnTime+=ws.onTimeScore||0;
+      totalOverdue+=ws.overdueScore||0;
+      totalNotDone+=ws.notDoneScore||0;
+      totalLateSubmit+=ws.lateSubmitScore||0;
+      totalReview+=ws.reviewScore||0;
+      totalOnTimeSubmit+=ws.onTimeSubmitScore||0;
+    }else{
+      // 旧数据（无分类字段）：score 包含总分，归入 legacy
+      legacyScore+=ws.score||0;
+    }
   }
-  scores.total=total; scores.deducted=deducted; scores.net=total+deducted;
   scores.totalOnTime=totalOnTime; scores.totalOverdue=totalOverdue;
   scores.totalNotDone=totalNotDone; scores.totalLateSubmit=totalLateSubmit;
-  scores.totalReview=totalReview;
+  scores.totalReview=totalReview; scores.totalOnTimeSubmit=totalOnTimeSubmit;
+  scores.legacyScore=legacyScore;
+  scores.net=totalOnTime+totalOverdue+totalNotDone+totalLateSubmit+totalReview+totalOnTimeSubmit+legacyScore;
   _saveAnnualScores(uid,year,scores);
   return scores;
 }
@@ -3144,6 +3149,8 @@ function _renderTimeManagementPanel(plan){
   // 加分项
   var tos=scores.totalOnTime||0;
   if(tos>0)html+='<div class="wp-card-score-row"><span class="wp-card-score-label">按时完成</span><span class="wp-card-score-val" style="color:#059669">+'+tos+'</span></div>';
+  var tosSub=scores.totalOnTimeSubmit||0;
+  if(tosSub>0)html+='<div class="wp-card-score-row"><span class="wp-card-score-label">提交按时</span><span class="wp-card-score-val" style="color:#059669">+'+tosSub+'</span></div>';
   var trs=scores.totalReview||0;
   if(trs>0)html+='<div class="wp-card-score-row"><span class="wp-card-score-label">上级评价</span><span class="wp-card-score-val" style="color:#059669">+'+trs+'</span></div>';
   // 扣分项
@@ -3153,6 +3160,9 @@ function _renderTimeManagementPanel(plan){
   if(tns<0)html+='<div class="wp-card-score-row"><span class="wp-card-score-label">未做</span><span class="wp-card-score-val" style="color:#dc2626">'+tns+'</span></div>';
   var tls=scores.totalLateSubmit||0;
   if(tls<0)html+='<div class="wp-card-score-row"><span class="wp-card-score-label">延迟提交</span><span class="wp-card-score-val" style="color:#dc2626">'+tls+'</span></div>';
+  // 旧数据（兼容）
+  var leg=scores.legacyScore||0;
+  if(leg!==0)html+='<div class="wp-card-score-row"><span class="wp-card-score-label">其他</span><span class="wp-card-score-val" style="color:'+(leg>0?'#059669':'#dc2626')+'">'+(leg>0?'+':'')+leg+'</span></div>';
   // 净积分
   html+='<div class="wp-card-divider"><div style="display:flex;justify-content:space-between"><span style="color:#0F2C4B;font-size:12px;font-weight:500">净积分</span><span class="wp-card-score-bold">'+(netVal>=0?'+':'')+netVal+'</span></div></div>';
   if((scores.net||0)<=-20){
