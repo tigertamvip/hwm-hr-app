@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.6.1j">
+<meta name="version" content="V0.6.1k">
 <!-- cache-bust: 2026-07-11-09-15 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
@@ -1247,6 +1247,27 @@ body{
 .portal-card.disabled .portal-card-en{color:#6b7280}
 .portal-card.disabled .portal-card-badge{background:rgba(0,0,0,.08);color:#6b7280;border-color:rgba(0,0,0,.06)}
 .portal-card.disabled:hover{opacity:.8}
+
+/* ★ V0.6.1k: 未授权模块 — 高透明显示，保持界面完整 */
+.portal-card.unauthorized{
+  opacity:.18;
+  cursor:default;
+  filter:grayscale(.6);
+  transition:opacity .3s ease,filter .3s ease;
+}
+.portal-card.unauthorized:hover{
+  opacity:.35;
+  filter:grayscale(.4);
+}
+.portal-card.unauthorized .portal-card-label,
+.portal-card.unauthorized .portal-card-en{
+  opacity:.7;
+}
+.portal-card.unauthorized .portal-card-badge{
+  background:rgba(0,0,0,.04);
+  color:#9ca3af;
+  border-color:rgba(0,0,0,.03);
+}
 
 .portal-footer{
   text-align:center;
@@ -3554,7 +3575,13 @@ function applyRoleUI(){
     var card=document.getElementById('portalCard_'+mod);
     if(!card)continue;
     var hasModPerm=!!userPerms[mod];
-    card.style.display=hasModPerm?'':'none';
+    // ★ V0.6.1k: 未授权模块显示为高透明，不隐藏，保持界面完整
+    card.style.display='';
+    if(hasModPerm){
+      card.classList.remove('unauthorized');
+    }else{
+      card.classList.add('unauthorized');
+    }
   }
   // 刷新列表
   doSearch();
@@ -3713,7 +3740,7 @@ function enterModule(mod){
   // 权限检查
   var permKey=mod==='workplan'?'mbo':(mod==='system'?'maintenance':mod);
   if(!hasPermission(permKey)){
-    _showAlert('您没有访问此模块的权限，请联系系统管理员。');
+    _showAlert('未授权使用模块');
     return;
   }
   // ★ 清理任何残留的系统维护弹窗（防止串模块）
