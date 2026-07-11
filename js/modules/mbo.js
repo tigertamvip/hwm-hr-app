@@ -1986,7 +1986,9 @@ function renderWPTable(plan){
     html+='<button class="wp-btn-export" onclick="exportCurrentWP()" style="margin-left:auto"><span>📥</span> 导出周计划</button>';
   }else if(_wpViewingDeptMember){
     // 部门成员视图：审核锁定 + 上级评价（同直属下属）
-    var isFrozen = _wpCurrent.plan && _wpCurrent.plan.frozen;
+    // ★ V0.6.1af: 上级锁定按钮只反映上级自己锁定的状态，员工提交锁定不显示为已锁定
+    var myName=(currentUser&&currentUser.name)||'';
+    var isFrozen = _wpCurrent.plan && _wpCurrent.plan.frozen && _wpCurrent.plan.frozenBy===myName;
     html+='<button class="'+(isFrozen?'wp-btn-freeze':'')+'" onclick="toggleWPFreeze()" title="锁定后下属不能修改本周重点/优先级/计划完成日期">';
     html+=isFrozen?'🔐 解除锁定':'🔐 锁定周计划';
     html+='</button>';
@@ -2002,7 +2004,9 @@ function renderWPTable(plan){
     html+=_wpRevisionMode?'🔴 关闭修订':'✏️ 开启修订';
     html+='</button>';
     // ★ V0.1.23: 锁定周计划 — 上级点击后下属不能修改 本周重点工作/优先级/计划完成时间
-    var isFrozen = _wpCurrent.plan && _wpCurrent.plan.frozen;
+    // ★ V0.6.1af: 上级锁定按钮只反映上级自己锁定的状态
+    var myName=(currentUser&&currentUser.name)||'';
+    var isFrozen = _wpCurrent.plan && _wpCurrent.plan.frozen && _wpCurrent.plan.frozenBy===myName;
     html+='<button class="'+(isFrozen?'wp-btn-freeze':'')+'" onclick="toggleWPFreeze()" title="锁定后下属不能修改本周重点、优先级、计划完成日期">';
     html+=isFrozen?'🔐 解除锁定':'🔐 锁定周计划';
     html+='</button>';
@@ -2401,17 +2405,25 @@ function renderWPTable(plan){
 }
 
 // ★ V0.1.23: 审核并锁定 — 上级锁定下属周计划的核心三列
+// ★ V0.6.1af: 上级锁定按钮独立状态，不直接 toggle 员工的提交锁定
 function toggleWPFreeze(){
   if(!_wpCurrent||!_wpCurrent.plan){_showAlert('请先选择一个周计划');return;}
   var plan=_wpCurrent.plan;
-  plan.frozen=!plan.frozen;
-  if(plan.frozen){
-    plan.frozenAt=new Date().toISOString();
-    plan.frozenBy=(currentUser&&currentUser.name)||'';
-    showToast('✅ 已锁定：下属不能修改本周重点/优先级/计划完成日期');
-  }else{
+  var myName=(currentUser&&currentUser.name)||'';
+  if(plan.frozen && plan.frozenBy===myName){
+    // 当前是上级自己锁定的，解除
+    plan.frozen=false;
+    plan.frozenBy=null;
+    plan.frozenAt=null;
     showToast('⚠️ 已解除锁定：下属可重新修改');
+  }else{
+    // 当前未锁定或员工锁定的，上级接管锁定
+    plan.frozen=true;
+    plan.frozenAt=new Date().toISOString();
+    plan.frozenBy=myName;
+    showToast('✅ 已锁定：下属不能修改本周重点/优先级/计划完成日期');
   }
+  plan.updatedAt=new Date().toISOString();
   saveWP(plan.year,plan.month,plan.week,plan);
   renderWPTable(plan); // 刷新按钮状态和视觉提示
 }
