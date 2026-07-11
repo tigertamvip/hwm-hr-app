@@ -1901,9 +1901,11 @@ function renderWPTable(plan){
   if(!plan)return;
   var content=document.getElementById('wpContent');
   if(!content)return;
-  // ★ V0.5.188: 保存滚动位置，防止重新渲染后跳回顶部
-  var _savedScrollTop=document.documentElement.scrollTop||document.body.scrollTop||0;
-  var _savedScrollLeft=content.querySelector('.wp-scroll-area')?content.querySelector('.wp-scroll-area').scrollLeft:0;
+  // ★ V0.5.189: 保存滚动位置（用最可靠的 scrollingElement）
+  var _se=document.scrollingElement;
+  var _savedScrollTop=_se?_se.scrollTop:(document.documentElement.scrollTop||document.body.scrollTop||0);
+  var _wpSA=content.querySelector('.wp-scroll-area');
+  var _savedScrollLeft=_wpSA?_wpSA.scrollLeft:0;
   var dd=document.getElementById('wpDefault');
   var tb=content.querySelector('#wpToolbar');
   var ta=content.querySelector('.wp-table-area');
@@ -2228,12 +2230,18 @@ function renderWPTable(plan){
 
   content.insertAdjacentHTML('beforeend',html);
 
-  // ★ V0.5.188: 恢复滚动位置
-  setTimeout(function(){
-    window.scrollTo(0,_savedScrollTop);
-    var scArea=content.querySelector('.wp-scroll-area');
-    if(scArea&&_savedScrollLeft)scArea.scrollLeft=_savedScrollLeft;
-  },0);
+  // ★ V0.5.189: 恢复滚动位置 — 双重保险（rAF + setTimeout）
+  var _restore=function(){
+    var s=document.scrollingElement;
+    if(s&&_savedScrollTop>0)s.scrollTop=_savedScrollTop;
+    else window.scrollTo(0,_savedScrollTop);
+    var scA=content.querySelector('.wp-scroll-area');
+    if(scA&&_savedScrollLeft)scA.scrollLeft=_savedScrollLeft;
+  };
+  requestAnimationFrame(function(){
+    _restore();
+    setTimeout(_restore,60);  // 等布局彻底稳定后再补一刀
+  });
 
   // V0.5.157: 水平滚动时反向移动工具栏等非表格元素
   setTimeout(function(){
