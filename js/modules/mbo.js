@@ -1990,9 +1990,11 @@ function renderWPTable(plan){
     html+='<button class="'+(isFrozen?'wp-btn-freeze':'')+'" onclick="toggleWPFreeze()" title="锁定后下属不能修改本周重点/优先级/计划完成日期">';
     html+=isFrozen?'🔐 解除锁定':'🔐 锁定周计划';
     html+='</button>';
-    html+='<button onclick="openBossEval()">⭐ 完成评价</button>';
+    // ★ V0.6.1ad: 完成评价 Toggle（部门成员视图）
     if(_wpCurrent.plan && _wpCurrent.plan.bossEvaluated){
       html+='<button onclick="revokeBossEval()">↩️ 撤销评价</button>';
+    }else{
+      html+='<button onclick="openBossEval()">⭐ 完成评价</button>';
     }
   }else if(_wpViewingSubordinate){
     // 查看下属：修订模式 + 审核锁定 + 上级评价编辑
@@ -2004,19 +2006,25 @@ function renderWPTable(plan){
     html+='<button class="'+(isFrozen?'wp-btn-freeze':'')+'" onclick="toggleWPFreeze()" title="锁定后下属不能修改本周重点、优先级、计划完成日期">';
     html+=isFrozen?'🔐 解除锁定':'🔐 锁定周计划';
     html+='</button>';
-    html+='<button onclick="openBossEval()">⭐ 完成评价</button>';
+    // ★ V0.6.1ad: 完成评价 Toggle（直属下属视图）
     if(_wpCurrent.plan && _wpCurrent.plan.bossEvaluated){
       html+='<button onclick="revokeBossEval()">↩️ 撤销评价</button>';
+    }else{
+      html+='<button onclick="openBossEval()">⭐ 完成评价</button>';
     }
   }else{
     // 自己的计划：完整编辑功能（去掉新增+转发，左下角已有新建）
-    // ★ V0.6.1aa: Toggle 按钮 + 撤回约束逻辑
-    //   规则：上级已评价 → 两者皆锁定；小结已提交 → 必须先撤回小结才能撤回计划
+    // ★ V0.6.1ad: Toggle 按钮 + 撤回约束逻辑（协同上级锁定/评价）
+    //   规则：上级已评价 → 两者皆锁定；上级已锁定 → 撤回周计划锁定；小结已提交 → 必须先撤回小结
+    var myName=(currentUser&&currentUser.name)||'';
+    var isLockedByBoss=plan.frozen && plan.frozenBy && plan.frozenBy!==myName;
     if(plan.firstSubmittedAt){
       if(plan.bossEvaluated){
         html+='<button disabled class="wp-btn-toggle-locked" title="上级已评价，无法撤回"><span>🔒</span> 周计划已提交</button>';
       }else if(plan.summarySubmittedAt){
         html+='<button disabled class="wp-btn-toggle-locked" title="请先撤回周小结"><span>🔒</span> 周计划已提交</button>';
+      }else if(isLockedByBoss){
+        html+='<button disabled class="wp-btn-toggle-locked" title="上级已锁定周计划，请联系上级解除锁定"><span>🔒</span> 周计划已提交</button>';
       }else{
         html+='<button onclick="undoWPSubmit()" class="wp-btn-toggle-submitted"><span>↩</span> 撤回周计划</button>';
       }
@@ -2705,11 +2713,14 @@ async function submitWPPlan(){
 // ★ V0.1.44: 撤销提交 — 清除提交时间戳+解除锁定，允许员工重新提交
 async function undoWPSubmit(){
   var p=_wpCurrent.plan;if(!p){return;}
-  // ★ V0.6.1aa: 运行时守卫 — 上级已评价不能撤回
+  // ★ V0.6.1ad: 运行时守卫 — 上级已评价不能撤回
   if(p.bossEvaluated){_showAlert('上级已完成评价，无法撤回周计划。');return;}
-  // ★ V0.6.1aa: 运行时守卫 — 需先撤回周小结
+  // ★ V0.6.1ad: 运行时守卫 — 需先撤回周小结
   if(p.summarySubmittedAt){_showAlert('请先撤回周小结，再撤回周计划。');return;}
-  var ok=await _showConfirm('确认撤销本次提交？\n\n撤销后：\n① 首次提交时间将被清除\n② 三列锁定将解除，可重新修改\n③ 最终提交时间以最后一次提交为准。'+'\n\n—\n\nConfirm undo?\n\nAfter undo:\n① First submission timestamp will be cleared\n② Column locks will be released, allowing re-edit\n③ Final submission time will be based on the last submission.','⚠️ 注意 / Attention');
+  // ★ V0.6.1ad: 运行时守卫 — 上级已锁定不能撤回
+  var myName=(currentUser&&currentUser.name)||'';
+  if(p.frozen && p.frozenBy && p.frozenBy!==myName){_showAlert('上级已锁定周计划，请联系上级解除锁定后再撤回。');return;}
+  var ok=await _showConfirm('确认撤销本次提交？\n\n撤销后：\n① 首次提交时间将被清除\n② 锁定将解除，可重新修改\n③ 最终提交时间以最后一次提交为准。'+'\n\n—\n\nConfirm undo?\n\nAfter undo:\n① First submission timestamp will be cleared\n② Locks will be released, allowing re-edit\n③ Final submission time will be based on the last submission.','⚠️ 注意 / Attention');
   if(!ok)return;
   p.firstSubmittedAt=null;
   // ★ V0.1.57: 撤销同时解除锁定（仅限自己提交触发的锁定；不解除上级手动锁定）
