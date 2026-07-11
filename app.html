@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.6.1ad">
+<meta name="version" content="V0.6.1ae">
 <!-- cache-bust: 2026-07-11-09-15 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
@@ -2239,10 +2239,12 @@ table.collab-table tbody tr:hover{background:#fffdf5}
 /* 评价弹窗 */
 .wp-eval-modal{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:300;display:none;align-items:center;justify-content:center}
 .wp-eval-modal.show{display:flex}
-.wp-eval-card{background:#fff;border-radius:8px;width:90%;max-width:560px;max-height:80vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.15)}
-.wp-eval-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
-.wp-eval-header h3{font-size:15px;font-weight:600}
-.wp-eval-close{width:28px;height:28px;border:none;border-radius:50%;background:#F2F2F2;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center}
+.wp-eval-card{background:#fff;border-radius:8px;width:90%;max-width:560px;max-height:80vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.15)}
+.wp-eval-header{padding:10px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-shrink:0;gap:12px}
+.wp-eval-header h3{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0}
+.wp-eval-header-actions{display:flex;gap:8px;align-items:center;flex-shrink:0}
+.wp-eval-header-actions button{padding:6px 14px;border-radius:6px;font-size:12px;cursor:pointer;font-weight:500}
+.wp-eval-close{width:28px;height:28px;border:none;border-radius:50%;background:#F2F2F2;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .wp-eval-close:hover{background:#E0E0E0}
 
 /* ★ V0.1.94: 自定义居中确认弹窗 (alert-modal-design Skill v1.0) */
@@ -2255,13 +2257,11 @@ table.collab-table tbody tr:hover{background:#fffdf5}
 ._confirm-btn-cancel:hover{background:#F5F5F5}
 ._confirm-btn-ok{padding:10px 40px;border:none;border-radius:8px;background:#3B6FA5;color:#fff;font-size:14px;font-weight:500;cursor:pointer;min-width:100px}
 ._confirm-btn-ok:hover{background:#2d5a8b}
-.wp-eval-body{padding:16px 18px 20px}
+.wp-eval-body{padding:16px 18px 20px;overflow-y:auto;flex:1}
 .wp-eval-row{margin-bottom:12px}
 .wp-eval-row label{display:block;font-size:12px;font-weight:500;margin-bottom:4px;color:var(--text-secondary)}
 .wp-eval-row textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13px;resize:vertical;min-height:80px;outline:none;box-sizing:border-box}
 .wp-eval-row textarea:focus{border-color:var(--primary)}
-.wp-eval-actions{display:flex;gap:8px;justify-content:flex-end;padding:12px 0 16px;border-top:1px solid var(--border)}
-.wp-eval-actions button{padding:8px 20px;border-radius:8px;font-size:13px;cursor:pointer;font-weight:500}
 .wp-eval-submit{background:#3B7DB4;color:#fff;border:none}
 .wp-eval-submit:hover{background:#2A6A9A}
 .wp-eval-cancel{background:#fff;color:#3B7DB4;border:1px solid #3B7DB4}

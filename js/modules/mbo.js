@@ -3495,7 +3495,7 @@ function openBossEval(){
   if(m)m.remove();
 
   var html='<div class="wp-eval-modal show" id="wpEvalModal"><div class="wp-eval-card">';
-  html+='<div class="wp-eval-header"><h3>⭐ 上级评价 - '+sub+'</h3><button class="wp-eval-close" onclick="closeBossEval()">✕</button></div>';
+  html+='<div class="wp-eval-header"><h3>⭐ 上级评价 - '+sub+'</h3><div class="wp-eval-header-actions"><button class="wp-eval-cancel" onclick="closeBossEval()">取消</button><button class="wp-eval-submit" onclick="submitBossEval()">提交评价</button></div><button class="wp-eval-close" onclick="closeBossEval()">✕</button></div>';
   html+='<div class="wp-eval-body" style="font-size:13px">';
   html+='<p style="color:var(--text-hint);margin-bottom:14px">为「'+sub+'」的「'+p.year+'年'+p.month+'月第'+p.week+'周」计划填写评价</p>';
   html+='<div class="wp-eval-row"><label>综合评价</label><textarea id="wpBossOverall" style="min-height:60px">'+_h(p.bossOverallFeedback||'')+'</textarea></div>';
@@ -3506,7 +3506,6 @@ function openBossEval(){
     html+='<textarea id="wpBossTask_'+i+'" style="min-height:36px">'+_h(t.bossFeedback||'')+'</textarea></div>';
   }
   html+='</div>';
-  html+='<div class="wp-eval-actions"><button class="wp-eval-cancel" onclick="closeBossEval()">取消</button><button class="wp-eval-submit" onclick="submitBossEval()">提交评价</button></div>';
   html+='</div></div>';
   document.body.insertAdjacentHTML('beforeend',html);
   var mm=document.getElementById('wpEvalModal');
