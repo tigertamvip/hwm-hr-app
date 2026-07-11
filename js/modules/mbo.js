@@ -2011,11 +2011,11 @@ function renderWPTable(plan){
   }else{
     // 自己的计划：完整编辑功能（去掉新增+转发，左下角已有新建）
     html+='<button onclick="submitWPPlan()" '+(plan.firstSubmittedAt?'disabled':'')+' class="'+(plan.firstSubmittedAt?'wp-btn-disabled':'wp-btn-primary')+'"><span>📋</span> 提交周计划</button>';
+    html+='<button onclick="submitWPWeekSummary()" '+(plan.summarySubmittedAt?'disabled':'')+' class="'+(plan.summarySubmittedAt?'wp-btn-disabled':'wp-btn-summary')+'"><span>✅</span> 提交周小结</button>';
     // ★ V0.1.44: 撤销提交按钮（仅在已提交时显示）
     if(plan.firstSubmittedAt){
       html+='<button class="wp-btn-accent" onclick="undoWPSubmit()"><span style="color:#2A476A">↩</span> 撤销提交</button>';
     }
-    html+='<button onclick="submitWPWeekSummary()" '+(plan.summarySubmittedAt?'disabled':'')+' class="'+(plan.summarySubmittedAt?'wp-btn-disabled':'wp-btn-summary')+'"><span>✅</span> 提交周小结</button>';
     html+='<button class="wp-btn-delete" onclick="deleteCurrentWPPlan()"><span>🗑</span> 删除周计划</button>';
     html+='<button class="wp-btn-export" onclick="exportCurrentWP()"><span>📥</span> 导出周计划</button>';
     if(plan.bossEvaluated){
