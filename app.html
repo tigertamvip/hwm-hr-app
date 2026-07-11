@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.6.1ai">
+<meta name="version" content="V0.6.1aj">
 <!-- cache-bust: 2026-07-11-09-15 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
@@ -699,9 +699,14 @@ body{
 .export-option-text{display:flex;flex-direction:column;gap:4px}
 .export-option-text strong{font-size:16px;color:var(--text)}
 .export-option-text small{font-size:12px;color:var(--text-secondary)}
-.detail-row{display:flex;align-items:center;padding:12px 0;border-bottom:1px solid #EBEEF0}
+.detail-row{display:flex;align-items:center;padding:6px 0;border-bottom:1px solid #EBEEF0}
 .detail-label{width:100px;flex-shrink:0;font-size:13px;color:var(--text);text-align:right;padding-right:16px}
 .detail-value{font-size:14px;color:var(--text);flex:1}
+/* ★ V0.6.1aj: 合并行内联字段 */
+.detail-inline-fields{display:flex;flex-wrap:wrap;gap:4px 16px;flex:1}
+.detail-inline-item{display:inline-flex;align-items:center;gap:4px;font-size:13px;white-space:nowrap}
+.detail-inline-label{color:var(--text-secondary);font-size:12px}
+.detail-inline-value{color:var(--text);font-weight:500}
 .detail-section-header{
   margin:16px 0 4px;
   padding:10px 0 8px;
@@ -5575,10 +5580,11 @@ function showDetail(empId){
   if(canEditBasic){
     avatarHtml=avatarHtml.replace('detailAvatar"','detailAvatar" ondrop="handlePhotoDrop(event,\''+e.empId+'\')" ondragover="event.preventDefault();this.style.border=\'3px dashed var(--gold)\'" ondragleave="this.style.border=\'\'" style="cursor:pointer;border:2px dashed rgba(0,0,0,.1);flex-shrink:0;margin-bottom:0" title="拖拽照片到此处更换"');
   }
-  // 设置弹窗标题栏内容（头像+姓名+职位）
+  // 设置弹窗标题栏内容（头像+姓名+职位+公司工龄）
+  var companyWY=calcWorkYears(e.entryDate);
   document.getElementById('modalHeaderContent').innerHTML=
     avatarHtml+
-    '<div><div style="font-size:18px;font-weight:600;color:var(--text)">'+esc(e.name)+'</div><div style="font-size:13px;color:var(--text-secondary)">'+esc(e.position||'')+(e.dept?' · '+esc(e.dept):'')+'</div></div>';
+    '<div><div style="font-size:18px;font-weight:600;color:var(--text)">'+esc(e.name)+'</div><div style="font-size:13px;color:var(--text-secondary)">'+esc(e.position||'')+(e.dept?' · '+esc(e.dept):'')+'</div><div style="font-size:12px;color:var(--text-hint);margin-top:2px">公司工龄：'+(companyWY||'—')+'</div></div>';
   const fields=[
     {label:'工号',value:e.empId},
     {label:'姓名',value:e.name},
@@ -5724,39 +5730,74 @@ function showDetail(empId){
     if(today.getMonth()+1<dm||(today.getMonth()+1===dm&&today.getDate()<dd))years--;
     return years.toFixed(1)+'年';
   }
-  var basicRows='';
-  for(var b=0;b<basicConfig.length;b++){
-    var bc=basicConfig[b];
-    var bv='';
-    if(bc.type==='auto'){
-      if(bc.key==='age')bv=calcAge(e.birthDate||e.birthDay||'');
-      else if(bc.key==='workYears')bv=calcWorkYears(e.entryDate);
-    }else{
-      bv=e[bc.key]||'';
-    }
-    if(!bv&&!canEditBasic&&bc.type!=='auto')continue;
-    if(canEditBasic&&bc.type!=='auto'){
-      basicRows+='<div class="detail-row"><div class="detail-label">'+esc(bc.label)+'</div><div class="detail-value">';
-      if(bc.type==='dropdown'){
-        basicRows+='<select data-field="'+bc.key+'" style="width:100%;padding:10px 12px;border-radius:8px;border:1.5px solid var(--border);font-size:13px;background:#F6F8F9;outline:none">';
-        basicRows+='<option value="">- 请选择 -</option>';
-        for(var o=0;o<(bc.opts||[]).length;o++){
-          basicRows+='<option value="'+esc(bc.opts[o])+'"'+(bv===bc.opts[o]?' selected':'')+'>'+esc(bc.opts[o])+'</option>';
-        }
-        basicRows+='</select>';
-      }else if(bc.type==='date'){
-        basicRows+='<input type="date" data-field="'+bc.key+'" value="'+esc(bv)+'" class="detail-field-input" style="width:100%">';
+  // ★ V0.6.1aj: 内联字段渲染 — 合并关联字段到一行
+  function _renderInlineField(key,val,label,editable,type,opts){
+    // 返回一个 inline-item 片段：label + value/input
+    var item='<span class="detail-inline-item"><span class="detail-inline-label">'+esc(label)+'</span> ';
+    if(editable&&type!=='auto'){
+      var attrs='data-field="'+key+'"';
+      if(type==='dropdown'){
+        item+='<select '+attrs+' style="padding:4px 8px;border-radius:6px;border:1px solid var(--border);font-size:12px;background:#F6F8F9;outline:none;max-width:120px">';
+        item+='<option value="">-</option>';
+        if(opts){for(var o=0;o<opts.length;o++){item+='<option value="'+esc(opts[o])+'"'+(val===opts[o]?' selected':'')+'>'+esc(opts[o])+'</option>';}}
+        item+='</select>';
+      }else if(type==='date'){
+        item+='<input type="date" '+attrs+' value="'+esc(val||'')+'" style="padding:4px 6px;border-radius:6px;border:1px solid var(--border);font-size:12px;background:#F6F8F9;outline:none;max-width:130px">';
       }else{
-        basicRows+='<input class="detail-field-input" data-field="'+bc.key+'" value="'+esc(bv)+'" placeholder="'+esc(bc.label)+'">';
+        item+='<input '+attrs+' value="'+esc(val||'')+'" placeholder="'+esc(label)+'" style="padding:4px 6px;border-radius:6px;border:1px solid var(--border);font-size:12px;background:#F6F8F9;outline:none;width:80px">';
       }
-      basicRows+='</div></div>';
     }else{
-      basicRows+='<div class="detail-row"><div class="detail-label">'+esc(bc.label)+'</div><div class="detail-value">'+(bv?esc(bv):'<span class="detail-value-empty">待补充</span>')+'</div></div>';
+      item+='<span class="detail-inline-value">'+(val?esc(val):'<span class="detail-value-empty">—</span>')+'</span>';
     }
+    item+='</span>';
+    return item;
   }
-  // 公司工龄（自动计算）
-  var companyWY=calcWorkYears(e.entryDate);
-  basicRows+='<div class="detail-row"><div class="detail-label">公司工龄</div><div class="detail-value">'+(companyWY||'<span class="detail-value-empty">-</span>')+'</div></div>';
+  // ★ 辅助：从 basicConfig 找字段配置
+  function _findCfg(key){
+    for(var i=0;i<basicConfig.length;i++){if(basicConfig[i].key===key)return basicConfig[i];}
+    return {type:'text'};
+  }
+  // ★ 取值辅助
+  function _v(key,autoFn){
+    if(autoFn)return autoFn(e);
+    return e[key]||'';
+  }
+  var _ageVal=calcAge(e.birthDate||e.birthDay||'');
+  var _wYVal=calcWorkYears(e.entryDate);
+  var editable=!!canEditBasic;
+  // ★ V0.6.1aj: 合并行定义
+  var _rows=[
+    [{k:'empId',l:'工号',t:'text'},{k:'name',l:'姓名',t:'text'},{k:'gender',l:'性别',t:'dropdown',o:['男','女']},{k:'status',l:'状态',t:'dropdown',o:['已转正','试用期','已离职']}],
+    [{k:'center',l:'中心',t:'text'},{k:'dept',l:'部门',t:'text'},{k:'position',l:'岗位',t:'text'}],
+    [{k:'phone',l:'手机号',t:'text'},{k:'email',l:'邮箱',t:'text'}],
+    [{k:'entryDate',l:'入职日期',t:'date'},{k:'workplace',l:'工作地点',t:'text'}],
+    [{k:'idCard',l:'身份证号',t:'text'}],
+    [{k:'birthDate',l:'出生年月',t:'date'},{k:'_age',l:'年龄',t:'auto'},{k:'ethnicity',l:'民族',t:'text'},{k:'politicalStatus',l:'政治面貌',t:'text'}],
+    [{k:'education',l:'学历',t:'dropdown',o:['博士','普通硕士','其他硕士','普通本科','其他本科','普通专科','其他专科','职业高中','高中','初中','初中以下']},{k:'school',l:'毕业学校',t:'text'},{k:'major',l:'专业',t:'text'},{k:'graduationDate',l:'毕业时间',t:'date'}],
+    [{k:'educationMax',l:'最高学历',t:'dropdown',o:['博士','普通硕士','其他硕士','普通本科','其他本科','普通专科','其他专科','职业高中','高中','初中','初中以下']},{k:'highestSchool',l:'毕业学校',t:'text'},{k:'highestMajor',l:'专业',t:'text'},{k:'highestGraduationDate',l:'毕业时间',t:'date'}],
+    [{k:'title',l:'专业职称',t:'text'},{k:'professionalSkills',l:'技能特长',t:'text'}]
+  ];
+  var basicRows='';
+  for(var ri=0;ri<_rows.length;ri++){
+    var row=_rows[ri];
+    // 只读模式下，如果整行都没数据，跳过
+    if(!editable){
+      var hasAny=false;
+      for(var ci=0;ci<row.length;ci++){
+        var val=row[ci].k==='_age'?_ageVal:_v(row[ci].k);
+        if(val){hasAny=true;break;}
+      }
+      if(!hasAny)continue;
+    }
+    basicRows+='<div class="detail-row"><div class="detail-inline-fields">';
+    for(var ci=0;ci<row.length;ci++){
+      var col=row[ci];
+      var val=col.k==='_age'?_ageVal:_v(col.k);
+      var _rkey=(col.k==='_age'?'':col.k);
+      basicRows+=_renderInlineField(_rkey,val||'',col.l,editable,col.t,col.o);
+    }
+    basicRows+='</div></div>';
+  }
   // admin/data_admin 的删除/恢复按钮
   var deleteBtn='';
   if(canEditBasic&&!e.deleted){
