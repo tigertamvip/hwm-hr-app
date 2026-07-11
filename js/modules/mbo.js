@@ -3909,8 +3909,8 @@ function switchWPVisTab(tab){
 function renderWPVisTabs(){
   var t1=document.getElementById('wpVisTab1'), t2=document.getElementById('wpVisTab2');
   var g=document.getElementById('wpVisGrantPanel'), r=document.getElementById('wpVisReceivedPanel');
-  if(t1){t1.style.cssText=_wpVisTab==='grant'?'flex:1;background:#3B7DB4;color:#fff':'flex:1;background:#f3f4f6;color:#6b7280';}
-  if(t2){t2.style.cssText=_wpVisTab==='received'?'flex:1;background:#3B7DB4;color:#fff':'flex:1;background:#f3f4f6;color:#6b7280';}
+  if(t1){t1.style.cssText=_wpVisTab==='grant'?'flex:1;background:#3B7DB4;color:#fff':'flex:1;background:#CBD5E1;color:#475569';}
+  if(t2){t2.style.cssText=_wpVisTab==='received'?'flex:1;background:#3B7DB4;color:#fff':'flex:1;background:#CBD5E1;color:#475569';}
   if(g)g.style.display=_wpVisTab==='grant'?'':'none';
   if(r)r.style.display=_wpVisTab==='received'?'':'none';
 }
