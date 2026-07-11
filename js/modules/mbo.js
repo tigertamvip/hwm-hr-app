@@ -605,8 +605,18 @@ function renderWPSubSelect(){
     if(subs.indexOf(deptMembers[i])<0)nonDirect.push(deptMembers[i]);
   }
 
-  // 没有任何下属 → 隐藏
-  if(subs.length===0&&nonDirect.length===0){
+  // ★ V0.6.1j: 收集授权我阅览其周计划的同事（排除已在上级列表中的）
+  var sharedList=getSharedToMeList();
+  var sharedNames=[];
+  for(var i=0;i<sharedList.length;i++){
+    var sName=sharedList[i].name;
+    if(subs.indexOf(sName)<0 && nonDirect.indexOf(sName)<0 && sName!==myName){
+      sharedNames.push(sName);
+    }
+  }
+
+  // 没有任何下属且无共享同事 → 隐藏
+  if(subs.length===0&&nonDirect.length===0&&sharedNames.length===0){
     div.style.display='none';
     return;
   }
@@ -626,6 +636,11 @@ function renderWPSubSelect(){
     _wpSubData.options.push({name:nonDirect[i],rel:'indirect'});
     _wpSubData.details[nonDirect[i]]='indirect';
   }
+  // ★ V0.6.1j: 加入共享同事
+  for(var i=0;i<sharedNames.length;i++){
+    _wpSubData.options.push({name:sharedNames[i],rel:'shared'});
+    _wpSubData.details[sharedNames[i]]='shared';
+  }
 
   // 更新触发器文字
   var triggerText=document.getElementById('wpSubTriggerText');
@@ -636,6 +651,9 @@ function renderWPSubSelect(){
     }else if(_wpViewingDeptMember){
       triggerText.textContent=_wpViewingDeptMember;
       _wpSubData.selected=_wpViewingDeptMember;
+    }else if(_wpViewingShared){
+      triggerText.textContent=_wpViewingShared;
+      _wpSubData.selected=_wpViewingShared;
     }else{
       triggerText.textContent='View Team Plans';triggerText.style.color='';
       _wpSubData.selected='';
@@ -660,11 +678,22 @@ function renderWPSubSelect(){
     if(nonDirect.length>0){
       if(directOpts.length>0){
         ddHtml+='<div style="border-top:1px solid #e5e7eb;margin:6px 0"></div>';
-        ddHtml+='<div style="font-size:13px;color:#6b7280;padding:2px 0 4px">间接下属</div>';
       }
+      ddHtml+='<div style="font-size:13px;color:#6b7280;padding:2px 0 4px">间接下属</div>';
       for(var i=0;i<nonDirect.length;i++){
         var isActive=(nonDirect[i]===_wpViewingDeptMember)?' active':'';
         ddHtml+='<div class="wp-custom-option'+isActive+'" onclick="selectWPSubOption(\''+esc(nonDirect[i])+'\',\''+esc(nonDirect[i])+'\',\'indirect\')"><span style="margin-right:8px;color:#3b82f6">●</span>'+esc(nonDirect[i])+'</div>';
+      }
+    }
+    // ★ V0.6.1j: 分隔线 + 其他同事（授权我阅览其周计划的同事）
+    if(sharedNames.length>0){
+      if(directOpts.length>0||nonDirect.length>0){
+        ddHtml+='<div style="border-top:1px solid #e5e7eb;margin:6px 0"></div>';
+      }
+      ddHtml+='<div style="font-size:13px;color:#6b7280;padding:2px 0 4px">其他同事</div>';
+      for(var i=0;i<sharedNames.length;i++){
+        var isActive=(sharedNames[i]===_wpViewingShared)?' active':'';
+        ddHtml+='<div class="wp-custom-option'+isActive+'" onclick="selectWPSubOption(\''+esc(sharedNames[i])+'\',\''+esc(sharedNames[i])+'\',\'shared\')"><span style="margin-right:8px;color:#f59e0b">●</span>'+esc(sharedNames[i])+'</div>';
       }
     }
     ddHtml+='<div style="height:12px"></div>';
@@ -774,8 +803,24 @@ function selectWPSubOption(val,name,rel){
     if(!val){triggerText.textContent='View Team Plans';triggerText.style.color='';}
     else{triggerText.textContent=name||val;triggerText.style.color='';}
   }
-  // ★ V0.5.80: 根据 rel 分流到直属或间接处理
-  if(rel==='indirect'){
+  // ★ V0.6.1j: 根据 rel 分流到直属、间接或共享处理
+  if(rel==='shared'){
+    _wpViewingSubordinate=null;
+    _wpViewingDeptMember=null;
+    _wpViewingShared=val;
+    _wpRevisionMode=false;
+    _wpCurrent={year:null,month:null,week:null,plan:null};
+    loadWPData();
+    renderWPUserInfo();
+    renderWPSubSelect();
+    showWPEmpty();
+    onWPMonthChange();
+    var yEl=document.getElementById('wpYear');
+    var mEl=document.getElementById('wpMonth');
+    var autoY=yEl?parseInt(yEl.value):new Date().getFullYear();
+    var autoM=mEl?parseInt(mEl.value):(new Date().getMonth()+1);
+    setTimeout(function(){ try{selectWP(autoY,autoM,1);}catch(e){console.warn('auto-selectWP after shared change failed:',e);} }, 100);
+  }else if(rel==='indirect'){
     onWPDeptMemberChange(val);
   }else{
     onWPSubordinateChange(val);
