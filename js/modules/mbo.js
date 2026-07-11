@@ -2146,6 +2146,7 @@ function renderWPTable(plan){
     var j=newTasks[ni]; seq++;
     var t=plan.tasks[j];
     var _frozenCls=(plan.frozen&&!_wpViewingSubordinate&&!_wpViewingDeptMember?' wp-cell-frozen':'');
+    var _summaryFrozenCls=(plan.summarySubmittedAt&&!_wpViewingSubordinate&&!_wpViewingDeptMember?' wp-cell-frozen':'');
     html+='<tr data-task-idx="'+j+'">';
     // ★ V0.1.59: # 列 — +/- 操作按钮
     html+=_renderTaskOpCell(j,seq,plan);
@@ -2160,11 +2161,11 @@ function renderWPTable(plan){
     html+='<td class="editable col-hours'+_frozenCls+'" data-field="tasks.'+j+'.plannedDate" data-type="date" onclick="startEditCell(this)">'+(plannedDateDisplay?plannedDateDisplay:'<span style="color:var(--text-hint)">点击选择日期</span>')+'</td>';
     var actualDateDisplay=renderWPCellValue(plan,'tasks.'+j+'.actualDate',t.actualDate||'');
     // ★ V0.4.91: 自动"未做"时锁定实际完成日期，显示"—"
-    // ★ V0.6.1aa: 提交周计划后 actualDate 列也纳入冻结
+    // ★ V0.6.1ac: actualDate 由小结提交控制冻结（非计划提交）
     if(t.status==='未做'&&!t._manualNotDone){
-      html+='<td class="col-hours'+_frozenCls+'" style="color:#9ca3af;cursor:not-allowed;text-align:center">—</td>';
+      html+='<td class="col-hours'+_summaryFrozenCls+'" style="color:#9ca3af;cursor:not-allowed;text-align:center">—</td>';
     }else{
-      html+='<td class="editable col-hours'+_frozenCls+'" data-field="tasks.'+j+'.actualDate" data-type="date" onclick="startEditCell(this)">'+(actualDateDisplay?actualDateDisplay:'<span style="color:var(--text-hint)">点击选择日期</span>')+'</td>';
+      html+='<td class="editable col-hours'+_summaryFrozenCls+'" data-field="tasks.'+j+'.actualDate" data-type="date" onclick="startEditCell(this)">'+(actualDateDisplay?actualDateDisplay:'<span style="color:var(--text-hint)">点击选择日期</span>')+'</td>';
     }
     // ★ V0.4.91d/Q: 耗时列（自动计算，只读）+ 蓝色角标 + tooltip数据
     var _durNew=_calcTaskDuration(t);
@@ -2412,10 +2413,15 @@ function isFieldFrozen(cell){
   // 锁定保护只对「员工查看自己的计划」生效
   if(_wpViewingShared||_wpViewingSubordinate||_wpViewingDeptMember)return false; // 上级/分享查看不受限
   var plan=_wpCurrent?_wpCurrent.plan:null;
-  if(!plan||!plan.frozen)return false;
+  if(!plan)return false;
   var field=cell.dataset.field||'';
-  // ★ V0.6.1aa: 提交周计划后锁定的列：本周重点工作、优先级、启动日期、计划完成日期、实际完成日期
-  return (field.indexOf('.work')>0||field.indexOf('.goal')>0||field.indexOf('.startDate')>0||field.indexOf('.plannedDate')>0||field.indexOf('.actualDate')>0);
+  // ★ V0.6.1ac: 双阶段锁定
+  //   提交周计划 → frozen=true → 锁定 work/goal/startDate/plannedDate（4列）
+  //   提交周小结 → summarySubmittedAt 存在 → 额外锁定 actualDate
+  if(field.indexOf('.actualDate')>0){
+    return !!(plan.summarySubmittedAt); // 小结已提交 → actualDate 冻结
+  }
+  return !!(plan.frozen) && (field.indexOf('.work')>0||field.indexOf('.goal')>0||field.indexOf('.startDate')>0||field.indexOf('.plannedDate')>0);
 }
 
 // ========== 单元格编辑 ==========
@@ -2792,6 +2798,14 @@ function _checkSubmissionStatus(plan,type){
   return 'pending';
 }
 
+// ★ V0.6.1ac: 判断周小结是否按时提交
+function _checkSummarySubmissionStatus(plan){
+  if(plan.exempted)return 'exempted';
+  if(!plan.summarySubmittedAt)return 'pending';
+  var deadline=_getWeekDeadline(plan.year,plan.month,plan.week);
+  return new Date(plan.summarySubmittedAt)<=deadline?'on_time':'late';
+}
+
 // ★ V0.1.35: 评分存储 (localStorage: wp_scores_{uid}_{year})
 function _getAnnualScores(uid,year){
   if(!uid||!year)return null;
@@ -2831,20 +2845,36 @@ function _calcWeekScore(plan){
   if(!scores.weeks)scores.weeks={};
 
   var subStatus=_checkSubmissionStatus(plan,'submit');
+  var sumStatus=_checkSummarySubmissionStatus(plan);
   var revStatus=_checkSubmissionStatus(plan,'review');
   var weekScore=0;
 
   // ★ 分类统计（用于明细面板）
   var onTimeScore=0,overdueScore=0,notDoneScore=0,lateSubmitScore=0,reviewScore=0,onTimeSubmitScore=0;
 
-  // 提交评分
+  // ★ V0.6.1ac: 统计之前已有的累计延迟次数（排除当前周，因为当前周数据可能不完整）
+  var existingLateCount=0;
+  for(var wid in scores.weeks){
+    if(wid===weekId)continue;
+    var ews=scores.weeks[wid];
+    if(ews.submittedStatus==='late')existingLateCount++;
+    if(ews.summaryStatus==='late')existingLateCount++;
+  }
+
+  // ★ V0.6.1ac: 提交评分（简化规则：每次-1，累计>3次后-2）
   if(subStatus==='on_time'){weekScore+=2;onTimeSubmitScore=2;}
   else if(subStatus==='late'&&plan.firstSubmittedAt){
-    var deadline=_getWeekDeadline(plan.year,plan.month,plan.week);
-    var diffHrs=(new Date(plan.firstSubmittedAt)-deadline)/(1000*3600);
-    if(diffHrs>24){lateSubmitScore=-2;}
-    else{lateSubmitScore=-Math.ceil(diffHrs/12);if(lateSubmitScore<-2)lateSubmitScore=-2;}
-    weekScore+=lateSubmitScore;
+    existingLateCount++;
+    var penalty=(existingLateCount>3)?-2:-1;
+    lateSubmitScore+=penalty;weekScore+=penalty;
+  }
+
+  // ★ V0.6.1ac: 小结提交评分（同样 -1 / -2 规则）
+  if(sumStatus==='on_time'){/* 小结按时不额外加分 */}
+  else if(sumStatus==='late'&&plan.summarySubmittedAt){
+    existingLateCount++;
+    var spenalty=(existingLateCount>3)?-2:-1;
+    lateSubmitScore+=spenalty;weekScore+=spenalty;
   }
 
   // 评价奖励（仅上级按时完成时给下属加分）
@@ -2911,7 +2941,7 @@ function _calcWeekScore(plan){
 
   // 记录本周（含明细）
   scores.weeks[weekId]={
-    submittedStatus:subStatus, reviewedStatus:revStatus,
+    submittedStatus:subStatus, summaryStatus:sumStatus, reviewedStatus:revStatus,
     exempted:!!plan.exempted, score:weekScore,
     taskScore:taskScore,
     onTimeScore:onTimeScore, overdueScore:overdueScore,
@@ -3154,9 +3184,10 @@ function _renderTimeManagementPanel(plan){
   html+='<tr><td><span style="color:#059669;margin-right:6px">✓</span>周六12:00前提交</td><td class="td-val td-pos" style="width:24px">✓</td></tr>';
   html+='<tr><td><span style="color:#059669;margin-right:6px">✓</span>上级周一12:00评价</td><td class="td-val td-pos">✓</td></tr>';
   html+='<tr><td style="color:#6b7280"><span style="margin-right:6px">—</span>法定节假日顺延</td><td class="td-val" style="color:#6b7280">—</td></tr>';
-  html+='<tr><td style="color:#6b7280"><span style="margin-right:6px">○</span>每迟12h</td><td class="td-val" style="color:#6b7280;font-weight:500">−1</td></tr>';
-  html+='<tr><td style="color:#6b7280"><span style="margin-right:6px">○</span>超24h未交</td><td class="td-val" style="color:#6b7280;font-weight:500">−2</td></tr>';
-  html+='<tr><td class="wp-grace-tip" style="font-size:9px;color:#6b7280;padding-top:6px;border-top:1px solid #e5e7eb;white-space:pre-line;cursor:help" colspan="2">注：\n任务宽限期：5个工作日<span style="color:#9ca3af">（排除周末+法定节假日）</span></td></tr>';
+  html+='<tr><td style="color:#6b7280"><span style="margin-right:6px">○</span>未按时提交计划</td><td class="td-val" style="color:#6b7280;font-weight:500">−1</td></tr>';
+  html+='<tr><td style="color:#6b7280"><span style="margin-right:6px">○</span>未按时提交小结</td><td class="td-val" style="color:#6b7280;font-weight:500">−1</td></tr>';
+  html+='<tr><td style="color:#6b7280"><span style="margin-right:6px">⚠</span>累计>3次加倍扣</td><td class="td-val" style="color:#dc2626;font-weight:600">−2</td></tr>';
+  html+='<tr><td class="wp-grace-tip" style="font-size:9px;color:#6b7280;padding-top:6px;border-top:1px solid #e5e7eb;white-space:pre-line;cursor:help" colspan="2">注：\n延迟次数=计划+小结延迟合计<span style="color:#9ca3af">（法定节假日顺延）</span></td></tr>';
   html+='</table>';
   html+='</div>';
   html+='</div>';
