@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.6.1y">
+<meta name="version" content="V0.6.1z">
 <!-- cache-bust: 2026-07-11-09-15 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
@@ -2044,6 +2044,9 @@ body{
 /* 白底蓝框次要按钮（回到我的计划/查看评价等） */
 .wp-toolbar button.wp-btn-accent{background:#fff;color:#3B7DB4;border-color:#3B7DB4}
 .wp-toolbar button.wp-btn-accent:hover{background:#E8F4FE;border-color:#2A6A9A;color:#2A6A9A}
+/* ★ V0.6.1z: Toggle 已提交可撤回状态 */
+.wp-toolbar button.wp-btn-toggle-submitted{background:#E8F5E9;color:#2E7D32;border:1px solid #A5D6A7;font-weight:500}
+.wp-toolbar button.wp-btn-toggle-submitted:hover{background:#C8E6C9;border-color:#66BB6A;color:#1B5E20}
 .wp-toolbar button.wp-btn-ai{background:linear-gradient(135deg,var(--brand-accent) 0%,#8B5CF6 40%,#A78BFA 70%,#EC4899 100%);background-size:200% 200%;color:#fff;border:none;border-radius:16px;padding:0;width:52px;height:52px;font-size:12px;font-weight:600;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 4px 14px rgba(139,92,246,.25),0 0 18px rgba(236,72,153,.08),inset 0 1px 0 rgba(255,255,255,.2);animation:aiGlow 5s ease-in-out 2;position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.5}
 .wp-toolbar button.wp-btn-ai::before{content:'';position:absolute;inset:0;border-radius:16px;background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.15) 50%,transparent 100%);background-size:200% 100%;animation:aiSlide 4s linear 2}
 @keyframes aiGlow{0%,100%{box-shadow:0 4px 14px rgba(139,92,246,.25),0 0 18px rgba(236,72,153,.08)}50%{box-shadow:0 5px 20px rgba(139,92,246,.40),0 0 28px rgba(168,85,247,.20),0 0 36px rgba(236,72,153,.10)}}

@@ -2010,11 +2010,16 @@ function renderWPTable(plan){
     }
   }else{
     // 自己的计划：完整编辑功能（去掉新增+转发，左下角已有新建）
-    html+='<button onclick="submitWPPlan()" '+(plan.firstSubmittedAt?'disabled':'')+' class="'+(plan.firstSubmittedAt?'wp-btn-disabled':'wp-btn-primary')+'"><span>📋</span> 提交周计划</button>';
-    html+='<button onclick="submitWPWeekSummary()" '+(plan.summarySubmittedAt?'disabled':'')+' class="'+(plan.summarySubmittedAt?'wp-btn-disabled':'wp-btn-summary')+'"><span>✅</span> 提交周小结</button>';
-    // ★ V0.1.44: 撤销提交按钮（仅在已提交时显示）
+    // ★ V0.6.1z: Toggle 按钮 — 提交/撤回合二为一
     if(plan.firstSubmittedAt){
-      html+='<button class="wp-btn-accent" onclick="undoWPSubmit()"><span style="color:#2A476A">↩</span> 撤销提交</button>';
+      html+='<button onclick="undoWPSubmit()" class="wp-btn-toggle-submitted"><span>✓</span> 周计划已提交 · 点击撤回</button>';
+    }else{
+      html+='<button onclick="submitWPPlan()" class="wp-btn-primary"><span>📋</span> 提交周计划</button>';
+    }
+    if(plan.summarySubmittedAt){
+      html+='<button onclick="undoWPWeekSummary()" class="wp-btn-toggle-submitted"><span>✓</span> 周小结已提交 · 点击撤回</button>';
+    }else{
+      html+='<button onclick="submitWPWeekSummary()" class="wp-btn-summary"><span>✅</span> 提交周小结</button>';
     }
     html+='<button class="wp-btn-delete" onclick="deleteCurrentWPPlan()"><span>🗑</span> 删除周计划</button>';
     html+='<button class="wp-btn-export" onclick="exportCurrentWP()"><span>📥</span> 导出周计划</button>';
@@ -2718,6 +2723,24 @@ async function submitWPWeekSummary(){
   _calcWeekScore(p);
   renderWPTable(p);
   showToast('✅ 工作小结已完成，三列已锁定');
+}
+
+// ★ V0.6.1z: 撤回周小结 — 清除小结提交时间戳+解除自锁定
+async function undoWPWeekSummary(){
+  var p=_wpCurrent.plan;if(!p){return;}
+  var ok=await _showConfirm('确认撤回本周小结？\n\n撤回后：\n① 小结提交时间将被清除\n② 锁定将解除，可重新修改后再提交。'+'\n\n—\n\nConfirm undo summary?\n\nAfter undo:\n① Summary submission timestamp will be cleared\n② Locks will be released, allowing re-edit and re-submit.','⚠️ 注意 / Attention');
+  if(!ok)return;
+  p.summarySubmittedAt=null;
+  var myName=(currentUser&&currentUser.name)||'';
+  if(p.frozen && (!p.frozenBy || p.frozenBy===myName)){
+    p.frozen=false;
+    p.frozenAt=null;
+  }
+  p.updatedAt=new Date().toISOString();
+  saveWP(p.year,p.month,p.week,p);
+  _calcWeekScore(p);
+  renderWPTable(p);
+  showToast('↩ 周小结已撤回，可重新修改后再提交');
 }
 
 // ★ V0.1.35: 计算本周截止时间（周六12:00）
