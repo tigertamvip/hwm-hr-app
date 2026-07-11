@@ -2757,9 +2757,18 @@ function _getAnnualScores(uid,year){
   try{
     var key='wp_scores_'+uid+'_'+year;
     var raw=localStorage.getItem(key);
-    if(raw)return JSON.parse(raw);
+    if(raw){
+      var parsed=JSON.parse(raw);
+      // ★ V0.6.1x: 如果存在旧格式的 total/deducted 但缺少新分类字段，清除旧数据确保净积分正确
+      if(parsed.total!==undefined||parsed.deducted!==undefined){
+        var hasNewFields=false;
+        for(var wid in parsed.weeks){if(parsed.weeks[wid].onTimeScore!==undefined){hasNewFields=true;break;}}
+        if(!hasNewFields){delete parsed.total;delete parsed.deducted;delete parsed.net;}
+      }
+      return parsed;
+    }
   }catch(e){}
-  return {year:year,total:0,deducted:0,net:0,weeks:{}};
+  return {year:year,net:0,weeks:{}};
 }
 
 function _saveAnnualScores(uid,year,scores){
@@ -3063,6 +3072,7 @@ function _renderAnnualProgress(year){
 // ★ V0.1.35: 时间管理规则面板
 function _renderTimeManagementPanel(plan){
   if(!plan)return'';
+  _calcWeekScore(plan); // ★ V0.6.1x: 每次渲染面板前重算，确保积分正确
   var uid=getViewedUserEmp().name||(currentUser&&currentUser.name)||'';
   var year=plan.year;
   var scores=_getAnnualScores(uid,year);
