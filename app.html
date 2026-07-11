@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.6.1ag">
+<meta name="version" content="V0.6.1ai">
 <!-- cache-bust: 2026-07-11-09-15 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
@@ -878,6 +878,9 @@ body{
   outline:none;
   letter-spacing:4px;
   -webkit-text-security:disc;
+  box-sizing:border-box;
+  height:48px;
+  line-height:1;
 }
 .password-card input:focus{border-color:#B0B8C4}
 .password-card .error-msg{
@@ -1110,7 +1113,7 @@ body{
 .portal-grid{
   display:grid;
   grid-template-columns:repeat(4,1fr);
-  gap:24px;
+  gap:40px;
   width:100%;
   max-width:920px;
   margin-bottom:20px;
