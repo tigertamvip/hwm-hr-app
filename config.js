@@ -14,7 +14,7 @@ window.APP_CONFIG = {
     fullName: '安徽省幸福工场医疗设备有限公司',
     shortName: '幸福工场',
     address: '安徽省合肥市',
-    copyright: '安徽省幸福工场医疗设备有限公司',
+    copyright: 'Tiger-Buddy+AI',
   },
   
   // ===== 品牌色 =====
