@@ -2844,7 +2844,9 @@ function toggleWPExemption(){
   p.updatedAt=new Date().toISOString();
   saveWP(p.year,p.month,p.week,p);
   _calcWeekScore(p);
-  renderWPTable(p);
+  // ★ V0.6.1f: 局部更新面板，避免 renderWPTable 全量重建导致布局漂移
+  var panel=document.getElementById('wpTimeMgmtPanel');
+  if(panel){panel.outerHTML=_renderTimeManagementPanel(p);}
   showToast(p.exempted?'🛡️ 已豁免（本周不积分不扣分）':'⚠️ 已取消豁免（恢复扣分规则）');
 }
 
