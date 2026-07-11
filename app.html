@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.6.1al">
+<meta name="version" content="V0.6.1am">
 <!-- cache-bust: 2026-07-11-09-15 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
@@ -5617,74 +5617,35 @@ function showDetail(empId){
     {label:'专业',value:e.major},
     {label:'工龄',value:e.workYears?(e.workYears+'年'):''}
   ].filter(f=>f.value);
-  // Build HR sensitive section with edit controls
+  // ★ V0.6.1al: HR 字段用两列网格布局（与基础信息一致）
   var hrRows='';
   var hasEditable=false;
   var currentSection='';
+  var currentGridFields=[];
+  function _flushHRSection(){
+    if(currentGridFields.length===0)return;
+    hrRows+='<div class="detail-form-group">';
+    hrRows+='<div class="detail-form-group-title">'+esc(currentSection)+'</div>';
+    hrRows+='<div class="detail-form-grid">';
+    for(var fi=0;fi<currentGridFields.length;fi++){
+      var f=currentGridFields[fi];
+      var fv=(e[f.key]||'');
+      hrRows+=_renderField(f.key,f.label,f.type,f.opts,fv,!f.editable);
+    }
+    hrRows+='</div></div>';
+    currentGridFields=[];
+  }
   for(var i=0;i<HR_FIELD_CONFIG.length;i++){
     var cfg=HR_FIELD_CONFIG[i];
-    // 渲染分区标题
     if(cfg.section&&cfg.section!==currentSection){
+      _flushHRSection();
       currentSection=cfg.section;
-      hrRows+='<div class="detail-section-header">'+esc(currentSection)+'</div>';
     }
     var canEdit=canEditField(cfg);
     if(canEdit)hasEditable=true;
-    var val=(e[cfg.key]||'').toString();
-    if(cfg.type==='successor'){
-      // 继任者复合字段
-      var p=cfg.prefix;
-      var sName=e[p+'Name']||'';
-      var sDept=e[p+'Dept']||'';
-      var sEdu=e[p+'Education']||'';
-      var sWY=e[p+'WorkYears']||'';
-      var hasAny=sName||sDept||sEdu||sWY;
-      if(canEdit){
-        hrRows+='<div class="detail-row"><div class="detail-label">'+esc(cfg.label)+'</div><div class="detail-value">';
-        hrRows+='<div class="detail-successor-editor">';
-        hrRows+='<input class="detail-field-input" placeholder="姓名" value="'+esc(sName)+'" data-field="'+p+'Name">';
-        hrRows+='<input class="detail-field-input" placeholder="部门" value="'+esc(sDept)+'" data-field="'+p+'Dept">';
-        hrRows+='<input class="detail-field-input" placeholder="学历" value="'+esc(sEdu)+'" data-field="'+p+'Education">';
-        hrRows+='<input class="detail-field-input" placeholder="工龄（年）" value="'+esc(sWY)+'" data-field="'+p+'WorkYears">';
-        hrRows+='</div></div></div>';
-      }else{
-        var disp=hasAny?
-          '<div style="display:flex;flex-wrap:wrap;gap:4px 10px">'+(sName?'<span>'+esc(sName)+'</span>':'')+(sDept?'<span style="color:var(--text-hint)">'+esc(sDept)+'</span>':'')+(sEdu?'<span style="color:var(--text-hint)">'+esc(sEdu)+'</span>':'')+(sWY?'<span style="color:var(--text-hint)">工龄'+esc(sWY)+'年</span>':'')+'</div>':
-          '<span class="detail-value-empty">待补充</span>';
-        hrRows+='<div class="detail-row"><div class="detail-label">'+esc(cfg.label)+'</div><div class="detail-value">'+disp+'</div></div>';
-      }
-    }else if(cfg.type==='dropdown'){
-      if(canEdit){
-        hrRows+='<div class="detail-row"><div class="detail-label">'+esc(cfg.label)+'</div><div class="detail-value">';
-        hrRows+='<select data-field="'+cfg.key+'" style="width:100%;padding:10px 12px;border-radius:8px;border:1.5px solid var(--border);font-size:13px;background:#F6F8F9;outline:none">';
-        hrRows+='<option value="">- 请选择 -</option>';
-        var opts=cfg.opts||[];
-        for(var o=0;o<opts.length;o++){
-          hrRows+='<option value="'+esc(opts[o])+'"'+(val===opts[o]?' selected':'')+'>'+esc(opts[o])+'</option>';
-        }
-        hrRows+='</select></div></div>';
-      }else{
-        hrRows+='<div class="detail-row"><div class="detail-label">'+esc(cfg.label)+'</div><div class="detail-value">'+(val?'<span style="font-weight:500">'+esc(val)+'</span>':'<span class="detail-value-empty">待补充</span>')+'</div></div>';
-      }
-    }else if(cfg.type==='date'){
-      if(canEdit){
-        hrRows+='<div class="detail-row"><div class="detail-label">'+esc(cfg.label)+'</div><div class="detail-value">';
-        hrRows+='<input type="date" class="detail-field-input" data-field="'+cfg.key+'" value="'+esc(val)+'" style="width:100%">';
-        hrRows+='</div></div>';
-      }else{
-        hrRows+='<div class="detail-row"><div class="detail-label">'+esc(cfg.label)+'</div><div class="detail-value">'+(val?esc(val):'<span class="detail-value-empty">待补充</span>')+'</div></div>';
-      }
-    }else{
-      // text type
-      if(canEdit){
-        hrRows+='<div class="detail-row"><div class="detail-label">'+esc(cfg.label)+'</div><div class="detail-value">';
-        hrRows+='<textarea class="detail-field-input" data-field="'+cfg.key+'" rows="2" placeholder="待填写">'+esc(val)+'</textarea>';
-        hrRows+='</div></div>';
-      }else{
-        hrRows+='<div class="detail-row"><div class="detail-label">'+esc(cfg.label)+'</div><div class="detail-value">'+(val?esc(val):'<span class="detail-value-empty">待补充</span>')+'</div></div>';
-      }
-    }
+    currentGridFields.push({key:cfg.key,label:cfg.label,type:cfg.type||'text',opts:cfg.opts,editable:canEdit});
   }
+  _flushHRSection();
   // admin/data_admin 可编辑基础字段（仅这两个角色）
   var canEditBasic=(currentUser&&(currentUser.role==='admin'||currentUser.role==='data_admin'));
   // 基础字段配置：{key, label, type: text|dropdown|date|auto}
