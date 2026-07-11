@@ -1901,11 +1901,10 @@ function renderWPTable(plan){
   if(!plan)return;
   var content=document.getElementById('wpContent');
   if(!content)return;
-  // ★ V0.5.189: 保存滚动位置（用最可靠的 scrollingElement）
-  var _se=document.scrollingElement;
-  var _savedScrollTop=_se?_se.scrollTop:(document.documentElement.scrollTop||document.body.scrollTop||0);
-  var _wpSA=content.querySelector('.wp-scroll-area');
-  var _savedScrollLeft=_wpSA?_wpSA.scrollLeft:0;
+  // ★ V0.5.190: 真正的滚动容器是 .wp-scroll-area（overflow:auto），不是 document.scrollingElement!
+  var _oldScroll=content.querySelector('.wp-scroll-area');
+  var _savedScrollTop=_oldScroll?_oldScroll.scrollTop:0;
+  var _savedScrollLeft=_oldScroll?_oldScroll.scrollLeft:0;
   var dd=document.getElementById('wpDefault');
   var tb=content.querySelector('#wpToolbar');
   var ta=content.querySelector('.wp-table-area');
@@ -2230,18 +2229,10 @@ function renderWPTable(plan){
 
   content.insertAdjacentHTML('beforeend',html);
 
-  // ★ V0.5.189: 恢复滚动位置 — 双重保险（rAF + setTimeout）
-  var _restore=function(){
-    var s=document.scrollingElement;
-    if(s&&_savedScrollTop>0)s.scrollTop=_savedScrollTop;
-    else window.scrollTo(0,_savedScrollTop);
-    var scA=content.querySelector('.wp-scroll-area');
-    if(scA&&_savedScrollLeft)scA.scrollLeft=_savedScrollLeft;
-  };
-  requestAnimationFrame(function(){
-    _restore();
-    setTimeout(_restore,60);  // 等布局彻底稳定后再补一刀
-  });
+  // ★ V0.5.190: 恢复 .wp-scroll-area 的滚动位置（这才是真正的滚动容器！）
+  var _newScroll=content.querySelector('.wp-scroll-area');
+  if(_newScroll&&_savedScrollTop>0)_newScroll.scrollTop=_savedScrollTop;
+  if(_newScroll&&_savedScrollLeft>0)_newScroll.scrollLeft=_savedScrollLeft;
 
   // V0.5.157: 水平滚动时反向移动工具栏等非表格元素
   setTimeout(function(){
