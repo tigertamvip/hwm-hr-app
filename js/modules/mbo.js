@@ -2160,10 +2160,11 @@ function renderWPTable(plan){
     html+='<td class="editable col-hours'+_frozenCls+'" data-field="tasks.'+j+'.plannedDate" data-type="date" onclick="startEditCell(this)">'+(plannedDateDisplay?plannedDateDisplay:'<span style="color:var(--text-hint)">点击选择日期</span>')+'</td>';
     var actualDateDisplay=renderWPCellValue(plan,'tasks.'+j+'.actualDate',t.actualDate||'');
     // ★ V0.4.91: 自动"未做"时锁定实际完成日期，显示"—"
+    // ★ V0.6.1aa: 提交周计划后 actualDate 列也纳入冻结
     if(t.status==='未做'&&!t._manualNotDone){
-      html+='<td class="col-hours" style="color:#9ca3af;cursor:not-allowed;text-align:center">—</td>';
+      html+='<td class="col-hours'+_frozenCls+'" style="color:#9ca3af;cursor:not-allowed;text-align:center">—</td>';
     }else{
-      html+='<td class="editable col-hours" data-field="tasks.'+j+'.actualDate" data-type="date" onclick="startEditCell(this)">'+(actualDateDisplay?actualDateDisplay:'<span style="color:var(--text-hint)">点击选择日期</span>')+'</td>';
+      html+='<td class="editable col-hours'+_frozenCls+'" data-field="tasks.'+j+'.actualDate" data-type="date" onclick="startEditCell(this)">'+(actualDateDisplay?actualDateDisplay:'<span style="color:var(--text-hint)">点击选择日期</span>')+'</td>';
     }
     // ★ V0.4.91d/Q: 耗时列（自动计算，只读）+ 蓝色角标 + tooltip数据
     var _durNew=_calcTaskDuration(t);
@@ -2413,8 +2414,8 @@ function isFieldFrozen(cell){
   var plan=_wpCurrent?_wpCurrent.plan:null;
   if(!plan||!plan.frozen)return false;
   var field=cell.dataset.field||'';
-  // 锁定的三列：本周重点工作、优先级、计划完成日期
-  return (field.indexOf('.work')>0||field.indexOf('.goal')>0||field.indexOf('.plannedDate')>0);
+  // ★ V0.6.1aa: 提交周计划后锁定的列：本周重点工作、优先级、启动日期、计划完成日期、实际完成日期
+  return (field.indexOf('.work')>0||field.indexOf('.goal')>0||field.indexOf('.startDate')>0||field.indexOf('.plannedDate')>0||field.indexOf('.actualDate')>0);
 }
 
 // ========== 单元格编辑 ==========
