@@ -3875,7 +3875,7 @@ function renderWPVisGrantList(){
   if(!list)return;
   var myName=currentUser.name;
   var sharedTo=_wpVisibility.sharedTo||[];
-  if(sharedTo.length===0){list.innerHTML='<div style="text-align:center;padding:20px;color:#797973;font-size:13px">暂未授权任何人</div>';return;}
+  if(sharedTo.length===0){list.innerHTML='<div style="text-align:center;padding:20px;color:#797973;font-size:13px">暂未授权任何同事</div>';return;}
   var html='';
   for(var i=0;i<sharedTo.length;i++){
     html+='<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;margin-bottom:4px;background:#fff;border:1px solid var(--border);border-radius:6px">'+
@@ -3890,12 +3890,12 @@ function renderWPVisReceivedList(){
   var list=document.getElementById('wpVisReceivedList');
   if(!list)return;
   var shared=getSharedToMeList();
-  if(shared.length===0){list.innerHTML='<div style="text-align:center;padding:40px;color:#797973">暂无分享</div>';return;}
+  if(shared.length===0){list.innerHTML='<div style="text-align:center;padding:40px;color:#797973">暂无授权</div>';return;}
   var html='';
   for(var i=0;i<shared.length;i++){
     var s=shared[i];
     html+='<div style="padding:10px 12px;margin-bottom:4px;background:#F0F5FF;border:1px solid #D0DDF5;border-radius:6px;font-size:13px">'+
-      '📖 <strong>'+esc(s.name)+'</strong> 授权您查看其周计划</div>';
+      '📖 <strong>'+esc(s.name)+'</strong> 授权您阅览其周计划</div>';
   }
   list.innerHTML=html;
 }
@@ -3916,13 +3916,13 @@ function wpVisSearchMember(){
     }
     if(matches.length>=8)break;
   }
-  if(matches.length===0){results.innerHTML='<div style="padding:8px;color:#797973;font-size:12px">未找到匹配员工</div>';return;}
+  if(matches.length===0){results.innerHTML='<div style="padding:8px;color:#797973;font-size:12px">未找到匹配同事</div>';return;}
   var html='';
   for(var i=0;i<matches.length;i++){
     var m=matches[i];
     html+='<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;margin-bottom:4px;background:#fff;border:1px solid var(--border);border-radius:6px;cursor:pointer;'+(m.already?'opacity:.5':'')+'" onclick="'+(m.already?'':'wpVisGrant(\''+esc(m.name)+'\')')+'">'+
       '<div><span style="font-size:13px">'+esc(m.name)+'</span><span style="font-size:11px;color:#797973;margin-left:8px">'+esc(m.dept||'')+'</span></div>'+
-      '<span style="font-size:11px;color:'+(m.already?'#9ca3af':'#3B7DB4')+'">'+(m.already?'已授权':'＋ 授权查看')+'</span>'+
+      '<span style="font-size:11px;color:'+(m.already?'#9ca3af':'#3B7DB4')+'">'+(m.already?'已授权':'＋ 授权阅览')+'</span>'+
       '</div>';
   }
   results.innerHTML=html;
@@ -3999,7 +3999,7 @@ function switchToMyWP(){
   _wpViewingDeptMember=null;
   _wpViewingShared=null;
   var triggerText=document.getElementById('wpSharedTriggerText');
-  if(triggerText)triggerText.textContent='📖 分享给我的周计划';
+  if(triggerText)triggerText.textContent='📖 查看授权我阅览其周计划的同事';
   loadWPData();
   renderWPSubSelect();
   renderWPSharedSelect();
