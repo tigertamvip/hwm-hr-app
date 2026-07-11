@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.6.1l">
+<meta name="version" content="V0.6.1m">
 <!-- cache-bust: 2026-07-11-09-15 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
@@ -3740,7 +3740,7 @@ function enterModule(mod){
   // 权限检查
   var permKey=mod==='workplan'?'mbo':(mod==='system'?'maintenance':mod);
   if(!hasPermission(permKey)){
-    _showAlert('未获得授权使用的模块');
+    _showAlert('未获授权使用的模块，如需授权，请联络系统管理员。','提示',2000);
     return;
   }
   // ★ 清理任何残留的系统维护弹窗（防止串模块）
@@ -3865,7 +3865,7 @@ function enterModule(mod){
 }
 
 function moduleBuilding(){
-  _showAlert('该模块建设中，敬请期待');
+  _showAlert('该模块建设中，敬请期待','提示',2000);
 }
 
 </script>
@@ -5997,15 +5997,33 @@ function _showConfirm(message,title){
 }
 
 /* ★ V0.1.99l: 统一alert弹窗为居中毛玻璃样式 (alert-modal-design Skill) */
-function _showAlert(message,title){
+/* ★ V0.6.1m: 支持autoClose自动渐隐 */
+function _showAlert(message,title,autoCloseMs){
+  var ms=typeof autoCloseMs==='number'?autoCloseMs:(autoCloseMs===true?2000:0);
   return new Promise(function(resolve){
     var overlay=document.createElement('div');
     overlay.className='_confirm-overlay';
-    overlay.innerHTML='<div class="_confirm-card"><div class="_confirm-title">'+(title||'提示')+'</div><div class="_confirm-body">'+message+'</div><div class="_confirm-actions" style="justify-content:center"><button class="_confirm-btn-ok">确定</button></div></div>';
+    overlay.style.transition='opacity .5s ease';
+    if(ms>0){
+      // 无按钮模式：纯提示，自动渐隐
+      overlay.innerHTML='<div class="_confirm-card"><div class="_confirm-title">'+(title||'提示')+'</div><div class="_confirm-body">'+message+'</div></div>';
+    }else{
+      overlay.innerHTML='<div class="_confirm-card"><div class="_confirm-title">'+(title||'提示')+'</div><div class="_confirm-body">'+message+'</div><div class="_confirm-actions" style="justify-content:center"><button class="_confirm-btn-ok">确定</button></div></div>';
+    }
     document.body.appendChild(overlay);
-    var okBtn=overlay.querySelector('._confirm-btn-ok');
-    function cleanup(){document.body.removeChild(overlay);}
-    okBtn.addEventListener('click',function(){cleanup();resolve();});
+    function cleanup(){
+      if(overlay.parentNode)document.body.removeChild(overlay);
+      resolve();
+    }
+    if(ms>0){
+      setTimeout(function(){
+        overlay.style.opacity='0';
+        setTimeout(cleanup,500);
+      },ms);
+    }else{
+      var okBtn=overlay.querySelector('._confirm-btn-ok');
+      if(okBtn)okBtn.addEventListener('click',cleanup);
+    }
   });
 }
 
