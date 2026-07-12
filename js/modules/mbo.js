@@ -1156,7 +1156,7 @@ async function delWPFromSidebar(y,m,w){
     _showAlert('要删除本周计划请先解除上级锁定或撤回提交周小结及周计划','⚠️ 无法删除',true);
     return;
   }
-  var ok=await _showConfirm('确定删除 '+y+'年'+m+'月第'+w+'周的工作计划吗？\n\n此操作不可撤销。'+'\n\n—\n\n'+'Confirm deletion of Week '+w+', '+m+'/'+y+'?\n\nThis action cannot be undone.','⚠️ 注意 / Attention');
+  var ok=await _showConfirm('确定删除 '+y+'年'+m+'月第'+w+'周的工作计划吗？\n\n此操作不可撤销。'+'\n\n—\n\n'+'Confirm deletion of Week '+w+', '+m+'/'+y+'?\n\nThis action cannot be undone.','注意 / Attention');
   if(!ok)return;
   deleteWP(y,m,w);
   if(_wpCurrent&&_wpCurrent.year===y&&_wpCurrent.month===m&&_wpCurrent.week===w){
@@ -1917,7 +1917,7 @@ async function clearTaskRow(idx){
   if(!t){showToast('⚠️ 目标行为空');return;}
   if(t.collab_from){showToast('⚠️ 协同任务不能清空');return;}
   var taskLabel=(t.work||'第'+(idx+1)+'项').substring(0,20);
-  var ok=await _showConfirm('确定要清空「'+taskLabel+'」的全部内容吗？\n\n该行将保留为空白行，可重新填写。'+'\n\n—\n\n'+'Clear all content of "'+taskLabel+'"?\n\nThe row will remain as a blank line.','⚠️ 注意 / Attention');
+  var ok=await _showConfirm('确定要清空「'+taskLabel+'」的全部内容吗？\n\n该行将保留为空白行，可重新填写。'+'\n\n—\n\n'+'Clear all content of "'+taskLabel+'"?\n\nThe row will remain as a blank line.','注意 / Attention');
   if(!ok)return;
   // ★ 重置所有字段为默认空值，保留对象引用
   t.work='';t.goal='';t.startDate='';t.plannedDate='';t.actualDate='';t.status='';
@@ -1941,7 +1941,7 @@ async function deleteTaskRow(idx){
   if(!t){console.error('[deleteTaskRow] tasks['+idx+'] is empty/undefined');showToast('⚠️ 目标行为空，无法删除');return;}
   if(t.collab_from){showToast('⚠️ 协同任务不能删除');return;}
   var taskLabel=(t.work||'第'+(idx+1)+'项').substring(0,20);
-  var ok=await _showConfirm('确定要删除「'+taskLabel+'」吗？\n\n此操作不可恢复'+'\n\n—\n\n'+'Are you sure you want to delete "'+taskLabel+'"?\n\nThis action cannot be undone.','⚠️ 注意 / Attention');
+  var ok=await _showConfirm('确定要删除「'+taskLabel+'」吗？\n\n此操作不可恢复'+'\n\n—\n\n'+'Are you sure you want to delete "'+taskLabel+'"?\n\nThis action cannot be undone.','注意 / Attention');
   if(!ok)return;
   console.log('[deleteTaskRow] removing idx='+idx+' work='+(t.work||''));
   tasks.splice(idx,1);
@@ -2749,7 +2749,7 @@ async function undoWPSubmit(){
   // ★ V0.6.1ad: 运行时守卫 — 上级已锁定不能撤回
   var myName=(currentUser&&currentUser.name)||'';
   if(p.frozen && p.frozenBy && p.frozenBy!==myName){_showAlert('上级已锁定周计划，请联系上级解除锁定后再撤回。');return;}
-  var ok=await _showConfirm('确认撤销本次提交？\n\n撤销后：\n① 首次提交时间将被清除\n② 锁定将解除，可重新修改\n③ 最终提交时间以最后一次提交为准。'+'\n\n—\n\nConfirm undo?\n\nAfter undo:\n① First submission timestamp will be cleared\n② Locks will be released, allowing re-edit\n③ Final submission time will be based on the last submission.','⚠️ 注意 / Attention');
+  var ok=await _showConfirm('确认撤销本次提交？\n\n撤销后：\n① 首次提交时间将被清除\n② 锁定将解除，可重新修改\n③ 最终提交时间以最后一次提交为准。'+'\n\n—\n\nConfirm undo?\n\nAfter undo:\n① First submission timestamp will be cleared\n② Locks will be released, allowing re-edit\n③ Final submission time will be based on the last submission.','注意 / Attention');
   if(!ok)return;
   p.firstSubmittedAt=null;
   // ★ V0.1.57: 撤销同时解除锁定（仅限自己提交触发的锁定；不解除上级手动锁定）
@@ -2773,7 +2773,7 @@ async function submitWPWeekSummary(){
     _showAlert('请先在下方「一周工作小结」区域填写本周工作总结后再点击「完成小结」。');
     return;
   }
-  var confirmed=await _showConfirm('确认完成本周工作小结？<br><br>提交后将记录完成时间用于考勤积分计算，同时锁定工作内容/优先级/计划完成日期。<br><br>—<br><br>Confirm completion of this week\'s work summary?<br><br>After submission, the completion time will be recorded for attendance score calculation, and the work content/priority/planned completion date will be locked.','⚠️ 工作小结确认 / Work Summary Confirmation');
+  var confirmed=await _showConfirm('确认完成本周工作小结？<br><br>提交后将记录完成时间用于考勤积分计算，同时锁定工作内容/优先级/计划完成日期。<br><br>—<br><br>Confirm completion of this week\'s work summary?<br><br>After submission, the completion time will be recorded for attendance score calculation, and the work content/priority/planned completion date will be locked.','工作小结确认 / Work Summary Confirmation');
   if(!confirmed)return;
   p.summarySubmittedAt=new Date().toISOString();
   // ★ V0.3.126: 完成小结也锁定三列
@@ -2792,7 +2792,7 @@ async function undoWPWeekSummary(){
   var p=_wpCurrent.plan;if(!p){return;}
   // ★ V0.6.1aa: 运行时守卫 — 上级已评价不能撤回
   if(p.bossEvaluated){_showAlert('上级已完成评价，无法撤回周小结。');return;}
-  var ok=await _showConfirm('确认撤回本周小结？\n\n撤回后：\n① 小结提交时间将被清除\n② 锁定将解除，可重新修改后再提交。'+'\n\n—\n\nConfirm undo summary?\n\nAfter undo:\n① Summary submission timestamp will be cleared\n② Locks will be released, allowing re-edit and re-submit.','⚠️ 注意 / Attention');
+  var ok=await _showConfirm('确认撤回本周小结？\n\n撤回后：\n① 小结提交时间将被清除\n② 锁定将解除，可重新修改后再提交。'+'\n\n—\n\nConfirm undo summary?\n\nAfter undo:\n① Summary submission timestamp will be cleared\n② Locks will be released, allowing re-edit and re-submit.','注意 / Attention');
   if(!ok)return;
   p.summarySubmittedAt=null;
   var myName=(currentUser&&currentUser.name)||'';
@@ -3319,7 +3319,7 @@ async function deleteCurrentWPPlan(){
     _showAlert('你的周计划由于你已提交小结或上级已锁定，如需删除请先解除上级锁定，并撤回周小结提交和周计划提交，即可删除。','⚠️ 无法删除',true);
     return;
   }
-  var ok=await _showConfirm('你确定要清空 '+p.year+'年'+p.month+'月第'+p.week+'周计划内容？\n\n如确定，将清除本周计划中已填写的所有内容。'+'\n\n—\n\nAre you sure you want to clear Week '+p.week+' of '+p.month+'/'+p.year+'?\n\nIf confirmed, all filled content in this week plan will be permanently removed.','⚠️ 注意 / Attention');
+  var ok=await _showConfirm('你确定要清空 '+p.year+'年'+p.month+'月第'+p.week+'周计划内容？\n\n如确定，将清除本周计划中已填写的所有内容。'+'\n\n—\n\nAre you sure you want to clear Week '+p.week+' of '+p.month+'/'+p.year+'?\n\nIf confirmed, all filled content in this week plan will be permanently removed.','注意 / Attention');
   if(!ok)return;
   // ★ V0.1.59: 重置为1行空白表单（保留 name/dept/position）
   var y=p.year, m=p.month, w=p.week;
