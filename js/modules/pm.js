@@ -410,6 +410,29 @@ function renderPMTaskBoard(){
   el.innerHTML = h;
 }
 
+// ===== Form Modal Helper (replaces _showConfirm for forms) =====
+function showFormModal(html, title, okText, cancelText, onSubmit){
+  var overlay = document.createElement('div');
+  overlay.id = 'pm-form-modal';
+  overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;z-index:10000;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;';
+  var modal = '<div style="background:#fff;border-radius:12px;padding:0;width:480px;max-width:90%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.2);">';
+  modal += '<div style="display:flex;align-items:center;gap:10px;padding:20px 24px;border-bottom:1px solid #E5E7EB;">';
+  modal += '<span style="font-size:18px">&#9888;</span>';
+  modal += '<span style="font-weight:700;font-size:16px;color:#111827;">' + esc(title||'') + '</span>';
+  modal += '</div>';
+  modal += '<div style="padding:20px 24px;">' + html + '</div>';
+  modal += '<div style="display:flex;justify-content:flex-end;gap:10px;padding:16px 24px;border-top:1px solid #E5E7EB;">';
+  modal += '<button id="pm-form-cancel" style="padding:8px 16px;border:1px solid #D0D5DD;border-radius:6px;background:#fff;font-size:13px;cursor:pointer">' + esc(cancelText||'取消') + '</button>';
+  modal += '<button id="pm-form-ok" style="padding:8px 16px;border:none;border-radius:6px;background:#3B82F6;color:#fff;font-size:13px;cursor:pointer">' + esc(okText||'确定') + '</button>';
+  modal += '</div></div>';
+  overlay.innerHTML = modal;
+  document.body.appendChild(overlay);
+  var close = function(){ var el = document.getElementById('pm-form-modal'); if(el && el.parentElement) el.parentElement.removeChild(el); };
+  overlay.querySelector('#pm-form-cancel').onclick = close;
+  overlay.querySelector('#pm-form-ok').onclick = function(){ onSubmit(close); };
+  overlay.onclick = function(e){ if(e.target === overlay) close(); };
+}
+
 // ===== Task Management =====
 async function addTaskInline(pid, status){
   var title = prompt('输入任务名称:');
@@ -463,28 +486,28 @@ async function openTaskEdit(pid, tid){
   h += '<textarea id="te-desc" rows="3" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:13px;box-sizing:border-box;resize:vertical">'+esc(t.description||'')+'</textarea>';
   h += '</div>';
 
-  var ok = await _showConfirm(h, '编辑任务 / Edit Task', '保存 / Save', '取消 / Cancel');
-  if(!ok) return;
+  showFormModal(h, '编辑任务 / Edit Task', '保存 / Save', '取消 / Cancel', async function(close){
+    var title = document.getElementById('te-title').value.trim();
+    if(!title){ _showAlert('任务名称不能为空'); return; }
+    t.title = title;
+    t.status = document.getElementById('te-status').value;
+    t.priority = document.getElementById('te-priority').value;
+    t.assignee = document.getElementById('te-assignee').value.trim();
+    t.due_date = document.getElementById('te-due').value;
+    t.progress = parseInt(document.getElementById('te-progress').value)||0;
+    t.description = document.getElementById('te-desc').value.trim();
+    if(t.status==='已完成') t.progress = 100;
+    else if(t.progress===100) t.progress = 99;
 
-  var title = document.getElementById('te-title').value.trim();
-  if(!title){ _showAlert('任务名称不能为空'); return; }
-  t.title = title;
-  t.status = document.getElementById('te-status').value;
-  t.priority = document.getElementById('te-priority').value;
-  t.assignee = document.getElementById('te-assignee').value.trim();
-  t.due_date = document.getElementById('te-due').value;
-  t.progress = parseInt(document.getElementById('te-progress').value)||0;
-  t.description = document.getElementById('te-desc').value.trim();
-  if(t.status==='已完成') t.progress = 100;
-  else if(t.progress===100) t.progress = 99;
-
-  await saveTask(t);
-  _pmCurrent.tasks = loadProjectTasks(pid);
-  renderPMTaskBoard();
-  var p = _pmCurrent.project;
-  p.progress = calcProjectProgress(pid);
-  await saveProject(p);
-  showToast('任务已保存');
+    await saveTask(t);
+    _pmCurrent.tasks = loadProjectTasks(pid);
+    renderPMTaskBoard();
+    var p = _pmCurrent.project;
+    p.progress = calcProjectProgress(pid);
+    await saveProject(p);
+    showToast('任务已保存');
+    close();
+  });
 }
 
 async function updatePMStatus(pid, status){
@@ -552,26 +575,25 @@ async function showNewProjectForm(){
   h += '<textarea id="np-desc" rows="3" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:13px;box-sizing:border-box;resize:vertical" placeholder="简要描述项目目标和范围"></textarea>';
   h += '</div>';
 
-  var ok = await _showConfirm(h, '新建项目 / New Project', '创建 / Create', '取消 / Cancel');
-  if(!ok) return;
+  showFormModal(h, '新建项目 / New Project', '创建 / Create', '取消 / Cancel', async function(close){
+    var name = document.getElementById('np-name').value.trim();
+    if(!name){ _showAlert('请输入项目名称'); return; }
+    var type = document.getElementById('np-type').value;
+    var level = parseInt(document.getElementById('np-level').value)||3;
+    var owner = document.getElementById('np-owner').value.trim()||currentName;
+    var start = document.getElementById('np-start').value;
+    var end = document.getElementById('np-end').value;
+    var budget = document.getElementById('np-budget').value;
+    var desc = document.getElementById('np-desc').value.trim();
 
-  var name = document.getElementById('np-name').value.trim();
-  if(!name){ _showAlert('请输入项目名称'); return; }
-  var type = document.getElementById('np-type').value;
-  var level = parseInt(document.getElementById('np-level').value)||3;
-  var owner = document.getElementById('np-owner').value.trim()||currentName;
-  var start = document.getElementById('np-start').value;
-  var end = document.getElementById('np-end').value;
-  var budget = document.getElementById('np-budget').value;
-  var desc = document.getElementById('np-desc').value.trim();
-
-  var p = await createProject({
-    name: name, type: type, level: level, owner: owner,
-    start_date: start||null, end_date: end||null,
-    budget_pool: budget?parseFloat(budget):null,
-    description: desc
+    var p = await createProject({
+      name: name, type: type, level: level, owner: owner,
+      start_date: start||null, end_date: end||null,
+      budget_pool: budget?parseFloat(budget):null,
+      description: desc
+    });
+    if(p) { _pmFilter.type = '全部'; _pmProjects = loadAllProjects(); renderPMList(); renderPMSidebar(); close(); }
   });
-  if(p) { _pmFilter.type = '全部'; _pmProjects = loadAllProjects(); renderPMList(); renderPMSidebar(); }
 }
 
 // ===== Utility =====
