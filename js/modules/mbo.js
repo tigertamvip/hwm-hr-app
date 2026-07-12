@@ -1046,7 +1046,7 @@ function renderWPPlanList(year,month){
     if(plan){
       var myName2=(currentUser&&currentUser.name)||'';
       var isLocked2=plan.firstSubmittedAt||plan.summarySubmittedAt||(plan.frozen&&plan.frozenBy&&plan.frozenBy!==myName2)||plan.bossEvaluated;
-      delBtn='<span class="wp-sidebar-plan-delete'+(isLocked2?' locked':'')+'"'+(isLocked2?' title="如要删除本周计划请先解除上级锁定或撤回提交周小结及周计划"':'')+' onclick="event.stopPropagation();delWPFromSidebar('+year+','+month+','+w+')">×</span>';
+      delBtn='<span class="wp-sidebar-plan-delete'+(isLocked2?' locked':'')+'"'+(isLocked2?' title="如要删除本周行动项请先解除上级锁定或撤回提交周小结及周计划"':'')+' onclick="event.stopPropagation();delWPFromSidebar('+year+','+month+','+w+')">×</span>';
     }
     html+='<div class="wp-sidebar-plan-item'+(active?' active':'')+'" onclick="selectWP('+year+','+month+','+w+')">'+delBtn+'<div class="week-label">'+weekLabels[w-1]+'</div><div class="task-count">('+taskCount+')</div></div>';
   }
@@ -1153,7 +1153,7 @@ async function delWPFromSidebar(y,m,w){
   var myName=(currentUser&&currentUser.name)||'';
   // ★ V0.6.1as: 删除安全机制——已提交/已锁定/已评价时禁止删除
   if(p && (p.submittedAt || p.summarySubmittedAt || (p.frozen && p.frozenBy && p.frozenBy !== myName) || p.bossEvaluated)){
-    _showAlert('要删除本周计划请先解除上级锁定或撤回提交周小结及周计划','⚠️ 无法删除',true);
+    _showAlert('要删除本周行动项请先解除上级锁定或撤回提交周小结及周计划','⚠️ 无法删除',true);
     return;
   }
   var ok=await _showConfirm('确定删除 '+y+'年'+m+'月第'+w+'周的工作计划吗？\n\n此操作不可撤销。'+'\n\n—\n\n'+'Confirm deletion of Week '+w+', '+m+'/'+y+'?\n\nThis action cannot be undone.','注意 / Attention');
@@ -1995,7 +1995,7 @@ function renderWPTable(plan){
   if(_wpViewingShared){
     // ★ V0.5.79b: 只读模式 — 被授权查看他人周计划
     html+='<span style="color:#3B7DB4;font-weight:600">📖 只读模式 — 您正在查看 '+esc(_wpViewingShared)+' 分享的周计划</span>';
-    html+='<button class="wp-btn-export" onclick="exportCurrentWP()" style="margin-left:auto"><span>📥</span> 导出周计划</button>';
+    html+='<button class="wp-btn-export" onclick="exportCurrentWP()" style="margin-left:auto"><span>📥</span> 导出周行动项</button>';
   }else if(_wpViewingDeptMember){
     // 部门成员视图：审核锁定 + 上级评价（同直属下属）
     // ★ V0.6.1af: 上级锁定按钮只反映上级自己锁定的状态，员工提交锁定不显示为已锁定
@@ -2036,16 +2036,16 @@ function renderWPTable(plan){
     var isLockedByBoss=plan.frozen && plan.frozenBy && plan.frozenBy!==myName;
     if(plan.firstSubmittedAt){
       if(plan.bossEvaluated){
-        html+='<button disabled class="wp-btn-toggle-locked" title="上级已评价，无法撤回"><span>🔒</span> 周计划已提交</button>';
+        html+='<button disabled class="wp-btn-toggle-locked" title="上级已评价，无法撤回"><span>🔒</span> 周行动项已提交</button>';
       }else if(plan.summarySubmittedAt){
-        html+='<button disabled class="wp-btn-toggle-locked" title="请先撤回周小结"><span>🔒</span> 周计划已提交</button>';
+        html+='<button disabled class="wp-btn-toggle-locked" title="请先撤回周小结"><span>🔒</span> 周行动项已提交</button>';
       }else if(isLockedByBoss){
-        html+='<button disabled class="wp-btn-toggle-locked" title="上级已锁定周计划，请联系上级解除锁定"><span>🔒</span> 周计划已提交</button>';
+        html+='<button disabled class="wp-btn-toggle-locked" title="上级已锁定周计划，请联系上级解除锁定"><span>🔒</span> 周行动项已提交</button>';
       }else{
-        html+='<button onclick="undoWPSubmit()" class="wp-btn-toggle-submitted"><span>↩</span> 撤回周计划</button>';
+        html+='<button onclick="undoWPSubmit()" class="wp-btn-toggle-submitted"><span>↩</span> 撤回周行动项</button>';
       }
     }else{
-      html+='<button onclick="submitWPPlan()" class="wp-btn-primary"><span>📋</span> 提交周计划</button>';
+      html+='<button onclick="submitWPPlan()" class="wp-btn-primary"><span>📋</span> 提交周行动项</button>';
     }
     if(plan.summarySubmittedAt){
       if(plan.bossEvaluated){
@@ -2058,11 +2058,11 @@ function renderWPTable(plan){
     }
     var isDeleteLocked=plan.firstSubmittedAt||plan.summarySubmittedAt||isLockedByBoss||plan.bossEvaluated;
     if(isDeleteLocked){
-      html+='<button class="wp-btn-delete wp-btn-disabled" title="如要删除本周计划请先解除上级锁定或撤回提交周小结及周计划" onclick="deleteCurrentWPPlan()"><span>🗑</span> 删除周计划</button>';
+      html+='<button class="wp-btn-delete wp-btn-disabled" title="如要删除本周行动项请先解除上级锁定或撤回提交周小结及周计划" onclick="deleteCurrentWPPlan()"><span>🗑</span> 删除周行动项</button>';
     }else{
-      html+='<button class="wp-btn-delete" onclick="deleteCurrentWPPlan()"><span>🗑</span> 删除周计划</button>';
+      html+='<button class="wp-btn-delete" onclick="deleteCurrentWPPlan()"><span>🗑</span> 删除周行动项</button>';
     }
-    html+='<button class="wp-btn-export" onclick="exportCurrentWP()"><span>📥</span> 导出周计划</button>';
+    html+='<button class="wp-btn-export" onclick="exportCurrentWP()"><span>📥</span> 导出周行动项</button>';
     if(plan.bossEvaluated){
       html+='<button onclick="viewBossEval()"><span style="color:#2A476A">📋</span> 查看上级评价</button>';
     }
@@ -2070,7 +2070,7 @@ function renderWPTable(plan){
   }
   // 安全兜底：确保工具栏至少有一个可见按钮（防止所有分支都未命中导致空白）
   if(html.indexOf('<button', html.lastIndexOf('wpToolbar')) < 0){
-    html+='<button class="wp-btn-export" onclick="exportCurrentWP()"><span>📥</span> 导出周计划</button>';
+    html+='<button class="wp-btn-export" onclick="exportCurrentWP()"><span>📥</span> 导出周行动项</button>';
   }
   html+='</div>';
 
@@ -2453,7 +2453,7 @@ function isFieldFrozen(cell){
   if(!plan)return false;
   var field=cell.dataset.field||'';
   // ★ V0.6.1ac: 双阶段锁定
-  //   提交周计划 → frozen=true → 锁定 work/goal/startDate/plannedDate（4列）
+  //   提交周行动项 → frozen=true → 锁定 work/goal/startDate/plannedDate（4列）
   //   提交周小结 → summarySubmittedAt 存在 → 额外锁定 actualDate
   if(field.indexOf('.actualDate')>0){
     return !!(plan.summarySubmittedAt); // 小结已提交 → actualDate 冻结
@@ -2725,7 +2725,14 @@ async function commitEditCell(el){
 // ★ V0.1.35: 「完成提交」按钮 — 记录首次提交时间并保存
 async function submitWPPlan(){
   var p=_wpCurrent.plan;if(!p){_showAlert('请先选择一个周计划');return;}
-  var ok=await _showConfirm('确认提交本周计划？\n\n提交后将记录提交时间，可随时继续编辑。'+'\n\n—\n\nConfirm submission?\n\nSubmission time will be recorded. You can continue editing at any time.','注意 / Attention');
+  // ★ V0.6.1bs: 提交前自动删除空行（本周重点行动项为空的任务行）
+  if(p.tasks&&p.tasks.length){
+    var beforeCount=p.tasks.length;
+    p.tasks=p.tasks.filter(function(t){return t.work&&t.work.trim();});
+    var removed=beforeCount-p.tasks.length;
+    if(removed>0){console.log('[submitWPPlan] 自动删除空行: '+removed+' 行');}
+  }
+  var ok=await _showConfirm('确认提交本周行动项？\n\n提交后将记录提交时间，可随时继续编辑。'+'\n\n—\n\nConfirm submission?\n\nSubmission time will be recorded. You can continue editing at any time.','注意 / Attention');
   if(!ok)return;
   p.firstSubmittedAt=new Date().toISOString();
   // ★ V0.1.57: 提交即自动锁定三列（员工自己不能改），等同上级锁定效果
@@ -2743,9 +2750,9 @@ async function submitWPPlan(){
 async function undoWPSubmit(){
   var p=_wpCurrent.plan;if(!p){return;}
   // ★ V0.6.1ad: 运行时守卫 — 上级已评价不能撤回
-  if(p.bossEvaluated){_showAlert('上级已完成评价，无法撤回周计划。');return;}
+  if(p.bossEvaluated){_showAlert('上级已完成评价，无法撤回周行动项。');return;}
   // ★ V0.6.1ad: 运行时守卫 — 需先撤回周小结
-  if(p.summarySubmittedAt){_showAlert('请先撤回周小结，再撤回周计划。');return;}
+  if(p.summarySubmittedAt){_showAlert('请先撤回周小结，再撤回周行动项。');return;}
   // ★ V0.6.1ad: 运行时守卫 — 上级已锁定不能撤回
   var myName=(currentUser&&currentUser.name)||'';
   if(p.frozen && p.frozenBy && p.frozenBy!==myName){_showAlert('上级已锁定周计划，请联系上级解除锁定后再撤回。');return;}
@@ -3319,7 +3326,7 @@ async function deleteCurrentWPPlan(){
     _showAlert('你的周计划由于你已提交小结或上级已锁定，如需删除请先解除上级锁定，并撤回周小结提交和周计划提交，即可删除。','⚠️ 无法删除',true);
     return;
   }
-  var ok=await _showConfirm('你确定要清空 '+p.year+'年'+p.month+'月第'+p.week+'周计划内容？\n\n如确定，将清除本周计划中已填写的所有内容。'+'\n\n—\n\nAre you sure you want to clear Week '+p.week+' of '+p.month+'/'+p.year+'?\n\nIf confirmed, all filled content in this week plan will be permanently removed.','注意 / Attention');
+  var ok=await _showConfirm('你确定要清空 '+p.year+'年'+p.month+'月第'+p.week+'周行动项内容？\n\n如确定，将清除本周行动项中已填写的所有内容。'+'\n\n—\n\nAre you sure you want to clear Week '+p.week+' of '+p.month+'/'+p.year+'?\n\nIf confirmed, all filled content in this week to-do will be permanently removed.','注意 / Attention');
   if(!ok)return;
   // ★ V0.1.59: 重置为1行空白表单（保留 name/dept/position）
   var y=p.year, m=p.month, w=p.week;
@@ -3338,7 +3345,7 @@ async function deleteCurrentWPPlan(){
   saveWP(y,m,w,p);
   _calcWeekScore(p);
   renderWPTable(p);
-  showToast('🗑 周计划已重置为空白表单');
+  showToast('🗑 周行动项已重置为空白表单');
 }
 
 function exportCurrentWP(){
