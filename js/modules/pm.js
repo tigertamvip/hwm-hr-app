@@ -1,6 +1,6 @@
 /**
  * MBO+AI 项目管理模块 (Project Management)
- * V0.1.0 - MVP: 研发项目管理
+ * V0.2.0 - 研发项目管理 + HTML 弹窗
  * 功能: 项目列表(卡片), 项目详情(任务看板), 进度跟踪, 人员状态
  * 数据: Supabase projects / project_tasks + localStorage 缓存
  */
@@ -35,12 +35,10 @@ async function syncProjectsFromCloud(){
 
 async function saveProject(p){
   p.updated_at = new Date().toISOString();
-  // Local
   var all = loadAllProjects();
   var idx = all.findIndex(function(x){return x.id===p.id;});
   if(idx>=0) all[idx]=p; else all.push(p);
   saveAllProjects(all);
-  // Cloud
   try{
     var r = await supabase.from(SUPABASE_PM_TABLE).upsert(p,{onConflict:'id'});
     if(r.error) console.warn('[PM] Save error:',r.error.message);
@@ -130,6 +128,19 @@ async function createTask(project_id, data){
   }catch(e){ _showAlert('创建任务异常: '+e.message); return null; }
 }
 
+async function deleteTask(project_id, task_id){
+  try{
+    await supabase.from(SUPABASE_TASK_TABLE).delete().eq('id',task_id);
+    var tasks = loadProjectTasks(project_id).filter(function(x){return x.id!==task_id;});
+    saveProjectTasks(project_id, tasks);
+    if(_pmCurrent&&_pmCurrent.tasks) _pmCurrent.tasks = tasks;
+    renderPMTaskBoard();
+    var p = _pmCurrent.project;
+    p.progress = calcProjectProgress(project_id);
+    await saveProject(p);
+  }catch(e){ console.warn('[PM] Delete task error:',e.message); }
+}
+
 // ===== Progress Calculation =====
 function calcProjectProgress(pid){
   var tasks = loadProjectTasks(pid);
@@ -146,7 +157,6 @@ function renderPMList(){
   if(!el) return;
 
   var projects = _pmProjects||[];
-  // Filter
   if(_pmFilter.type && _pmFilter.type!=='全部'){
     projects = projects.filter(function(p){return p.type===_pmFilter.type;});
   }
@@ -161,13 +171,13 @@ function renderPMList(){
   html += '<select onchange="_pmFilter.type=this.value;renderPMList()" style="padding:5px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:12px;background:#fff">';
   ['全部','研发','通用','战略'].forEach(function(t){ html += '<option'+(t===_pmFilter.type?' selected':'')+'>'+t+'</option>'; });
   html += '</select>';
-  html += '<span style="font-size:12px;color:var(--text-hint)">共 '+projects.length+' 个项目</span>';
+  html += '<span style="font-size:12px;color:#9CA3AF">共 '+projects.length+' 个项目</span>';
   html += '</div>';
   html += '<input placeholder="搜索项目..." value="'+esc(_pmFilter.search)+'" oninput="_pmFilter.search=this.value;renderPMList()" style="padding:5px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:12px;width:180px">';
   html += '</div>';
 
   if(!projects.length){
-    html += '<div style="text-align:center;padding:60px 20px;color:var(--text-hint)">暂无项目，点击右上角"+ 新建项目"开始</div>';
+    html += '<div style="text-align:center;padding:60px 20px;color:#9CA3AF">暂无项目，点击右上角"+ 新建项目"开始</div>';
   }else{
     html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px">';
     projects.forEach(function(p){ html += renderProjectCard(p); });
@@ -199,24 +209,20 @@ function renderProjectCard(p){
   h += '<div onclick="openPMDetail('+p.id+')" class="pm-card" style="display:flex;background:#fff;border-radius:12px;border:1px solid #E5E7EB;overflow:hidden;cursor:pointer;transition:all .2s">';
   h += '<div style="width:4px;min-width:4px;background:'+lc+'"></div>';
   h += '<div style="flex:1;padding:14px 16px">';
-  // Top row
   h += '<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px">';
   h += '<div style="font-weight:600;font-size:15px;color:#111827;line-height:1.3">'+esc(p.name||'未命名')+'</div>';
   h += '<div style="display:flex;gap:4px;flex-shrink:0">';
   h += '<span style="font-size:10px;padding:2px 8px;border-radius:10px;background:'+lb+';color:'+lt+'">'+lvlLabels[p.level]+'</span>';
   h += '<span style="font-size:10px;padding:2px 8px;border-radius:10px;background:'+tbg+';color:'+tc+'">'+esc(p.type||'')+'</span>';
   h += '</div></div>';
-  // Progress
   h += '<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:11px;color:#6B7280;margin-bottom:3px"><span>进度</span><span style="font-weight:600">'+(p.progress||0)+'%</span></div>';
   h += '<div style="height:5px;background:#F3F4F6;border-radius:3px;overflow:hidden"><div style="height:100%;width:'+(p.progress||0)+'%;background:'+lc+';border-radius:3px"></div></div></div>';
-  // Info row
   var teamCount = (p.team&&Array.isArray(p.team))?p.team.length:0;
   h += '<div style="display:flex;align-items:center;gap:16px;font-size:11px;color:#9CA3AF">';
   h += '<span>'+esc(p.owner||'')+'</span>';
   h += '<span>团队 '+teamCount+' 人</span>';
   h += '<span>'+(p.start_date||'')+'-'+(p.end_date||'')+'</span>';
   h += '</div>';
-  // Bottom
   h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid #F3F4F6">';
   h += '<span style="font-size:10px;padding:2px 8px;border-radius:8px;background:'+sb+';color:'+sc+'">'+esc(p.status||'')+'</span>';
   h += '<span style="font-size:10px;color:#D1D5DB">'+(p.updated_at?formatDate(p.updated_at):'')+'</span>';
@@ -231,7 +237,6 @@ function renderPMSidebar(){
   if(!el) return;
 
   var projects = _pmProjects||[];
-  // Quick stats
   var myProjects = projects.filter(function(p){return p.owner===(currentUser&&currentUser.name);}).length;
   var active = projects.filter(function(p){return p.status==='实施中';}).length;
 
@@ -246,8 +251,8 @@ function renderPMSidebar(){
 
   h += '<div style="margin-bottom:18px">';
   h += '<div style="font-size:11px;font-weight:600;color:#9CA3AF;margin-bottom:8px;letter-spacing:.5px">快速筛选</div>';
-  h += '<div style="padding:6px 10px;border-radius:6px;font-size:12px;color:#6B7280;display:flex;justify-content:space-between"><span>我的项目</span><span>'+myProjects+'</span></div>';
-  h += '<div style="padding:6px 10px;border-radius:6px;font-size:12px;color:#6B7280;display:flex;justify-content:space-between"><span>进行中</span><span>'+active+'</span></div>';
+  h += '<div onclick="filterMyProjects()" style="padding:6px 10px;border-radius:6px;font-size:12px;color:#6B7280;display:flex;justify-content:space-between;cursor:pointer"><span>我的项目</span><span>'+myProjects+'</span></div>';
+  h += '<div onclick="filterActiveProjects()" style="padding:6px 10px;border-radius:6px;font-size:12px;color:#6B7280;display:flex;justify-content:space-between;cursor:pointer"><span>进行中</span><span>'+active+'</span></div>';
   h += '</div>';
 
   h += '<div style="margin-bottom:18px">';
@@ -260,6 +265,34 @@ function renderPMSidebar(){
   h += '</div></div>';
 
   el.innerHTML = h;
+}
+
+function filterMyProjects(){
+  _pmFilter.type = '全部';
+  _pmFilter.search = (currentUser&&currentUser.name)||'';
+  renderPMList(); renderPMSidebar();
+}
+
+function filterActiveProjects(){
+  _pmFilter.type = '全部';
+  _pmFilter.search = '';
+  // 暂存到全局，通过自定义渲染实现
+  var el = document.getElementById('pmContent');
+  if(!el) return;
+  var projects = _pmProjects.filter(function(p){return p.status==='实施中';});
+  var html = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">';
+  html += '<div style="display:flex;align-items:center;gap:10px">';
+  html += '<button onclick="_pmFilter.search=\'\';renderPMList()" style="padding:5px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:12px;background:#fff;cursor:pointer">← 返回全部</button>';
+  html += '<span style="font-size:12px;color:#9CA3AF">进行中项目: '+projects.length+'</span>';
+  html += '</div></div>';
+  if(!projects.length){
+    html += '<div style="text-align:center;padding:60px 20px;color:#9CA3AF">暂无进行中项目</div>';
+  }else{
+    html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px">';
+    projects.forEach(function(p){ html += renderProjectCard(p); });
+    html += '</div>';
+  }
+  el.innerHTML = html;
 }
 
 // ===== UI: Project Detail =====
@@ -353,12 +386,15 @@ function renderPMTaskBoard(){
     h += '<span style="font-size:11px;color:#9CA3AF">'+col.tasks.length+'</span>';
     h += '</div>';
     col.tasks.forEach(function(t){
-      h += '<div onclick="openTaskEdit('+t.project_id+','+t.id+')" style="background:#fff;border:1px solid #E5E7EB;border-radius:8px;padding:10px 12px;margin-bottom:8px;cursor:pointer;transition:all .15s">';
-      h += '<div style="font-size:12px;font-weight:500;color:#374151;margin-bottom:4px">'+esc(t.title||'未命名任务')+'</div>';
+      h += '<div style="background:#fff;border:1px solid #E5E7EB;border-radius:8px;padding:10px 12px;margin-bottom:8px;cursor:pointer;transition:all .15s">';
+      h += '<div onclick="openTaskEdit('+t.project_id+','+t.id+')" style="font-size:12px;font-weight:500;color:#374151;margin-bottom:4px">'+esc(t.title||'未命名任务')+'</div>';
+      h += '<div style="display:flex;align-items:center;justify-content:space-between">';
       h += '<div style="display:flex;align-items:center;gap:8px;font-size:10px;color:#9CA3AF">';
       if(t.assignee) h += '<span>'+esc(t.assignee)+'</span>';
       if(t.due_date) h += '<span>'+t.due_date+'</span>';
       if(t.progress) h += '<span>'+t.progress+'%</span>';
+      h += '</div>';
+      h += '<span onclick="deleteTask('+t.project_id+','+t.id+');event.stopPropagation();" style="font-size:10px;color:#FCA5A5;cursor:pointer;padding:2px 4px">×</span>';
       h += '</div></div>';
     });
     h += '<button onclick="addTaskInline('+_pmCurrent.project.id+',\''+key+'\')" class="pm-add-task-btn">+ 添加任务</button>';
@@ -382,19 +418,66 @@ async function openTaskEdit(pid, tid){
   var tasks = loadProjectTasks(pid);
   var t = tasks.find(function(x){return x.id===tid;});
   if(!t) return;
-  var newStatus = prompt('修改状态 (待开始/进行中/已完成):', t.status||'待开始');
-  if(!newStatus) return;
-  if(['待开始','进行中','已完成'].indexOf(newStatus)<0){ _showAlert('无效状态'); return; }
-  t.status = newStatus;
-  if(newStatus==='已完成') t.progress = 100;
-  else t.progress = Math.min(t.progress||0, 99);
+
+  var statuses = ['待开始','进行中','已完成'];
+  var priorities = ['高','中','普通'];
+
+  var h = '';
+  h += '<div style="margin-bottom:12px">';
+  h += '<label style="display:block;font-size:12px;color:#6B7280;margin-bottom:4px">任务名称</label>';
+  h += '<input id="te-title" value="'+esc(t.title||'')+'" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:13px;box-sizing:border-box">';
+  h += '</div>';
+  h += '<div style="display:flex;gap:12px;margin-bottom:12px">';
+  h += '<div style="flex:1">';
+  h += '<label style="display:block;font-size:12px;color:#6B7280;margin-bottom:4px">状态</label>';
+  h += '<select id="te-status" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:13px">';
+  statuses.forEach(function(s){ h += '<option'+(s===t.status?' selected':'')+'>'+s+'</option>'; });
+  h += '</select></div>';
+  h += '<div style="flex:1">';
+  h += '<label style="display:block;font-size:12px;color:#6B7280;margin-bottom:4px">优先级</label>';
+  h += '<select id="te-priority" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:13px">';
+  priorities.forEach(function(s){ h += '<option'+(s===t.priority?' selected':'')+'>'+s+'</option>'; });
+  h += '</select></div></div>';
+  h += '<div style="display:flex;gap:12px;margin-bottom:12px">';
+  h += '<div style="flex:1">';
+  h += '<label style="display:block;font-size:12px;color:#6B7280;margin-bottom:4px">负责人</label>';
+  h += '<input id="te-assignee" value="'+esc(t.assignee||'')+'" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:13px;box-sizing:border-box">';
+  h += '</div>';
+  h += '<div style="flex:1">';
+  h += '<label style="display:block;font-size:12px;color:#6B7280;margin-bottom:4px">截止日期</label>';
+  h += '<input id="te-due" type="date" value="'+esc(t.due_date||'')+'" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:13px;box-sizing:border-box">';
+  h += '</div></div>';
+  h += '<div style="margin-bottom:12px">';
+  h += '<label style="display:block;font-size:12px;color:#6B7280;margin-bottom:4px">进度 ('+(t.progress||0)+'%)</label>';
+  h += '<input id="te-progress" type="range" min="0" max="100" value="'+(t.progress||0)+'" style="width:100%;cursor:pointer" oninput="this.previousElementSibling.innerHTML=\'进度 (\'+this.value+\'%)\'">';
+  h += '</div>';
+  h += '<div style="margin-bottom:12px">';
+  h += '<label style="display:block;font-size:12px;color:#6B7280;margin-bottom:4px">任务描述</label>';
+  h += '<textarea id="te-desc" rows="3" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:13px;box-sizing:border-box;resize:vertical">'+esc(t.description||'')+'</textarea>';
+  h += '</div>';
+
+  var ok = await _showConfirm(h, '编辑任务 / Edit Task', '保存 / Save', '取消 / Cancel');
+  if(!ok) return;
+
+  var title = document.getElementById('te-title').value.trim();
+  if(!title){ _showAlert('任务名称不能为空'); return; }
+  t.title = title;
+  t.status = document.getElementById('te-status').value;
+  t.priority = document.getElementById('te-priority').value;
+  t.assignee = document.getElementById('te-assignee').value.trim();
+  t.due_date = document.getElementById('te-due').value;
+  t.progress = parseInt(document.getElementById('te-progress').value)||0;
+  t.description = document.getElementById('te-desc').value.trim();
+  if(t.status==='已完成') t.progress = 100;
+  else if(t.progress===100) t.progress = 99;
+
   await saveTask(t);
   _pmCurrent.tasks = loadProjectTasks(pid);
   renderPMTaskBoard();
-  // Update project progress
   var p = _pmCurrent.project;
   p.progress = calcProjectProgress(pid);
   await saveProject(p);
+  showToast('任务已保存');
 }
 
 async function updatePMStatus(pid, status){
@@ -419,38 +502,83 @@ function backToPMList(){
   renderPMList();
 }
 
-// ===== New Project Form =====
+// ===== New Project Form (HTML Modal) =====
 async function showNewProjectForm(){
-  var type = await _showSelect('选择项目类型',['研发','通用','战略'],'研发');
-  if(!type) return;
-  var level = await _showSelect('选择项目级别',['一级 - 公司战略级重大','二级 - 公司级及跨部门重要','三级 - 体系及部门内小型'],'三级 - 体系及部门内小型');
-  if(!level) return;
-  var levelNum = level.charAt(0)==='一'?1:level.charAt(0)==='二'?2:3;
-  var name = prompt('项目名称:');
-  if(!name||!name.trim()) return;
-  var p = await createProject({name:name.trim(), type:type, level:levelNum});
-  if(p) { _pmProjects = loadAllProjects(); renderPMList(); }
+  var types = ['研发','通用','战略'];
+  var levels = [{v:1,t:'一级 - 公司战略级重大'},{v:2,t:'二级 - 公司级及跨部门重要'},{v:3,t:'三级 - 体系及部门内小型'}];
+  var currentName = (currentUser&&currentUser.name)||'';
+
+  var h = '';
+  h += '<div style="margin-bottom:12px">';
+  h += '<label style="display:block;font-size:12px;color:#6B7280;margin-bottom:4px">项目名称 <span style="color:#EF4444">*</span></label>';
+  h += '<input id="np-name" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:13px;box-sizing:border-box" placeholder="请输入项目名称">';
+  h += '</div>';
+  h += '<div style="display:flex;gap:12px;margin-bottom:12px">';
+  h += '<div style="flex:1">';
+  h += '<label style="display:block;font-size:12px;color:#6B7280;margin-bottom:4px">项目类型</label>';
+  h += '<select id="np-type" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:13px">';
+  types.forEach(function(t){ h += '<option>'+t+'</option>'; });
+  h += '</select></div>';
+  h += '<div style="flex:1">';
+  h += '<label style="display:block;font-size:12px;color:#6B7280;margin-bottom:4px">项目级别</label>';
+  h += '<select id="np-level" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:13px">';
+  levels.forEach(function(l){ h += '<option value="'+l.v+'">'+l.t+'</option>'; });
+  h += '</select></div></div>';
+  h += '<div style="margin-bottom:12px">';
+  h += '<label style="display:block;font-size:12px;color:#6B7280;margin-bottom:4px">项目负责人</label>';
+  h += '<input id="np-owner" value="'+esc(currentName)+'" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:13px;box-sizing:border-box">';
+  h += '</div>';
+  h += '<div style="display:flex;gap:12px;margin-bottom:12px">';
+  h += '<div style="flex:1">';
+  h += '<label style="display:block;font-size:12px;color:#6B7280;margin-bottom:4px">开始日期</label>';
+  h += '<input id="np-start" type="date" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:13px;box-sizing:border-box">';
+  h += '</div>';
+  h += '<div style="flex:1">';
+  h += '<label style="display:block;font-size:12px;color:#6B7280;margin-bottom:4px">结束日期</label>';
+  h += '<input id="np-end" type="date" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:13px;box-sizing:border-box">';
+  h += '</div></div>';
+  h += '<div style="margin-bottom:12px">';
+  h += '<label style="display:block;font-size:12px;color:#6B7280;margin-bottom:4px">奖金池 (元)</label>';
+  h += '<input id="np-budget" type="number" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:13px;box-sizing:border-box" placeholder="选填">';
+  h += '</div>';
+  h += '<div style="margin-bottom:12px">';
+  h += '<label style="display:block;font-size:12px;color:#6B7280;margin-bottom:4px">项目描述</label>';
+  h += '<textarea id="np-desc" rows="3" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:13px;box-sizing:border-box;resize:vertical" placeholder="简要描述项目目标和范围"></textarea>';
+  h += '</div>';
+
+  var ok = await _showConfirm(h, '新建项目 / New Project', '创建 / Create', '取消 / Cancel');
+  if(!ok) return;
+
+  var name = document.getElementById('np-name').value.trim();
+  if(!name){ _showAlert('请输入项目名称'); return; }
+  var type = document.getElementById('np-type').value;
+  var level = parseInt(document.getElementById('np-level').value)||3;
+  var owner = document.getElementById('np-owner').value.trim()||currentName;
+  var start = document.getElementById('np-start').value;
+  var end = document.getElementById('np-end').value;
+  var budget = document.getElementById('np-budget').value;
+  var desc = document.getElementById('np-desc').value.trim();
+
+  var p = await createProject({
+    name: name, type: type, level: level, owner: owner,
+    start_date: start||null, end_date: end||null,
+    budget_pool: budget?parseFloat(budget):null,
+    description: desc
+  });
+  if(p) { _pmProjects = loadAllProjects(); renderPMList(); renderPMSidebar(); }
 }
 
 // ===== Utility =====
-async function _showSelect(title, options, defaultVal){
-  // Simple: use built-in prompt as fallback
-  var msg = title + '\n\n';
-  options.forEach(function(o,i){ msg += (i+1)+'. '+o+'\n'; });
-  msg += '\n请输入选项编号:';
-  var input = prompt(msg, options.indexOf(defaultVal)>=0?String(options.indexOf(defaultVal)+1):'1');
-  if(!input) return null;
-  var idx = parseInt(input)-1;
-  if(idx<0||idx>=options.length) return null;
-  return options[idx];
-}
-
-// ===== Format Helper =====
 function formatDate(d){
   if(!d) return '';
   var dt = new Date(d);
   if(isNaN(dt.getTime())) return d.toString().substring(0,10);
   return dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
+}
+
+function esc(s){
+  if(!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 // ===== CSS Injection =====
@@ -474,13 +602,11 @@ function injectPMStyles(){
 // ===== Main Entry =====
 async function enterPMModule(){
   injectPMStyles();
-  // Init from cache
   _pmProjects = loadAllProjects();
   _pmView = 'list';
   _pmCurrent = null;
   _pmFilter = {type:'研发', search:''};
 
-  // Show views
   var listEl = document.getElementById('pmListView');
   var detailEl = document.getElementById('pmDetailView');
   var pmv = document.getElementById('pmView');
@@ -491,7 +617,6 @@ async function enterPMModule(){
   renderPMSidebar();
   renderPMList();
 
-  // Async cloud sync
   var cloud = await syncProjectsFromCloud();
   if(cloud) { _pmProjects = cloud; saveAllProjects(cloud); renderPMSidebar(); renderPMList(); }
 }
@@ -510,7 +635,10 @@ window.renderPMSidebar = renderPMSidebar;
 window.renderPMTaskBoard = renderPMTaskBoard;
 window.calcProjectProgress = calcProjectProgress;
 window.saveProject = saveProject;
+window.deleteTask = deleteTask;
+window.filterMyProjects = filterMyProjects;
+window.filterActiveProjects = filterActiveProjects;
 
-console.log('[PM] Module loaded - V0.1.0 MVP (研发项目管理)');
+console.log('[PM] Module loaded - V0.2.0 (研发项目管理 + HTML Modal)');
 
 } // end _pmInit guard
