@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.6.1bt">
+<meta name="version" content="V0.6.1bu">
 <!-- cache-bust: 2026-07-12-18-25 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json?v=bc">
@@ -2509,9 +2509,9 @@ function togglePortalTips(){
       <div class="portal-card-en">3-Year Plan</div>
       <div class="portal-card-badge">In Progress</div>
     </div>
-    <div id="portalCard_hr" class="portal-card" data-module="hr" style="display:none" data-tip-head="组织架构" data-tip-cn="管理团队信息、人员档案与组织架构。清晰的组织脉络与人才盘点是高效管理的基础。" data-tip-en="Manage team information, personnel files and organizational structure. Clear organizational mapping and talent inventory are the foundation of efficient management." onclick="enterModule('hr')">
-      <div class="portal-card-label">组织架构</div>
-      <div class="portal-card-en">Team &amp; Structure</div>
+    <div id="portalCard_hr" class="portal-card" data-module="hr" style="display:none" data-tip-head="人才团队" data-tip-cn="管理团队信息、人员档案与组织架构。清晰的组织脉络与人才盘点是高效管理的基础。" data-tip-en="Manage team information, personnel files and organizational structure. Clear organizational mapping and talent inventory are the foundation of efficient management." onclick="enterModule('hr')">
+      <div class="portal-card-label">人才团队</div>
+      <div class="portal-card-en">Talent Team</div>
     </div>
     <div id="portalCard_talent" class="portal-card disabled" data-module="talent" style="display:none" data-tip-head="项目管理" data-tip-cn="全生命周期项目管理，从立项、执行到验收闭环跟踪。提升项目交付效率与质量，确保按时按质完成。" data-tip-en="Full-lifecycle project management, from initiation to execution to closure tracking. Improve project delivery efficiency and quality, ensuring on-time completion." onclick="moduleBuilding()">
       <div class="portal-card-label">项目管理</div>
@@ -3038,7 +3038,7 @@ function togglePortalTips(){
             <th class="sys-col-position">职务</th>
             <th class="sys-col-uid">用户名</th>
             <th class="sys-col-pwd">密码</th>
-            <th class="sys-col-module">组织架构</th>
+            <th class="sys-col-module">人才团队</th>
             <th class="sys-col-module">周计划</th>
             <th class="sys-col-module">年度目标</th>
             <th class="sys-col-module">项目管理</th>
@@ -3253,7 +3253,7 @@ var AUTH_UID_KEY='hr_auth_uid';
 // 用户数据库：用户名 → {pwd: SHA256哈希, name: 显示名, role: 角色, centerKeyword: 中心关键词}
 // 模块权限定义
 var HWM_MODULES=['hr','mbo','kpi','talent','learning','payroll','ideas','policies','maintenance','decision','dashboard','rd'];
-var HWM_MODULE_LABELS={hr:'组织架构',mbo:'周计划',kpi:'年度目标',talent:'项目管理',learning:'岗位胜任力',payroll:'决策工具',ideas:'敬业度',policies:'体系流程',maintenance:'系统维护',decision:'三年规划',dashboard:'数据中心',rd:'月计划'};
+var HWM_MODULE_LABELS={hr:'人才团队',mbo:'当周行动',kpi:'年度目标',talent:'项目管理',learning:'岗位胜任力',payroll:'决策工具',ideas:'敬业度',policies:'体系流程',maintenance:'系统维护',decision:'三年规划',dashboard:'数据中心',rd:'本月计划'};
 
 // 默认权限：admin 全开，其余按角色
 function _defaultPerms(role){
