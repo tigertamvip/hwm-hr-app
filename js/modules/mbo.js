@@ -3599,7 +3599,8 @@ function saveWPFeedback(field, value) {
   
   if (field === 'weekSummary') {
     p.weekSummary = value;
-    p.weekSummaryUpdatedAt = new Date().toISOString().split('T')[0];
+    var now = new Date();
+    p.weekSummaryUpdatedAt = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0')+' '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0')+':'+String(now.getSeconds()).padStart(2,'0');
   } else if (field === 'supervisorReview') {
     if (!p.supervisorReview) p.supervisorReview = {};
     p.supervisorReview.content = value;
