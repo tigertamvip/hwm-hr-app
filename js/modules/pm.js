@@ -23,7 +23,7 @@ var PM_TYPE_DEFS = [
 // ===== State =====
 var _pmCurrent = null;       // {project, tasks}
 var _pmView = 'list';        // list / detail / board
-var _pmFilter = {type:'全部', search:''};
+var _pmFilter = {type:'全部', search:'', owner:''};
 var _pmProjects = [];
 
 // ===== Data Layer =====
@@ -171,6 +171,9 @@ function renderPMList(){
     var s = _pmFilter.search.toLowerCase();
     projects = projects.filter(function(p){return (p.name||'').toLowerCase().indexOf(s)>=0;});
   }
+  if(_pmFilter.owner){
+    projects = projects.filter(function(p){return p.owner===_pmFilter.owner;});
+  }
 
   var html = '';
   html += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">';
@@ -251,15 +254,17 @@ function renderPMSidebar(){
   h += '<div style="margin-bottom:18px">';
   h += '<div style="font-size:11px;font-weight:600;color:#9CA3AF;margin-bottom:8px;letter-spacing:.5px">项目类型</div>';
   PM_TYPE_DEFS.forEach(function(td){
-    var sel = td.key===_pmFilter.type;
-    h += '<div onclick="_pmFilter.type=\''+td.key+'\';renderPMSidebar();renderPMList()" style="padding:6px 10px;border-radius:6px;font-size:12px;cursor:pointer;margin-bottom:3px;'+(sel?'background:#EFF6FF;color:#3B82F6;font-weight:600':'color:#6B7280')+'">'+td.label+'</div>';
+    var sel = td.key===_pmFilter.type && !_pmFilter.owner && !_pmFilter._active;
+    h += '<div onclick="_pmFilter.type=\''+td.key+'\';_pmFilter.owner=\'\';_pmFilter._active=false;renderPMSidebar();renderPMList()" style="padding:6px 10px;border-radius:6px;font-size:12px;cursor:pointer;margin-bottom:3px;'+(sel?'background:#EFF6FF;color:#3B82F6;font-weight:600':'color:#6B7280')+'">'+td.label+'</div>';
   });
   h += '</div>';
 
   h += '<div style="margin-bottom:18px">';
   h += '<div style="font-size:11px;font-weight:600;color:#9CA3AF;margin-bottom:8px;letter-spacing:.5px">快速筛选</div>';
-  h += '<div onclick="filterMyProjects()" style="padding:6px 10px;border-radius:6px;font-size:12px;color:#6B7280;display:flex;justify-content:space-between;cursor:pointer"><span>我的项目</span><span>'+myProjects+'</span></div>';
-  h += '<div onclick="filterActiveProjects()" style="padding:6px 10px;border-radius:6px;font-size:12px;color:#6B7280;display:flex;justify-content:space-between;cursor:pointer"><span>进行中</span><span>'+active+'</span></div>';
+  var mySel = !!_pmFilter.owner;
+  h += '<div onclick="filterMyProjects()" style="padding:6px 10px;border-radius:6px;font-size:12px;cursor:pointer;display:flex;justify-content:space-between;'+(mySel?'background:#EFF6FF;color:#3B82F6;font-weight:600':'color:#6B7280')+'"><span>我的项目</span><span>'+myProjects+'</span></div>';
+  var activeSel = !!_pmFilter._active;
+  h += '<div onclick="filterActiveProjects()" style="padding:6px 10px;border-radius:6px;font-size:12px;cursor:pointer;display:flex;justify-content:space-between;'+(activeSel?'background:#EFF6FF;color:#3B82F6;font-weight:600':'color:#6B7280')+'"><span>进行中</span><span>'+active+'</span></div>';
   h += '</div>';
 
   h += '<div style="margin-bottom:18px">';
@@ -276,20 +281,24 @@ function renderPMSidebar(){
 
 function filterMyProjects(){
   _pmFilter.type = '全部';
-  _pmFilter.search = (currentUser&&currentUser.name)||'';
+  _pmFilter.search = '';
+  _pmFilter.owner = (currentUser&&currentUser.name)||'';
+  _pmFilter._active = false;
   renderPMList(); renderPMSidebar();
 }
 
 function filterActiveProjects(){
   _pmFilter.type = '全部';
   _pmFilter.search = '';
+  _pmFilter.owner = '';
+  _pmFilter._active = true;
   // 暂存到全局，通过自定义渲染实现
   var el = document.getElementById('pmContent');
   if(!el) return;
   var projects = _pmProjects.filter(function(p){return p.status==='实施中';});
   var html = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">';
   html += '<div style="display:flex;align-items:center;gap:10px">';
-  html += '<button onclick="_pmFilter.search=\'\';renderPMList()" style="padding:5px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:12px;background:#fff;cursor:pointer">← 返回全部</button>';
+  html += '<button onclick="_pmFilter._active=false;renderPMList()" style="padding:5px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:12px;background:#fff;cursor:pointer">← 返回全部</button>';
   html += '<span style="font-size:12px;color:#9CA3AF">进行中项目: '+projects.length+'</span>';
   html += '</div></div>';
   if(!projects.length){
@@ -636,7 +645,7 @@ async function enterPMModule(){
   _pmProjects = loadAllProjects();
   _pmView = 'list';
   _pmCurrent = null;
-  _pmFilter = {type:'全部', search:''};
+  _pmFilter = {type:'全部', search:'', owner:'', _active:false};
 
   var listEl = document.getElementById('pmListView');
   var detailEl = document.getElementById('pmDetailView');
