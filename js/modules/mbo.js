@@ -1043,7 +1043,11 @@ function renderWPPlanList(year,month){
     var active=(_wpCurrent&&_wpCurrent.year===year&&_wpCurrent.month===month&&_wpCurrent.week===w);
     var taskCount=plan?plan.tasks.filter(function(t){return t.work;}).length:0;
     var delBtn='';
-    if(plan)delBtn='<span class="wp-sidebar-plan-delete" onclick="event.stopPropagation();delWPFromSidebar('+year+','+month+','+w+')">×</span>';
+    if(plan){
+      var myName2=(currentUser&&currentUser.name)||'';
+      var isLocked2=plan.firstSubmittedAt||plan.summarySubmittedAt||(plan.frozen&&plan.frozenBy&&plan.frozenBy!==myName2)||plan.bossEvaluated;
+      delBtn='<span class="wp-sidebar-plan-delete'+(isLocked2?' locked':'')+'" onclick="event.stopPropagation();delWPFromSidebar('+year+','+month+','+w+')">×</span>';
+    }
     html+='<div class="wp-sidebar-plan-item'+(active?' active':'')+'" onclick="selectWP('+year+','+month+','+w+')">'+delBtn+'<div class="week-label">'+weekLabels[w-1]+'</div><div class="task-count">('+taskCount+')</div></div>';
   }
   list.innerHTML=html;
@@ -2052,7 +2056,12 @@ function renderWPTable(plan){
     }else{
       html+='<button onclick="submitWPWeekSummary()" class="wp-btn-summary"><span>✅</span> 提交周小结</button>';
     }
-    html+='<button class="wp-btn-delete" onclick="deleteCurrentWPPlan()"><span>🗑</span> 删除周计划</button>';
+    var isDeleteLocked=plan.firstSubmittedAt||plan.summarySubmittedAt||isLockedByBoss||plan.bossEvaluated;
+    if(isDeleteLocked){
+      html+='<button disabled class="wp-btn-delete wp-btn-disabled" onclick="deleteCurrentWPPlan()"><span>🗑</span> 删除周计划</button>';
+    }else{
+      html+='<button class="wp-btn-delete" onclick="deleteCurrentWPPlan()"><span>🗑</span> 删除周计划</button>';
+    }
     html+='<button class="wp-btn-export" onclick="exportCurrentWP()"><span>📥</span> 导出周计划</button>';
     if(plan.bossEvaluated){
       html+='<button onclick="viewBossEval()"><span style="color:#2A476A">📋</span> 查看上级评价</button>';
@@ -3306,7 +3315,7 @@ async function deleteCurrentWPPlan(){
   var p=_wpCurrent.plan;if(!p){_showAlert('请先选择一个周计划');return;}
   var myName=(currentUser&&currentUser.name)||'';
   // ★ V0.6.1as: 删除安全机制——已提交/已锁定/已评价时禁止删除
-  if(p.submittedAt || p.summarySubmittedAt || (p.frozen && p.frozenBy && p.frozenBy !== myName) || p.bossEvaluated){
+  if(p.firstSubmittedAt || p.summarySubmittedAt || (p.frozen && p.frozenBy && p.frozenBy !== myName) || p.bossEvaluated){
     _showAlert('要删除本周计划请先解除上级锁定或撤回提交周小结及周计划','⚠️ 无法删除',true);
     return;
   }
