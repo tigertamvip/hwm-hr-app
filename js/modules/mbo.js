@@ -1963,6 +1963,7 @@ function renderWPTable(plan){
   if(dd)dd.style.display='none';
 
   var isManager=(getWPSubordinates().length>0);
+  var myName=(currentUser&&currentUser.name)||'';
   if(!plan.year||!plan.month||!plan.week){console.warn('renderWPTable: plan missing year/month/week',plan);return;}
     var weekLabel=plan.year+'年'+plan.month+'月 第'+plan.week+'周';
   var html='';
@@ -1971,7 +1972,7 @@ function renderWPTable(plan){
   html+='<div class="wp-info-bar"><strong>当前用户：</strong><strong>'+_h(plan.name)+'</strong>&nbsp;'+_h(plan.dept)+' | '+_h(plan.position)+'<span class="sep">|</span>'+weekLabel;
   if(_wpViewingSubordinate)html+='<span style="color:#E8622A;font-weight:500;margin-left:8px">（查看直属下属周计划）</span>';
   else if(_wpViewingDeptMember)html+='<span style="color:#E8622A;font-weight:500;margin-left:8px">（查看更多下属周计划）</span>';
-  if(plan.frozen && !_wpViewingShared && !_wpViewingSubordinate && !_wpViewingDeptMember){
+  if(plan.frozen && plan.frozenBy && plan.frozenBy !== myName && !_wpViewingShared && !_wpViewingSubordinate && !_wpViewingDeptMember){
     html+='<span style="color:#3b82f6;font-weight:600;margin-left:8px">🔐 已被上级锁定（本周重点/优先级/计划完成日期不可修改）</span>';
     if(plan.frozenBy)/* removed by attribution */;
   }
