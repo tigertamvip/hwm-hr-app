@@ -1980,7 +1980,7 @@ function renderWPTable(plan){
   var html='';
   html+='<div class="wp-scroll-area">';
 
-  html+='<div class="wp-info-bar"><strong>当前用户：</strong><strong>'+_h(plan.name)+'</strong>&nbsp;'+_h(plan.dept)+' | '+_h(plan.position)+'<span class="sep">|</span>'+weekLabel;
+  html+='<div class="wp-info-bar"><strong>当前员工：</strong><strong>'+_h(plan.name)+'</strong>&nbsp;'+_h(plan.dept)+' | '+_h(plan.position)+'<span class="sep">|</span>'+weekLabel;
   if(_wpViewingSubordinate)html+='<span style="color:#E8622A;font-weight:500;margin-left:8px">（查看直属下属周计划）</span>';
   else if(_wpViewingDeptMember)html+='<span style="color:#E8622A;font-weight:500;margin-left:8px">（查看更多下属周计划）</span>';
   if(plan.frozen && plan.frozenBy && plan.frozenBy !== myName && !_wpViewingShared && !_wpViewingSubordinate && !_wpViewingDeptMember){
