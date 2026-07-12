@@ -1145,6 +1145,13 @@ function renderWPYearGrid(year){
 }
 
 async function delWPFromSidebar(y,m,w){
+  var p=getWP(y,m,w);
+  var myName=(currentUser&&currentUser.name)||'';
+  // ★ V0.6.1as: 删除安全机制——已提交/已锁定/已评价时禁止删除
+  if(p && (p.submittedAt || p.summarySubmittedAt || (p.frozen && p.frozenBy && p.frozenBy !== myName) || p.bossEvaluated)){
+    _showAlert('要删除本周计划请先解除上级锁定或撤回提交周小结及周计划','⚠️ 无法删除',true);
+    return;
+  }
   var ok=await _showConfirm('确定删除 '+y+'年'+m+'月第'+w+'周的工作计划吗？\n\n此操作不可撤销。'+'\n\n—\n\n'+'Confirm deletion of Week '+w+', '+m+'/'+y+'?\n\nThis action cannot be undone.','⚠️ 注意 / Attention');
   if(!ok)return;
   deleteWP(y,m,w);
@@ -3297,6 +3304,12 @@ function _formatDateTime(isoStr){
 
 async function deleteCurrentWPPlan(){
   var p=_wpCurrent.plan;if(!p){_showAlert('请先选择一个周计划');return;}
+  var myName=(currentUser&&currentUser.name)||'';
+  // ★ V0.6.1as: 删除安全机制——已提交/已锁定/已评价时禁止删除
+  if(p.submittedAt || p.summarySubmittedAt || (p.frozen && p.frozenBy && p.frozenBy !== myName) || p.bossEvaluated){
+    _showAlert('要删除本周计划请先解除上级锁定或撤回提交周小结及周计划','⚠️ 无法删除',true);
+    return;
+  }
   var ok=await _showConfirm('你确定要清空 '+p.year+'年'+p.month+'月第'+p.week+'周计划内容？\n\n如确定，将清除本周计划中已填写的所有内容。'+'\n\n—\n\nAre you sure you want to clear Week '+p.week+' of '+p.month+'/'+p.year+'?\n\nIf confirmed, all filled content in this week plan will be permanently removed.','⚠️ 注意 / Attention');
   if(!ok)return;
   // ★ V0.1.59: 重置为1行空白表单（保留 name/dept/position）
