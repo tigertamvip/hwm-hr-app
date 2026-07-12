@@ -6,8 +6,8 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.6.1aw">
-<!-- cache-bust: 2026-07-11-09-15 -->
+<meta name="version" content="V0.6.1ax">
+<!-- cache-bust: 2026-07-12-11-32 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1187,12 +1187,34 @@ body{
 }
 .portal-card:hover .portal-card-en{color:rgba(255,255,255,.65)}
 
-/* ★ V0.5.120: 固定底部信息面板（50%透明度） */
+/* ★ V0.5.120→抽屉式改造: 顶部抽屉式信息面板（easeOutExpo推出 / easeInExpo回收） */
 .portal-info-panel{
   position:fixed;
-  bottom:54px;
-  left:50%;
-  transform:translateX(-50%);
+  top:32px;
+  left:0; right:0;
+  display:flex;
+  justify-content:center;
+  z-index:100;
+  pointer-events:none;
+  transform:translateY(-100%);
+  opacity:0;
+  visibility:hidden;
+  transition:
+    transform 460ms cubic-bezier(0.7,0,0.84,0),
+    opacity 380ms cubic-bezier(0.7,0,0.84,0),
+    visibility 0s linear 460ms;
+  will-change:transform,opacity;
+}
+.portal-info-panel.is-open{
+  transform:translateY(0);
+  opacity:1;
+  visibility:visible;
+  transition:
+    transform 520ms cubic-bezier(0.16,1,0.3,1),
+    opacity 380ms cubic-bezier(0.16,1,0.3,1),
+    visibility 0s linear 0s;
+}
+.portal-info-panel-inner{
   width:960px;
   max-width:96vw;
   background:rgba(255,255,255,0.50);
@@ -1202,12 +1224,30 @@ body{
   border-radius:12px;
   box-shadow:0 12px 40px rgba(0,0,0,.18);
   padding:20px 28px;
-  z-index:100;
+  pointer-events:auto;
   white-space:normal;
-  opacity:0;
-  visibility:hidden;
-  transition:opacity .44s ease,visibility .44s ease;
+  position:relative;
 }
+.portal-info-panel-inner::after{
+  content:'';
+  position:absolute;
+  top:-1px; left:0; right:0;
+  height:1px;
+  background:linear-gradient(90deg,transparent,rgba(133,183,235,0.6),transparent);
+  opacity:0;
+  transition:opacity 400ms ease 120ms;
+}
+.portal-info-panel.is-open .portal-info-panel-inner::after{opacity:1}
+.portal-info-panel .tip-head,
+.portal-info-panel .tip-cn,
+.portal-info-panel .tip-en{
+  opacity:0;
+  transform:translateY(-6px);
+  transition:opacity 300ms ease,transform 300ms cubic-bezier(0.16,1,0.3,1);
+}
+.portal-info-panel.is-open .tip-head{opacity:1;transform:translateY(0);transition-delay:140ms}
+.portal-info-panel.is-open .tip-cn{opacity:1;transform:translateY(0);transition-delay:220ms}
+.portal-info-panel.is-open .tip-en{opacity:1;transform:translateY(0);transition-delay:300ms}
 .portal-info-panel .tip-head{
   font-size:14px;
   font-weight:600;
@@ -2477,11 +2517,13 @@ select.form-input{padding-right:28px;appearance:auto;-webkit-appearance:menulist
       <div class="portal-card-en">System Maintenance</div>
     </div>
   </div>
-  <!-- ★ V0.5.112: 固定底部信息面板 -->
+  <!-- ★ V0.5.112→抽屉式改造: 顶部抽屉式信息面板 -->
   <div class="portal-info-panel" id="portalInfoPanel">
-    <div class="tip-head" id="panelTipHead">请将鼠标悬停在模块上查看详情</div>
-    <div class="tip-cn" id="panelTipCn"></div>
-    <div class="tip-en" id="panelTipEn"></div>
+    <div class="portal-info-panel-inner">
+      <div class="tip-head" id="panelTipHead">请将鼠标悬停在模块上查看详情</div>
+      <div class="tip-cn" id="panelTipCn"></div>
+      <div class="tip-en" id="panelTipEn"></div>
+    </div>
   </div>
   <div class="portal-footer">
     If you have any questions, please contact the HR Department<br>
@@ -3116,7 +3158,7 @@ select.form-input{padding-right:28px;appearance:auto;-webkit-appearance:menulist
 <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
-console.log('HWM HR v20260603-kpi-v4 loaded');
+console.log('HWM HR v20260712-drawer-v4 loaded');
 // ===== pdf.js worker 配置 =====
 // V0.5.74: 品牌文本注入（从 APP_CONFIG 读取，切换客户只需改 config.js）
 (function setBrandTexts(){
@@ -3611,7 +3653,7 @@ function applyRoleUI(){
   initPortalInfoPanel();
 }
 
-// ★ V0.5.166: 固定底部信息面板 — 悬停0.8s显示，停留8s后自动渐隐
+// ★ V0.5.166→抽屉式改造: 顶部抽屉式面板 — 悬停0.25s推出，6s后自动收起
 function initPortalInfoPanel(){
   var cards=document.querySelectorAll('.portal-card');
   var panel=document.getElementById('portalInfoPanel');
@@ -3625,8 +3667,7 @@ function initPortalInfoPanel(){
     if(hideTimer){clearTimeout(hideTimer);hideTimer=null;}
   }
   function doHide(){
-    panel.style.opacity='0';
-    panel.style.visibility='hidden';
+    panel.classList.remove('is-open');
   }
   function doShow(card){
     var h=card.getAttribute('data-tip-head')||'';
@@ -3637,9 +3678,8 @@ function initPortalInfoPanel(){
     else{cn.style.display='none';}
     if(e){en.textContent=e;en.style.display='';}
     else{en.style.display='none';}
-    panel.style.opacity='1';
-    panel.style.visibility='visible';
-    // 6秒后自动渐隐
+    panel.classList.add('is-open');
+    // 6秒后自动收起
     hideTimer=setTimeout(function(){
       doHide();
       hideTimer=null;
@@ -3648,7 +3688,7 @@ function initPortalInfoPanel(){
   cards.forEach(function(card){
     card.addEventListener('mouseenter',function(){
       clearTimers();
-      showTimer=setTimeout(function(){doShow(card);showTimer=null;},800);
+      showTimer=setTimeout(function(){doShow(card);showTimer=null;},250);
     });
     card.addEventListener('mouseleave',function(){
       clearTimers();
