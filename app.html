@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.6.1at">
+<meta name="version" content="V0.6.1au">
 <!-- cache-bust: 2026-07-11-09-15 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json">
@@ -2029,8 +2029,8 @@ body{
 .wp-sidebar-plan-item:hover .wp-sidebar-plan-delete{display:block}
 .wp-sidebar-plan-item.active .wp-sidebar-plan-delete{display:block;opacity:.6;background:rgba(214,67,82,.7)}
 .wp-sidebar-plan-delete:hover{background:#B91C1C;transform:scale(1.1)}
-.wp-sidebar-plan-delete.locked{background:#CBD5E1;cursor:not-allowed;opacity:1}
-.wp-sidebar-plan-item.active .wp-sidebar-plan-delete.locked{background:#CBD5E1;opacity:1}
+.wp-sidebar-plan-delete.locked{background:rgba(214,67,82,.5);cursor:not-allowed;opacity:1}
+.wp-sidebar-plan-item.active .wp-sidebar-plan-delete.locked{background:rgba(214,67,82,.5);opacity:1}
 
 .wp-content{flex:1;height:100%;overflow:hidden;padding:0;background:#FBF8F3;display:flex;flex-direction:column}
 /* V0.5.152: 独立滚动容器 — 让 left/top sticky 双向生效 */
@@ -2059,6 +2059,9 @@ body{
 .wp-toolbar button.wp-btn-export:hover{background:rgba(97,145,211,.2);border-color:rgba(97,145,211,.2);color:#4a7bb5}
 /* 统一禁用状态 */
 .wp-toolbar button.wp-btn-primary:disabled,.wp-toolbar button.wp-btn-summary:disabled,.wp-toolbar button.wp-btn-delete:disabled,.wp-toolbar button.wp-btn-export:disabled,.wp-toolbar button.wp-btn-disabled{background:#CBD5E1;color:#94A3B8;border-color:#CBD5E1;cursor:not-allowed}
+/* ★ V0.6.1au: 删除按钮禁用状态用原色50%透明度 */
+.wp-toolbar button.wp-btn-delete:disabled{background:rgba(240,113,103,.45);color:rgba(255,255,255,.85);border-color:rgba(240,113,103,.45)}
+.wp-toolbar button.wp-btn-delete:disabled:hover{background:rgba(240,113,103,.45);color:rgba(255,255,255,.85);border-color:rgba(240,113,103,.45)}
 /* 白底蓝框次要按钮（回到我的计划/查看评价等） */
 .wp-toolbar button.wp-btn-accent{background:#fff;color:#3B7DB4;border-color:#3B7DB4}
 .wp-toolbar button.wp-btn-accent:hover{background:#E8F4FE;border-color:#2A6A9A;color:#2A6A9A}

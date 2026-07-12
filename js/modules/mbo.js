@@ -1046,7 +1046,7 @@ function renderWPPlanList(year,month){
     if(plan){
       var myName2=(currentUser&&currentUser.name)||'';
       var isLocked2=plan.firstSubmittedAt||plan.summarySubmittedAt||(plan.frozen&&plan.frozenBy&&plan.frozenBy!==myName2)||plan.bossEvaluated;
-      delBtn='<span class="wp-sidebar-plan-delete'+(isLocked2?' locked':'')+'" onclick="event.stopPropagation();delWPFromSidebar('+year+','+month+','+w+')">×</span>';
+      delBtn='<span class="wp-sidebar-plan-delete'+(isLocked2?' locked':'')+'"'+(isLocked2?' title="如要删除本周计划请先解除上级锁定或撤回提交周小结及周计划"':'')+' onclick="event.stopPropagation();delWPFromSidebar('+year+','+month+','+w+')">×</span>';
     }
     html+='<div class="wp-sidebar-plan-item'+(active?' active':'')+'" onclick="selectWP('+year+','+month+','+w+')">'+delBtn+'<div class="week-label">'+weekLabels[w-1]+'</div><div class="task-count">('+taskCount+')</div></div>';
   }
@@ -2058,7 +2058,7 @@ function renderWPTable(plan){
     }
     var isDeleteLocked=plan.firstSubmittedAt||plan.summarySubmittedAt||isLockedByBoss||plan.bossEvaluated;
     if(isDeleteLocked){
-      html+='<button disabled class="wp-btn-delete wp-btn-disabled" onclick="deleteCurrentWPPlan()"><span>🗑</span> 删除周计划</button>';
+      html+='<button disabled class="wp-btn-delete wp-btn-disabled" title="如要删除本周计划请先解除上级锁定或撤回提交周小结及周计划" onclick="deleteCurrentWPPlan()"><span>🗑</span> 删除周计划</button>';
     }else{
       html+='<button class="wp-btn-delete" onclick="deleteCurrentWPPlan()"><span>🗑</span> 删除周计划</button>';
     }
