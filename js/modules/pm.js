@@ -12,11 +12,18 @@ window._pmInit=true;
 var SUPABASE_PM_TABLE = 'projects';
 var SUPABASE_TASK_TABLE = 'project_tasks';
 var PM_CACHE_PREFIX = 'hwm_pm_';
+var PM_TYPE_DEFS = [
+  {key:'全部', label:'全部项目'},
+  {key:'战略', label:'战略项目管理'},
+  {key:'协同', label:'协同项目管理'},
+  {key:'研发', label:'研发项目管理'},
+  {key:'通用', label:'通用项目管理'}
+];
 
 // ===== State =====
 var _pmCurrent = null;       // {project, tasks}
 var _pmView = 'list';        // list / detail / board
-var _pmFilter = {type:'研发', search:''};
+var _pmFilter = {type:'全部', search:''};
 var _pmProjects = [];
 
 // ===== Data Layer =====
@@ -169,7 +176,7 @@ function renderPMList(){
   html += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">';
   html += '<div style="display:flex;align-items:center;gap:10px">';
   html += '<select onchange="_pmFilter.type=this.value;renderPMList()" style="padding:5px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:12px;background:#fff">';
-  ['全部','研发','通用','战略'].forEach(function(t){ html += '<option'+(t===_pmFilter.type?' selected':'')+'>'+t+'</option>'; });
+  PM_TYPE_DEFS.forEach(function(t){ html += '<option value="'+t.key+'"'+(t.key===_pmFilter.type?' selected':'')+'>'+t.label+'</option>'; });
   html += '</select>';
   html += '<span style="font-size:12px;color:#9CA3AF">共 '+projects.length+' 个项目</span>';
   html += '</div>';
@@ -192,8 +199,8 @@ function renderProjectCard(p){
   var lvlBg = {'1':'#FEF2F2','2':'#FFFBEB','3':'#ECFDF5'};
   var lvlText = {'1':'#DC2626','2':'#D97706','3':'#059669'};
   var lvlLabels = {'1':'一级','2':'二级','3':'三级'};
-  var typeColors = {'研发':'#3B82F6','通用':'#6B7280','战略':'#8B5CF6'};
-  var typeBg = {'研发':'#EFF6FF','通用':'#F3F4F6','战略':'#F5F3FF'};
+  var typeColors = {'研发':'#3B82F6','通用':'#6B7280','战略':'#8B5CF6','协同':'#14B8A6'};
+  var typeBg = {'研发':'#EFF6FF','通用':'#F3F4F6','战略':'#F5F3FF','协同':'#F0FDFA'};
   var statusBg = {'草稿中':'#F3F4F6','审批中':'#FFFBEB','实施中':'#EFF6FF','已完成':'#ECFDF5','已逾期':'#FEF2F2','待复审':'#FFF7ED','已中止':'#F3F4F6'};
   var statusColor = {'草稿中':'#9CA3AF','审批中':'#D97706','实施中':'#3B82F6','已完成':'#059669','已逾期':'#DC2626','待复审':'#EA580C','已中止':'#6B7280'};
 
@@ -243,9 +250,9 @@ function renderPMSidebar(){
   var h = '';
   h += '<div style="margin-bottom:18px">';
   h += '<div style="font-size:11px;font-weight:600;color:#9CA3AF;margin-bottom:8px;letter-spacing:.5px">项目类型</div>';
-  ['全部','研发','通用','战略'].forEach(function(t){
-    var sel = t===_pmFilter.type;
-    h += '<div onclick="_pmFilter.type=\''+t+'\';renderPMSidebar();renderPMList()" style="padding:6px 10px;border-radius:6px;font-size:12px;cursor:pointer;margin-bottom:3px;'+(sel?'background:#EFF6FF;color:#3B82F6;font-weight:600':'color:#6B7280')+'">'+t+'项目管理</div>';
+  PM_TYPE_DEFS.forEach(function(td){
+    var sel = td.key===_pmFilter.type;
+    h += '<div onclick="_pmFilter.type=\''+td.key+'\';renderPMSidebar();renderPMList()" style="padding:6px 10px;border-radius:6px;font-size:12px;cursor:pointer;margin-bottom:3px;'+(sel?'background:#EFF6FF;color:#3B82F6;font-weight:600':'color:#6B7280')+'">'+td.label+'</div>';
   });
   h += '</div>';
 
@@ -504,7 +511,6 @@ function backToPMList(){
 
 // ===== New Project Form (HTML Modal) =====
 async function showNewProjectForm(){
-  var types = ['研发','通用','战略'];
   var levels = [{v:1,t:'一级 - 公司战略级重大'},{v:2,t:'二级 - 公司级及跨部门重要'},{v:3,t:'三级 - 体系及部门内小型'}];
   var currentName = (currentUser&&currentUser.name)||'';
 
@@ -517,7 +523,7 @@ async function showNewProjectForm(){
   h += '<div style="flex:1">';
   h += '<label style="display:block;font-size:12px;color:#6B7280;margin-bottom:4px">项目类型</label>';
   h += '<select id="np-type" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:13px">';
-  types.forEach(function(t){ h += '<option>'+t+'</option>'; });
+  PM_TYPE_DEFS.forEach(function(td){ if(td.key!=='全部') h += '<option value="'+td.key+'">'+td.label+'</option>'; });
   h += '</select></div>';
   h += '<div style="flex:1">';
   h += '<label style="display:block;font-size:12px;color:#6B7280;margin-bottom:4px">项目级别</label>';
@@ -565,7 +571,7 @@ async function showNewProjectForm(){
     budget_pool: budget?parseFloat(budget):null,
     description: desc
   });
-  if(p) { _pmProjects = loadAllProjects(); renderPMList(); renderPMSidebar(); }
+  if(p) { _pmFilter.type = '全部'; _pmProjects = loadAllProjects(); renderPMList(); renderPMSidebar(); }
 }
 
 // ===== Utility =====
@@ -605,7 +611,7 @@ async function enterPMModule(){
   _pmProjects = loadAllProjects();
   _pmView = 'list';
   _pmCurrent = null;
-  _pmFilter = {type:'研发', search:''};
+  _pmFilter = {type:'全部', search:''};
 
   var listEl = document.getElementById('pmListView');
   var detailEl = document.getElementById('pmDetailView');
