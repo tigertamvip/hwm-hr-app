@@ -2015,7 +2015,7 @@ function renderWPTable(plan){
     html+='<button class="' + (_wpRevisionMode?'wp-btn-warn':'') + '" onclick="toggleWPRevisionMode()" title="开启后可修改下属计划内容，修改将以红色标注">';
     html+=_wpRevisionMode?'🔴 关闭修订':'✏️ 开启修订';
     html+='</button>';
-    // ★ V0.1.23: 锁定周计划 — 上级点击后下属不能修改 本周重点工作/优先级/计划完成时间
+    // ★ V0.1.23: 锁定周计划 — 上级点击后下属不能修改 本周重点行动项/优先级/计划完成时间
     // ★ V0.6.1af: 上级锁定按钮只反映上级自己锁定的状态
     var myName=(currentUser&&currentUser.name)||'';
     var isFrozen = _wpCurrent.plan && _wpCurrent.plan.frozen && _wpCurrent.plan.frozenBy===myName;
@@ -3370,7 +3370,7 @@ function exportCurrentWP(){
     var AL_LT={alignment:{horizontal:'left',vertical:'top',wrapText:true}};
 
     var title=p.name+' '+p.year+'年'+p.month+'月 第'+p.week+'周 工作计划';
-    var hdrs=['姓名','部门','岗位','序号','本周重点工作','优先级','启动日期','计划完成日期','实际完成日期','耗时','完成状态','协同人','遇到的问题/挑战','问题类型','是否需要上级介入','直属上级建议','AI分析建议'];
+    var hdrs=['姓名','部门','岗位','序号','本周重点行动项','优先级','启动日期','计划完成日期','实际完成日期','耗时','完成状态','协同人','遇到的问题/挑战','问题类型','是否需要上级介入','直属上级建议','AI分析建议'];
     
     // 构建数据行
     var rows=[[title], hdrs];
