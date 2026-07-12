@@ -2058,7 +2058,7 @@ function renderWPTable(plan){
     }
     var isDeleteLocked=plan.firstSubmittedAt||plan.summarySubmittedAt||isLockedByBoss||plan.bossEvaluated;
     if(isDeleteLocked){
-      html+='<button disabled class="wp-btn-delete wp-btn-disabled" title="如要删除本周计划请先解除上级锁定或撤回提交周小结及周计划" onclick="deleteCurrentWPPlan()"><span>🗑</span> 删除周计划</button>';
+      html+='<button class="wp-btn-delete wp-btn-disabled" title="如要删除本周计划请先解除上级锁定或撤回提交周小结及周计划" onclick="deleteCurrentWPPlan()"><span>🗑</span> 删除周计划</button>';
     }else{
       html+='<button class="wp-btn-delete" onclick="deleteCurrentWPPlan()"><span>🗑</span> 删除周计划</button>';
     }
@@ -3316,7 +3316,7 @@ async function deleteCurrentWPPlan(){
   var myName=(currentUser&&currentUser.name)||'';
   // ★ V0.6.1as: 删除安全机制——已提交/已锁定/已评价时禁止删除
   if(p.firstSubmittedAt || p.summarySubmittedAt || (p.frozen && p.frozenBy && p.frozenBy !== myName) || p.bossEvaluated){
-    _showAlert('要删除本周计划请先解除上级锁定或撤回提交周小结及周计划','⚠️ 无法删除',true);
+    _showAlert('你的周计划由于你已提交小结或上级已锁定，如需删除请先解除上级锁定，并撤回周小结提交和周计划提交，即可删除。','⚠️ 无法删除',true);
     return;
   }
   var ok=await _showConfirm('你确定要清空 '+p.year+'年'+p.month+'月第'+p.week+'周计划内容？\n\n如确定，将清除本周计划中已填写的所有内容。'+'\n\n—\n\nAre you sure you want to clear Week '+p.week+' of '+p.month+'/'+p.year+'?\n\nIf confirmed, all filled content in this week plan will be permanently removed.','⚠️ 注意 / Attention');
