@@ -615,6 +615,9 @@ function injectPMStyles(){
   var s = document.createElement('style');
   s.id = 'pm-styles';
   s.textContent = ''
+  +'.pm-header{padding:16px 20px!important;padding-top:max(16px,env(safe-area-inset-top))!important;min-height:40px!important}'
+  +'.pm-header h1{font-size:18px!important}'
+  +'.pm-header .header-sub{font-size:11px!important}'
   +'.pm-card:hover{box-shadow:0 4px 12px rgba(0,0,0,.08);transform:translateY(-2px)}'
   +'.pm-stat-card{background:#F9FAFB;border-radius:10px;padding:14px 16px;text-align:center}'
   +'.pm-btn-back:hover{background:#F3F4F6;color:#374151}'
