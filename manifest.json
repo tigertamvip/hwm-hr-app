@@ -2,7 +2,7 @@
   "name": "MBO+AI目标计划管理系统",
   "short_name": "MBO+AI",
   "description": "MBO+AI目标计划管理系统",
-  "start_url": "https://hwm.tiger-buddy.com/app.html?v=ba",
+  "start_url": "https://hwm.tiger-buddy.com/app.html?v=bb",
   "scope": "https://hwm.tiger-buddy.com/",
   "display": "standalone",
   "orientation": "any",
@@ -10,14 +10,15 @@
   "background_color": "#F2F4F5",
   "icons": [
     {
-      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect fill='%2302314D' width='192' height='192' rx='38'/%3E%3Ctext x='96' y='125' text-anchor='middle' fill='white' font-size='90' font-family='Arial,Helvetica,sans-serif' font-weight='bold'%3EM%3C/text%3E%3C/svg%3E",
+      "src": "icon-192.png?v=bb",
       "sizes": "192x192",
-      "type": "image/svg+xml"
+      "type": "image/png"
     },
     {
-      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect fill='%2302314D' width='512' height='512' rx='102'/%3E%3Ctext x='256' y='335' text-anchor='middle' fill='white' font-size='240' font-family='Arial,Helvetica,sans-serif' font-weight='bold'%3EM%3C/text%3E%3C/svg%3E",
+      "src": "icon-512.png?v=bb",
       "sizes": "512x512",
-      "type": "image/svg+xml"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
