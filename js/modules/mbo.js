@@ -1973,7 +1973,7 @@ function renderWPTable(plan){
   if(_wpViewingSubordinate)html+='<span style="color:#E8622A;font-weight:500;margin-left:8px">（查看直属下属周计划）</span>';
   else if(_wpViewingDeptMember)html+='<span style="color:#E8622A;font-weight:500;margin-left:8px">（查看更多下属周计划）</span>';
   if(plan.frozen && plan.frozenBy && plan.frozenBy !== myName && !_wpViewingShared && !_wpViewingSubordinate && !_wpViewingDeptMember){
-    html+='<span style="color:#3b82f6;font-weight:600;margin-left:8px">🔐 已被上级锁定（本周重点/优先级/计划完成日期不可修改）</span>';
+    html+='<span style="color:#3B7DB4;font-weight:600;margin-left:8px">🔐 上级锁定（蓝线单元不可修改）</span>';
     if(plan.frozenBy)/* removed by attribution */;
   }
   if(_wpRevisionMode)html+='<span style="color:#e53e3e;font-weight:500;margin-left:8px">🔴 修订模式</span>';
