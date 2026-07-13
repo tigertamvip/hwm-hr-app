@@ -2716,38 +2716,38 @@ async function commitEditCell(el){
           // ★ V0.4.91: 自动状态识别（新积分规则+工作日宽限期）
           if(parts[2]==='actualDate' && newVal){
             var tsk=_wpCurrent.plan.tasks[ti];
-              var pDate=tsk.plannedDate;
-              if(tsk.status==='暂停中'){
-                // 保持用户手动状态，不做自动判断
-              }else if(tsk.status==='未做' && tsk._manualNotDone){
-                // 手动"未做"→终止计算时间，但允许填实际日期来恢复
-                if(pDate){
-                  if(newVal<=pDate){
-                    tsk.status='按时完成';delete tsk._manualNotDone;
-                  }else{
-                    var _ovd=_countWorkdays(pDate,newVal);
-                    if(_ovd>5){tsk.status='未做';delete tsk._manualNotDone;}
-                    else{tsk.status='逾期完成';delete tsk._manualNotDone;}
-                  }
-                }
-              }else if(pDate){
+            var pDate=tsk.plannedDate;
+            if(tsk.status==='暂停中'){
+              // 保持用户手动状态，不做自动判断
+            }else if(tsk.status==='未做' && tsk._manualNotDone){
+              // 手动"未做"→终止计算时间，但允许填实际日期来恢复
+              if(pDate){
                 if(newVal<=pDate){
-                  tsk.status='按时完成';
+                  tsk.status='按时完成';delete tsk._manualNotDone;
                 }else{
-                  var _ovd2=_countWorkdays(pDate,newVal);
-                  if(_ovd2>5){tsk.status='未做';delete tsk._manualNotDone;}
-                  else{tsk.status='逾期完成';}
+                  var _ovd=_countWorkdays(pDate,newVal);
+                  if(_ovd>5){tsk.status='未做';delete tsk._manualNotDone;}
+                  else{tsk.status='逾期完成';delete tsk._manualNotDone;}
                 }
               }
-            } else if(parts[2]==='actualDate' && !newVal){
-              // ★ V0.5.48: 清空实际完成日期 → 状态自动恢复为"进行中"（暂停中保留）
-              var tsk=_wpCurrent.plan.tasks[ti];
-              if(tsk.status!=='暂停中'){
-                tsk.status='进行中';
-                delete tsk._manualNotDone;
+            }else if(pDate){
+              if(newVal<=pDate){
+                tsk.status='按时完成';
+              }else{
+                var _ovd2=_countWorkdays(pDate,newVal);
+                if(_ovd2>5){tsk.status='未做';delete tsk._manualNotDone;}
+                else{tsk.status='逾期完成';}
               }
             }
+          } else if(parts[2]==='actualDate' && !newVal){
+            // ★ V0.5.48: 清空实际完成日期 → 状态自动恢复为"进行中"（暂停中保留）
+            var tsk=_wpCurrent.plan.tasks[ti];
+            if(tsk.status!=='暂停中'){
+              tsk.status='进行中';
+              delete tsk._manualNotDone;
+            }
           }
+        }
       }
       _wpCurrent.plan.updatedAt=new Date().toISOString();
       _calcWeekScore(_wpCurrent.plan); // ★ V0.4.91b: 先计算状态再保存
