@@ -2348,7 +2348,6 @@ async function clearTaskRow(idx){
   var t=tasks[idx];
   if(!t)return;
   if(t.collab_from){showToast('⚠️ 协同任务不能清空');return;}
-  // 检查是否为空行（避免误清空空白行）
   var hasContent=t.work||t.goal||t.startDate||t.plannedDate||t.actualDate||
     t.estimatedHours||t.status||t.needBoss||t.problems||t.problemType||
     (t.supporters&&t.supporters.length>0)||t.aiSuggestion||t.bossFeedback;
@@ -2356,29 +2355,27 @@ async function clearTaskRow(idx){
   var taskLabel=(t.work||'第'+(idx+1)+'项').substring(0,20);
   var ok=await _showConfirm('确定要清空「'+taskLabel+'」的所有内容吗？\n\n行结构和序号将保留。','清空该行 / Clear Row');
   if(!ok)return;
-  // ★ V0.6.1ek: 彻底重置 — 替换为全新的空对象（强制引用变化触发UI更新）
+  // ★ V0.6.1el: 最直接方案 — 同时更新数据+DOM+刷新页面
+  // 1. 清空数据（所有字段）
   var newTask={seq:1,goal:'',work:'',status:'',needBoss:'',problems:'',
     startDate:'',actualDate:'',supporters:'',plannedDate:'',problemType:'',
     aiSuggestion:'',bossFeedback:'',estimatedHours:'',remarks:''};
   tasks.splice(idx,1,newTask);
-  // ★ V0.6.1ek: 关键修复 — 同时清空 _revisions！renderWPCellValue 优先读 _revisions
+  // 2. 清空 _revisions
   if(p._revisions){
-    for(var key in p._revisions){
-      if(key.indexOf('tasks.'+idx+'.')===0){
-        delete p._revisions[key];
-      }
-    }
+    var prefix='tasks.'+idx+'.';
+    for(var key in p._revisions){if(key.indexOf(prefix)===0)delete p._revisions[key];}
   }
   p.updatedAt=new Date().toISOString();
-  _calcWeekScore(p);
-  if(_wpData&&_wpCurrent&&_wpCurrent.year){
-    var key=makeWPId(_wpCurrent.year,_wpCurrent.month,_wpCurrent.week);
-    if(_wpData[key])_wpData[key]=p;
+  // 3. 同步到 _wpData（保存数据）
+  if(_wpCurrent&&_wpCurrent.year){
+    var k=makeWPId(_wpCurrent.year,_wpCurrent.month,_wpCurrent.week);
+    if(_wpData)_wpData[k]=p;
   }
+  // 4. 保存到 localStorage
   saveWP(p.year,p.month,p.week,p);
-  console.log('[clearTaskRow] After clear, p.tasks[0]=',JSON.stringify(p.tasks[0]),' revisions=',JSON.stringify(p._revisions||{}));
-  renderWPTable(p);
-  showToast('✨ 已清空第 '+(idx+1)+' 行所有内容');
+  // 5. 强制页面刷新（最可靠的 UI 更新方式）
+  setTimeout(function(){location.reload();},200);
 }
 
 function renderWPTable(plan){
