@@ -2356,21 +2356,28 @@ async function clearTaskRow(idx){
   var taskLabel=(t.work||'第'+(idx+1)+'项').substring(0,20);
   var ok=await _showConfirm('确定要清空「'+taskLabel+'」的所有内容吗？\n\n行结构和序号将保留。','清空该行 / Clear Row');
   if(!ok)return;
-  // 保留 seq/年份月份周/协同来源，清空其他所有字段
-  var keepSeq=t.seq;
-  var keepCollab=t.collab_from;
-  // ★ V0.6.1ei: 用 Object.keys 遍历清空所有字段，更彻底
-  var cleared={seq:keepSeq||1,goal:'',work:'',status:'',needBoss:'',problems:'',
+  // ★ V0.6.1ek: 彻底重置 — 替换为全新的空对象（强制引用变化触发UI更新）
+  var newTask={seq:1,goal:'',work:'',status:'',needBoss:'',problems:'',
     startDate:'',actualDate:'',supporters:'',plannedDate:'',problemType:'',
     aiSuggestion:'',bossFeedback:'',estimatedHours:'',remarks:''};
-  if(keepCollab)cleared.collab_from=keepCollab;
-  // 强制替换数组元素
-  p.tasks[idx]=cleared;
+  tasks.splice(idx,1,newTask);
+  // ★ V0.6.1ek: 关键修复 — 同时清空 _revisions！renderWPCellValue 优先读 _revisions
+  if(p._revisions){
+    for(var key in p._revisions){
+      if(key.indexOf('tasks.'+idx+'.')===0){
+        delete p._revisions[key];
+      }
+    }
+  }
   p.updatedAt=new Date().toISOString();
   _calcWeekScore(p);
+  if(_wpData&&_wpCurrent&&_wpCurrent.year){
+    var key=makeWPId(_wpCurrent.year,_wpCurrent.month,_wpCurrent.week);
+    if(_wpData[key])_wpData[key]=p;
+  }
   saveWP(p.year,p.month,p.week,p);
-  // ★ V0.6.1ei: 强制重新渲染，传入新对象引用
-  renderWPTable(JSON.parse(JSON.stringify(p)));
+  console.log('[clearTaskRow] After clear, p.tasks[0]=',JSON.stringify(p.tasks[0]),' revisions=',JSON.stringify(p._revisions||{}));
+  renderWPTable(p);
   showToast('✨ 已清空第 '+(idx+1)+' 行所有内容');
 }
 
