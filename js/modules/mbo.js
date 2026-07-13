@@ -109,6 +109,7 @@ var _wpViewingSubordinate=null;
 var _wpViewingDeptMember=null;
 var _wpViewingShared=null; // ★ V0.5.79b: 被分享查看的人
 var _wpViewingMergedUrgent=false; // ★ V0.6.1df: 下属重急事项合并视图
+var _wpViewingMergedIndirect=false; // ★ V0.6.1do: 间接下属标记
 var _wpEditCell=null;
 var _wpLastRenderKey='';
 var _wpRevisionMode=false;
@@ -727,9 +728,16 @@ function renderWPSubSelect(){
     var ddHtml='';
     // ★ V0.6.1dh: 下属重急事项放最前面（关注优先）
     if(subs.length>0){
-      ddHtml+='<div class="wp-custom-option'+(_wpViewingMergedUrgent?' active':'')+'" onclick="selectWPSubOption(\'__merged_urgent__\',\'下属重急事项\',\'merged-urgent\')" style="color:#FF3B30;font-weight:600"><span style="margin-right:8px">⚠️</span>下属重急事项</div>';
-      ddHtml+='<div style="border-top:1px solid #e5e7eb;margin:6px 0"></div>';
+      ddHtml+='<div class="wp-custom-option'+(_wpViewingMergedUrgent?' active':'')+'" onclick="selectWPSubOption(\'__merged_urgent_direct__\',\'直接下属重急项\',\'merged-urgent\')" style="color:#FF3B30;font-weight:600"><span style="margin-right:8px">⚠️</span>直接下属重急项</div>';
     }
+    // ★ V0.6.1do: 间接下属重急项
+    if(nonDirect.length>0){
+      if(directOpts.length>0||subs.length>0){
+        ddHtml+='<div style="border-top:1px solid #e5e7eb;margin:6px 0"></div>';
+      }
+      ddHtml+='<div class="wp-custom-option" onclick="selectWPSubOption(\'__merged_urgent_indirect__\',\'间接下属重急项\',\'merged-urgent-indirect\')" style="color:#D97706;font-weight:600"><span style="margin-right:8px">⚡</span>间接下属重急项</div>';
+    }
+    ddHtml+='<div style="border-top:1px solid #e5e7eb;margin:6px 0"></div>';
     // 直属下属组
     var directOpts=_wpSubData.options.filter(function(o){return o.rel==='direct';});
     if(directOpts.length>0){
@@ -776,6 +784,7 @@ function switchToMyWP(){
   _wpViewingDeptMember=null;
   _wpViewingShared=null;
   _wpViewingMergedUrgent=false;
+  _wpViewingMergedIndirect=false;
   _wpRevisionMode=false;
   _wpCurrent={year:null,month:null,week:null,plan:null};
   _wpSubData.selected='';
@@ -906,8 +915,7 @@ function selectWPSubOption(val,name,rel){
     if(sCurrISO.year!==autoY) sMapped={month:1,week:1};
     setTimeout(function(){ try{selectWP(autoY,sMapped.month,sMapped.week);}catch(e){console.warn('auto-selectWP after shared change failed:',e);} }, 100);
   }else if(rel==='merged-urgent'){
-    // ★ V0.6.1dh: 保留当前选中的年月周（用户通常会先选周再点合并）
-    // 但要从 wpYear/wpMonth 控件读取（如果有），保证与侧栏一致
+    // ★ V0.6.1do: 直接下属重急项
     var yEl2=document.getElementById('wpYear');
     var mEl2=document.getElementById('wpMonth');
     var yNow=yEl2?parseInt(yEl2.value):(_wpCurrent.year||new Date().getFullYear());
@@ -917,8 +925,26 @@ function selectWPSubOption(val,name,rel){
     _wpViewingDeptMember=null;
     _wpViewingShared=null;
     _wpViewingMergedUrgent=true;
+    _wpViewingMergedIndirect=false;
     _wpRevisionMode=false;
     _wpCurrent={year:yNow,month:mNow,week:wNow,plan:null};
+    renderWPUserInfo();
+    renderWPSubSelect();
+    _renderMergedUrgentView();
+  }else if(rel==='merged-urgent-indirect'){
+    // ★ V0.6.1do: 间接下属重急项
+    var yEl3=document.getElementById('wpYear');
+    var mEl3=document.getElementById('wpMonth');
+    var yNow3=yEl3?parseInt(yEl3.value):(_wpCurrent.year||new Date().getFullYear());
+    var mNow3=mEl3?parseInt(mEl3.value):(_wpCurrent.month||(new Date().getMonth()+1));
+    var wNow3=_wpCurrent.week||1;
+    _wpViewingSubordinate=null;
+    _wpViewingDeptMember=null;
+    _wpViewingShared=null;
+    _wpViewingMergedUrgent=true;
+    _wpViewingMergedIndirect=true;
+    _wpRevisionMode=false;
+    _wpCurrent={year:yNow3,month:mNow3,week:wNow3,plan:null};
     renderWPUserInfo();
     renderWPSubSelect();
     _renderMergedUrgentView();
@@ -932,8 +958,31 @@ function selectWPSubOption(val,name,rel){
 // ★ V0.6.1df: 下属重急事项合并视图
 async function _renderMergedUrgentView(){
   var myName=(currentUser&&currentUser.name)||'';
-  var subs=getWPSubordinates().filter(function(s){return s!==myName;});
-  if(subs.length===0){showWPEmpty();return;}
+  // ★ V0.6.1do: 根据 _wpViewingMergedIndirect 决定收集直接/间接下属
+  var subs;
+  if(_wpViewingMergedIndirect){
+    var directSubs=getWPSubordinates();
+    var allSubIds=getAllIndirectSubordinates(currentUser._uid);
+    subs=allSubIds.filter(function(name){
+      return directSubs.indexOf(name)<0&&name!==myName;
+    });
+  }else{
+    subs=getWPSubordinates().filter(function(s){return s!==myName;});
+  }
+  if(subs.length===0){
+    var content=document.getElementById('wpContent');
+    if(content){
+      var sc=content.querySelector('.wp-scroll-area');if(sc)sc.remove();
+      var ta=content.querySelector('.wp-table-area');if(ta)ta.remove();
+      var ib=content.querySelector('.wp-info-bar');if(ib)ib.remove();
+      var emp=content.querySelector('.wp-empty');if(emp)emp.remove();
+      var emptyDiv=document.createElement('div');
+      emptyDiv.className='wp-empty';
+      emptyDiv.innerHTML='<div class="wp-empty-title">本周暂无'+( _wpViewingMergedIndirect?'间接':'直接')+'下属重要紧急事项</div><div class="wp-empty-desc">你的'+( _wpViewingMergedIndirect?'间接':'直接')+'下属本周没有标记为"重要紧急"的行动项，团队节奏良好 👍</div>';
+      content.appendChild(emptyDiv);
+    }
+    return;
+  }
 
   // 收集所有直属下属当前周的重要紧急事项
   var allTasks=[];
@@ -1034,17 +1083,20 @@ async function _renderMergedUrgentView(){
 
   var content=document.getElementById('wpContent');
   if(!content)return;
-  var sc2=content.querySelector('.wp-scroll-area');if(sc2)sc2.remove();
-  var ta2=content.querySelector('.wp-table-area');if(ta2)ta2.remove();
-  var ib2=content.querySelector('.wp-info-bar');if(ib2)ib2.remove();
+  // ★ V0.6.1do: 用 querySelectorAll 清理所有同类型 DOM 元素
+  var oldSc=content.querySelectorAll('.wp-scroll-area');oldSc.forEach(function(el){el.remove();});
+  var oldTa=content.querySelectorAll('.wp-table-area');oldTa.forEach(function(el){el.remove();});
+  var oldIb=content.querySelectorAll('.wp-info-bar');oldIb.forEach(function(el){el.remove();});
+  var oldTb=content.querySelectorAll('.wp-toolbar');oldTb.forEach(function(el){el.remove();});
 
   var weekLabel=cy+'年'+cm+'月 第'+cw+'周';
   var infoBar=document.createElement('div');
   infoBar.className='wp-info-bar merged-urgent';
+  var prefixLabel=_wpViewingMergedIndirect?'间接下属重急项':'直接下属重急项';
   // ★ V0.6.1dl: 全部统一 13px 字体 + padding-left 让位侧栏
-  infoBar.innerHTML='<strong style="color:#FF3B30;font-size:13px">⚠️ 下属重急事项</strong> '+
+  infoBar.innerHTML='<strong style="color:'+(_wpViewingMergedIndirect?'#D97706':'#FF3B30')+';font-size:13px">'+( _wpViewingMergedIndirect?'⚡':'⚠️')+' '+prefixLabel+'</strong> '+
     '<span style="color:#475569;font-size:13px">'+weekLabel+'</span> '+
-    '<span style="color:#6b7280;font-size:13px">共 <strong>'+merged.length+'</strong> 项，来自 '+subs.length+' 位下属</span>'+
+    '<span style="color:#6b7280;font-size:13px">共 <strong>'+merged.length+'</strong> 项，来自 '+subs.length+' 位'+( _wpViewingMergedIndirect?'间接':'直接')+'下属</span>'+
     (allTasks.length>limit?'<span style="color:#D64352;font-size:13px;margin-left:12px">显示前'+limit+'项（共'+allTasks.length+'项）</span>':'')+
     (overdueItems.length>0&&allTasks.length<=limit?'<span style="color:#D64352;font-size:13px;margin-left:12px">其中 <strong>'+overdueItems.length+'</strong> 项已逾期</span>':'');
   content.appendChild(infoBar);
@@ -1053,7 +1105,7 @@ async function _renderMergedUrgentView(){
   var toolbar=document.createElement('div');
   toolbar.className='wp-toolbar merged-urgent';
   toolbar.id='wpToolbar';
-  // ★ V0.6.1dl: 工具栏文字统一 13px；导出按钮 margin-left:auto 让其靠右
+  // ★ V0.6.1do: 工具栏文字统一 13px；导出按钮 margin-left:auto 让其靠右
   toolbar.innerHTML='<span style="color:#3B7DB4;font-weight:600;font-size:13px">📋 合并视图 — 只读模式</span>'+
     '<button class="wp-btn-export" onclick="exportMergedUrgent()" style="margin-left:auto"><span>📥</span> 导出合并表</button>';
   content.appendChild(toolbar);
@@ -1502,6 +1554,7 @@ async function delWPFromSidebar(y,m,w){
 function selectWP(y,m,w){
   // ★ V0.6.1dn: 退出合并视图时清理残留 DOM
   _wpViewingMergedUrgent=false;
+  _wpViewingMergedIndirect=false;
   _wpCurrent.mergedTasks=null;
   var content=document.getElementById('wpContent');
   if(content){
