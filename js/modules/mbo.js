@@ -2317,30 +2317,6 @@ function addTaskRow(afterIdx){
   showToast('✅ 已添加新行');
 }
 
-// ★ V0.1.59: 删除指定行
-// ★ V0.3.110: 清空指定行内容（不清除该行，只重置所有字段）
-async function clearTaskRow(idx){
-  var p=_wpCurrent.plan;if(!p)return;
-  var tasks=p.tasks;
-  if(idx<0||idx>=tasks.length){showToast('⚠️ 索引越界，无法清空');return;}
-  var t=tasks[idx];
-  if(!t){showToast('⚠️ 目标行为空');return;}
-  if(t.collab_from){showToast('⚠️ 协同任务不能清空');return;}
-  var taskLabel=(t.work||'第'+(idx+1)+'项').substring(0,20);
-  var ok=await _showConfirm('确定要清空「'+taskLabel+'」的全部内容吗？\n\n该行将保留为空白行，可重新填写。'+'\n\n—\n\n'+'Clear all content of "'+taskLabel+'"?\n\nThe row will remain as a blank line.','注意 / Attention');
-  if(!ok)return;
-  // ★ 重置所有字段为默认空值，保留对象引用
-  t.work='';t.goal='';t.startDate='';t.plannedDate='';t.actualDate='';t.status='';
-  t.supporters='';t.problems='';t.problemType='';t.needBoss='';t.bossFeedback='';t.remarks='';
-  delete t._manualNotDone;delete t._pausedAt;
-  if(t.aiSuggestion)delete t.aiSuggestion;
-  console.log('[clearTaskRow] cleared idx='+idx);
-  _calcWeekScore(p);
-  saveWP(p.year,p.month,p.week,p);
-  renderWPTable(p);
-  showToast('🧹 已清空该行内容');
-}
-
 async function deleteTaskRow(idx){
   var p=_wpCurrent.plan;if(!p)return;
   var tasks=p.tasks;
@@ -2366,7 +2342,7 @@ async function deleteTaskRow(idx){
 // ★ V0.6.1dv: 清空单行所有字段（保留行结构）
 // 用于 total=1 时，无法删除整行时清空内容重新填写
 async function clearTaskRow(idx){
-  var p=_wpCurrent.plan;if(!p)return;
+  var p=_wpCurrent.plan;if(!p||!p.tasks)return;
   var tasks=p.tasks;
   if(idx<0||idx>=tasks.length)return;
   var t=tasks[idx];
@@ -2378,25 +2354,23 @@ async function clearTaskRow(idx){
     (t.supporters&&t.supporters.length>0)||t.aiSuggestion||t.bossFeedback;
   if(!hasContent){showToast('该行已经是空行，无需清空');return;}
   var taskLabel=(t.work||'第'+(idx+1)+'项').substring(0,20);
-  // ★ V0.6.1dx: 改用项目统一的 _showConfirm 弹窗，与 deleteTaskRow 风格一致
   var ok=await _showConfirm('确定要清空「'+taskLabel+'」的所有内容吗？\n\n行结构和序号将保留。','清空该行 / Clear Row');
   if(!ok)return;
   // 保留 seq/年份月份周/协同来源，清空其他所有字段
   var keepSeq=t.seq;
   var keepCollab=t.collab_from;
-  tasks[idx]={
-    seq:keepSeq,
-    goal:'',work:'',status:'',needBoss:'',problems:'',
-    startDate:'',actualDate:'',supporters:'',
-    plannedDate:'',problemType:'',
-    aiSuggestion:'',bossFeedback:'',
-    estimatedHours:''
-  };
-  if(keepCollab)tasks[idx].collab_from=keepCollab;
+  // ★ V0.6.1ei: 用 Object.keys 遍历清空所有字段，更彻底
+  var cleared={seq:keepSeq||1,goal:'',work:'',status:'',needBoss:'',problems:'',
+    startDate:'',actualDate:'',supporters:'',plannedDate:'',problemType:'',
+    aiSuggestion:'',bossFeedback:'',estimatedHours:'',remarks:''};
+  if(keepCollab)cleared.collab_from=keepCollab;
+  // 强制替换数组元素
+  p.tasks[idx]=cleared;
   p.updatedAt=new Date().toISOString();
   _calcWeekScore(p);
   saveWP(p.year,p.month,p.week,p);
-  renderWPTable(p);
+  // ★ V0.6.1ei: 强制重新渲染，传入新对象引用
+  renderWPTable(JSON.parse(JSON.stringify(p)));
   showToast('✨ 已清空第 '+(idx+1)+' 行所有内容');
 }
 
