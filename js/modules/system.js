@@ -37,18 +37,21 @@ function sysRenderUserTable(){
   if(countEl)countEl.textContent=Object.keys(USERS).length;
   var filterCountEl=document.getElementById('sysFilterCount');
   if(filterCountEl)filterCountEl.textContent=uids.length;
-  // 初始化筛选下拉（首次）
-  initSysFilterDropdowns();
   // ★ 空数据兜底显示
   if(uids.length===0){
-    tbody.innerHTML='<tr><td colspan="18" style="padding:40px 20px;color:var(--text-hint);font-size:13px;text-align:center">没有匹配的用户</td></tr>';
+    tbody.innerHTML='<tr><td colspan="22" style="padding:40px 20px;color:var(--text-hint);font-size:13px;text-align:center">没有匹配的用户</td></tr>';
     return;
   }
   var html='';
   for(var i=0;i<uids.length;i++){
     var uid=uids[i],u=USERS[uid];
     var perms=u.permissions||_defaultPerms(u.role);
+    // ★ V0.6.1et: 从花名册自动获取中心/部门
+    var rosterCenter=u.dept||getRosterCenterForName(u.name)||'';
+    var rosterDept=u.dept||getRosterDeptForName(u.name)||'';
     html+='<tr>';
+    html+='<td style="font-size:12px;color:var(--text-secondary);text-align:left;white-space:nowrap">'+_h(rosterCenter||'-')+'</td>';
+    html+='<td style="font-size:12px;color:var(--text-secondary);text-align:left;white-space:nowrap">'+_h(rosterDept||'-')+'</td>';
     html+='<td class="sys-td-left"><strong>'+_h(u.name)+'</strong></td>';
     html+='<td class="sys-td-left" style="font-size:12px;color:var(--text-secondary)">'+_h(u.position)+'</td>';
     html+='<td style="font-family:monospace;font-size:12px">'+_h(uid)+'</td>';
@@ -663,213 +666,87 @@ async function sysDoSmartSync(){
 }
 
 
-// ★ V0.6.1eo: 系统维护筛选 — 中心/部门/角色/姓名搜索
-var _sysFilterInited=false;
+// ★ V0.6.1et: 系统维护筛选 — 表头中心/部门 + 搜索框
+var _sysHeaderFilter={center:'',dept:''};
 function applySysFilterToUids(uids){
   var searchEl=document.getElementById('sysFilterSearch');
-  var centerEl=document.getElementById('sysFilterCenter');
-  var deptEl=document.getElementById('sysFilterDept');
-  var roleEl=document.getElementById('sysFilterRole');
-  if(!searchEl||!centerEl||!deptEl)return uids;
-  var search=(searchEl.value||'').trim().toLowerCase();
-  var center=centerEl.value;
-  var dept=deptEl.value;
-  var role=roleEl?roleEl.value:'';
+  var search=searchEl?(searchEl.value||'').trim().toLowerCase():'';
+  var center=_sysHeaderFilter.center;
+  var dept=_sysHeaderFilter.dept;
   return uids.filter(function(uid){
     var u=USERS[uid]||{};
     if(search){
       var name=(u.name||'').toLowerCase();
-      var pinyin=u.pinyin||'';
-      if(name.indexOf(search)<0&&pinyin.indexOf(search)<0&&uid.toLowerCase().indexOf(search)<0)return false;
+      if(name.indexOf(search)<0&&uid.toLowerCase().indexOf(search)<0)return false;
     }
     if(center){
-      var d=u.dept||'';
-      if(d){
-        var m=String(d).match(/^([^/]+)/);
-        var userCenter=m?m[1]:'';
-        if(userCenter!==center)return false;
-      }else{
-        // ★ V0.6.1ep: 用户没有 dept 信息，智能匹配花名册
-        var rosterCenter=getRosterCenterForName(u.name);
-        if(rosterCenter!==center)return false;
-      }
+      var c=u.dept||getRosterCenterForName(u.name);
+      if(c!==center)return false;
     }
     if(dept){
-      var userDept=u.dept||getRosterDeptForName(u.name);
-      if(userDept!==dept)return false;
+      var d=u.dept||getRosterDeptForName(u.name);
+      if(d!==dept)return false;
     }
-    if(role&&(u.role||'')!==role)return false;
     return true;
   });
 }
 
 function clearSysFilter(){
-  ['sysFilterSearch','sysFilterCenter','sysFilterDept','sysFilterRole'].forEach(function(id){
-    var el=document.getElementById(id);if(el)el.value='';
-  });
-  updateSysFilterLabels();
+  var s=document.getElementById('sysFilterSearch');if(s)s.value='';
+  _sysHeaderFilter={center:'',dept:''};
   applySysFilter();
 }
 
-function updateSysFilterLabels(){
-  var c=document.getElementById('sysFilterCenter');
-  var d=document.getElementById('sysFilterDept');
-  var r=document.getElementById('sysFilterRole');
-  var cl=document.getElementById('sysFilterCenterLabel');
-  var dl=document.getElementById('sysFilterDeptLabel');
-  var rl=document.getElementById('sysFilterRoleLabel');
-  if(cl)cl.textContent='中心：'+(c&&c.value?c.value:'全部');
-  if(dl)dl.textContent='部门：'+(d&&d.value?d.value:'全部');
-  if(rl)rl.textContent='角色：'+(r&&r.value?r.value:'全部');
+
+function applySysFilter(){
+  if(typeof sysRenderUserTable==="function")sysRenderUserTable();
 }
 
-function onSysInlineFilterChange(){
-  updateSysFilterLabels();
-  applySysFilter();
-}
-
-// ★ V0.6.1eq: 仿照员工档案 inline-filter 风格的下拉切换
-function toggleSysFilterDropdown(id){
-  var sel=document.getElementById(id);
-  if(!sel)return;
-  // 关闭所有同组下拉
-  ['sysFilterCenter','sysFilterDept','sysFilterRole'].forEach(function(sid){
-    if(sid!==id){
-      var other=document.getElementById(sid);
-      if(other&&other._dd&&other._dd.style.display==='block'){
-        other._dd.style.display='none';
-      }
-    }
-  });
-  // 创建/显示/隐藏 dropdown panel
-  if(!sel._dd){
-    var dd=document.createElement('div');
-    dd.className='inline-filter-dd';
-    dd.style.cssText='position:fixed;z-index:9999;background:rgba(252,252,253,.92);backdrop-filter:blur(20px);border:1px solid rgba(200,205,212,.4);border-radius:8px;box-shadow:0 4px 6px rgba(0,0,0,.04),0 10px 24px rgba(0,0,0,.08);padding:4px;max-height:280px;overflow-y:auto;min-width:140px';
-    dd.addEventListener('click',function(e){e.stopPropagation();});
-    sel._dd=dd;
-    document.body.appendChild(dd);
+// ★ V0.6.1et: 表头点击筛选 — 中心/部门二选一
+function toggleSysHeaderFilter(type){
+  var existing=document.querySelector(".sys-header-dd");
+  if(existing){existing.remove();document.removeEventListener("click",_cshdd);return;}
+  var values={};
+  var uids=Object.keys(USERS);
+  for(var i=0;i<uids.length;i++){
+    var u=USERS[uids[i]];
+    var val="";
+    if(type==="center"){val=u.dept||getRosterCenterForName(u.name)||"";}
+    else{val=u.dept||getRosterDeptForName(u.name)||"";}
+    if(val)values[val]=true;
   }
-  var dd=sel._dd;
-  if(dd.style.display==='block'){dd.style.display='none';return;}
-  // 填充选项
-  dd.innerHTML='';
-  for(var i=0;i<sel.options.length;i++){
-    var opt=sel.options[i];
-    var item=document.createElement('div');
-    var isSel=(sel.value===opt.value);
-    var baseBg=isSel?'#EEF2FF':'';
-    item.style.cssText='padding:8px 10px;cursor:pointer;border-radius:6px;font-size:13px;display:flex;align-items:center;gap:6px;background:'+baseBg;
-    item.innerHTML=(isSel?'<span style="color:#3B7DB4">✓</span>':'')+'<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+opt.textContent+'</span>';
-    item.onmouseover=function(){this.style.background='#F5F5F5'};
-    item.onmouseout=function(){this.style.background='"'+baseBg+'"'};
-    (function(value,el){
-      item.onclick=function(e){
-        e.stopPropagation();
-        sel.value=value;
-        updateSysFilterLabels();
-        applySysFilter();
-        dd.style.display='none';
-      };
-    })(opt.value,item);
+  var dd=document.createElement("div");
+  dd.className="sys-header-dd";
+  dd.style.cssText="position:fixed;z-index:9999;background:rgba(252,252,253,.92);backdrop-filter:blur(20px);border:1px solid rgba(200,205,212,.4);border-radius:8px;box-shadow:0 4px 6px rgba(0,0,0,.04),0 10px 24px rgba(0,0,0,.08);padding:4px;max-height:300px;overflow-y:auto;min-width:160px";
+  var allItem=document.createElement("div");
+  var allSel=(_sysHeaderFilter[type]==="");
+  allItem.style.cssText="padding:8px 10px;cursor:pointer;border-radius:6px;font-size:13px;background:"+(allSel?"#EEF2FF":"");
+  allItem.innerHTML=(allSel?"<span style=\"color:#3B7DB4\">✓ </span>":"")+"全部";
+  allItem.onclick=function(e){e.stopPropagation();_sysHeaderFilter[type]="";dd.remove();applySysFilter();};
+  dd.appendChild(allItem);
+  Object.keys(values).sort().forEach(function(v){
+    var isSel=(_sysHeaderFilter[type]===v);
+    var item=document.createElement("div");
+    item.style.cssText="padding:8px 10px;cursor:pointer;border-radius:6px;font-size:13px;background:"+(isSel?"#EEF2FF":"");
+    item.onmouseover=function(){this.style.background="#F5F5F5"};
+    item.onmouseout=function(){this.style.background='"'+(isSel?"#EEF2FF":"")+'"'};
+    item.innerHTML=(isSel?"<span style=\"color:#3B7DB4\">✓</span>":"")+"<span style=\"overflow:hidden;text-overflow:ellipsis;white-space:nowrap\">"+v+"</span>";
+    item.onclick=function(e){e.stopPropagation();_sysHeaderFilter[type]=v;dd.remove();applySysFilter();};
     dd.appendChild(item);
+  });
+  var th=null;
+  var allThs=document.querySelectorAll(".sys-user-table th");
+  var colIdx=(type==="center")?0:1;
+  if(allThs[colIdx])th=allThs[colIdx];
+  if(th){
+    var rect=th.getBoundingClientRect();
+    dd.style.left=rect.left+"px";
+    dd.style.top=(rect.bottom+2)+"px";
+    dd.style.minWidth=Math.max(rect.width,160)+"px";
   }
-  // 定位
-  var trigger=document.getElementById(id+'Trigger');
-  if(!trigger){
-    // ★ V0.6.1er: 兜底查找 — 通过class找trigger
-    var sel=document.getElementById(id);
-    if(sel){
-      var parent=sel.parentElement;
-      if(parent)trigger=parent.querySelector('.inline-filter-trigger');
-    }
-  }
-  if(trigger){
-    var rect=trigger.getBoundingClientRect();
-    dd.style.left=rect.left+'px';
-    dd.style.top=(rect.bottom+4)+'px';
-    dd.style.width=Math.max(rect.width,160)+'px';
-  }else{
-    // 兜底：显示在屏幕中央偏上
-    dd.style.left='20px';
-    dd.style.top='200px';
-    dd.style.width='200px';
-  }
-  dd.style.display='block';
-  // 点击外部关闭
-  setTimeout(function(){
-    document.addEventListener('click',function closeSysDD(e){
-      if(!dd.contains(e.target)&&!trigger.contains(e.target)){
-        dd.style.display='none';
-        document.removeEventListener('click',closeSysDD);
-      }
-    });
-  },0);
+  document.body.appendChild(dd);
+  _cshdd=function(e){if(!dd.contains(e.target)){dd.remove();document.removeEventListener("click",_cshdd);}};
+  setTimeout(function(){document.addEventListener("click",_cshdd);},0);
 }
+var _cshdd=null;
 
-// ★ V0.6.1ep: 从花名册查找员工的中心/部门
-var _rosterCache=null;
-function getRosterLookup(){
-  if(_rosterCache)return _rosterCache;
-  var map={};
-  if(typeof allEmployees!=='undefined'&&allEmployees){
-    for(var i=0;i<allEmployees.length;i++){
-      var e=allEmployees[i];
-      if(e&&e.name){
-        var c='',d=e.dept||'';
-        if(d){var m=String(d).match(/^([^/]+)/);if(m)c=m[1];}
-        map[e.name]={center:c,dept:d};
-      }
-    }
-  }
-  _rosterCache=map;
-  return map;
-}
-function getRosterCenterForName(name){
-  var r=getRosterLookup();
-  return r[name]?r[name].center:'';
-}
-function getRosterDeptForName(name){
-  var r=getRosterLookup();
-  return r[name]?r[name].dept:'';
-}
-
-function initSysFilterDropdowns(){
-  if(_sysFilterInited)return;
-  if(typeof allEmployees==='undefined'||!allEmployees)return;
-  var centers={},depts={};
-  for(var i=0;i<allEmployees.length;i++){
-    var e=allEmployees[i];if(!e||!e.name)continue;
-    if(e.dept){
-      var m=String(e.dept).match(/^([^/]+)/);
-      if(m)centers[m[1]]=true;
-      depts[e.dept]=true;
-    }
-  }
-  var centerEl=document.getElementById('sysFilterCenter');
-  var deptEl=document.getElementById('sysFilterDept');
-  if(!centerEl||!deptEl)return;
-  if(centerEl.options.length<=1){
-    Object.keys(centers).sort().forEach(function(c){
-      var opt=document.createElement('option');opt.value=c;opt.textContent='🛡 '+c;centerEl.appendChild(opt);
-    });
-  }
-  if(deptEl.options.length<=1){
-    Object.keys(depts).sort().forEach(function(d){
-      var opt=document.createElement('option');opt.value=d;opt.textContent=d;deptEl.appendChild(opt);
-    });
-  }
-  // ★ V0.6.1eq: 角色下拉 — 从 USERS 动态提取
-  var roleEl=document.getElementById('sysFilterRole');
-  if(roleEl&&roleEl.options.length<=1){
-    var rolesSet={};
-    for(var uid2 in USERS){
-      var r2=(USERS[uid2].role||'').trim();
-      if(r2)rolesSet[r2]=true;
-    }
-    Object.keys(rolesSet).sort().forEach(function(r){
-      var opt=document.createElement('option');opt.value=r;opt.textContent=r;roleEl.appendChild(opt);
-    });
-  }
-  _sysFilterInited=true;
-}
