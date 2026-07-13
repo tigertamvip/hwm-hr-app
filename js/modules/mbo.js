@@ -1064,7 +1064,7 @@ async function _renderMergedUrgentView(){
   var tableWrap=document.createElement('div');
   tableWrap.className='wp-table-wrap';
   var table=document.createElement('table');
-  table.className='wp-table';
+  table.className='wp-table merged-urgent';
   table.style.minWidth='1350px';
 
   // 表头
