@@ -278,6 +278,7 @@ function initWPModule(){
 
 function getWPLocalStorageKey(){
   var user=_wpViewingShared||_wpViewingSubordinate||_wpViewingDeptMember||(currentUser&&currentUser.name)||getCurrentEmployee().name;
+  // console.log('[DEBUG getWPLocalStorageKey] shared='+_wpViewingShared+' sub='+_wpViewingSubordinate+' dept='+_wpViewingDeptMember+' curUser='+(currentUser&&currentUser.name)+' → '+user);
   return 'hwm_workplans_'+user;
 }
 
@@ -380,9 +381,9 @@ function loadWPData(){
 }
 
 function saveWPData(){
-  // ★ 只读模式禁止保存
-  if(_wpViewingShared)return;
+  if(_wpViewingShared){console.log('[DEBUG saveWPData] SKIPPED - _wpViewingShared='+_wpViewingShared);return;}
   var key=getWPLocalStorageKey();
+  console.log('[DEBUG saveWPData] key='+key+' dataKeys='+Object.keys(_wpData).length);
   localStorage.setItem(key,JSON.stringify(_wpData));
   // 异步推送到 Supabase（静默，失败不影响使用）
   // 检查 supabase 客户端是否已初始化
@@ -441,7 +442,7 @@ function makeWPId(y,m,w){
 }
 
 function getWP(y,m,w){return _wpData[makeWPId(y,m,w)]||null;}
-function saveWP(y,m,w,plan){_wpData[makeWPId(y,m,w)]=plan;saveWPData();}
+function saveWP(y,m,w,plan){var id=makeWPId(y,m,w);console.log('[DEBUG saveWP] id='+id+' planName='+(plan&&plan.name));_wpData[id]=plan;saveWPData();}
 function deleteWP(y,m,w){delete _wpData[makeWPId(y,m,w)];saveWPData();}
 
 function _getPrevWeek(y,m,w){
@@ -2706,13 +2707,16 @@ async function commitEditCell(el){
       }
     }
 
+    console.log('[DEBUG commitEditCell] field='+field+' newVal="'+newVal+'" viewingSub='+_wpViewingSubordinate+' viewingShared='+_wpViewingShared+' planName='+(_wpCurrent.plan&&_wpCurrent.plan.name));
     if(field&&_wpCurrent.plan){
       var parts=field.split('.');
       if(parts[0]==='tasks'){
         var ti=parseInt(parts[1]);
         if(_wpCurrent.plan.tasks[ti]){
           // ★ V0.6.1cf: 修订模式已取消，直接更新字段值
+          var oldVal=_wpCurrent.plan.tasks[ti][parts[2]];
           _wpCurrent.plan.tasks[ti][parts[2]]=newVal;
+          console.log('[DEBUG commitEditCell] UPDATED tasks['+ti+'].'+parts[2]+': "'+oldVal+'" → "'+newVal+'"');
           // ★ V0.4.91: 自动状态识别（新积分规则+工作日宽限期）
           if(parts[2]==='actualDate' && newVal){
             var tsk=_wpCurrent.plan.tasks[ti];
@@ -2757,7 +2761,7 @@ async function commitEditCell(el){
     if(cell)cell.classList.remove('editing');
     _wpEditCell=null;
   }
-  setTimeout(function(){ if(!_wpEditCell&&_wpCurrent.plan)renderWPTable(_wpCurrent.plan); }, 0);
+  setTimeout(function(){ if(!_wpEditCell&&_wpCurrent.plan){console.log('[DEBUG commitEditCell] re-rendering — plan tasks[0].work='+(_wpCurrent.plan.tasks[0]&&_wpCurrent.plan.tasks[0].work));renderWPTable(_wpCurrent.plan);} }, 0);
 }
 
 // ========== 工具栏操作 ==========
