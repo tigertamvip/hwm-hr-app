@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.6.1cq">
+<meta name="version" content="V0.6.1cr">
 <!-- cache-bust: 2026-07-12-18-25 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json?v=bc">
@@ -2158,6 +2158,11 @@ body{
 .wp-table th:nth-child(5),.wp-table td:nth-child(5){position:sticky;left:431px;z-index:2;box-shadow:inset -1px 0 0 0 rgba(0,0,0,.04)}
 .wp-table td:nth-child(-n+5){background:#FBF8F3}
 .wp-table td:nth-child(5){}
+/* ★ V0.6.1cr: 合计行和标题行也冻结前3列 */
+.wp-table .wp-total-row td:nth-child(1){position:sticky;left:0;z-index:2;background:#FBF8F3}
+.wp-table .wp-total-row td:nth-child(2){position:sticky;left:56px;z-index:2;background:#FBF8F3}
+.wp-table .wp-total-row td:nth-child(3){position:sticky;left:236px;z-index:2;background:#FBF8F3}
+.wp-table .wp-section-header td:nth-child(1){position:sticky;left:0;z-index:2}
   .wp-table td.col-hours{font-variant-numeric:tabular-nums;min-width:115px;text-align:center}
   .wp-table td.col-hours input[type="date"].wp-cell-input{width:110px!important;max-width:110px!important;min-width:0;padding:4px 8px 4px 2px;text-align:center;font-size:12px}
   .wp-table td.col-hours input[type="date"].wp-cell-input::-webkit-datetime-edit{padding:0;margin:0;width:80px}
