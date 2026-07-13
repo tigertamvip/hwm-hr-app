@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.6.1cw">
+<meta name="version" content="V0.6.1cx">
 <!-- cache-bust: 2026-07-12-18-25 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json?v=bc">
@@ -2072,9 +2072,9 @@ body{
 .wp-sidebar-plan-delete.locked{background:rgba(214,67,82,.5);cursor:not-allowed;opacity:1}
 .wp-sidebar-plan-item.active .wp-sidebar-plan-delete.locked{background:rgba(214,67,82,.5);opacity:1}
 
-.wp-content{flex:1;height:100%;overflow:hidden;padding:0;background:#FBF8F3;display:flex;flex-direction:column}
+.wp-content{flex:1;height:100%;overflow:hidden;padding:0;min-width:0;background:#FBF8F3;display:flex;flex-direction:column}
 /* V0.5.152: 独立滚动容器 — 让 left/top sticky 双向生效 */
-.wp-scroll-area{flex:1;overflow:auto;padding:0 24px 16px;display:block;background:#FBF8F3}
+.wp-scroll-area{flex:1;overflow:auto;padding:0 24px 16px;display:block;min-width:0;background:#FBF8F3}
 .wp-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--text-hint);padding:16px 24px}
 .wp-empty-icon{font-size:48px;margin-bottom:16px;opacity:.5}
 .wp-empty-title{font-size:18px;font-weight:500;margin-bottom:8px;color:var(--text-secondary)}
@@ -2125,7 +2125,7 @@ body{
 .wp-toolbar-sep{width:1px;background:var(--border);margin:0 4px;display:inline-block}
 
 .wp-table-wrap{flex:1;background:#FBF8F3;border-radius:8px;border:none;border-right:1px solid var(--border)}
-.wp-table{width:100%;border-collapse:separate;border-spacing:0;font-size:12px;min-width:1200px;table-layout:auto}
+.wp-table{width:100%;border-collapse:separate;border-spacing:0;font-size:12px;min-width:1200px;table-layout:auto;background:#FBF8F3}
 .wp-table tbody tr{min-height:38px}
 .wp-table th{background:#E8EAED;color:#002D4E;font-weight:600;padding:8px 6px;border-top:1px solid var(--border);border-bottom:2px solid #C5C9CE;white-space:nowrap;position:sticky;top:0;z-index:5;font-size:11px;text-align:center;line-height:1}
 .wp-table th.col-fixed{background:#d5d8db}
@@ -2135,7 +2135,7 @@ body{
 .wp-table td{padding:6px 6px;border-bottom:1px solid #E2E4E7;border-right:1px solid rgba(0,0,0,.04);vertical-align:middle;text-align:center;color:#0F2C4B;min-height:36px;height:36px;background:#FBF8F3}
 .wp-table td.editable{cursor:pointer;transition:background .15s;position:relative}
 .wp-table td.editable:hover{background:#F5EDE0}
-.wp-table td.editable:nth-child(-n+5):hover{background:#F5EDE0}
+.wp-table td.editable:nth-child(-n+6):hover{background:#F5EDE0}
 .wp-table td.editable.editing{background:#F8F9FA;box-shadow:inset 0 0 0 2px rgba(15,123,225,.25);padding:3px}
 .wp-table th,.wp-table td{overflow:hidden;text-overflow:ellipsis}
 .wp-table td.col-num{color:#5B6B7B;font-size:11px;min-width:56px}
