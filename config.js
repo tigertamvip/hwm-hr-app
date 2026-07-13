@@ -13,6 +13,8 @@ window.APP_CONFIG = {
   company: {
     fullName: '安徽省幸福工场医疗设备有限公司',
     shortName: '幸福工场',
+    brandName: 'HWM',
+    iconText: 'HWM',
     address: '安徽省合肥市',
     copyright: 'Tiger-Buddy+AI',
   },
