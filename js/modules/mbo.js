@@ -3621,13 +3621,12 @@ function _renderTimeManagementPanel(plan){
   }
 
   var html='';
-  var _ce=function(id){return _wpCardExpanded[id]?'▲':'▼';};
   var _cs=function(id){return _wpCardExpanded[id]?'transition:max-height 0.6s cubic-bezier(.25,.1,.25,1),opacity 0.6s cubic-bezier(.25,.1,.25,1);overflow:hidden':'transition:max-height 0.6s cubic-bezier(.25,.1,.25,1),opacity 0.6s cubic-bezier(.25,.1,.25,1);overflow:hidden;max-height:0;opacity:0';};
   html+='<div class="wp-cards-grid" id="wpTimeMgmtPanel">';
 
   // ★ Card 1: 计分规则（V0.4.91 新规则）
   html+='<div class="wp-card">';
-  html+='<div class="wp-card-title">📋 计分规则<button type="button" onclick="toggleWPCard(\'rules\')" id="wpCardBtn_rules" style="margin-left:auto;padding:2px;border:none;border-radius:6px;background:transparent;color:#9ca3af;font-size:12px;font-weight:400;cursor:pointer;display:inline-flex;align-items:center;gap:2px;transition:all .25s ease;white-space:nowrap">'+_ce('rules')+'</button></div>';
+  html+='<div class="wp-card-title">📋 计分规则</div>';
   html+='<div id="wpCardContent_rules" style="'+_cs('rules')+'">';
   html+='<table class="wp-card-table">';
   html+='<tr><td><span style="color:#059669;margin-right:6px">✓</span>周六12:00前提交</td><td class="td-val td-pos" style="width:24px">✓</td></tr>';
@@ -3643,7 +3642,7 @@ function _renderTimeManagementPanel(plan){
 
   // ★ Card 2: 评分标准（V0.4.91 新分值）
   html+='<div class="wp-card">';
-  html+='<div class="wp-card-title">📊 评分标准<button type="button" onclick="toggleWPCard(\'scores\')" id="wpCardBtn_scores" style="margin-left:auto;padding:2px;border:none;border-radius:6px;background:transparent;color:#9ca3af;font-size:12px;font-weight:400;cursor:pointer;display:inline-flex;align-items:center;gap:2px;transition:all .25s ease;white-space:nowrap">'+_ce('scores')+'</button></div>';
+  html+='<div class="wp-card-title">📊 评分标准</div>';
   html+='<div id="wpCardContent_scores" style="'+_cs('scores')+'">';
   html+='<table class="wp-card-table">';
   html+='<tr><td></td><td class="td-val" style="color:#6b7280;font-weight:400;font-size:10px">按时</td><td class="td-val" style="color:#6b7280;font-weight:400;font-size:10px">逾期</td><td class="td-val" style="color:#6b7280;font-weight:400;font-size:10px">未做</td></tr>';
@@ -3658,7 +3657,7 @@ function _renderTimeManagementPanel(plan){
 
   // ★ Card 3: 完成状态
   html+='<div class="wp-card">';
-  html+='<div class="wp-card-title">⏰ 完成状态<button type="button" onclick="toggleWPCard(\'status\')" id="wpCardBtn_status" style="margin-left:auto;padding:2px;border:none;border-radius:6px;background:transparent;color:#9ca3af;font-size:12px;font-weight:400;cursor:pointer;display:inline-flex;align-items:center;gap:2px;transition:all .25s ease;white-space:nowrap">'+_ce('status')+'</button></div>';
+  html+='<div class="wp-card-title">⏰ 完成状态</div>';
   html+='<div id="wpCardContent_status" style="'+_cs('status')+'">';
   html+='<table class="wp-card-table">';
   html+='<tr><td style="color:#6b7280;width:32px">提交</td><td style="color:#0F2C4B">'+subTime+'</td></tr>';
@@ -3675,7 +3674,7 @@ function _renderTimeManagementPanel(plan){
   // ★ Card 4: 年度积分（明细版）
   var netVal=scores.net||0;
   html+='<div class="wp-card">';
-  html+='<div class="wp-card-title">📊 '+year+'年积分<button type="button" onclick="toggleWPCard(\'points\')" id="wpCardBtn_points" style="margin-left:auto;padding:2px;border:none;border-radius:6px;background:transparent;color:#9ca3af;font-size:12px;font-weight:400;cursor:pointer;display:inline-flex;align-items:center;gap:2px;transition:all .25s ease;white-space:nowrap">'+_ce('points')+'</button></div>';
+  html+='<div class="wp-card-title">📊 '+year+'年积分</div>';
   html+='<div id="wpCardContent_points" style="'+_cs('points')+'">';
   // 加分项
   var tos=scores.totalOnTime||0;
@@ -4281,7 +4280,7 @@ function toggleAnnualProgress(){
   }
   _updateAutoCollapseForWPCards(); // ★ V0.5.175b
 }
-// ★ V0.5.27: 艾森豪威尔矩阵折叠/展开
+// ★ V0.5.27: 艾森豪威尔矩阵折叠/展开（联动4张计分卡）
 function toggleEisenhowerMatrix(){
   _matrixExpanded = !_matrixExpanded;
   var el = document.getElementById('matrixContent');
@@ -4293,11 +4292,27 @@ function toggleEisenhowerMatrix(){
     el.style.opacity = '1';
     icon.textContent = '▲';
     text.textContent = '收起';
+    // ★ V0.6.1dr: 同步展开4张计分卡
+    ['rules','scores','status','points'].forEach(function(id){
+      _wpCardExpanded[id]=true;
+      var cel=document.getElementById('wpCardContent_'+id);
+      var cbtn=document.getElementById('wpCardBtn_'+id);
+      if(cel){cel.style.maxHeight='300px';cel.style.opacity='1';}
+      if(cbtn)cbtn.textContent='▲';
+    });
   }else{
     el.style.maxHeight = '0';
     el.style.opacity = '0';
     icon.textContent = '▼';
     text.textContent = '展开';
+    // ★ V0.6.1dr: 同步收起4张计分卡
+    ['rules','scores','status','points'].forEach(function(id){
+      _wpCardExpanded[id]=false;
+      var cel=document.getElementById('wpCardContent_'+id);
+      var cbtn=document.getElementById('wpCardBtn_'+id);
+      if(cel){cel.style.maxHeight='0';cel.style.opacity='0';}
+      if(cbtn)cbtn.textContent='▼';
+    });
   }
   _updateAutoCollapseForWPCards(); // ★ V0.5.175b
 }

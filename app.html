@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.6.1dq">
+<meta name="version" content="V0.6.1dr">
 <!-- cache-bust: 2026-07-12-18-25 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json?v=bc">
@@ -2927,11 +2927,11 @@ function togglePortalTips(){
         <div class="wp-custom-select" id="wpSubCustom">
           <div class="wp-custom-trigger" id="wpSubTrigger" onclick="toggleWPSubDropdown()">
             <span id="wpSubTriggerText">审阅团队周行动项</span>
-            <span style="font-size:10px;margin-left:4px">▾</span>
+            <span style="font-size:10px;margin-left:4px;color:rgba(156,163,175,.9)">▼</span>
           </div>
           <div class="wp-custom-dropdown" id="wpSubDropdown" style="display:none"></div>
         </div>
-        <button class="wp-btn-visibility" onclick="openWPVisibility()" title="管理周行动项可见性">分享我的周行动项 <span style="font-size:10px">▾</span></button>
+        <button class="wp-btn-visibility" onclick="openWPVisibility()" title="管理周行动项可见性">分享我的周行动项 <span style="font-size:10px;color:rgba(156,163,175,.9)">▼</span></button>
         <button class="wp-btn-myplan" id="wpBtnMyPlan" onclick="switchToMyWP()" title="返回我的周行动项">返回我的周行动项</button>
       </div>
     </div>
@@ -2965,7 +2965,7 @@ function togglePortalTips(){
   <div class="wp-layout">
     <!-- 左侧导航：周计划定位 -->
     <div class="wp-sidebar" id="wpSidebar">
-      <div class="wp-sidebar-title">📅 Weekly Timeline</div>
+      <div class="wp-sidebar-title">📅 Timeline</div>
       <div class="wp-sidebar-label">年度</div>
       <select id="wpYear" onchange="onWPYearChange()" class="hidden-select">
         <option value="2026">2026年</option>
@@ -2976,7 +2976,7 @@ function togglePortalTips(){
       </select>
       <div class="wp-month-trigger" id="wpYearTrigger" onclick="toggleYearDropdown()">
         <span id="wpYearLabel">2026年</span>
-        <span style="font-size:10px;color:#9ca3af">▼</span>
+        <span style="font-size:10px;color:rgba(156,163,175,.9)">▼</span>
       </div>
       <div class="wp-sidebar-label">月份</div>
       <select id="wpMonth" onchange="onWPMonthChange()" class="hidden-select">
@@ -2987,7 +2987,7 @@ function togglePortalTips(){
       </select>
       <div class="wp-month-trigger" id="wpMonthTrigger" onclick="toggleMonthDropdown()">
         <span id="wpMonthLabel">7月</span>
-        <span style="font-size:10px;color:#9ca3af">▼</span>
+        <span style="font-size:10px;color:rgba(156,163,175,.9)">▼</span>
       </div>
       <div class="wp-sidebar-label">周次</div>
       <div class="wp-sidebar-plan-list" id="wpPlanList">
@@ -6471,7 +6471,7 @@ if('serviceWorker' in navigator){
 <script src="js/modules/policies.js"></script>
 <script>
 </script>
-<script src="js/modules/mbo.js?v=36"></script>
+<script src="js/modules/mbo.js?v=37"></script>
 <script src="js/modules/pm.js?v=4"></script>
 <script src="js/modules/system.js"></script>
 <script>
