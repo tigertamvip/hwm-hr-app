@@ -54,7 +54,7 @@ window.APP_CONFIG = {
 var SUPABASE_URL = 'https://xgysfujnhwgevmojzkbf.supabase.co';
 var SUPABASE_ANON_KEY = 'sb_publishable_dPt0sB5D8ZQ6ZdHt6wuvyA_MkjOeknx';
 
-// ★ V0.6.1ed: 智能同步 — 跳过无需系统账号的职位（工人/检验员/操作类/生产类等）
+// ★ V0.6.1ef: 智能同步 — 跳过无需系统账号的职位（工人/检验员/操作类/生产类等）
 // 模糊匹配：position 包含其中任一关键词即跳过
 var SKIP_POSITIONS = [
   // 一线生产

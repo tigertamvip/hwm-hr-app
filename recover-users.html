@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>用户数据恢复</title>
+<style>
+body{font-family:-apple-system,system-ui,sans-serif;padding:40px;background:#FBF8F3;color:#0F2C4B;max-width:900px;margin:0 auto}
+h1{color:#003472}
+.card{background:#fff;border-radius:12px;padding:24px;margin:16px 0;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.btn{display:inline-block;padding:12px 24px;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;margin:8px 4px}
+.btn-primary{background:#003472;color:#fff}
+.btn-danger{background:#D64352;color:#fff}
+.btn:hover{opacity:0.9}
+.result{white-space:pre-wrap;font-family:monospace;font-size:13px;background:#f5f5f5;padding:12px;border-radius:8px;max-height:300px;overflow-y:auto}
+.ok{color:#10b981;font-weight:600}
+.warn{color:#D64352;font-weight:600}
+</style>
+</head>
+<body>
+<h1>📋 用户数据恢复工具</h1>
+<p>从 Supabase 云端拉取 58 个用户数据，直接覆盖到本浏览器 localStorage。</p>
+
+<div class="card">
+  <h3>步骤 1：预览云端数据</h3>
+  <button class="btn btn-primary" onclick="loadCloud()">🔄 拉取云端 58 个用户</button>
+  <div id="loadResult" class="result" style="margin-top:12px">点击按钮开始...</div>
+</div>
+
+<div class="card">
+  <h3>步骤 2：写入 localStorage</h3>
+  <p>⚠️ 会覆盖现有 localStorage 里的 HWM_USER_SETTINGS。请确保这是你当前用的浏览器。</p>
+  <button class="btn btn-danger" onclick="writeLocal()" id="writeBtn" disabled>💾 写入 localStorage（恢复 58 个用户）</button>
+  <div id="writeResult" class="result" style="margin-top:12px"></div>
+</div>
+
+<div class="card">
+  <h3>步骤 3：刷新页面</h3>
+  <p>恢复完成后，按 <b>Ctrl+F5</b> 强制刷新 MBO 页面。</p>
+  <a href="https://hwm.tiger-buddy.com/app.html" class="btn btn-primary" target="_blank">↗ 打开 MBO 正式程序</a>
+</div>
+
+<script>
+var _cloudData=null;
+var SUPABASE_URL='https://xgysfujnhwgevmojzkbf.supabase.co';
+var SUPABASE_KEY='sb_publishable_dPt0sB5D8ZQ6ZdHt6wuvyA_MkjOeknx';
+
+async function loadCloud(){
+  var r=document.getElementById('loadResult');
+  r.textContent='正在拉取...';
+  try{
+    var resp=await fetch(SUPABASE_URL+'/rest/v1/hwm_users?select=uid,user_data,updated_at&limit=200',{
+      headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+SUPABASE_KEY}
+    });
+    _cloudData=await resp.json();
+    r.innerHTML='<span class="ok">✅ 成功！从云端拉到 '+_cloudData.length+' 个用户：</span>\n\n';
+    _cloudData.forEach(function(u){
+      var n=u.user_data.name||u.uid;
+      var role=u.user_data.role||'?';
+      r.innerHTML+='  • '+n+' (uid='+u.uid+') role='+role+'\n';
+    });
+    document.getElementById('writeBtn').disabled=false;
+  }catch(e){
+    r.innerHTML='<span class="warn">❌ 拉取失败: '+e.message+'</span>';
+  }
+}
+
+function writeLocal(){
+  if(!_cloudData||!_cloudData.length){
+    alert('请先拉取数据');return;
+  }
+  var r=document.getElementById('writeResult');
+  var hwmSettings={};
+  for(var i=0;i<_cloudData.length;i++){
+    var row=_cloudData[i];
+    if(!row.uid||!row.user_data)continue;
+    var d=JSON.parse(JSON.stringify(row.user_data));
+    d._cloudUpdated=row.updated_at||'';
+    hwmSettings[row.uid]=d;
+  }
+  try{
+    localStorage.setItem('HWM_USER_SETTINGS',JSON.stringify(hwmSettings));
+    var k=Object.keys(hwmSettings);
+    r.innerHTML='<span class="ok">✅ 成功写入 '+k.length+' 个用户到 localStorage！\n\n现在请关闭此页面，刷新 MBO 正式程序。</span>';
+  }catch(e){
+    r.innerHTML='<span class="warn">❌ 写入失败: '+e.message+'</span>';
+  }
+}
+</script>
+</body>
+</html>

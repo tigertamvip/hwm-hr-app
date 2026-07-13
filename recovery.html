@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>27周数据恢复</title>
+<style>
+body{font-family:-apple-system,system-ui,sans-serif;padding:40px;background:#FBF8F3;color:#0F2C4B}
+h1{color:#003472}.card{background:#fff;border-radius:12px;padding:24px;margin:16px 0;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+pre{background:#f5f5f5;padding:12px;border-radius:8px;overflow-x:auto;font-size:12px;max-height:400px;overflow-y:auto}
+.btn{display:inline-block;padding:10px 24px;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;margin:8px 4px}
+.btn-primary{background:#003472;color:#fff}.btn-danger{background:#D64352;color:#fff}.btn-outline{background:#fff;border:2px solid #003472;color:#003472}
+.result{white-space:pre-wrap;font-family:monospace;font-size:12px}
+</style>
+</head>
+<body>
+<h1>📋 27 周数据恢复工具</h1>
+
+<div class="card">
+  <h3>步骤 1：扫描 localStorage</h3>
+  <p>查找 谭晨航 的 2026-07-W2 数据</p>
+  <button class="btn btn-primary" onclick="scan()">🔍 扫描 localStorage</button>
+  <div id="scanResult" class="result" style="margin-top:12px"></div>
+</div>
+
+<div class="card" id="restoreCard" style="display:none">
+  <h3>步骤 2：恢复数据到 Supabase</h3>
+  <p>找到的数据将显示在下方。点击「恢复」写回 Supabase。</p>
+  <pre id="foundData"></pre>
+  <button class="btn btn-danger" onclick="restore()">💾 恢复到 Supabase</button>
+  <div id="restoreResult" class="result" style="margin-top:12px"></div>
+</div>
+
+<div class="card">
+  <h3>当前 Supabase 云端数据（对比）</h3>
+  <pre id="supabaseData">加载中...</pre>
+  <button class="btn btn-outline" onclick="loadSupabase()">🔄 刷新云端数据</button>
+</div>
+
+<script>
+var _foundData=null;
+var SUPABASE_URL='https://xgysfujnhwgevmojzkbf.supabase.co';
+var SUPABASE_KEY='sb_publishable_dPt0sB5D8ZQ6ZdHt6wuvyA_MkjOeknx';
+
+async function scan(){
+  var result=document.getElementById('scanResult');
+  result.innerHTML='正在扫描...';
+  var keys=[];
+  for(var i=0;i<localStorage.length;i++){
+    var k=localStorage.key(i);
+    if(k&&k.indexOf('workplans')>=0)keys.push(k);
+  }
+  var found=null;
+  for(var j=0;j<keys.length;j++){
+    try{
+      var data=JSON.parse(localStorage.getItem(keys[j]));
+      if(keys[j].indexOf('谭晨航')>=0||(data&&data['2026-07-W2'])){
+        found={key:keys[j],w2:data['2026-07-W2'],allWeeks:Object.keys(data||{})};
+        break;
+      }
+    }catch(e){}
+  }
+  if(found){
+    result.innerHTML='✅ 找到！Key: <b>'+found.key+'</b><br>该 Key 包含的周: '+found.allWeeks.join(', ');
+    _foundData=found;
+    document.getElementById('foundData').textContent=JSON.stringify(found.w2,null,2);
+    document.getElementById('restoreCard').style.display='block';
+  }else{
+    // 直接搜所有localStorage
+    for(var m=0;m<localStorage.length;m++){
+      try{
+        var raw=localStorage.getItem(localStorage.key(m));
+        if(raw&&raw.indexOf('2026-07-W2')>=0){
+          result.innerHTML='✅ 在 key <b>'+localStorage.key(m)+'</b> 中找到了包含 2026-07-W2 的数据';
+          var parsed=JSON.parse(raw);
+          _foundData={key:localStorage.key(m),w2:parsed['2026-07-W2']||parsed,allWeeks:Object.keys(parsed||{})};
+          document.getElementById('foundData').textContent=JSON.stringify(_foundData.w2,null,2);
+          document.getElementById('restoreCard').style.display='block';
+          return;
+        }
+      }catch(e){}
+    }
+    result.innerHTML='❌ 未找到 谭晨航 的 2026-07-W2 数据。<br>很遗憾，浏览器 localStorage 中也没有缓存。数据已无法恢复。';
+  }
+}
+
+async function restore(){
+  if(!_foundData||!_foundData.w2)return alert('没有可恢复的数据');
+  var r=document.getElementById('restoreResult');
+  r.innerHTML='正在写入 Supabase...';
+  try{
+    // 先删除现有记录
+    await fetch(SUPABASE_URL+'/rest/v1/hwm_workplans?username=eq.%E8%B0%AD%E6%99%A8%E8%88%AA&week_id=eq.2026-07-W2',{
+      method:'DELETE',
+      headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+SUPABASE_KEY}
+    });
+    // 写入新记录
+    var planData=_foundData.w2;
+    if(!planData.updatedAt)planData.updatedAt=new Date().toISOString();
+    var body=JSON.stringify({
+      username:'谭晨航',week_id:'2026-07-W2',plan_data:planData,
+      created_at:planData.createdAt||new Date().toISOString(),
+      updated_at:new Date().toISOString()
+    });
+    var resp=await fetch(SUPABASE_URL+'/rest/v1/hwm_workplans',{
+      method:'POST',
+      headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
+      body:body
+    });
+    if(resp.ok){
+      r.innerHTML='✅ 数据已恢复到 Supabase！<br><br>请在 MBO 周计划页面按 <b>Ctrl+F5</b> 强制刷新，数据应该回来了。';
+    }else{
+      r.innerHTML='❌ 恢复失败: '+resp.status+' '+resp.statusText;
+    }
+  }catch(e){
+    r.innerHTML='❌ 恢复失败: '+e.message;
+  }
+}
+
+async function loadSupabase(){
+  var d=document.getElementById('supabaseData');
+  try{
+    var resp=await fetch(SUPABASE_URL+'/rest/v1/hwm_workplans?username=eq.%E8%B0%AD%E6%99%A8%E8%88%AA&week_id=eq.2026-07-W2&select=*',{
+      headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+SUPABASE_KEY}
+    });
+    var data=await resp.json();
+    d.textContent=JSON.stringify(data,null,2);
+  }catch(e){
+    d.textContent='加载失败: '+e.message;
+  }
+}
+loadSupabase();
+</script>
+</body>
+</html>

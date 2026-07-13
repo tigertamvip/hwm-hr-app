@@ -2381,8 +2381,8 @@ async function clearTaskRow(idx){
   }
   // 4. 保存到 localStorage
   saveWP(p.year,p.month,p.week,p);
-  // 5. 强制页面刷新（最可靠的 UI 更新方式）
-  setTimeout(function(){location.reload();},200);
+  renderWPTable(p);
+  showToast('✨ 已清空第 '+(idx+1)+' 行所有内容');
 }
 
 function renderWPTable(plan){
