@@ -2190,9 +2190,12 @@ function _renderTaskOpCell(taskIdx,seq,plan){
   if(total<15 && !isCollab){
     btns+='<span onclick="event.stopPropagation();addTaskRow('+taskIdx+')" style="display:inline-block;width:16px;height:16px;line-height:16px;text-align:center;border-radius:50%;background:#3498db;color:#fff;font-size:12px;font-weight:bold;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.15);user-select:none" title="在此后添加一行">+</span>';
   }
-  // − 删除按钮：每行显示（协同行除外），至少保留1行
-  if(!isCollab && total>1){
-    btns+='<span onclick="event.stopPropagation();deleteTaskRow('+taskIdx+')" style="display:inline-block;width:16px;height:16px;line-height:16px;text-align:center;border-radius:50%;background:#9ca3af;color:#fff;font-size:12px;font-weight:bold;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.15);user-select:none;margin-top:2px" title="删除此行">−</span>';
+  // ★ V0.6.1dv: − 按钮：所有非协同行都显示
+  // total>1 时为删除整行；total=1 时为清空该行所有字段
+  if(!isCollab){
+    var isOnlyOne=total===1;
+    var minusTitle=isOnlyOne?'清空该行所有字段（保留行结构）':'删除此行';
+    btns+='<span onclick="event.stopPropagation();'+(isOnlyOne?'clearTaskRow('+taskIdx+')':'deleteTaskRow('+taskIdx+')')+'" style="display:inline-block;width:16px;height:16px;line-height:16px;text-align:center;border-radius:50%;background:#9ca3af;color:#fff;font-size:12px;font-weight:bold;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.15);user-select:none;margin-top:2px" title="'+minusTitle+'">−</span>';
   }
 
   // ★ V0.3.70: 序号列垂直排列 — 序号在上，+号居中，-号在下
@@ -2345,6 +2348,41 @@ async function deleteTaskRow(idx){
   saveWP(p.year,p.month,p.week,p);
   renderWPTable(p);
   showToast('🗑 已删除并重新编号');
+}
+
+// ★ V0.6.1dv: 清空单行所有字段（保留行结构）
+// 用于 total=1 时，无法删除整行时清空内容重新填写
+function clearTaskRow(idx){
+  var p=_wpCurrent.plan;if(!p)return;
+  var tasks=p.tasks;
+  if(idx<0||idx>=tasks.length)return;
+  var t=tasks[idx];
+  if(!t)return;
+  if(t.collab_from){showToast('⚠️ 协同任务不能清空');return;}
+  // 检查是否为空行（避免误清空空白行）
+  var hasContent=t.work||t.goal||t.startDate||t.plannedDate||t.actualDate||
+    t.estimatedHours||t.status||t.needBoss||t.problems||t.problemType||
+    (t.supporters&&t.supporters.length>0)||t.aiSuggestion||t.bossFeedback;
+  if(!hasContent){showToast('该行已经是空行，无需清空');return;}
+  var taskLabel=(t.work||'第'+(idx+1)+'项').substring(0,20);
+  if(!confirm('确定要清空「'+taskLabel+'」的所有内容吗？\n\n行结构和序号将保留。'))return;
+  // 保留 seq/年份月份周/协同来源，清空其他所有字段
+  var keepSeq=t.seq;
+  var keepCollab=t.collab_from;
+  tasks[idx]={
+    seq:keepSeq,
+    goal:'',work:'',status:'',needBoss:'',problems:'',
+    startDate:'',actualDate:'',supporters:'',
+    plannedDate:'',problemType:'',
+    aiSuggestion:'',bossFeedback:'',
+    estimatedHours:''
+  };
+  if(keepCollab)tasks[idx].collab_from=keepCollab;
+  p.updatedAt=new Date().toISOString();
+  _calcWeekScore(p);
+  saveWP(p.year,p.month,p.week,p);
+  renderWPTable(p);
+  showToast('✨ 已清空第 '+(idx+1)+' 行所有内容');
 }
 
 function renderWPTable(plan){
