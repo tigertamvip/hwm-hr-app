@@ -47,7 +47,8 @@ function _getTodayStr(){
 }
 
 // ★ V0.6.1ct: 计算剩余办结天数
-function _calcRemainingDays(plannedDate){
+function _calcRemainingDays(plannedDate,actualDate){
+  if(actualDate)return'0'; // 已填写实际完成日期 → 0
   if(!plannedDate)return'';
   var today=_getTodayStr();
   var pd=new Date(plannedDate+'T00:00:00');
@@ -2222,7 +2223,7 @@ function renderWPTable(plan){
       html+='<td class="'+edCls+' col-hours" data-field="tasks.'+jj+'.startDate" data-type="date"'+edClick+'>'+(_sd?_sd:'<span style="color:var(--text-hint)">点击选择日期</span>')+'</td>';
       var _pd=renderWPCellValue(plan,'tasks.'+jj+'.plannedDate',tt.plannedDate||'');
       html+='<td class="'+edCls+' col-hours" data-field="tasks.'+jj+'.plannedDate" data-type="date"'+edClick+'>'+(_pd?_pd:'<span style="color:var(--text-hint)">点击选择日期</span>')+'</td>';
-      html+='<td class="col-remaining" style="text-align:center;font-size:12px">'+_calcRemainingDays(tt.plannedDate||'')+'</td>';
+      html+='<td class="col-remaining" style="text-align:center;font-size:12px">'+_calcRemainingDays(tt.plannedDate||'',tt.actualDate||'')+'</td>';
       var _ad=renderWPCellValue(plan,'tasks.'+jj+'.actualDate',tt.actualDate||'');
       html+='<td class="'+edCls+' col-hours" data-field="tasks.'+jj+'.actualDate" data-type="date"'+edClick+'>'+(_ad?_ad:'<span style="color:var(--text-hint)">点击选择日期</span>')+'</td>';
       // ★ V0.4.91d/Q: 耗时列（自动计算，只读）+ 蓝色角标 + tooltip数据
@@ -2269,7 +2270,7 @@ function renderWPTable(plan){
     html+='<td class="editable col-hours'+_frozenCls+'" data-field="tasks.'+j+'.startDate" data-type="date" onclick="startEditCell(this)">'+(startDateDisplay?startDateDisplay:'<span style="color:var(--text-hint)">点击选择日期</span>')+'</td>';
     var plannedDateDisplay=renderWPCellValue(plan,'tasks.'+j+'.plannedDate',t.plannedDate||'');
     html+='<td class="editable col-hours'+_frozenCls+'" data-field="tasks.'+j+'.plannedDate" data-type="date" onclick="startEditCell(this)">'+(plannedDateDisplay?plannedDateDisplay:'<span style="color:var(--text-hint)">点击选择日期</span>')+'</td>';
-    html+='<td class="col-remaining" style="text-align:center;font-size:12px">'+_calcRemainingDays(t.plannedDate||'')+'</td>';
+    html+='<td class="col-remaining" style="text-align:center;font-size:12px">'+_calcRemainingDays(t.plannedDate||'',t.actualDate||'')+'</td>';
     var actualDateDisplay=renderWPCellValue(plan,'tasks.'+j+'.actualDate',t.actualDate||'');
     // ★ V0.4.91: 自动"未做"时锁定实际完成日期，显示"—"
     // ★ V0.6.1ac: actualDate 由小结提交控制冻结（非计划提交）
