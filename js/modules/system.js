@@ -517,3 +517,53 @@ function sysCloseModal(){
   document.getElementById('sysUserModal').style.display='none';
   _sysEditingUid=null;
 }
+
+// ★ V0.6.1ea: 从团队人才批量导入用户
+function sysOpenImportFromRoster(){
+  var emps=(typeof allEmployees!=='undefined'&&allEmployees)?allEmployees:[];
+  if(emps.length===0){_showAlert('暂无团队人才数据，请先到"人才团队"导入花名册');return;}
+  var available=[];
+  for(var i=0;i<emps.length;i++){var e=emps[i];if(!e||!e.name)continue;if(USERS[e.name])continue;available.push(e);}
+  if(available.length===0){_showAlert('团队人才中所有员工都已是授权用户');return;}
+  var html='<div class="_confirm-card" style="max-width:600px">';
+  html+='<div class="_confirm-title" style="padding:18px 24px 12px">📥 从团队人才导入授权用户</div>';
+  html+='<div class="_confirm-body" style="padding:0 24px 12px">';
+  html+='<div style="font-size:12px;color:#6b7280;margin-bottom:10px">共 '+available.length+' 位员工可导入，初始密码统一为 1234，员工可自行修改</div>';
+  html+='<div style="margin-bottom:8px"><label style="cursor:pointer"><input type="checkbox" onchange="var cs=this.parentElement.parentElement.querySelectorAll(\'.sys-import-chk\');for(var i=0;i<cs.length;i++)cs[i].checked=this.checked" checked> <strong>全选/取消全选</strong></label></div>';
+  html+='<div style="max-height:360px;overflow-y:auto;border:1px solid #e5e7eb;border-radius:6px;padding:8px;background:#fafafa">';
+  for(var j=0;j<available.length;j++){var emp=available[j];html+='<label style="display:flex;align-items:center;gap:6px;padding:6px 8px;cursor:pointer;border-radius:4px;margin-bottom:2px;background:#fff">';
+  html+='<input type="checkbox" class="sys-import-chk" value="'+esc(emp.name)+'" data-pos="'+esc(emp.position||'')+'" data-dept="'+esc(emp.dept||'')+'" checked>';
+  html+='<span style="flex:1"><strong>'+esc(emp.name)+'</strong>';
+  if(emp.position)html+=' <span style="color:#6b7280;font-size:12px">· '+esc(emp.position)+'</span>';
+  if(emp.dept)html+=' <span style="color:#9ca3af;font-size:11px">'+esc(emp.dept)+'</span>';
+  html+='</span></label>';}
+  html+='</div></div>';
+  html+='<div class="_confirm-actions" style="padding:0 24px 18px">';
+  html+='<button class="_confirm-btn-cancel" onclick="document.getElementById(\'_sysImportOverlay\').remove()">取消</button>';
+  html+='<button class="_confirm-btn-ok" onclick="sysDoImportFromRoster()">确认导入</button>';
+  html+='</div></div>';
+  var overlay=document.createElement('div');
+  overlay.id='_sysImportOverlay';
+  overlay.className='modal-overlay';
+  overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:center;justify-content:center';
+  overlay.innerHTML=html;
+  overlay.addEventListener('click',function(e){if(e.target===overlay)overlay.remove();});
+  document.body.appendChild(overlay);
+}
+
+async function sysDoImportFromRoster(){
+  var overlay=document.getElementById('_sysImportOverlay');
+  if(!overlay)return;
+  var checked=overlay.querySelectorAll('.sys-import-chk:checked');
+  if(checked.length===0){_showAlert('请至少选择一位员工');return;}
+  var added=0,skipped=0;
+  for(var i=0;i<checked.length;i++){
+    var chk=checked[i],name=chk.value,pos=chk.dataset.pos||'',dept=chk.dataset.dept||'';
+    if(USERS[name]){skipped++;continue;}
+    USERS[name]={pwd:'1234',name:name,role:'staff',dept:dept,position:pos,centerKeyword:'',permissions:{hr:false,mbo:false,kpi:false,talent:false,pm:false,learning:false,payroll:false,ideas:false,policies:false,maintenance:false,decision:false,dashboard:false,rd:false},subordinates:{},reports:{boss:'',supervisor:'',subordinates:[]}};
+    added++;
+  }
+  if(added>0){saveUserSettings();syncAllToCloud();sysRenderUserTable();_showAlert('✅ 成功导入 '+added+' 个用户（初始密码 1234）'+(skipped>0?'，跳过 '+skipped+' 个已存在':''));}
+  else{_showAlert('没有可导入的用户（已全部存在）');}
+  overlay.remove();
+}
