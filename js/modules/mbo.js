@@ -781,10 +781,19 @@ function switchToMyWP(){
   _wpRevisionMode=false;
   _wpCurrent={year:null,month:null,week:null,plan:null};
   _wpSubData.selected='';
+  _wpCurrent.mergedTasks=null;
   var triggerText=document.getElementById('wpSubTriggerText');
   if(triggerText){triggerText.textContent='审阅团队周行动';triggerText.style.color='';}
   var sharedTriggerText=document.getElementById('wpSharedTriggerText');
   if(sharedTriggerText)sharedTriggerText.textContent='📖 查看授权我阅览其周计划的同事';
+  // ★ V0.6.1dg: 清理合并视图的残留 DOM
+  var content=document.getElementById('wpContent');
+  if(content){
+    var sc=content.querySelector('.wp-scroll-area');if(sc)sc.remove();
+    var ta=content.querySelector('.wp-table-area');if(ta)ta.remove();
+    var emp=content.querySelector('.wp-empty');if(emp)emp.remove();
+    var infoBar=content.querySelector('.wp-info-bar');if(infoBar)infoBar.remove();
+  }
   loadWPData();
   renderWPUserInfo();
   renderWPSubSelect();
@@ -926,8 +935,8 @@ function _renderMergedUrgentView(){
   for(var si=0;si<subs.length;si++){
     var sname=subs[si];
     var sData={};
-    try{sData=JSON.parse(localStorage.getItem('HWM_WP_'+sname)||'{}');}catch(e){}
-    var weekId=cy+'-'+(cm<10?'0':'')+cm+'-'+cw;
+    try{sData=JSON.parse(localStorage.getItem('hwm_workplans_'+sname)||'{}');}catch(e){}
+    var weekId=cy+'-'+(cm<10?'0':'')+cm+'-W'+cw;
     var plan=sData[weekId];
     if(!plan||!plan.tasks)continue;
     for(var ti=0;ti<plan.tasks.length;ti++){
@@ -954,6 +963,7 @@ function _renderMergedUrgentView(){
       var sc=content.querySelector('.wp-scroll-area');if(sc)sc.remove();
       var ta=content.querySelector('.wp-table-area');if(ta)ta.remove();
       var ib=content.querySelector('.wp-info-bar');if(ib)ib.remove();
+      var emp=content.querySelector('.wp-empty');if(emp)emp.remove();
       var emptyDiv=document.createElement('div');
       emptyDiv.className='wp-empty';
       emptyDiv.innerHTML='<div class="wp-empty-title">本周暂无下属重要紧急事项</div><div class="wp-empty-desc">你的直属下属本周没有标记为"重要紧急"的行动项，团队节奏良好 👍</div>';
@@ -1531,10 +1541,12 @@ function showWPEmpty(){
   var ta=content.querySelector('.wp-table-area');
   var ib=content.querySelector('.wp-info-bar');
   var sb=content.querySelector('.wp-summary-bar');
+  var emp=content.querySelector('.wp-empty');
   if(tb)tb.remove();
   if(ta)ta.remove();
   if(ib)ib.remove();
   if(sb)sb.remove();
+  if(emp)emp.remove();
   var sc=content.querySelector('.wp-scroll-area');if(sc)sc.remove();
   dd.style.display='flex';
 }
