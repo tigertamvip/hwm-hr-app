@@ -715,7 +715,7 @@ function renderWPSubSelect(){
       triggerText.textContent=_wpViewingShared;
       _wpSubData.selected=_wpViewingShared;
     }else{
-      triggerText.textContent='View Team To-Do';triggerText.style.color='';
+      triggerText.textContent='审阅团队周行动';triggerText.style.color='';
       _wpSubData.selected='';
     }
   }
@@ -773,7 +773,7 @@ function switchToMyWP(){
   _wpCurrent={year:null,month:null,week:null,plan:null};
   _wpSubData.selected='';
   var triggerText=document.getElementById('wpSubTriggerText');
-  if(triggerText){triggerText.textContent='View Team To-Do';triggerText.style.color='';}
+  if(triggerText){triggerText.textContent='审阅团队周行动';triggerText.style.color='';}
   var sharedTriggerText=document.getElementById('wpSharedTriggerText');
   if(sharedTriggerText)sharedTriggerText.textContent='📖 查看授权我阅览其周计划的同事';
   loadWPData();
@@ -864,7 +864,7 @@ function selectWPSubOption(val,name,rel){
   _wpSubData.selected=val;
   var triggerText=document.getElementById('wpSubTriggerText');
   if(triggerText){
-    if(!val){triggerText.textContent='View Team To-Do';triggerText.style.color='';}
+    if(!val){triggerText.textContent='审阅团队周行动';triggerText.style.color='';}
     else{triggerText.textContent=name||val;triggerText.style.color='';}
   }
   // ★ V0.6.1j: 根据 rel 分流到直属、间接或共享处理
