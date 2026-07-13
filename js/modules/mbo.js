@@ -1500,6 +1500,14 @@ async function delWPFromSidebar(y,m,w){
 }
 
 function selectWP(y,m,w){
+  // ★ V0.6.1dn: 退出合并视图时清理残留 DOM
+  _wpViewingMergedUrgent=false;
+  _wpCurrent.mergedTasks=null;
+  var content=document.getElementById('wpContent');
+  if(content){
+    var oldInfo=content.querySelector('.wp-info-bar.merged-urgent');if(oldInfo)oldInfo.remove();
+    var oldToolbar=content.querySelector('.wp-toolbar.merged-urgent');if(oldToolbar)oldToolbar.remove();
+  }
   _wpCurrent={year:y,month:m,week:w,plan:null};
   loadWPData();
   var plan=getWP(y,m,w);
