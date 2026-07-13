@@ -899,10 +899,11 @@ function selectWPSubOption(val,name,rel){
     var mEl=document.getElementById('wpMonth');
     var autoY=yEl?parseInt(yEl.value):new Date().getFullYear();
     var autoM=mEl?parseInt(mEl.value):(new Date().getMonth()+1);
-    // ★ V0.6.1di: 自动跳转到当前日历对应的周
+    // ★ V0.6.1dk: 与年周度网格的"当前周"一致
     var sNow=new Date();
-    var sIsoWeek=getISOWeek(sNow);
-    var sMapped=isoWeekToMonthWeek(sIsoWeek);
+    var sCurrISO=getCurrentISOWeek();
+    var sMapped=isoWeekToMonthWeek(sCurrISO.week);
+    if(sCurrISO.year!==autoY) sMapped={month:1,week:1};
     setTimeout(function(){ try{selectWP(autoY,sMapped.month,sMapped.week);}catch(e){console.warn('auto-selectWP after shared change failed:',e);} }, 100);
   }else if(rel==='merged-urgent'){
     // ★ V0.6.1dh: 保留当前选中的年月周（用户通常会先选周再点合并）
@@ -978,8 +979,8 @@ async function _renderMergedUrgentView(){
     for(var ti=0;ti<plan.tasks.length;ti++){
       var t=plan.tasks[ti];
       if(!t.work||!t.work.trim())continue;
-      // ★ pri 存储的是中文值如 '重要紧急' 或 CSS类如 'pri-urgent'
-      if(t.pri!=='重要紧急'&&t.pri!=='pri-urgent')continue;
+      // ★ V0.6.1dk: 优先级实际存储在 goal 字段（值如 '重要紧急'）
+      if(t.goal!=='重要紧急')continue;
       var clone=JSON.parse(JSON.stringify(t));
       clone._empName=sname;clone._empId=sname;
       clone._isOverdue=false;clone._daysOverdue=0;
@@ -1109,6 +1110,7 @@ async function _renderMergedUrgentView(){
     td3.style.cssText='position:sticky;left:126px;z-index:2;background:'+bg+';min-width:180px;text-align:left;font-weight:600';
     tr2.appendChild(td3);
     // 优先级
+    // 优先级 — ★ V0.6.1dk: 实际字段是 goal，不是 pri
     tr2.innerHTML+='<td style="color:#FF3B30;font-weight:600;min-width:80px;text-align:center;background:'+bg+'">重要紧急</td>';
     // 启动日期
     tr2.innerHTML+='<td style="min-width:80px;text-align:center;background:'+bg+'">'+_h(t.startDate||'')+'</td>';
@@ -1201,10 +1203,16 @@ function onWPSubordinateChange(val){
   var mEl=document.getElementById('wpMonth');
   var autoY=yEl?parseInt(yEl.value):new Date().getFullYear();
   var autoM=mEl?parseInt(mEl.value):(new Date().getMonth()+1);
-  // ★ V0.6.1di: 自动跳转到当前日历对应的周计划，而不是周1
+  // ★ V0.6.1dk: 与年周度网格的"当前周"一致 — 用 getCurrentISOWeek (内部已 week-1)
   var now=new Date();
-  var isoWeek=getISOWeek(now);
-  var mapped=isoWeekToMonthWeek(isoWeek);
+  var currISO=getCurrentISOWeek();
+  var mapped=isoWeekToMonthWeek(currISO.week);
+  // 修正：currISO.week 是相对于所选年份的"内部年周"(4/4/5 体系)
+  // 需先确认 autoY/currISO.year 匹配
+  if(currISO.year!==autoY){
+    // 跨年：取该年第一周对应的内部月周
+    mapped={month:1,week:1};
+  }
   setTimeout(function(){ try{selectWP(autoY,mapped.month,mapped.week);}catch(e){console.warn('auto-selectWP after subordinate change failed:',e);} }, 100);
 }
 
@@ -1343,14 +1351,15 @@ function onWPDeptMemberChange(val){
   renderWPSubSelect();
   showWPEmpty();
   onWPMonthChange();
-  // ★ V0.6.1di: 自动跳转到当前日历对应的周
+  // ★ V0.6.1dk: 与年周度网格的"当前周"一致
   var yEl=document.getElementById('wpYear');
   var mEl=document.getElementById('wpMonth');
   var autoY=yEl?parseInt(yEl.value):new Date().getFullYear();
   var autoM=mEl?parseInt(mEl.value):(new Date().getMonth()+1);
   var dmNow=new Date();
-  var dmIsoWeek=getISOWeek(dmNow);
-  var dmMapped=isoWeekToMonthWeek(dmIsoWeek);
+  var dmCurrISO=getCurrentISOWeek();
+  var dmMapped=isoWeekToMonthWeek(dmCurrISO.week);
+  if(dmCurrISO.year!==autoY) dmMapped={month:1,week:1};
   setTimeout(function(){ try{selectWP(autoY,dmMapped.month,dmMapped.week);}catch(e){console.warn('auto-selectWP after deptMember change failed:',e);} }, 100);
 }
 
