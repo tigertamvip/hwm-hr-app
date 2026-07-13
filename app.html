@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.6.1co">
+<meta name="version" content="V0.6.1cp">
 <!-- cache-bust: 2026-07-12-18-25 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json?v=bc">
@@ -2121,7 +2121,7 @@ body{
 .wp-toolbar button.wp-btn-freeze{background:#fff;color:#3B7DB4;border-color:#3B7DB4}
 .wp-toolbar button.wp-btn-freeze:hover{background:#E8F4FE;border-color:#2A6A9A;color:#2A6A9A}
 /* ★ V0.1.30: 锁定视觉提示 */
-.wp-table td.wp-cell-frozen{border-left:3px solid #3B7DB4!important;border-right:none!important;position:relative;background:rgba(59,125,180,.04);cursor:not-allowed!important}
+.wp-table td.wp-cell-frozen{box-shadow:inset 3px 0 0 0 #3B7DB4;border-right:none!important;background:rgba(59,125,180,.04);cursor:not-allowed!important}
 .wp-toolbar-sep{width:1px;background:var(--border);margin:0 4px;display:inline-block}
 
 .wp-table-wrap{flex:1;background:#FBF8F3;border-radius:8px;border:none;border-right:1px solid var(--border)}
@@ -2146,10 +2146,10 @@ body{
 .wp-table td.col-work{text-align:left;min-width:180px;font-weight:600}
 .wp-table td.col-goal{text-align:center;min-width:80px;font-size:12px;font-weight:600}
 /* ★ V0.3.101: 优先级纯文字标签 — 去彩色底色 */
-.wp-table td.col-goal.pri-urgent{background:#FBF8F3;color:#FF3B30;font-weight:600;border-left:3px solid #FF3B30}
-.wp-table td.col-goal.pri-important{background:#FBF8F3;color:#007AFF;font-weight:500;border-left:3px solid #007AFF}
-.wp-table td.col-goal.pri-daily-urgent{background:#FBF8F3;color:#FF9500;font-weight:500;border-left:3px solid #FF9500}
-.wp-table td.col-goal.pri-daily-routine{background:#FBF8F3;color:#5E7080;font-weight:400;border-left:3px solid rgba(94,112,128,.25)}
+.wp-table td.col-goal.pri-urgent{background:#FBF8F3;color:#FF3B30;font-weight:600;box-shadow:inset 3px 0 0 0 #FF3B30}
+.wp-table td.col-goal.pri-important{background:#FBF8F3;color:#007AFF;font-weight:500;box-shadow:inset 3px 0 0 0 #007AFF}
+.wp-table td.col-goal.pri-daily-urgent{background:#FBF8F3;color:#FF9500;font-weight:500;box-shadow:inset 3px 0 0 0 #FF9500}
+.wp-table td.col-goal.pri-daily-routine{background:#FBF8F3;color:#5E7080;font-weight:400;box-shadow:inset 3px 0 0 0 rgba(94,112,128,.25)}
 /* ★ V0.5.142: 冻结前5列 — 序号/重点工作/优先级/启动日期/计划完成日期（Excel式列锁定）*/
 /* ★ V0.5.142: 冻结前5列 — 仅 tbody 冻结，thead 由 JS transform 同步 */
 .wp-table th:nth-child(1),.wp-table td:nth-child(1){position:sticky;left:0;z-index:2;border-left:1px solid var(--border)}
@@ -6434,7 +6434,7 @@ if('serviceWorker' in navigator){
 <script src="js/modules/policies.js"></script>
 <script>
 </script>
-<script src="js/modules/mbo.js?v=18"></script>
+<script src="js/modules/mbo.js?v=19"></script>
 <script src="js/modules/pm.js?v=4"></script>
 <script src="js/modules/system.js"></script>
 <script>
