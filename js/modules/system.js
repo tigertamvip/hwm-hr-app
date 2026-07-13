@@ -529,9 +529,29 @@ function sysOpenImportFromRoster(){
   html+='<div class="_confirm-title" style="padding:18px 24px 12px">📥 从团队人才导入授权用户</div>';
   html+='<div class="_confirm-body" style="padding:0 24px 12px">';
   html+='<div style="font-size:12px;color:#6b7280;margin-bottom:10px">共 '+available.length+' 位员工可导入，初始密码统一为 1234，员工可自行修改</div>';
-  html+='<div style="margin-bottom:8px"><label style="cursor:pointer"><input type="checkbox" onchange="var cs=this.parentElement.parentElement.querySelectorAll(\'.sys-import-chk\');for(var i=0;i<cs.length;i++)cs[i].checked=this.checked" checked> <strong>全选/取消全选</strong></label></div>';
-  html+='<div style="max-height:360px;overflow-y:auto;border:1px solid #e5e7eb;border-radius:6px;padding:8px;background:#fafafa">';
-  for(var j=0;j<available.length;j++){var emp=available[j];html+='<label style="display:flex;align-items:center;gap:6px;padding:6px 8px;cursor:pointer;border-radius:4px;margin-bottom:2px;background:#fff">';
+  html+='<div style="display:flex;gap:10px;align-items:center;margin-bottom:10px;flex-wrap:wrap">';
+  html+='<label style="cursor:pointer;white-space:nowrap"><input type="checkbox" id="sysImportSelectAll" onchange="var ov=document.getElementById(\'_sysImportOverlay\');if(!ov)return;var vis=ov.querySelectorAll(\'.sys-import-row\'),cs;for(var i=0;i<vis.length;i++){if(vis[i].style.display!==\'none\'){cs=vis[i].querySelector(\'.sys-import-chk\');if(cs)cs.checked=this.checked;}}" checked> <strong>全选/取消全选</strong></label>';
+  html+='<span style="color:#d1d5db">|</span>';
+  // 提取中心/部门/职务 可选值
+  var _centerSet={},_deptSet={},_posSet={};
+  available.forEach(function(e){
+    if(e.dept){var m=String(e.dept).match(/^([^/]+)/);if(m)_centerSet[m[1]]=true;_deptSet[e.dept]=true;}
+    if(e.position)_posSet[e.position]=true;
+  });
+  html+='<select id="sysImportFilterCenter" onchange="sysFilterImportList()" style="padding:4px 8px;border:1px solid #d1d5db;border-radius:4px;font-size:12px;background:#fff;cursor:pointer"><option value="">🛡 中心（全部）</option>';
+  Object.keys(_centerSet).sort().forEach(function(c){html+='<option value="'+esc(c)+'">'+esc(c)+'</option>';});
+  html+='</select>';
+  html+='<select id="sysImportFilterDept" onchange="sysFilterImportList()" style="padding:4px 8px;border:1px solid #d1d5db;border-radius:4px;font-size:12px;background:#fff;cursor:pointer"><option value="">🏢 部门（全部）</option>';
+  Object.keys(_deptSet).sort().forEach(function(d){html+='<option value="'+esc(d)+'">'+esc(d)+'</option>';});
+  html+='</select>';
+  html+='<select id="sysImportFilterPos" onchange="sysFilterImportList()" style="padding:4px 8px;border:1px solid #d1d5db;border-radius:4px;font-size:12px;background:#fff;cursor:pointer"><option value="">💼 职务（全部）</option>';
+  Object.keys(_posSet).sort().forEach(function(p){html+='<option value="'+esc(p)+'">'+esc(p)+'</option>';});
+  html+='</select>';
+  html+='</div>';
+  html+='<div id="sysImportList" style="max-height:360px;overflow-y:auto;border:1px solid #e5e7eb;border-radius:6px;padding:8px;background:#fafafa">';
+  for(var j=0;j<available.length;j++){var emp=available[j];
+  var _center='';if(emp.dept){var _m=String(emp.dept).match(/^([^/]+)/);if(_m)_center=_m[1];}
+  html+='<label class="sys-import-row" data-center="'+esc(_center)+'" data-dept="'+esc(emp.dept||'')+'" data-pos="'+esc(emp.position||'')+'" style="display:flex;align-items:center;gap:6px;padding:6px 8px;cursor:pointer;border-radius:4px;margin-bottom:2px;background:#fff">';
   html+='<input type="checkbox" class="sys-import-chk" value="'+esc(emp.name)+'" data-pos="'+esc(emp.position||'')+'" data-dept="'+esc(emp.dept||'')+'" checked>';
   html+='<span style="flex:1"><strong>'+esc(emp.name)+'</strong>';
   if(emp.position)html+=' <span style="color:#6b7280;font-size:12px">· '+esc(emp.position)+'</span>';
@@ -566,4 +586,31 @@ async function sysDoImportFromRoster(){
   if(added>0){saveUserSettings();syncAllToCloud();sysRenderUserTable();_showAlert('✅ 成功导入 '+added+' 个用户（初始密码 1234）'+(skipped>0?'，跳过 '+skipped+' 个已存在':''));}
   else{_showAlert('没有可导入的用户（已全部存在）');}
   overlay.remove();
+}
+
+// ★ V0.6.1eb: 筛选导入列表
+function sysFilterImportList(){
+  var overlay=document.getElementById('_sysImportOverlay');
+  if(!overlay)return;
+  var c=overlay.querySelector('#sysImportFilterCenter').value;
+  var d=overlay.querySelector('#sysImportFilterDept').value;
+  var p=overlay.querySelector('#sysImportFilterPos').value;
+  var rows=overlay.querySelectorAll('.sys-import-row');
+  var visible=0;
+  for(var i=0;i<rows.length;i++){
+    var r=rows[i];
+    var ok=(!c||r.dataset.center===c)&&(!d||r.dataset.dept===d)&&(!p||r.dataset.pos===p);
+    r.style.display=ok?'flex':'none';
+    if(ok)visible++;
+  }
+  // 同步全选状态
+  var all=overlay.querySelector('#sysImportSelectAll');
+  if(all){
+    var chks=overlay.querySelectorAll('.sys-import-row:has(.sys-import-chk) .sys-import-chk');
+    // 简化：仅基于可见行更新
+    var visibleChks=overlay.querySelectorAll('.sys-import-row[style*="display: flex"] .sys-import-chk');
+    var checkedCount=0;for(var j=0;j<visibleChks.length;j++)if(visibleChks[j].checked)checkedCount++;
+    all.checked=visibleChks.length>0&&checkedCount===visibleChks.length;
+    all.indeterminate=checkedCount>0&&checkedCount<visibleChks.length;
+  }
 }
