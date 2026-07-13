@@ -98,14 +98,57 @@ var _wpViewingShared=null; // ★ V0.5.79b: 被分享查看的人
 var _wpEditCell=null;
 var _wpLastRenderKey='';
 var _wpRevisionMode=false;
+// ★ V0.6.1cd: 表头双击排序状态
+var _wpSort=null; // {col:'priority'|'startDate'|'plannedDate'|'actualDate'|'status',dir:'asc'|'desc'|null}
 
 // 下拉选项
 var WP_GOAL_OPTIONS=['重要紧急','重要不急','日常紧急','日常事项'];
+var WP_PRIORITY_ORDER={'重要紧急':1,'日常紧急':2,'重要不急':3,'日常事项':4};
 var WP_GOAL_COLORS={'重要紧急':'#D64352','重要不急':'#F97316','日常紧急':'#0EA5E9','日常事项':'#5E7080'};
 var WP_STATUS_OPTIONS=['按时完成','进行中','逾期完成','暂停中','未做'];
 var WP_STATUS_COLORS={'按时完成':'#92D050','进行中':'#289FB7','逾期完成':'#FFCF66','暂停中':'#9ca3af','未做':'#FF4B4B'};
 var WP_PROBLEM_OPTIONS=['无','资源不足','跨部门协调','技术瓶颈','时间紧张','其他原因'];
 var WP_NEEDBOSS_OPTIONS=['否','是'];
+
+// ★ V0.6.1cd: 任务排序函数（显示层，不修改存储）
+function sortWPTasks(tasks, col, dir){
+  if(!dir||!col) return tasks;
+  var sorted=tasks.slice();
+  var asc=dir==='asc';
+  if(col==='priority'){
+    sorted.sort(function(a,b){ var va=WP_PRIORITY_ORDER[a.goal]||99, vb=WP_PRIORITY_ORDER[b.goal]||99; return asc?va-vb:vb-va; });
+  }else if(col==='startDate'){
+    sorted.sort(function(a,b){ var va=a.startDate||'9999-99-99', vb=b.startDate||'9999-99-99'; return asc?va.localeCompare(vb):vb.localeCompare(va); });
+  }else if(col==='plannedDate'){
+    sorted.sort(function(a,b){ var va=a.plannedDate||'9999-99-99', vb=b.plannedDate||'9999-99-99'; return asc?va.localeCompare(vb):vb.localeCompare(va); });
+  }else if(col==='actualDate'){
+    sorted.sort(function(a,b){ var va=a.actualDate||'9999-99-99', vb=b.actualDate||'9999-99-99'; return asc?va.localeCompare(vb):vb.localeCompare(va); });
+  }else if(col==='status'){
+    sorted.sort(function(a,b){
+      var aDone=(a.status==='✓完成'||a.status==='按时完成')?1:0;
+      var bDone=(b.status==='✓完成'||b.status==='按时完成')?1:0;
+      if(aDone!==bDone) return asc?aDone-bDone:bDone-aDone;
+      var va=WP_PRIORITY_ORDER[a.goal]||99, vb=WP_PRIORITY_ORDER[b.goal]||99;
+      return asc?va-vb:vb-va;
+    });
+  }
+  return sorted;
+}
+
+// 双击表头切换排序
+function toggleWPSort(col){
+  if(!_wpSort)_wpSort={};
+  if(_wpSort.col===col){
+    // 同列：asc→desc→null
+    if(_wpSort.dir==='asc') _wpSort.dir='desc';
+    else if(_wpSort.dir==='desc') _wpSort.dir=null;
+    else _wpSort.dir='asc';
+  }else{
+    _wpSort.col=col; _wpSort.dir='asc';
+  }
+  if(_wpCurrent&&_wpCurrent.plan) renderWPTable(_wpCurrent.plan);
+  showToast(_wpSort.dir?'排序: '+(_wpSort.dir==='asc'?'↑ 升序':'↓ 降序'):'已恢复原始排序');
+}
 
 // 下属映射（动态从 USERS[uid].subordinates 读取，不再硬编码）
 
@@ -2106,6 +2149,13 @@ function renderWPTable(plan){
   }
   html+='</div>';
 
+  // ★ V0.6.1cd: 表头双击排序 — 临时替换plan.tasks为排序副本
+  var _wpOrigTasks=null;
+  if(_wpSort && _wpSort.col && _wpSort.dir){
+    _wpOrigTasks=plan.tasks;
+    plan.tasks=sortWPTasks(plan.tasks.slice(),_wpSort.col,_wpSort.dir);
+  }
+
   // ★ V0.1.39: 区分「上周转入」和「本周新增」（移到表格生成前）
   var carriedTasks=[], newTasks=[];
   for(var j=0;j<plan.tasks.length;j++){
@@ -2114,7 +2164,19 @@ function renderWPTable(plan){
   }
 
   html+='<div class="wp-table-area"><div class="wp-table-wrap"><table class="wp-table"><colgroup><col style="width:56px"><col style="width:180px"><col style="width:80px"><col style="width:115px"><col style="width:115px"><col style="width:115px"><col style="width:56px"><col style="width:90px"><col style="width:48px"><col style="width:80px"><col style="width:150px"><col style="width:90px"><col style="width:56px"><col style="width:150px"><col style="width:150px"></colgroup><thead><tr>';
-  html+='<th class="col-num">#</th><th class="col-work">本周重点行动项</th><th class="col-goal">优先级</th><th class="col-hours">启动日期</th><th class="col-hours">计划完成日期</th><th class="col-hours">实际完成日期</th><th class="col-hours dur-tooltip" style="min-width:80px">计划/实际耗时</th><th class="col-status">完成状态</th><th class="col-score">积分</th><th class="col-supporters">协同人</th><th class="col-wide">遇到的问题/挑战</th><th class="col-problemtype">问题类型</th><th class="col-needboss">需上级介入</th><th class="col-remarks">备注说明</th><th class="col-boss" style="white-space:normal;overflow:visible">上级评价与建议</th>';
+  var _sPri='',_sSd='',_sPd='',_sAd='',_sSt='';
+  if(_wpSort && _wpSort.col && _wpSort.dir){
+    var _arr=_wpSort.dir==='asc'?' ↑':' ↓';
+    switch(_wpSort.col){case'priority':_sPri=_arr;break;case'startDate':_sSd=_arr;break;case'plannedDate':_sPd=_arr;break;case'actualDate':_sAd=_arr;break;case'status':_sSt=_arr;break;}
+  }
+  html+='<th class="col-num">#</th><th class="col-work">本周重点行动项</th>';
+  html+='<th class="col-goal wp-sortable" ondblclick="toggleWPSort(\'priority\')" title="双击排序" style="cursor:pointer">优先级'+_sPri+'</th>';
+  html+='<th class="col-hours wp-sortable" ondblclick="toggleWPSort(\'startDate\')" title="双击排序" style="cursor:pointer">启动日期'+_sSd+'</th>';
+  html+='<th class="col-hours wp-sortable" ondblclick="toggleWPSort(\'plannedDate\')" title="双击排序" style="cursor:pointer">计划完成日期'+_sPd+'</th>';
+  html+='<th class="col-hours wp-sortable" ondblclick="toggleWPSort(\'actualDate\')" title="双击排序" style="cursor:pointer">实际完成日期'+_sAd+'</th>';
+  html+='<th class="col-hours dur-tooltip" style="min-width:80px">计划/实际耗时</th>';
+  html+='<th class="col-status wp-sortable" ondblclick="toggleWPSort(\'status\')" title="双击排序" style="cursor:pointer">完成状态'+_sSt+'</th>';
+  html+='<th class="col-score">积分</th><th class="col-supporters">协同人</th><th class="col-wide">遇到的问题/挑战</th><th class="col-problemtype">问题类型</th><th class="col-needboss">需上级介入</th><th class="col-remarks">备注说明</th><th class="col-boss" style="white-space:normal;overflow:visible">上级评价与建议</th>';
   html+='</tr></thead><tbody>';
 
   var seq=0;
@@ -2318,6 +2380,9 @@ function renderWPTable(plan){
   html+='</div>';
 
   html+='</div>'; /* close wp-scroll-area */
+
+  // ★ V0.6.1cd: 恢复排序前的原始plan.tasks
+  if(_wpOrigTasks)plan.tasks=_wpOrigTasks;
 
   content.insertAdjacentHTML('beforeend',html);
 
@@ -2740,10 +2805,14 @@ async function submitWPPlan(){
   p.frozenAt=new Date().toISOString();
   p.frozenBy=(currentUser&&currentUser.name)||'';
   p.updatedAt=new Date().toISOString();
+  // ★ V0.6.1cd: 提交后自动按优先级排序
+  if(p.tasks&&p.tasks.length>0){
+    p.tasks.sort(function(a,b){var va=WP_PRIORITY_ORDER[a.goal]||99,vb=WP_PRIORITY_ORDER[b.goal]||99;return va-vb;});
+  }
   saveWP(p.year,p.month,p.week,p);
   _calcWeekScore(p);
   renderWPTable(p);
-  showToast('✅ 已提交并锁定，时间已记录');
+  showToast('✅ 已提交并锁定，已自动按优先级排序');
 }
 
 // ★ V0.1.44: 撤销提交 — 清除提交时间戳+解除锁定，允许员工重新提交
@@ -4207,6 +4276,7 @@ function selectWPSharedOption(name){
   selectWP(nowD.getFullYear(),nowD.getMonth()+1,1);
 }
 window.selectWPSharedOption=selectWPSharedOption;
+window.toggleWPSort=toggleWPSort;
 
 // 切换回自己的周计划
 function switchToMyWP(){
