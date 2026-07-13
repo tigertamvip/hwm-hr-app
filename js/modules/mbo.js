@@ -48,7 +48,7 @@ function _getTodayStr(){
 
 // ★ V0.6.1ct: 计算剩余办结天数
 function _calcRemainingDays(plannedDate,actualDate){
-  if(actualDate)return'0'; // 已填写实际完成日期 → 0
+  if(actualDate)return'<span style="color:#B0B8C1">0</span>'; // 已填写实际完成日期 → 0（浅灰）
   if(!plannedDate)return'';
   var today=_getTodayStr();
   var pd=new Date(plannedDate+'T00:00:00');
