@@ -518,38 +518,74 @@ function sysCloseModal(){
   _sysEditingUid=null;
 }
 
-// ★ V0.6.1ed: 智能同步 — 自动过滤工人/检验员，新增+离职清理一键确认
+// ★ V0.6.1ee: 智能同步 — 自动过滤已离职/工人/检验员/试用期，新增+清理一键确认
 function sysSmartSync(){
   var emps=(typeof allEmployees!=='undefined'&&allEmployees)?allEmployees:[];
   if(emps.length===0){_showAlert('暂无团队人才数据，请先到"人才团队"导入花名册','提示');return;}
   var skips=(typeof SKIP_POSITIONS!=='undefined'&&SKIP_POSITIONS)?SKIP_POSITIONS:[];
+  var skipStatus=(typeof SKIP_STATUS!=='undefined'&&SKIP_STATUS)?SKIP_STATUS:[];
+  var activeStatus=(typeof ACTIVE_STATUS!=='undefined'&&ACTIVE_STATUS)?ACTIVE_STATUS:[];
   var toAdd=[];
   var toRemove=[];
-  var skipped=[];
+  var skipped=[];   // 工人/检验员等
+  var resigned=[];  // 离职（不导入但也不删）
   var activeNames={};
   for(var i=0;i<emps.length;i++){
     var e=emps[i];if(!e||!e.name)continue;
     var pos=(e.position||'').trim();
+    var status=(e.status||'').trim();
+    // ★ V0.6.1ee: 状态过滤 — 已离职不导入
+    var isResigned=false;
+    for(var rs=0;rs<skipStatus.length;rs++){if(status===skipStatus[rs]||status.indexOf(skipStatus[rs])>=0){isResigned=true;break;}}
+    if(isResigned){resigned.push(e);continue;}
+    // ★ V0.6.1ee: 状态必须在白名单（默认"已转正"才导入；如果有 activeStatus 列表则按列表判断）
+    if(activeStatus.length>0){
+      var isActive=false;
+      for(var as=0;as<activeStatus.length;as++){if(status===activeStatus[as]){isActive=true;break;}}
+      if(!isActive){skipped.push(e);continue;}
+    }
+    // ★ 职位过滤 — 工人/检验员等不导入
     var isSkipped=false;
-    for(var s=0;s<skips.length;s++){if(pos.indexOf(skips[s])>=0||pos===skips[s]){isSkipped=true;break;}}
+    for(var s=0;s<skips.length;s++){if(pos.indexOf(skips[s])>=0){isSkipped=true;break;}}
     if(isSkipped){skipped.push(e);continue;}
     activeNames[e.name]=true;
     if(!USERS[e.name])toAdd.push(e);
   }
+  // ★ V0.6.1ee: 离职清理 = 人才团队中已不在职的员工（resigned）
+  for(var ri=0;ri<resigned.length;ri++){
+    if(USERS[resigned[ri].name])toRemove.push(resigned[ri].name);
+  }
   var userNames=Object.keys(USERS);
   for(var u=0;u<userNames.length;u++){
     var uname=userNames[u];
-    if(!activeNames[uname])toRemove.push(uname);
+    if(!activeNames[uname]&&!resigned.find(function(r){return r.name===uname;})&&toRemove.indexOf(uname)<0)toRemove.push(uname);
+  }
+  // ★ V0.6.1ee: 安全阈值 — 清理超过 50% 现有用户时强制确认（防止误删）
+  if(toRemove.length>userNames.length*0.5&&userNames.length>10){
+    var confirm_msg='⚠️ 系统维护中现有 '+userNames.length+' 个用户，本次将清理 '+toRemove.length+' 个\n\n';
+    if(userNames.length>200)confirm_msg+='这通常是因为之前的同步错误导入了大量数据。\n\n';
+    confirm_msg+='是否继续？';
+    _showConfirm(confirm_msg,'大批量清理确认').then(function(ok){
+      if(!ok)return;
+      // 继续弹窗
+      showSmartSyncDialog(toAdd,toRemove,resigned,skipped,emps.length,userNames.length);
+    });
+    return;
   }
   if(toAdd.length===0&&toRemove.length===0){
     _showAlert('系统维护与人才团队已完全同步，无需操作','✅ 智能同步');
     return;
   }
+  showSmartSyncDialog(toAdd,toRemove,resigned,skipped,emps.length,userNames.length);
+}
+
+// ★ V0.6.1ee: 弹窗渲染函数（提取出来供安全确认后调用）
+function showSmartSyncDialog(toAdd,toRemove,resigned,skipped,empTotal,userTotal){
   // 构建弹窗
   var html='<div class="_confirm-card" style="max-width:560px">';
   html+='<div class="_confirm-title" style="padding:18px 24px 12px">🔄 智能同步</div>';
   html+='<div class="_confirm-body" style="padding:0 24px 12px;line-height:1.6">';
-  html+='<div style="font-size:12px;color:#6b7280;margin-bottom:12px">人才团队 '+emps.length+' 人 → 系统维护 '+userNames.length+' 人</div>';
+  html+='<div style="font-size:12px;color:#6b7280;margin-bottom:12px">人才团队 '+empTotal+' 人 → 系统维护 '+userTotal+' 人</div>';
   if(toAdd.length>0){
     html+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px"><span style="color:#10b981;font-size:16px">➕</span><strong style="color:#10b981">新增 '+toAdd.length+' 人</strong><span style="color:#9ca3af;font-size:11px">（初始密码 1234）</span></div>';
     html+='<div style="background:#f0fdf4;border-radius:6px;padding:6px 10px;margin-bottom:10px;max-height:120px;overflow-y:auto">';
@@ -569,12 +605,15 @@ function sysSmartSync(){
     html+='</div>';
   }
   if(skipped.length>0){
-    html+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px"><span style="color:#9ca3af;font-size:14px">⏭</span><strong style="color:#9ca3af">已过滤 '+skipped.length+' 人</strong><span style="color:#9ca3af;font-size:11px">（工人/检验员/已存在）</span></div>';
+    html+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px"><span style="color:#9ca3af;font-size:14px">⏭</span><strong style="color:#9ca3af">已过滤 '+skipped.length+' 人</strong><span style="color:#9ca3af;font-size:11px">（工人/检验员/未匹配状态）</span></div>';
     if(skipped.length<=6){
       html+='<div style="font-size:11px;color:#9ca3af;margin-bottom:6px">';
       for(var k=0;k<skipped.length;k++){html+=esc(skipped[k].name)+(k<skipped.length-1?'、':'');}
       html+='</div>';
     }
+  }
+  if(resigned.length>0){
+    html+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px"><span style="color:#D97706;font-size:14px">🚪</span><strong style="color:#D97706">已离职 '+resigned.length+' 人</strong><span style="color:#9ca3af;font-size:11px">（不导入，可手动清理系统维护中的同名账号）</span></div>';
   }
   html+='</div>';
   html+='<div class="_confirm-actions" style="padding:0 24px 18px">';

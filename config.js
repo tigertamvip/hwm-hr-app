@@ -54,8 +54,30 @@ window.APP_CONFIG = {
 var SUPABASE_URL = 'https://xgysfujnhwgevmojzkbf.supabase.co';
 var SUPABASE_ANON_KEY = 'sb_publishable_dPt0sB5D8ZQ6ZdHt6wuvyA_MkjOeknx';
 
-// ★ V0.6.1ed: 智能同步 — 跳过无需系统账号的职位（工人/检验员等）
-var SKIP_POSITIONS = ['工人','检验员','生产工人','质检员','操作工','普工','包装工','装配工'];
+// ★ V0.6.1ed: 智能同步 — 跳过无需系统账号的职位（工人/检验员/操作类/生产类等）
+// 模糊匹配：position 包含其中任一关键词即跳过
+var SKIP_POSITIONS = [
+  // 一线生产
+  '工人','普工','操作工','装配工','包装工','生产工','车间','产线',
+  // 检验/质控
+  '检验员','质检','品检','QC','QA','实验室测试',
+  // 仓储/物流
+  '仓管','仓库','物流','装卸','搬运',
+  // 样品/制作
+  '样品制作','制作员',
+  // 基础文员
+  '文员','前台','行政专员',
+  // 司机
+  '司机',
+  // 实习生/学徒
+  '实习生','学徒'
+];
+
+// ★ V0.6.1ee: 智能同步 — 状态黑名单（这些状态的员工不导入）
+var SKIP_STATUS = ['已离职','离职','quit','left','resigned'];
+
+// ★ V0.6.1ee: 智能同步 — 需要保留的状态（只导入在职员工）
+var ACTIVE_STATUS = ['已转正','在职','正式','试用','试用期','active'];
 
 // Supabase 数据表名（一般不需要改，除非客户有用到多项目共享表的需求）
 var SUPABASE_TABLE = 'hwm_employees';
