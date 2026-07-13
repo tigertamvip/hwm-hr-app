@@ -669,12 +669,12 @@ function applySysFilterToUids(uids){
   var searchEl=document.getElementById('sysFilterSearch');
   var centerEl=document.getElementById('sysFilterCenter');
   var deptEl=document.getElementById('sysFilterDept');
-  var statusEl=document.getElementById('sysFilterStatus');
+  var roleEl=document.getElementById('sysFilterRole');
   if(!searchEl||!centerEl||!deptEl)return uids;
   var search=(searchEl.value||'').trim().toLowerCase();
   var center=centerEl.value;
   var dept=deptEl.value;
-  var status=statusEl?statusEl.value:'';
+  var role=roleEl?roleEl.value:'';
   return uids.filter(function(uid){
     var u=USERS[uid]||{};
     if(search){
@@ -698,9 +698,98 @@ function applySysFilterToUids(uids){
       var userDept=u.dept||getRosterDeptForName(u.name);
       if(userDept!==dept)return false;
     }
-    if(status&&(u.role||'')!==status)return false;
+    if(role&&(u.role||'')!==role)return false;
     return true;
   });
+}
+
+function clearSysFilter(){
+  ['sysFilterSearch','sysFilterCenter','sysFilterDept','sysFilterRole'].forEach(function(id){
+    var el=document.getElementById(id);if(el)el.value='';
+  });
+  updateSysFilterLabels();
+  applySysFilter();
+}
+
+function updateSysFilterLabels(){
+  var c=document.getElementById('sysFilterCenter');
+  var d=document.getElementById('sysFilterDept');
+  var r=document.getElementById('sysFilterRole');
+  var cl=document.getElementById('sysFilterCenterLabel');
+  var dl=document.getElementById('sysFilterDeptLabel');
+  var rl=document.getElementById('sysFilterRoleLabel');
+  if(cl)cl.textContent='中心：'+(c&&c.value?c.value:'全部');
+  if(dl)dl.textContent='部门：'+(d&&d.value?d.value:'全部');
+  if(rl)rl.textContent='角色：'+(r&&r.value?r.value:'全部');
+}
+
+function onSysInlineFilterChange(){
+  updateSysFilterLabels();
+  applySysFilter();
+}
+
+// ★ V0.6.1eq: 仿照员工档案 inline-filter 风格的下拉切换
+function toggleSysFilterDropdown(id){
+  var sel=document.getElementById(id);
+  if(!sel)return;
+  // 关闭所有同组下拉
+  ['sysFilterCenter','sysFilterDept','sysFilterRole'].forEach(function(sid){
+    if(sid!==id){
+      var other=document.getElementById(sid);
+      if(other&&other._dd&&other._dd.style.display==='block'){
+        other._dd.style.display='none';
+      }
+    }
+  });
+  // 创建/显示/隐藏 dropdown panel
+  if(!sel._dd){
+    var dd=document.createElement('div');
+    dd.className='inline-filter-dd';
+    dd.style.cssText='position:fixed;z-index:9999;background:rgba(252,252,253,.92);backdrop-filter:blur(20px);border:1px solid rgba(200,205,212,.4);border-radius:8px;box-shadow:0 4px 6px rgba(0,0,0,.04),0 10px 24px rgba(0,0,0,.08);padding:4px;max-height:280px;overflow-y:auto;min-width:140px';
+    dd.addEventListener('click',function(e){e.stopPropagation();});
+    sel._dd=dd;
+    document.body.appendChild(dd);
+  }
+  var dd=sel._dd;
+  if(dd.style.display==='block'){dd.style.display='none';return;}
+  // 填充选项
+  dd.innerHTML='';
+  for(var i=0;i<sel.options.length;i++){
+    var opt=sel.options[i];
+    var item=document.createElement('div');
+    var isSel=(sel.value===opt.value);
+    item.style.cssText='padding:8px 10px;cursor:pointer;border-radius:6px;font-size:13px;display:flex;align-items:center;gap:6px;background:'+(isSel?'#EEF2FF':'');
+    item.innerHTML=(isSel?'<span style="color:#3B7DB4">✓</span>':'')+'<span>'+opt.textContent+'</span>';
+    item.onmouseover=function(){this.style.background='#F5F5F5'};
+    item.onmouseout=function(){this.style.background='"'+(isSel?'#EEF2FF':'')+'"'};
+    (function(value,el){
+      item.onclick=function(){
+        sel.value=value;
+        updateSysFilterLabels();
+        applySysFilter();
+        dd.style.display='none';
+      };
+    })(opt.value,item);
+    dd.appendChild(item);
+  }
+  // 定位
+  var trigger=document.getElementById(id+'Trigger');
+  if(trigger){
+    var rect=trigger.getBoundingClientRect();
+    dd.style.left=rect.left+'px';
+    dd.style.top=(rect.bottom+4)+'px';
+    dd.style.width=Math.max(rect.width,160)+'px';
+  }
+  dd.style.display='block';
+  // 点击外部关闭
+  setTimeout(function(){
+    document.addEventListener('click',function closeSysDD(e){
+      if(!dd.contains(e.target)&&!trigger.contains(e.target)){
+        dd.style.display='none';
+        document.removeEventListener('click',closeSysDD);
+      }
+    });
+  },0);
 }
 
 // ★ V0.6.1ep: 从花名册查找员工的中心/部门
@@ -730,16 +819,6 @@ function getRosterDeptForName(name){
   return r[name]?r[name].dept:'';
 }
 
-function applySysFilter(){
-  if(typeof sysRenderUserTable==='function')sysRenderUserTable();
-}
-
-function clearSysFilter(){
-  var ids=['sysFilterSearch','sysFilterCenter','sysFilterDept','sysFilterStatus'];
-  ids.forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
-  applySysFilter();
-}
-
 function initSysFilterDropdowns(){
   if(_sysFilterInited)return;
   if(typeof allEmployees==='undefined'||!allEmployees)return;
@@ -762,7 +841,19 @@ function initSysFilterDropdowns(){
   }
   if(deptEl.options.length<=1){
     Object.keys(depts).sort().forEach(function(d){
-      var opt=document.createElement('option');opt.value=d;opt.textContent='🏢 '+d;deptEl.appendChild(opt);
+      var opt=document.createElement('option');opt.value=d;opt.textContent=d;deptEl.appendChild(opt);
+    });
+  }
+  // ★ V0.6.1eq: 角色下拉 — 从 USERS 动态提取
+  var roleEl=document.getElementById('sysFilterRole');
+  if(roleEl&&roleEl.options.length<=1){
+    var rolesSet={};
+    for(var uid2 in USERS){
+      var r2=(USERS[uid2].role||'').trim();
+      if(r2)rolesSet[r2]=true;
+    }
+    Object.keys(rolesSet).sort().forEach(function(r){
+      var opt=document.createElement('option');opt.value=r;opt.textContent=r;roleEl.appendChild(opt);
     });
   }
   _sysFilterInited=true;

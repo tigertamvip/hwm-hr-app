@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.6.1ep">
+<meta name="version" content="V0.6.1eq">
 <!-- cache-bust: 2026-07-13-18-40 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json?v=bc">
@@ -3088,14 +3088,34 @@ function togglePortalTips(){
     <div class="sys-toolbar">
       <button class="btn btn-primary" onclick="sysOpenAddUser()">＋ 新增用户</button>
       <button class="btn btn-outline" onclick="sysSmartSync()" style="margin-left:8px;border-color:#10b981;color:#10b981">🔄 智能同步</button>
-      <span style="font-size:12px;color:var(--text-hint);margin-left:12px">显示 <strong id="sysFilterCount">0</strong> / 共 <strong id="sysUserCount">0</strong> 个授权用户</span>
-      <span style="margin-left:12px;font-size:12px;color:#6b7280">|</span>
-      <input id="sysFilterSearch" type="text" placeholder="🔍 搜索姓名/用户名" oninput="applySysFilter()" style="margin-left:12px;padding:5px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:12px;width:160px">
-      <select id="sysFilterCenter" onchange="applySysFilter()" style="margin-left:8px;padding:5px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:12px;background:#fff;cursor:pointer"><option value="">🛡 中心（全部）</option></select>
-      <select id="sysFilterDept" onchange="applySysFilter()" style="margin-left:8px;padding:5px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:12px;background:#fff;cursor:pointer"><option value="">🏢 部门（全部）</option></select>
-      <select id="sysFilterStatus" onchange="applySysFilter()" style="margin-left:8px;padding:5px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:12px;background:#fff;cursor:pointer"><option value="">👤 角色（全部）</option><option value="admin">admin</option><option value="center_head">center_head</option><option value="senior">senior</option><option value="staff">staff</option></select>
-      <button class="btn btn-outline" onclick="clearSysFilter()" style="margin-left:8px;padding:5px 12px;font-size:12px;color:#6b7280;border-color:#d1d5db">清除</button>
+      <span style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-left:auto">
+        <div class="search-box" style="width:200px;margin:0">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="sysFilterSearch" placeholder="姓名 / 用户名" oninput="applySysFilter()" style="border:1.5px solid var(--border);padding:8px 10px 8px 32px;border-radius:8px;font-size:13px;width:100%">
+        </div>
+        <div class="inline-filter-select" style="width:130px">
+          <div class="inline-filter-trigger" onclick="toggleSysFilterDropdown('filterCenter')" id="sysFilterCenterTrigger">
+            <span id="sysFilterCenterLabel">中心：全部</span><span class="tri-arrow">▼</span>
+          </div>
+          <select id="sysFilterCenter" class="hidden-select" onchange="onSysInlineFilterChange()"><option value="">中心：全部</option></select>
+        </div>
+        <div class="inline-filter-select" style="width:140px">
+          <div class="inline-filter-trigger" onclick="toggleSysFilterDropdown('filterDept')" id="sysFilterDeptTrigger">
+            <span id="sysFilterDeptLabel">部门：全部</span><span class="tri-arrow">▼</span>
+          </div>
+          <select id="sysFilterDept" class="hidden-select" onchange="onSysInlineFilterChange()"><option value="">部门：全部</option></select>
+        </div>
+        <div class="inline-filter-select" style="width:140px">
+          <div class="inline-filter-trigger" onclick="toggleSysFilterDropdown('filterRole')" id="sysFilterRoleTrigger">
+            <span id="sysFilterRoleLabel">角色：全部</span><span class="tri-arrow">▼</span>
+          </div>
+          <select id="sysFilterRole" class="hidden-select" onchange="onSysInlineFilterChange()"><option value="">角色：全部</option></select>
+        </div>
+        <button class="inline-filter-trigger" style="width:auto;padding:8px 14px" onclick="clearSysFilter()">清除</button>
+      </span>
+      <span style="display:none"></span>
     </div>
+    <div style="padding:6px 16px;font-size:12px;color:var(--text-hint)">显示 <strong id="sysFilterCount">0</strong> / 共 <strong id="sysUserCount">0</strong> 个授权用户</div>
     <div class="sys-table-wrap">
       <table class="sys-user-table" id="sysUserTable">
         <thead>
@@ -3134,10 +3154,10 @@ function togglePortalTips(){
     <div class="modal-handle"></div>
     <div class="modal-header">
       <h2 id="sysModalTitle">编辑用户</h2>
-      <div class="modal-header-actions" id="sysModalHeaderActions" style="display:flex;align-items:center;gap:8px;margin-right:0">
-        <button type="button" class="modal-header-btn modal-header-btn--cancel" onclick="sysCloseModal()">取消</button>
-        <button type="button" class="modal-header-btn modal-header-btn--delete" id="sysDeleteUserBtn" style="display:none" onclick="sysDeleteUser()">🗑 删除用户</button>
-        <button type="button" class="modal-header-btn modal-header-btn--save" onclick="sysSaveUser()">保存</button>
+      <div class="modal-header-actions" id="sysModalHeaderActions" style="display:flex;align-items:center;gap:8px;margin-right:8px">
+        <button type="button" class="modal-header-btn" style="min-width:90px" onclick="sysCloseModal()">取消</button>
+        <button type="button" class="modal-header-btn modal-header-btn--save" style="min-width:90px" onclick="sysSaveUser()">保存</button>
+        <button type="button" class="modal-header-btn modal-header-btn--delete" id="sysDeleteUserBtn" style="display:none;min-width:90px" onclick="sysDeleteUser()">🗑 删除用户</button>
       </div>
       <button class="modal-close" onclick="sysCloseModal()">✕</button>
     </div>
