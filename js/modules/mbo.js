@@ -1504,7 +1504,7 @@ function renderWPYearGrid(year){
   // 构建网格
   var toggleIcon = _yearGridExpanded ? '▲' : '▼';
   var contentStyle = _yearGridExpanded ? 'transition:max-height 0.6s cubic-bezier(.25,.1,.25,1),opacity 0.6s cubic-bezier(.25,.1,.25,1);overflow:hidden' : 'transition:max-height 0.6s cubic-bezier(.25,.1,.25,1),opacity 0.6s cubic-bezier(.25,.1,.25,1);overflow:hidden;max-height:0;opacity:0';
-  var html='<div class="wp-year-grid-title" onclick="toggleYearGrid()">'+year+'年全年周度 <span id="wpYearGridToggle" style="font-size:13px;color:#9ca3af;cursor:pointer">'+toggleIcon+'</span></div>';
+  var html='<div class="wp-year-grid-title" onclick="toggleYearGrid()">'+year+'年全年周度 <span id="wpYearGridToggle" style="font-size:13px;color:#D9D9D9;cursor:pointer">'+toggleIcon+'</span></div>';
   html+='<div id="wpYearGridContent" style="'+contentStyle+'">';
   html+='<div class="wp-year-grid-grid">';
   for(var i=1;i<=53;i++){
@@ -3563,7 +3563,7 @@ function _renderAnnualProgress(year){
   var toggleIcon = _progressExpanded ? '▲' : '▼';
   var toggleText = _progressExpanded ? '收起' : '展开';
   var contentStyle = _progressExpanded ? 'transition:max-height 0.6s cubic-bezier(.25,.1,.25,1),opacity 0.6s cubic-bezier(.25,.1,.25,1);overflow:hidden' : 'transition:max-height 0.6s cubic-bezier(.25,.1,.25,1),opacity 0.6s cubic-bezier(.25,.1,.25,1);overflow:hidden;max-height:0;opacity:0';
-  var html='<div class="wp-card wp-progress-card"><div class="wp-card-title">⏰ '+year+'年年度计划完成率<button type="button" onclick="toggleAnnualProgress()" id="progressToggleBtn" style="margin-left:auto;padding:2px;border:none;border-radius:6px;background:transparent;color:#6b7280;font-size:13px;font-weight:400;cursor:pointer;display:inline-flex;align-items:center;gap:3px;transition:all .25s ease;white-space:nowrap"><span id="progressToggleIcon" style="color:#9ca3af">'+toggleIcon+'</span><span id="progressToggleText">'+toggleText+'</span></button></div>';
+  var html='<div class="wp-card wp-progress-card"><div class="wp-card-title">⏰ '+year+'年年度计划完成率<button type="button" onclick="toggleAnnualProgress()" id="progressToggleBtn" style="margin-left:auto;padding:2px;border:none;border-radius:6px;background:transparent;color:#D9D9D9;font-size:13px;font-weight:400;cursor:pointer;display:inline-flex;align-items:center;gap:3px;transition:all .25s ease;white-space:nowrap"><span id="progressToggleIcon" style="color:#D9D9D9">'+toggleIcon+'</span><span id="progressToggleText">'+toggleText+'</span></button></div>';
   html+='<div id="progressContent" style="'+contentStyle+'">';
   for(var qi=0;qi<allQuads.length;qi++){
     var q=allQuads[qi];
