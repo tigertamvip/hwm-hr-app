@@ -104,7 +104,7 @@ var _wpSort=null; // {col:'priority'|'startDate'|'plannedDate'|'actualDate'|'sta
 // 下拉选项
 var WP_GOAL_OPTIONS=['重要紧急','重要不急','日常紧急','日常事项'];
 var WP_PRIORITY_ORDER={'重要紧急':1,'日常紧急':2,'重要不急':3,'日常事项':4};
-var WP_GOAL_COLORS={'重要紧急':'#D64352','重要不急':'#F97316','日常紧急':'#0EA5E9','日常事项':'#5E7080'};
+var WP_GOAL_COLORS={'重要紧急':'#FF3B30','重要不急':'#007AFF','日常紧急':'#FF9500','日常事项':'#5E7080'};
 var WP_STATUS_OPTIONS=['按时完成','进行中','逾期完成','暂停中','未做'];
 var WP_STATUS_COLORS={'按时完成':'#92D050','进行中':'#289FB7','逾期完成':'#FFCF66','暂停中':'#9ca3af','未做':'#FF4B4B'};
 var WP_PROBLEM_OPTIONS=['无','资源不足','跨部门协调','技术瓶颈','时间紧张','其他原因'];
@@ -1382,7 +1382,7 @@ function _renderCollabTasksSection(plan){
     for(var i=0;i<collabTasks.length;i++){
       var ct=collabTasks[i];
       var pri=ct.goal||'';
-      var priStyle=pri==='重要紧急'?'background:#D64352;color:#fff':pri==='重要不急'?'background:#F97316;color:#fff':pri==='日常紧急'?'background:#0EA5E9;color:#fff':pri==='日常事项'?'background:#5E7080;color:#fff':'background:#9ca3af;color:#fff';
+      var priStyle=pri==='重要紧急'?'background:#FF3B30;color:#fff':pri==='重要不急'?'background:#007AFF;color:#fff':pri==='日常紧急'?'background:#FF9500;color:#fff':pri==='日常事项'?'background:#5E7080;color:#fff':'background:#9ca3af;color:#fff';
       var st=ct.status||'pending';
       var stText=st==='accepted'?'已接受':st==='rejected'?'已拒绝':'待响应';
       var stColor=st==='accepted'?'#16a34a':st==='rejected'?'#dc2626':'#9ca3af';
