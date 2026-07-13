@@ -2351,6 +2351,13 @@ async function clearTaskRow(idx){
   var hasContent=t.work||t.goal||t.startDate||t.plannedDate||t.actualDate||
     t.estimatedHours||t.status||t.needBoss||t.problems||t.problemType||
     (t.supporters&&t.supporters.length>0)||t.aiSuggestion||t.bossFeedback;
+  // ★ V0.6.1em: 关键修复 — hasContent 必须同时检查 _revisions！renderWPCellValue 实际读的是 _revisions
+  if(!hasContent&&p._revisions){
+    var _prefix='tasks.'+idx+'.';
+    for(var _rk in p._revisions){
+      if(_rk.indexOf(_prefix)===0&&p._revisions[_rk]&&p._revisions[_rk].value){hasContent=true;break;}
+    }
+  }
   if(!hasContent){showToast('该行已经是空行，无需清空');return;}
   var taskLabel=(t.work||'第'+(idx+1)+'项').substring(0,20);
   var ok=await _showConfirm('确定要清空「'+taskLabel+'」的所有内容吗？\n\n行结构和序号将保留。','清空该行 / Clear Row');
