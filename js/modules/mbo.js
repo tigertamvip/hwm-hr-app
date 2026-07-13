@@ -725,6 +725,11 @@ function renderWPSubSelect(){
   var dd=document.getElementById('wpSubDropdown');
   if(dd){
     var ddHtml='';
+    // ★ V0.6.1dh: 下属重急事项放最前面（关注优先）
+    if(subs.length>0){
+      ddHtml+='<div class="wp-custom-option'+(_wpViewingMergedUrgent?' active':'')+'" onclick="selectWPSubOption(\'__merged_urgent__\',\'下属重急事项\',\'merged-urgent\')" style="color:#FF3B30;font-weight:600"><span style="margin-right:8px">⚠️</span>下属重急事项</div>';
+      ddHtml+='<div style="border-top:1px solid #e5e7eb;margin:6px 0"></div>';
+    }
     // 直属下属组
     var directOpts=_wpSubData.options.filter(function(o){return o.rel==='direct';});
     if(directOpts.length>0){
@@ -756,13 +761,6 @@ function renderWPSubSelect(){
         var isActive=(sharedNames[i]===_wpViewingShared)?' active':'';
         ddHtml+='<div class="wp-custom-option'+isActive+'" onclick="selectWPSubOption(\''+esc(sharedNames[i])+'\',\''+esc(sharedNames[i])+'\',\'shared\')"><span style="margin-right:8px;color:#f59e0b">●</span>'+esc(sharedNames[i])+'</div>';
       }
-    }
-    // ★ V0.6.1df: 下属重急事项 — 合并所有直属下属重要紧急事项
-    if(subs.length>0){
-      if(directOpts.length>0||nonDirect.length>0||sharedNames.length>0){
-        ddHtml+='<div style="border-top:1px solid #e5e7eb;margin:6px 0"></div>';
-      }
-      ddHtml+='<div class="wp-custom-option'+(_wpViewingMergedUrgent?' active':'')+'" onclick="selectWPSubOption(\'__merged_urgent__\',\'下属重急事项\',\'merged-urgent\')" style="color:#FF3B30;font-weight:600"><span style="margin-right:8px">⚠️</span>下属重急事项</div>';
     }
     ddHtml+='<div style="height:12px"></div>';
     dd.innerHTML=ddHtml;
@@ -903,12 +901,19 @@ function selectWPSubOption(val,name,rel){
     var autoM=mEl?parseInt(mEl.value):(new Date().getMonth()+1);
     setTimeout(function(){ try{selectWP(autoY,autoM,1);}catch(e){console.warn('auto-selectWP after shared change failed:',e);} }, 100);
   }else if(rel==='merged-urgent'){
+    // ★ V0.6.1dh: 保留当前选中的年月周（用户通常会先选周再点合并）
+    // 但要从 wpYear/wpMonth 控件读取（如果有），保证与侧栏一致
+    var yEl2=document.getElementById('wpYear');
+    var mEl2=document.getElementById('wpMonth');
+    var yNow=yEl2?parseInt(yEl2.value):(_wpCurrent.year||new Date().getFullYear());
+    var mNow=mEl2?parseInt(mEl2.value):(_wpCurrent.month||(new Date().getMonth()+1));
+    var wNow=_wpCurrent.week||1;
     _wpViewingSubordinate=null;
     _wpViewingDeptMember=null;
     _wpViewingShared=null;
     _wpViewingMergedUrgent=true;
     _wpRevisionMode=false;
-    _wpCurrent={year:null,month:null,week:null,plan:null};
+    _wpCurrent={year:yNow,month:mNow,week:wNow,plan:null};
     renderWPUserInfo();
     renderWPSubSelect();
     _renderMergedUrgentView();
@@ -920,7 +925,7 @@ function selectWPSubOption(val,name,rel){
 }
 
 // ★ V0.6.1df: 下属重急事项合并视图
-function _renderMergedUrgentView(){
+async function _renderMergedUrgentView(){
   var myName=(currentUser&&currentUser.name)||'';
   var subs=getWPSubordinates().filter(function(s){return s!==myName;});
   if(subs.length===0){showWPEmpty();return;}
@@ -931,6 +936,31 @@ function _renderMergedUrgentView(){
   var cy=_wpCurrent.year||now.getFullYear();
   var cm=_wpCurrent.month||(now.getMonth()+1);
   var cw=_wpCurrent.week||getISOWeek(now);
+
+  // ★ V0.6.1dh: 从 Supabase 拉取每个下属的数据（数据可能在云端）
+  // 先尝试在内存中聚合所有下属的 data（localStorage + Supabase）
+  try{
+    if(typeof supabase!=='undefined'&&supabase&&supabase.from){
+      var fetchPromises=subs.map(function(sname){
+        return supabase.from('hwm_workplans').select('week_id,plan_data').eq('username',sname)
+          .then(function(r){
+            if(r.data){
+              var localKey='hwm_workplans_'+sname;
+              var local={};
+              try{local=JSON.parse(localStorage.getItem(localKey)||'{}');}catch(e){}
+              for(var i=0;i<r.data.length;i++){
+                var row=r.data[i];
+                if(!local[row.week_id]||(row.plan_data.updatedAt||'')>(local[row.week_id].updatedAt||'')){
+                  local[row.week_id]=row.plan_data;
+                }
+              }
+              try{localStorage.setItem(localKey,JSON.stringify(local));}catch(e){}
+            }
+          }).catch(function(){});
+      });
+      await Promise.all(fetchPromises);
+    }
+  }catch(e){console.warn('[V0.6.1dh] Supabase fetch for subordinates failed:',e);}
 
   for(var si=0;si<subs.length;si++){
     var sname=subs[si];
