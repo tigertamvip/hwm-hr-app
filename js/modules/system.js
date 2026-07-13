@@ -30,12 +30,18 @@ function sysRenderUserTable(){
   var tbody=document.getElementById('sysUserTableBody');
   if(!tbody){console.warn('HWM: sysUserTableBody not found');return;}
   var uids=Object.keys(USERS);
-  console.log('HWM: sysRenderUserTable rendering',uids.length,'users');
+  // ★ V0.6.1eo: 应用筛选
+  uids=applySysFilterToUids(uids);
+  console.log('HWM: sysRenderUserTable rendering',uids.length,'users (filtered)');
   var countEl=document.getElementById('sysUserCount');
-  if(countEl)countEl.textContent=uids.length;
+  if(countEl)countEl.textContent=Object.keys(USERS).length;
+  var filterCountEl=document.getElementById('sysFilterCount');
+  if(filterCountEl)filterCountEl.textContent=uids.length;
+  // 初始化筛选下拉（首次）
+  initSysFilterDropdowns();
   // ★ 空数据兜底显示
   if(uids.length===0){
-    tbody.innerHTML='<tr><td colspan="18" style="padding:40px 20px;color:var(--text-hint);font-size:13px;text-align:center">暂无授权用户，请点击「新增用户」添加</td></tr>';
+    tbody.innerHTML='<tr><td colspan="18" style="padding:40px 20px;color:var(--text-hint);font-size:13px;text-align:center">没有匹配的用户</td></tr>';
     return;
   }
   var html='';
@@ -656,3 +662,72 @@ async function sysDoSmartSync(){
   overlay.remove();
 }
 
+
+// ★ V0.6.1eo: 系统维护筛选 — 中心/部门/角色/姓名搜索
+var _sysFilterInited=false;
+function applySysFilterToUids(uids){
+  var searchEl=document.getElementById('sysFilterSearch');
+  var centerEl=document.getElementById('sysFilterCenter');
+  var deptEl=document.getElementById('sysFilterDept');
+  var statusEl=document.getElementById('sysFilterStatus');
+  if(!searchEl||!centerEl||!deptEl)return uids;
+  var search=(searchEl.value||'').trim().toLowerCase();
+  var center=centerEl.value;
+  var dept=deptEl.value;
+  var status=statusEl?statusEl.value:'';
+  return uids.filter(function(uid){
+    var u=USERS[uid]||{};
+    if(search){
+      var name=(u.name||'').toLowerCase();
+      var pinyin=u.pinyin||'';
+      if(name.indexOf(search)<0&&pinyin.indexOf(search)<0&&uid.toLowerCase().indexOf(search)<0)return false;
+    }
+    if(center){
+      var d=u.dept||'';
+      var m=String(d).match(/^([^/]+)/);
+      var userCenter=m?m[1]:'';
+      if(userCenter!==center)return false;
+    }
+    if(dept&&(u.dept||'')!==dept)return false;
+    if(status&&(u.role||'')!==status)return false;
+    return true;
+  });
+}
+
+function applySysFilter(){
+  if(typeof sysRenderUserTable==='function')sysRenderUserTable();
+}
+
+function clearSysFilter(){
+  var ids=['sysFilterSearch','sysFilterCenter','sysFilterDept','sysFilterStatus'];
+  ids.forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+  applySysFilter();
+}
+
+function initSysFilterDropdowns(){
+  if(_sysFilterInited)return;
+  if(typeof allEmployees==='undefined'||!allEmployees)return;
+  var centers={},depts={};
+  for(var i=0;i<allEmployees.length;i++){
+    var e=allEmployees[i];if(!e||!e.name)continue;
+    if(e.dept){
+      var m=String(e.dept).match(/^([^/]+)/);
+      if(m)centers[m[1]]=true;
+      depts[e.dept]=true;
+    }
+  }
+  var centerEl=document.getElementById('sysFilterCenter');
+  var deptEl=document.getElementById('sysFilterDept');
+  if(!centerEl||!deptEl)return;
+  if(centerEl.options.length<=1){
+    Object.keys(centers).sort().forEach(function(c){
+      var opt=document.createElement('option');opt.value=c;opt.textContent='🛡 '+c;centerEl.appendChild(opt);
+    });
+  }
+  if(deptEl.options.length<=1){
+    Object.keys(depts).sort().forEach(function(d){
+      var opt=document.createElement('option');opt.value=d;opt.textContent='🏢 '+d;deptEl.appendChild(opt);
+    });
+  }
+  _sysFilterInited=true;
+}
