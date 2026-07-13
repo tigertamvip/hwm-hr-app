@@ -2535,24 +2535,9 @@ function startEditCell(cell){
     showToast('⚠️ 上级已完成评价，无法再修改');
     return;
   }
-  // 查看间接下属时：只允许编辑特定字段（V0.6.1cf: 修订模式已取消，直接生效）
-  if(_wpViewingDeptMember&&cell.dataset.field&&cell.dataset.field.indexOf('bossFeedback')<0){
-    var field=cell.dataset.field;
-    var allowedFields=['work','startDate','plannedDate','supporters','remarks'];
-    var isAllowed=false;
-    for(var i=0;i<allowedFields.length;i++){if(field.indexOf('.'+allowedFields[i])>0){isAllowed=true;break;}}
-    if(!isAllowed){console.log('[startEditCell] blocked: field not allowed for dept member');return;}
-  }
+  // ★ V0.6.1cf: 修订模式已取消，上级查看下属时可编辑所有字段（锁定保护仍生效）
   // ★ V0.3.127: 锁定保护 — 员工查看自己的计划时，锁定的三列（工作内容/优先级/计划完成日期）不可编辑
   if(isFieldFrozen(cell)){showToast('⚠️ 该列已被锁定，无法修改');return;}
-  // 查看直属下属时：只允许编辑特定字段（V0.6.1cf: 修订模式已取消，直接生效）
-  if(_wpViewingSubordinate&&cell.dataset.field&&cell.dataset.field.indexOf('bossFeedback')<0){
-    var field=cell.dataset.field;
-    var allowedFields=['work','startDate','plannedDate','supporters','remarks'];
-    var isAllowed=false;
-    for(var i=0;i<allowedFields.length;i++){if(field.indexOf('.'+allowedFields[i])>0){isAllowed=true;break;}}
-    if(!isAllowed){console.log('[startEditCell] blocked: field not allowed for subordinate');return;}
-  }
   // 查看下属时且修订模式开启：允许编辑所有字段
   if(_wpEditCell&&_wpEditCell!==cell)commitEditCell();
   // ★ V0.4.91: 自动"未做"时锁定实际完成日期列（手动"未做"不锁定）
