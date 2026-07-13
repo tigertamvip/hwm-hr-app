@@ -684,14 +684,50 @@ function applySysFilterToUids(uids){
     }
     if(center){
       var d=u.dept||'';
-      var m=String(d).match(/^([^/]+)/);
-      var userCenter=m?m[1]:'';
-      if(userCenter!==center)return false;
+      if(d){
+        var m=String(d).match(/^([^/]+)/);
+        var userCenter=m?m[1]:'';
+        if(userCenter!==center)return false;
+      }else{
+        // ★ V0.6.1ep: 用户没有 dept 信息，智能匹配花名册
+        var rosterCenter=getRosterCenterForName(u.name);
+        if(rosterCenter!==center)return false;
+      }
     }
-    if(dept&&(u.dept||'')!==dept)return false;
+    if(dept){
+      var userDept=u.dept||getRosterDeptForName(u.name);
+      if(userDept!==dept)return false;
+    }
     if(status&&(u.role||'')!==status)return false;
     return true;
   });
+}
+
+// ★ V0.6.1ep: 从花名册查找员工的中心/部门
+var _rosterCache=null;
+function getRosterLookup(){
+  if(_rosterCache)return _rosterCache;
+  var map={};
+  if(typeof allEmployees!=='undefined'&&allEmployees){
+    for(var i=0;i<allEmployees.length;i++){
+      var e=allEmployees[i];
+      if(e&&e.name){
+        var c='',d=e.dept||'';
+        if(d){var m=String(d).match(/^([^/]+)/);if(m)c=m[1];}
+        map[e.name]={center:c,dept:d};
+      }
+    }
+  }
+  _rosterCache=map;
+  return map;
+}
+function getRosterCenterForName(name){
+  var r=getRosterLookup();
+  return r[name]?r[name].center:'';
+}
+function getRosterDeptForName(name){
+  var r=getRosterLookup();
+  return r[name]?r[name].dept:'';
 }
 
 function applySysFilter(){
