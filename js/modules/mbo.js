@@ -108,6 +108,7 @@ var _wpData={};
 var _wpViewingSubordinate=null;
 var _wpViewingDeptMember=null;
 var _wpViewingShared=null; // ★ V0.5.79b: 被分享查看的人
+var _wpViewingMergedUrgent=false; // ★ V0.6.1df: 下属重急事项合并视图
 var _wpEditCell=null;
 var _wpLastRenderKey='';
 var _wpRevisionMode=false;
@@ -756,6 +757,13 @@ function renderWPSubSelect(){
         ddHtml+='<div class="wp-custom-option'+isActive+'" onclick="selectWPSubOption(\''+esc(sharedNames[i])+'\',\''+esc(sharedNames[i])+'\',\'shared\')"><span style="margin-right:8px;color:#f59e0b">●</span>'+esc(sharedNames[i])+'</div>';
       }
     }
+    // ★ V0.6.1df: 下属重急事项 — 合并所有直属下属重要紧急事项
+    if(subs.length>0){
+      if(directOpts.length>0||nonDirect.length>0||sharedNames.length>0){
+        ddHtml+='<div style="border-top:1px solid #e5e7eb;margin:6px 0"></div>';
+      }
+      ddHtml+='<div class="wp-custom-option'+(_wpViewingMergedUrgent?' active':'')+'" onclick="selectWPSubOption(\'__merged_urgent__\',\'下属重急事项\',\'merged-urgent\')" style="color:#FF3B30;font-weight:600"><span style="margin-right:8px">⚠️</span>下属重急事项</div>';
+    }
     ddHtml+='<div style="height:12px"></div>';
     dd.innerHTML=ddHtml;
   }
@@ -769,6 +777,7 @@ function switchToMyWP(){
   _wpViewingSubordinate=null;
   _wpViewingDeptMember=null;
   _wpViewingShared=null;
+  _wpViewingMergedUrgent=false;
   _wpRevisionMode=false;
   _wpCurrent={year:null,month:null,week:null,plan:null};
   _wpSubData.selected='';
@@ -884,11 +893,206 @@ function selectWPSubOption(val,name,rel){
     var autoY=yEl?parseInt(yEl.value):new Date().getFullYear();
     var autoM=mEl?parseInt(mEl.value):(new Date().getMonth()+1);
     setTimeout(function(){ try{selectWP(autoY,autoM,1);}catch(e){console.warn('auto-selectWP after shared change failed:',e);} }, 100);
+  }else if(rel==='merged-urgent'){
+    _wpViewingSubordinate=null;
+    _wpViewingDeptMember=null;
+    _wpViewingShared=null;
+    _wpViewingMergedUrgent=true;
+    _wpRevisionMode=false;
+    _wpCurrent={year:null,month:null,week:null,plan:null};
+    renderWPUserInfo();
+    renderWPSubSelect();
+    _renderMergedUrgentView();
   }else if(rel==='indirect'){
     onWPDeptMemberChange(val);
   }else{
     onWPSubordinateChange(val);
   }
+}
+
+// ★ V0.6.1df: 下属重急事项合并视图
+function _renderMergedUrgentView(){
+  var myName=(currentUser&&currentUser.name)||'';
+  var subs=getWPSubordinates().filter(function(s){return s!==myName;});
+  if(subs.length===0){showWPEmpty();return;}
+
+  // 收集所有直属下属当前周的重要紧急事项
+  var allTasks=[];
+  var now=new Date();now.setHours(0,0,0,0);
+  var cy=_wpCurrent.year||now.getFullYear();
+  var cm=_wpCurrent.month||(now.getMonth()+1);
+  var cw=_wpCurrent.week||getISOWeek(now);
+
+  for(var si=0;si<subs.length;si++){
+    var sname=subs[si];
+    var sData={};
+    try{sData=JSON.parse(localStorage.getItem('HWM_WP_'+sname)||'{}');}catch(e){}
+    var weekId=cy+'-'+(cm<10?'0':'')+cm+'-'+cw;
+    var plan=sData[weekId];
+    if(!plan||!plan.tasks)continue;
+    for(var ti=0;ti<plan.tasks.length;ti++){
+      var t=plan.tasks[ti];
+      if(!t.work||!t.work.trim())continue;
+      var pri=(t.pri||'').replace('pri-','');
+      if(pri!=='urgent')continue;
+      var clone=JSON.parse(JSON.stringify(t));
+      clone._empName=sname;clone._empId=sname;
+      clone._isOverdue=false;clone._daysOverdue=0;
+      if(clone.plannedDate){
+        var pd=new Date(clone.plannedDate+'T00:00:00');
+        clone._isOverdue=(pd<now)&&(!clone.actualDate);
+        if(clone._isOverdue)clone._daysOverdue=Math.floor((now-pd)/(1000*60*60*24));
+        if(pd.getTime()===now.getTime()&&!clone.actualDate)clone._isDueToday=true;
+      }
+      allTasks.push(clone);
+    }
+  }
+
+  if(allTasks.length===0){
+    var content=document.getElementById('wpContent');
+    if(content){
+      var sc=content.querySelector('.wp-scroll-area');if(sc)sc.remove();
+      var ta=content.querySelector('.wp-table-area');if(ta)ta.remove();
+      var ib=content.querySelector('.wp-info-bar');if(ib)ib.remove();
+      var emptyDiv=document.createElement('div');
+      emptyDiv.className='wp-empty';
+      emptyDiv.innerHTML='<div class="wp-empty-title">本周暂无下属重要紧急事项</div><div class="wp-empty-desc">你的直属下属本周没有标记为"重要紧急"的行动项，团队节奏良好 👍</div>';
+      content.appendChild(emptyDiv);
+    }
+    return;
+  }
+
+  // 排序：逾期>今天截止>未逾期按计划日期
+  allTasks.sort(function(a,b){
+    if(a._isOverdue&&!b._isOverdue)return -1;
+    if(!a._isOverdue&&b._isOverdue)return 1;
+    if(a._isOverdue&&b._isOverdue)return b._daysOverdue-a._daysOverdue;
+    if(a._isDueToday&&!b._isDueToday)return -1;
+    if(!a._isDueToday&&b._isDueToday)return 1;
+    var da=a.plannedDate||'9999';var db=b.plannedDate||'9999';
+    return da.localeCompare(db);
+  });
+
+  // 分层截取：逾期必显，剩余按计划日期
+  var overdueItems=[],dueTodayItems=[],normalItems=[];
+  for(var i=0;i<allTasks.length;i++){
+    if(allTasks[i]._isOverdue)overdueItems.push(allTasks[i]);
+    else if(allTasks[i]._isDueToday)dueTodayItems.push(allTasks[i]);
+    else normalItems.push(allTasks[i]);
+  }
+  var merged=[],limit=20;
+  for(var i=0;i<overdueItems.length&&merged.length<limit;i++)merged.push(overdueItems[i]);
+  for(var i=0;i<dueTodayItems.length&&merged.length<limit;i++)merged.push(dueTodayItems[i]);
+  for(var i=0;i<normalItems.length&&merged.length<limit;i++)merged.push(normalItems[i]);
+
+  var content=document.getElementById('wpContent');
+  if(!content)return;
+  var sc2=content.querySelector('.wp-scroll-area');if(sc2)sc2.remove();
+  var ta2=content.querySelector('.wp-table-area');if(ta2)ta2.remove();
+  var ib2=content.querySelector('.wp-info-bar');if(ib2)ib2.remove();
+
+  var weekLabel=cy+'年'+cm+'月 第'+cw+'周';
+  var infoBar=document.createElement('div');
+  infoBar.className='wp-info-bar';
+  infoBar.innerHTML='<strong style="color:#FF3B30;font-size:14px">⚠️ 下属重急事项</strong> '+
+    '<span style="color:#475569;font-size:12px">'+weekLabel+'</span> '+
+    '<span style="color:#6b7280;font-size:11px">共 <strong>'+merged.length+'</strong> 项，来自 '+subs.length+' 位下属</span>'+
+    (allTasks.length>limit?'<span style="color:#D64352;font-size:11px;margin-left:12px">显示前'+limit+'项（共'+allTasks.length+'项）</span>':'')+
+    (overdueItems.length>0&&allTasks.length<=limit?'<span style="color:#D64352;font-size:11px;margin-left:12px">其中 <strong>'+overdueItems.length+'</strong> 项已逾期</span>':'');
+  content.appendChild(infoBar);
+
+  // 工具栏
+  var toolbar=document.createElement('div');
+  toolbar.className='wp-toolbar';
+  toolbar.id='wpToolbar';
+  toolbar.innerHTML='<span style="color:#3B7DB4;font-weight:600;font-size:12px">📋 合并视图 — 只读模式</span>'+
+    '<button class="wp-btn-export" onclick="exportMergedUrgent()" style="margin-left:auto"><span>📥</span> 导出合并表</button>';
+  content.appendChild(toolbar);
+
+  // 表格容器
+  var scrollArea=document.createElement('div');
+  scrollArea.className='wp-scroll-area';
+  var tableWrap=document.createElement('div');
+  tableWrap.className='wp-table-wrap';
+  var table=document.createElement('table');
+  table.className='wp-table';
+  table.style.minWidth='1350px';
+
+  // 表头
+  var thead=document.createElement('thead');
+  var tr=document.createElement('tr');
+  var thNum=document.createElement('th');
+  thNum.textContent='#';thNum.style.cssText='position:sticky;left:0;z-index:6;background:#E8EAED;border-left:1px solid var(--border);min-width:56px';
+  tr.appendChild(thNum);
+  var thEmp=document.createElement('th');
+  thEmp.textContent='员工';thEmp.style.cssText='position:sticky;left:56px;z-index:6;min-width:70px;background:#E8EAED';
+  tr.appendChild(thEmp);
+  var thWork=document.createElement('th');
+  thWork.textContent='本周重点行动项';thWork.style.cssText='position:sticky;left:126px;z-index:6;min-width:180px;background:#E8EAED';
+  tr.appendChild(thWork);
+  var headers=['优先级','启动日期','计划完成','剩余天数','实际完成','耗时','状态','协同','问题','需要上级','上级建议'];
+  var hWids=['80px','80px','80px','80px','80px','56px','56px','80px','56px','56px','120px'];
+  for(var hi=0;hi<headers.length;hi++){
+    var th=document.createElement('th');
+    th.textContent=headers[hi];th.style.minWidth=hWids[hi];
+    tr.appendChild(th);
+  }
+  thead.appendChild(tr);
+  table.appendChild(thead);
+
+  // 数据行
+  var tbody=document.createElement('tbody');
+  for(var i=0;i<merged.length;i++){
+    var t=merged[i];
+    var bg=t._isOverdue?'#FFF5F5':t._isDueToday?'#FFF8E1':'#FBF8F3';
+    var tr2=document.createElement('tr');
+    tr2.style.background=bg;
+    // # 列
+    var td1=document.createElement('td');
+    td1.textContent=(i+1);td1.className='col-num';
+    td1.style.cssText='position:sticky;left:0;z-index:2;background:'+bg+';border-left:1px solid var(--border);min-width:56px';
+    tr2.appendChild(td1);
+    // 员工
+    var td2=document.createElement('td');
+    td2.textContent=t._empName;
+    td2.style.cssText='position:sticky;left:56px;z-index:2;background:'+bg+';min-width:70px;text-align:center;font-weight:500;font-size:11px';
+    tr2.appendChild(td2);
+    // 事项
+    var td3=document.createElement('td');
+    td3.textContent=t.work||'';
+    td3.style.cssText='position:sticky;left:126px;z-index:2;background:'+bg+';min-width:180px;text-align:left;font-weight:600';
+    tr2.appendChild(td3);
+    // 优先级
+    tr2.innerHTML+='<td style="color:#FF3B30;font-weight:600;min-width:80px;text-align:center;background:'+bg+'">重要紧急</td>';
+    // 启动日期
+    tr2.innerHTML+='<td style="min-width:80px;text-align:center;background:'+bg+'">'+_h(t.startDate||'')+'</td>';
+    // 计划完成
+    tr2.innerHTML+='<td style="min-width:80px;text-align:center;background:'+bg+'">'+_h(t.plannedDate||'')+'</td>';
+    // 剩余天数
+    tr2.innerHTML+='<td style="min-width:80px;text-align:center;background:'+bg+'">'+_calcRemainingDays(t.plannedDate,t.actualDate)+'</td>';
+    // 实际完成
+    tr2.innerHTML+='<td style="min-width:80px;text-align:center;background:'+bg+'">'+_h(t.actualDate||'')+'</td>';
+    // 耗时
+    tr2.innerHTML+='<td style="min-width:56px;text-align:center;background:'+bg+'">'+_h(t.estimatedHours||'')+'</td>';
+    // 状态
+    tr2.innerHTML+='<td style="min-width:56px;text-align:center;background:'+bg+'">'+_h(t.status||'')+'</td>';
+    // 协同
+    tr2.innerHTML+='<td style="min-width:80px;text-align:center;background:'+bg+'">'+_h((t.supporters||'').replace(/,/g,'、'))+'</td>';
+    // 问题
+    tr2.innerHTML+='<td style="min-width:56px;text-align:center;font-size:12px;background:'+bg+'">'+(t.problems?t.problems:'-')+'</td>';
+    // 需要上级
+    tr2.innerHTML+='<td style="min-width:56px;text-align:center;background:'+bg+'">'+_h(t.needBoss||'')+'</td>';
+    // 上级建议
+    tr2.innerHTML+='<td style="min-width:120px;text-align:left;background:'+bg+'">'+_h(t.bossFeedback||'')+'</td>';
+    tbody.appendChild(tr2);
+  }
+  table.appendChild(tbody);
+  tableWrap.appendChild(table);
+  scrollArea.appendChild(tableWrap);
+  content.appendChild(scrollArea);
+
+  // 存储供导出
+  _wpCurrent.mergedTasks=merged;
 }
 
 // 部门成员自定义下拉（V0.5.80 已合并到主下拉）
@@ -3556,6 +3760,35 @@ function exportCurrentWP(){
     XLSX.utils.book_append_sheet(wb,ws,p.year+'-'+p.month+'-'+p.week);
     XLSX.writeFile(wb,'周工作计划_'+p.name+'_'+p.year+'_'+p.month+'_W'+p.week+'.xlsx');
   }catch(e){_showAlert('导出失败：'+e.message+'\n\n如果反复出现此错误请联系管理员');}
+}
+
+// ★ V0.6.1df: 导出下属重急事项合并表
+function exportMergedUrgent(){
+  var merged=_wpCurrent.mergedTasks;
+  if(!merged||merged.length===0){_showAlert('暂无数据可导出');return;}
+  try{
+    var rows=[['#','员工','本周重点行动项','优先级','启动日期','计划完成','剩余天数','实际完成','耗时','状态','协同','问题','需要上级','上级建议']];
+    for(var i=0;i<merged.length;i++){
+      var t=merged[i];
+      var remaining='';
+      if(t.actualDate)remaining='0';
+      else if(t.plannedDate){
+        var now=new Date();now.setHours(0,0,0,0);
+        var pd=new Date(t.plannedDate+'T00:00:00');
+        var diff=Math.floor((pd-now)/(1000*60*60*24));
+        remaining=diff<0?'已超'+Math.abs(diff)+'天':diff===0?'今天截止':diff+'天';
+      }
+      rows.push([i+1,t._empName,t.work||'','重要紧急',t.startDate||'',t.plannedDate||'',remaining,t.actualDate||'',t.estimatedHours||'','',(t.supporters||'').replace(/,/g,'、'),t.problems||'',t.needBoss||'',t.bossFeedback||'']);
+    }
+    var ws=XLSX.utils.aoa_to_sheet(rows);
+    ws['!cols']=[{wch:5},{wch:10},{wch:48},{wch:10},{wch:12},{wch:12},{wch:10},{wch:12},{wch:8},{wch:8},{wch:15},{wch:8},{wch:8},{wch:20}];
+    var wb=XLSX.utils.book_new();
+    var cy=_wpCurrent.year||new Date().getFullYear();
+    var cm=_wpCurrent.month||(new Date().getMonth()+1);
+    var cw=_wpCurrent.week||1;
+    XLSX.utils.book_append_sheet(wb,ws,'下属重急事项_'+cy+'_'+cm+'_W'+cw);
+    XLSX.writeFile(wb,'下属重急事项_'+cy+'_'+cm+'_W'+cw+'.xlsx');
+  }catch(e){_showAlert('导出失败：'+e.message);}
 }
 
 function emailToSuperior(){
