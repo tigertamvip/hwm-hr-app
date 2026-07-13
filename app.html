@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.6.1eu">
+<meta name="version" content="V0.6.1ev">
 <!-- cache-bust: 2026-07-13-18-40 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json?v=bc">
@@ -2408,7 +2408,6 @@ table.collab-table tbody tr:hover{background:#fffdf5}
 .sys-col-name{min-width:80px}
 .sys-col-position{min-width:120px}
 .sys-col-uid{min-width:70px;font-family:monospace;font-size:11px}
-.sys-col-pwd{min-width:60px}
 .sys-col-module{min-width:64px;font-size:11px}
 .sys-col-action{min-width:64px}
 .sys-perm-yes{color:var(--success);font-weight:600;font-size:13px}
@@ -3106,12 +3105,10 @@ function togglePortalTips(){
             <th class="sys-col-name">姓名</th>
             <th class="sys-col-position">职务</th>
             <th class="sys-col-uid">用户名</th>
-            <th class="sys-col-pwd">密码</th>
             <th class="sys-col-module">人才团队</th>
             <th class="sys-col-module">当周行动</th>
             <th class="sys-col-module">年度目标</th>
             <th class="sys-col-module">项目管理</th>
-            <th class="sys-col-module">项目协同</th>
             <th class="sys-col-module">岗位胜任力</th>
             <th class="sys-col-module">决策工具</th>
             <th class="sys-col-module">敬业度</th>
@@ -3334,12 +3331,12 @@ var AUTH_UID_KEY='hr_auth_uid';
 
 // 用户数据库：用户名 → {pwd: SHA256哈希, name: 显示名, role: 角色, centerKeyword: 中心关键词}
 // 模块权限定义
-var HWM_MODULES=['hr','mbo','kpi','talent','pm','learning','payroll','ideas','policies','maintenance','decision','dashboard','rd'];
-var HWM_MODULE_LABELS={hr:'人才团队',mbo:'当周行动',kpi:'年度目标',pm:'项目协同',talent:'项目管理',learning:'岗位胜任力',payroll:'决策工具',ideas:'敬业度',policies:'体系流程',maintenance:'系统维护',decision:'三年规划',dashboard:'数据中心',rd:'本月计划'};
+var HWM_MODULES=['hr','mbo','kpi','talent','learning','payroll','ideas','policies','maintenance','decision','dashboard','rd'];
+var HWM_MODULE_LABELS={hr:'人才团队',mbo:'当周行动',kpi:'年度目标',talent:'项目管理',learning:'岗位胜任力',payroll:'决策工具',ideas:'敬业度',policies:'体系流程',maintenance:'系统维护',decision:'三年规划',dashboard:'数据中心',rd:'本月计划'};
 
 // 默认权限：admin 全开，其余按角色
 function _defaultPerms(role){
-  var all={hr:true,mbo:true,kpi:true,talent:true,pm:true,learning:true,payroll:true,ideas:true,policies:true,maintenance:true,decision:true,dashboard:true,rd:true};
+  var all={hr:true,mbo:true,kpi:true,talent:true,learning:true,payroll:true,ideas:true,policies:true,maintenance:true,decision:true,dashboard:true,rd:true};
   if(role==='admin')return all;
   // 普通用户默认全部开放，由管理员在系统维护中调整
   return all;

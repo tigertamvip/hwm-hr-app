@@ -39,7 +39,7 @@ function sysRenderUserTable(){
   if(filterCountEl)filterCountEl.textContent=uids.length;
   // ★ 空数据兜底显示
   if(uids.length===0){
-    tbody.innerHTML='<tr><td colspan="22" style="padding:40px 20px;color:var(--text-hint);font-size:13px;text-align:center">没有匹配的用户</td></tr>';
+    tbody.innerHTML='<tr><td colspan="20" style="padding:40px 20px;color:var(--text-hint);font-size:13px;text-align:center">没有匹配的用户</td></tr>';
     return;
   }
   var html='';
@@ -55,7 +55,6 @@ function sysRenderUserTable(){
     html+='<td class="sys-td-left"><strong>'+_h(u.name)+'</strong></td>';
     html+='<td class="sys-td-left" style="font-size:12px;color:var(--text-secondary)">'+_h(u.position)+'</td>';
     html+='<td style="font-family:monospace;font-size:12px">'+_h(uid)+'</td>';
-    html+='<td style="font-family:monospace;font-size:11px;color:var(--text-hint)">••••</td>';
     for(var j=0;j<HWM_MODULES.length;j++){
       var mod=HWM_MODULES[j],on=!!perms[mod];
       html+='<td><span class="sys-perm-toggle '+(on?'sys-perm-yes':'sys-perm-no')+'" onclick="sysTogglePerm(\''+uid+'\',\''+mod+'\')" title="点击切换">'+(on?'✓':'—')+'</span></td>';
@@ -648,7 +647,7 @@ async function sysDoSmartSync(){
   for(var i=0;i<toAdd.length;i++){
     var ae=toAdd[i];
     if(USERS[ae.name])continue;
-    USERS[ae.name]={pwd:'1234',name:ae.name,role:'staff',dept:ae.dept||'',position:ae.position||'',centerKeyword:'',permissions:{hr:false,mbo:false,kpi:false,talent:false,pm:false,learning:false,payroll:false,ideas:false,policies:false,maintenance:false,decision:false,dashboard:false,rd:false},subordinates:{},reports:{boss:'',supervisor:'',subordinates:[]}};
+    USERS[ae.name]={pwd:'1234',name:ae.name,role:'staff',dept:ae.dept||'',position:ae.position||'',centerKeyword:'',permissions:{hr:false,mbo:false,kpi:false,talent:false,learning:false,payroll:false,ideas:false,policies:false,maintenance:false,decision:false,dashboard:false,rd:false},subordinates:{},reports:{boss:'',supervisor:'',subordinates:[]}};
     added++;
   }
   var removed=0;
