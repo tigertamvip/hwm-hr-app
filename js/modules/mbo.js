@@ -899,7 +899,11 @@ function selectWPSubOption(val,name,rel){
     var mEl=document.getElementById('wpMonth');
     var autoY=yEl?parseInt(yEl.value):new Date().getFullYear();
     var autoM=mEl?parseInt(mEl.value):(new Date().getMonth()+1);
-    setTimeout(function(){ try{selectWP(autoY,autoM,1);}catch(e){console.warn('auto-selectWP after shared change failed:',e);} }, 100);
+    // ★ V0.6.1di: 自动跳转到当前日历对应的周
+    var sNow=new Date();
+    var sIsoWeek=getISOWeek(sNow);
+    var sMapped=isoWeekToMonthWeek(sIsoWeek);
+    setTimeout(function(){ try{selectWP(autoY,sMapped.month,sMapped.week);}catch(e){console.warn('auto-selectWP after shared change failed:',e);} }, 100);
   }else if(rel==='merged-urgent'){
     // ★ V0.6.1dh: 保留当前选中的年月周（用户通常会先选周再点合并）
     // 但要从 wpYear/wpMonth 控件读取（如果有），保证与侧栏一致
@@ -942,9 +946,10 @@ async function _renderMergedUrgentView(){
   try{
     if(typeof supabase!=='undefined'&&supabase&&supabase.from){
       var fetchPromises=subs.map(function(sname){
-        return supabase.from('hwm_workplans').select('week_id,plan_data').eq('username',sname)
+        return supabase.from(SUPABASE_WP_TABLE).select('week_id,plan_data').eq('username',sname)
           .then(function(r){
-            if(r.data){
+            if(r.error){console.warn('[merged] Supabase fetch failed for '+sname+':',r.error.message);return;}
+            if(r.data&&r.data.length>0){
               var localKey='hwm_workplans_'+sname;
               var local={};
               try{local=JSON.parse(localStorage.getItem(localKey)||'{}');}catch(e){}
@@ -955,12 +960,13 @@ async function _renderMergedUrgentView(){
                 }
               }
               try{localStorage.setItem(localKey,JSON.stringify(local));}catch(e){}
+              console.log('[merged] Synced '+r.data.length+' weeks for '+sname);
             }
-          }).catch(function(){});
+          }).catch(function(e){console.warn('[merged] Network error for '+sname+':',e);});
       });
       await Promise.all(fetchPromises);
     }
-  }catch(e){console.warn('[V0.6.1dh] Supabase fetch for subordinates failed:',e);}
+  }catch(e){console.warn('[merged] Supabase batch fetch failed:',e);}
 
   for(var si=0;si<subs.length;si++){
     var sname=subs[si];
@@ -1190,12 +1196,16 @@ function onWPSubordinateChange(val){
   renderWPSubSelect();
   showWPEmpty();
   onWPMonthChange();
-  // ★ V0.1.21: 切换下属后自动选中当前月第1周（修复顶部下拉切换不刷新表格的bug）
+  // ★ V0.1.21: 切换下属后自动选中当前日历对应的周
   var yEl=document.getElementById('wpYear');
   var mEl=document.getElementById('wpMonth');
   var autoY=yEl?parseInt(yEl.value):new Date().getFullYear();
   var autoM=mEl?parseInt(mEl.value):(new Date().getMonth()+1);
-  setTimeout(function(){ try{selectWP(autoY,autoM,1);}catch(e){console.warn('auto-selectWP after subordinate change failed:',e);} }, 100);
+  // ★ V0.6.1di: 自动跳转到当前日历对应的周计划，而不是周1
+  var now=new Date();
+  var isoWeek=getISOWeek(now);
+  var mapped=isoWeekToMonthWeek(isoWeek);
+  setTimeout(function(){ try{selectWP(autoY,mapped.month,mapped.week);}catch(e){console.warn('auto-selectWP after subordinate change failed:',e);} }, 100);
 }
 
 function onWPYearChange(){onWPMonthChange();}
@@ -1333,12 +1343,15 @@ function onWPDeptMemberChange(val){
   renderWPSubSelect();
   showWPEmpty();
   onWPMonthChange();
-  // ★ V0.1.21: 切换部门成员后自动选中当前月第1周（修复顶部下拉切换不刷新表格的bug）
+  // ★ V0.6.1di: 自动跳转到当前日历对应的周
   var yEl=document.getElementById('wpYear');
   var mEl=document.getElementById('wpMonth');
   var autoY=yEl?parseInt(yEl.value):new Date().getFullYear();
   var autoM=mEl?parseInt(mEl.value):(new Date().getMonth()+1);
-  setTimeout(function(){ try{selectWP(autoY,autoM,1);}catch(e){console.warn('auto-selectWP after deptMember change failed:',e);} }, 100);
+  var dmNow=new Date();
+  var dmIsoWeek=getISOWeek(dmNow);
+  var dmMapped=isoWeekToMonthWeek(dmIsoWeek);
+  setTimeout(function(){ try{selectWP(autoY,dmMapped.month,dmMapped.week);}catch(e){console.warn('auto-selectWP after deptMember change failed:',e);} }, 100);
 }
 
 function renderWPPlanList(year,month){
