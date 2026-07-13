@@ -726,20 +726,20 @@ function renderWPSubSelect(){
   var dd=document.getElementById('wpSubDropdown');
   if(dd){
     var ddHtml='';
+    // ★ V0.6.1do: 先计算分组（避免后面引用未定义的变量）
+    var directOpts=_wpSubData.options.filter(function(o){return o.rel==='direct';});
     // ★ V0.6.1dh: 下属重急事项放最前面（关注优先）
     if(subs.length>0){
       ddHtml+='<div class="wp-custom-option'+(_wpViewingMergedUrgent?' active':'')+'" onclick="selectWPSubOption(\'__merged_urgent_direct__\',\'直接下属重急项\',\'merged-urgent\')" style="color:#FF3B30;font-weight:600"><span style="margin-right:8px">⚠️</span>直接下属重急项</div>';
     }
     // ★ V0.6.1do: 间接下属重急项
     if(nonDirect.length>0){
-      if(directOpts.length>0||subs.length>0){
-        ddHtml+='<div style="border-top:1px solid #e5e7eb;margin:6px 0"></div>';
-      }
       ddHtml+='<div class="wp-custom-option" onclick="selectWPSubOption(\'__merged_urgent_indirect__\',\'间接下属重急项\',\'merged-urgent-indirect\')" style="color:#D97706;font-weight:600"><span style="margin-right:8px">⚡</span>间接下属重急项</div>';
     }
-    ddHtml+='<div style="border-top:1px solid #e5e7eb;margin:6px 0"></div>';
+    if(subs.length>0||nonDirect.length>0){
+      ddHtml+='<div style="border-top:1px solid #e5e7eb;margin:6px 0"></div>';
+    }
     // 直属下属组
-    var directOpts=_wpSubData.options.filter(function(o){return o.rel==='direct';});
     if(directOpts.length>0){
       ddHtml+='<div style="font-size:13px;color:#6b7280;padding:2px 0 4px">直属下属</div>';
       for(var i=0;i<directOpts.length;i++){
@@ -1083,11 +1083,11 @@ async function _renderMergedUrgentView(){
 
   var content=document.getElementById('wpContent');
   if(!content)return;
-  // ★ V0.6.1do: 用 querySelectorAll 清理所有同类型 DOM 元素
+  // ★ V0.6.1dp: 只清理 merged-urgent 相关元素，不能误删主视图的 info-bar/toolbar
   var oldSc=content.querySelectorAll('.wp-scroll-area');oldSc.forEach(function(el){el.remove();});
   var oldTa=content.querySelectorAll('.wp-table-area');oldTa.forEach(function(el){el.remove();});
-  var oldIb=content.querySelectorAll('.wp-info-bar');oldIb.forEach(function(el){el.remove();});
-  var oldTb=content.querySelectorAll('.wp-toolbar');oldTb.forEach(function(el){el.remove();});
+  var oldIb=content.querySelectorAll('.wp-info-bar.merged-urgent');oldIb.forEach(function(el){el.remove();});
+  var oldTb=content.querySelectorAll('.wp-toolbar.merged-urgent');oldTb.forEach(function(el){el.remove();});
 
   var weekLabel=cy+'年'+cm+'月 第'+cw+'周';
   var infoBar=document.createElement('div');
