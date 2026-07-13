@@ -1325,10 +1325,9 @@ function _renderStatusDot(status){
 }
 
 function renderWPCellValue(plan, fieldKey, originalValue){
-  // 检查是否有上级修订
+  // ★ V0.6.1cf: 修订红色文字已取消 — 上级修改内容后不再以红色标注
   if(plan._revisions&&plan._revisions[fieldKey]&&plan._revisions[fieldKey].value){
-    var rev=plan._revisions[fieldKey];
-    return '<span style="color:#e53e3e" title="原值：'+_h(originalValue||'')+'&#10;修订人：'+_h(rev.by||'')+'&#10;时间：'+_h(rev.at||'')+'">'+_h(rev.value)+'</span>';
+    return _h(plan._revisions[fieldKey].value);
   }
   return _h(originalValue||'');
 }
@@ -1445,11 +1444,11 @@ function _renderSupportersCell(plan,taskIndex,rawSupporters){
   if(sups.length===0)return '<span style="color:var(--text-hint)">填写</span>';
   // 检查是否有协同状态信息
   var hasStatuses=plan._collab_statuses&&Object.keys(plan._collab_statuses).length>0;
-  // ★ V0.3.71: 如果有修订，整体加红色标记
+  // ★ V0.6.1cf: 修订红色文字已取消
   var revPrefix='';
   if(plan._revisions&&plan._revisions[fieldKey]&&plan._revisions[fieldKey].value){
     var rev=plan._revisions[fieldKey];
-    revPrefix='<span style="color:#e53e3e" title="原值：'+_h(rawSupporters||'')+'&#10;修订人：'+_h(rev.by||'')+'&#10;时间：'+_h(rev.at||'')+'">';
+    revPrefix='<span title="原值：'+_h(rawSupporters||'')+'&#10;修订人：'+_h(rev.by||'')+'&#10;时间：'+_h(rev.at||'')+'">';
   }
   var revSuffix=revPrefix?'</span>':'';
   // ★ V0.3.118: 始终显示协同状态徽章（无状态数据时默认"待响应"）
@@ -2030,7 +2029,8 @@ function renderWPTable(plan){
     html+='<span style="color:#3B7DB4;font-weight:600;margin-left:8px">🔐 上级锁定（蓝线单元不可修改）</span>';
     if(plan.frozenBy)/* removed by attribution */;
   }
-  if(_wpRevisionMode)html+='<span style="color:#e53e3e;font-weight:500;margin-left:8px">🔴 修订模式</span>';
+  // ★ V0.6.1cf: 修订模式红色文字机制已取消，上级修改下属内容后不再变红
+
   if(plan.bossEvaluated)html+='<span style="color:#059669;margin-left:8px">✓ 上级已评价</span>';
   html+='</div>';
 
@@ -2054,10 +2054,7 @@ function renderWPTable(plan){
       html+='<button onclick="openBossEval()">⭐ 完成评价</button>';
     }
   }else if(_wpViewingSubordinate){
-    // 查看下属：修订模式 + 审核锁定 + 上级评价编辑
-    html+='<button class="' + (_wpRevisionMode?'wp-btn-warn':'') + '" onclick="toggleWPRevisionMode()" title="开启后可修改下属计划内容，修改将以红色标注">';
-    html+=_wpRevisionMode?'🔴 关闭修订':'✏️ 开启修订';
-    html+='</button>';
+    // 查看下属：审核锁定 + 上级评价编辑（V0.6.1cf: 修订模式已取消，上级修改不再标红）
     // ★ V0.1.23: 锁定周计划 — 上级点击后下属不能修改 本周重点行动项/优先级/计划完成时间
     // ★ V0.6.1af: 上级锁定按钮只反映上级自己锁定的状态
     var myName=(currentUser&&currentUser.name)||'';
@@ -2538,8 +2535,8 @@ function startEditCell(cell){
     showToast('⚠️ 上级已完成评价，无法再修改');
     return;
   }
-  // 查看间接下属时：只允许编辑特定字段（修订模式开启时可编辑所有）
-  if(_wpViewingDeptMember&&cell.dataset.field&&cell.dataset.field.indexOf('bossFeedback')<0&&!_wpRevisionMode){
+  // 查看间接下属时：只允许编辑特定字段（V0.6.1cf: 修订模式已取消，直接生效）
+  if(_wpViewingDeptMember&&cell.dataset.field&&cell.dataset.field.indexOf('bossFeedback')<0){
     var field=cell.dataset.field;
     var allowedFields=['work','startDate','plannedDate','supporters','remarks'];
     var isAllowed=false;
@@ -2548,8 +2545,8 @@ function startEditCell(cell){
   }
   // ★ V0.3.127: 锁定保护 — 员工查看自己的计划时，锁定的三列（工作内容/优先级/计划完成日期）不可编辑
   if(isFieldFrozen(cell)){showToast('⚠️ 该列已被锁定，无法修改');return;}
-  // 查看直属下属时：只允许编辑特定字段（修订模式开启时可编辑所有）
-  if(_wpViewingSubordinate&&cell.dataset.field&&cell.dataset.field.indexOf('bossFeedback')<0&&!_wpRevisionMode){
+  // 查看直属下属时：只允许编辑特定字段（V0.6.1cf: 修订模式已取消，直接生效）
+  if(_wpViewingSubordinate&&cell.dataset.field&&cell.dataset.field.indexOf('bossFeedback')<0){
     var field=cell.dataset.field;
     var allowedFields=['work','startDate','plannedDate','supporters','remarks'];
     var isAllowed=false;
@@ -2585,9 +2582,8 @@ function startEditCell(cell){
     var _oldStatusMap={'✓完成':'按时完成','⚙推进中':'进行中','⏸暂停':'逾期完成','❌未完成':'暂停中'};
     if(_oldStatusMap[cur])cur=_oldStatusMap[cur];
   }
-  if(_wpRevisionMode&&_wpCurrent.plan&&_wpCurrent.plan._revisions&&_wpCurrent.plan._revisions[field]){
-    cur=_wpCurrent.plan._revisions[field].value||'';
-  }
+  // ★ V0.6.1cf: 修订值加载已取消，始终使用当前值
+
   var opts=cell.dataset.opts?cell.dataset.opts.split(','):[];
 
   cell.classList.add('editing');
@@ -2730,17 +2726,11 @@ async function commitEditCell(el){
       if(parts[0]==='tasks'){
         var ti=parseInt(parts[1]);
         if(_wpCurrent.plan.tasks[ti]){
-          if(_wpRevisionMode&&_wpViewingSubordinate){
-            // 修订模式：存入 _revisions，不覆盖原值
-            if(!_wpCurrent.plan._revisions)_wpCurrent.plan._revisions={};
-            _wpCurrent.plan._revisions[field]={value:newVal,at:new Date().toISOString(),by:currentUser?currentUser.name:'上级'};
-            // 同时更新原字段以便 bossFeedback 能正常保存
-            _wpCurrent.plan.tasks[ti][parts[2]]=newVal;
-          }else{
-            _wpCurrent.plan.tasks[ti][parts[2]]=newVal;
-            // ★ V0.4.91: 自动状态识别（新积分规则+工作日宽限期）
-            if(parts[2]==='actualDate' && newVal){
-              var tsk=_wpCurrent.plan.tasks[ti];
+          // ★ V0.6.1cf: 修订模式已取消，直接更新字段值
+          _wpCurrent.plan.tasks[ti][parts[2]]=newVal;
+          // ★ V0.4.91: 自动状态识别（新积分规则+工作日宽限期）
+          if(parts[2]==='actualDate' && newVal){
+            var tsk=_wpCurrent.plan.tasks[ti];
               var pDate=tsk.plannedDate;
               if(tsk.status==='暂停中'){
                 // 保持用户手动状态，不做自动判断
@@ -2773,7 +2763,6 @@ async function commitEditCell(el){
               }
             }
           }
-        }
       }
       _wpCurrent.plan.updatedAt=new Date().toISOString();
       _calcWeekScore(_wpCurrent.plan); // ★ V0.4.91b: 先计算状态再保存
@@ -3660,12 +3649,6 @@ async function revokeBossEval(){
   saveWP(p.year,p.month,p.week,p);
   renderWPTable(p);
   showToast('↩️ 已撤销评价，该下属周计划恢复可编辑');
-}
-
-// ========== 修订模式 ==========
-function toggleWPRevisionMode(){
-  _wpRevisionMode=!_wpRevisionMode;
-  if(_wpCurrent.plan)renderWPTable(_wpCurrent.plan);
 }
 
 // ========== 周计划评价反馈保存 ==========
