@@ -750,3 +750,30 @@ function toggleSysHeaderFilter(type){
 }
 var _cshdd=null;
 
+
+// ★ V0.6.1eu: 修复缺失的函数（之前文件截断时被删除）
+var _rosterCache=null;
+function getRosterLookup(){
+  if(_rosterCache)return _rosterCache;
+  var map={};
+  if(typeof allEmployees!=='undefined'&&allEmployees){
+    for(var i=0;i<allEmployees.length;i++){
+      var e=allEmployees[i];
+      if(e&&e.name){
+        var c='',d=e.dept||'';
+        if(d){var m=String(d).match(/^([^/]+)/);if(m)c=m[1];}
+        map[e.name]={center:c,dept:d};
+      }
+    }
+  }
+  _rosterCache=map;
+  return map;
+}
+function getRosterCenterForName(name){
+  var r=getRosterLookup();
+  return r[name]?r[name].center:'';
+}
+function getRosterDeptForName(name){
+  var r=getRosterLookup();
+  return r[name]?r[name].dept:'';
+}
