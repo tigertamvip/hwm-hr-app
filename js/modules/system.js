@@ -774,11 +774,24 @@ function toggleSysFilterDropdown(id){
   }
   // 定位
   var trigger=document.getElementById(id+'Trigger');
+  if(!trigger){
+    // ★ V0.6.1er: 兜底查找 — 通过class找trigger
+    var sel=document.getElementById(id);
+    if(sel){
+      var parent=sel.parentElement;
+      if(parent)trigger=parent.querySelector('.inline-filter-trigger');
+    }
+  }
   if(trigger){
     var rect=trigger.getBoundingClientRect();
     dd.style.left=rect.left+'px';
     dd.style.top=(rect.bottom+4)+'px';
     dd.style.width=Math.max(rect.width,160)+'px';
+  }else{
+    // 兜底：显示在屏幕中央偏上
+    dd.style.left='20px';
+    dd.style.top='200px';
+    dd.style.width='200px';
   }
   dd.style.display='block';
   // 点击外部关闭
