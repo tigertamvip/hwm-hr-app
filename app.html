@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.6.1er">
+<meta name="version" content="V0.6.1es">
 <!-- cache-bust: 2026-07-13-18-40 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json?v=bc">
@@ -3093,21 +3093,21 @@ function togglePortalTips(){
           <span class="search-icon">🔍</span>
           <input type="text" id="sysFilterSearch" placeholder="姓名 / 用户名" oninput="applySysFilter()" style="border:1.5px solid var(--border);padding:8px 10px 8px 32px;border-radius:8px;font-size:13px;width:100%">
         </div>
-        <div class="inline-filter-select" style="width:130px">
-          <div class="inline-filter-trigger" onclick="toggleSysFilterDropdown('sysFilterCenter')" id="sysFilterCenterTrigger">
-            <span id="sysFilterCenterLabel">中心：全部</span><span class="tri-arrow">▼</span>
+        <div class="inline-filter-select" style="width:160px">
+          <div class="inline-filter-trigger" onclick="toggleSysFilterDropdown('sysFilterCenter')" id="sysFilterCenterTrigger" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+            <span id="sysFilterCenterLabel" style="overflow:hidden;text-overflow:ellipsis">中心：全部</span><span class="tri-arrow">▼</span>
           </div>
           <select id="sysFilterCenter" class="hidden-select" onchange="onSysInlineFilterChange()"><option value="">中心：全部</option></select>
         </div>
-        <div class="inline-filter-select" style="width:140px">
-          <div class="inline-filter-trigger" onclick="toggleSysFilterDropdown('sysFilterDept')" id="sysFilterDeptTrigger">
-            <span id="sysFilterDeptLabel">部门：全部</span><span class="tri-arrow">▼</span>
+        <div class="inline-filter-select" style="width:160px">
+          <div class="inline-filter-trigger" onclick="toggleSysFilterDropdown('sysFilterDept')" id="sysFilterDeptTrigger" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+            <span id="sysFilterDeptLabel" style="overflow:hidden;text-overflow:ellipsis">部门：全部</span><span class="tri-arrow">▼</span>
           </div>
           <select id="sysFilterDept" class="hidden-select" onchange="onSysInlineFilterChange()"><option value="">部门：全部</option></select>
         </div>
         <div class="inline-filter-select" style="width:140px">
-          <div class="inline-filter-trigger" onclick="toggleSysFilterDropdown('sysFilterRole')" id="sysFilterRoleTrigger">
-            <span id="sysFilterRoleLabel">角色：全部</span><span class="tri-arrow">▼</span>
+          <div class="inline-filter-trigger" onclick="toggleSysFilterDropdown('sysFilterRole')" id="sysFilterRoleTrigger" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+            <span id="sysFilterRoleLabel" style="overflow:hidden;text-overflow:ellipsis">角色：全部</span><span class="tri-arrow">▼</span>
           </div>
           <select id="sysFilterRole" class="hidden-select" onchange="onSysInlineFilterChange()"><option value="">角色：全部</option></select>
         </div>

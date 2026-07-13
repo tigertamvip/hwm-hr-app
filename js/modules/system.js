@@ -758,12 +758,14 @@ function toggleSysFilterDropdown(id){
     var opt=sel.options[i];
     var item=document.createElement('div');
     var isSel=(sel.value===opt.value);
-    item.style.cssText='padding:8px 10px;cursor:pointer;border-radius:6px;font-size:13px;display:flex;align-items:center;gap:6px;background:'+(isSel?'#EEF2FF':'');
-    item.innerHTML=(isSel?'<span style="color:#3B7DB4">✓</span>':'')+'<span>'+opt.textContent+'</span>';
+    var baseBg=isSel?'#EEF2FF':'';
+    item.style.cssText='padding:8px 10px;cursor:pointer;border-radius:6px;font-size:13px;display:flex;align-items:center;gap:6px;background:'+baseBg;
+    item.innerHTML=(isSel?'<span style="color:#3B7DB4">✓</span>':'')+'<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+opt.textContent+'</span>';
     item.onmouseover=function(){this.style.background='#F5F5F5'};
-    item.onmouseout=function(){this.style.background='"'+(isSel?'#EEF2FF':'')+'"'};
+    item.onmouseout=function(){this.style.background='"'+baseBg+'"'};
     (function(value,el){
-      item.onclick=function(){
+      item.onclick=function(e){
+        e.stopPropagation();
         sel.value=value;
         updateSysFilterLabels();
         applySysFilter();
