@@ -330,6 +330,14 @@ function fixAllPlanDirtyData(){
 function loadWPData(){
   // ① 先读 localStorage（秒出，不卡）
   try{_wpData=JSON.parse(localStorage.getItem(getWPLocalStorageKey())||'{}');}catch(e){_wpData={};}
+  // ★ V0.6.1eh: 备份恢复 — 当前数据为空但备份存在时自动恢复
+  var wpKey=getWPLocalStorageKey();
+  if(Object.keys(_wpData).length===0){
+    var backup=localStorage.getItem(wpKey+'_backup');
+    if(backup){
+      try{var backupData=JSON.parse(backup);if(Object.keys(backupData).length>0){_wpData=backupData;localStorage.setItem(wpKey,backup);console.warn('[WP] 从本地备份恢复了 '+Object.keys(backupData).length+' 周的数据');if(typeof showToast==='function')showToast('🔄 从本地备份恢复了周计划数据');}}catch(e){}
+    }
+  }
   // ② 后台从 Supabase 拉取并合并（跨设备数据同步，失败不影响使用）
   var user=_wpViewingShared||_wpViewingSubordinate||_wpViewingDeptMember||(currentUser&&currentUser.name)||getCurrentEmployee().name;
   if(!user||typeof user!=='string'||user.trim()===''){
@@ -402,6 +410,11 @@ function saveWPData(){
   if(_wpViewingShared){console.log('[DEBUG saveWPData] SKIPPED - _wpViewingShared='+_wpViewingShared);return;}
   var key=getWPLocalStorageKey();
   console.log('[DEBUG saveWPData] key='+key+' dataKeys='+Object.keys(_wpData).length);
+  // ★ V0.6.1eh: 保存前先备份 — 防止数据丢失
+  var oldData=localStorage.getItem(key);
+  if(oldData){
+    try{localStorage.setItem(key+'_backup',oldData);}catch(e){}
+  }
   localStorage.setItem(key,JSON.stringify(_wpData));
   // 异步推送到 Supabase（静默，失败不影响使用）
   // 检查 supabase 客户端是否已初始化
