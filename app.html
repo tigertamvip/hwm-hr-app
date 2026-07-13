@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.6.1ee">
+<meta name="version" content="V0.6.1eg">
 <!-- cache-bust: 2026-07-13-18-40 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json?v=bc">
@@ -3362,6 +3362,7 @@ var _DEFAULT_USERS={
 };
 
 // USERS 从 localStorage 加载，回退到默认值
+// ★ V0.6.1eg: 如果 localStorage 用户数 > 100（疑似异常），先清空让程序从云端重新拉取
 var USERS=loadUserSettings();
 
 // ===== 每次加载无条件强制清理旧代号影子用户 =====
@@ -3432,6 +3433,22 @@ function loadUserSettings(){
   try{
     var saved=localStorage.getItem('HWM_USER_SETTINGS');
     if(saved){
+      var parsed=JSON.parse(saved);
+      var localCount=Object.keys(parsed).length;
+      // ★ V0.6.1eg: 安全阈值 — 如果本地用户数 > 100（疑似早期错误同步），强制清空让程序从云端重新拉取
+      if(localCount>100){
+        console.warn('[V0.6.1eg] 本地用户数 '+localCount+' 超过安全阈值，强制清空让程序从云端重新加载');
+        localStorage.removeItem('HWM_USER_SETTINGS');
+        if(typeof _showAlert==='function'){
+          setTimeout(function(){
+            _showAlert('检测到本地用户数据异常（'+localCount+' 人），已自动清空从云端重新加载正确数据。','⚠️ 数据自愈');
+          },1000);
+        }
+        // 触发全量云端拉取（isFirstTime=true 因为 localStorage 已空）
+        syncUsersFromCloud();
+        // 返回空对象 — USERS 暂时为空，等 syncUsersFromCloud 拉完会更新
+        return {};
+      }
       var parsed=JSON.parse(saved);
       // ★ 关键改动：以 localStorage 为唯一权威来源，不再自动注入 _DEFAULT_USERS
       // 这样管理员手动删除的用户不会被"补回来"
