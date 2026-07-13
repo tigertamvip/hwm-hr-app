@@ -752,14 +752,18 @@ function renderWPSubSelect(){
 function switchToMyWP(){
   _wpViewingSubordinate=null;
   _wpViewingDeptMember=null;
+  _wpViewingShared=null;
   _wpRevisionMode=false;
   _wpCurrent={year:null,month:null,week:null,plan:null};
   _wpSubData.selected='';
   var triggerText=document.getElementById('wpSubTriggerText');
   if(triggerText){triggerText.textContent='View Team To-Do';triggerText.style.color='';}
+  var sharedTriggerText=document.getElementById('wpSharedTriggerText');
+  if(sharedTriggerText)sharedTriggerText.textContent='📖 查看授权我阅览其周计划的同事';
   loadWPData();
   renderWPUserInfo();
   renderWPSubSelect();
+  renderWPSharedSelect();
   showWPEmpty();
   
   // ★ V0.5.50: 同步计算当前周并选中，避免双重渲染导致的跳动
@@ -4249,21 +4253,6 @@ function selectWPSharedOption(name){
 }
 window.selectWPSharedOption=selectWPSharedOption;
 window.toggleWPSort=toggleWPSort;
-
-// 切换回自己的周计划
-function switchToMyWP(){
-  _wpViewingSubordinate=null;
-  _wpViewingDeptMember=null;
-  _wpViewingShared=null;
-  var triggerText=document.getElementById('wpSharedTriggerText');
-  if(triggerText)triggerText.textContent='📖 查看授权我阅览其周计划的同事';
-  loadWPData();
-  renderWPSubSelect();
-  renderWPSharedSelect();
-  renderWPUserInfo();
-  var nowD=new Date();
-  selectWP(nowD.getFullYear(),nowD.getMonth()+1,1);
-}
 
 // ★ 判断当前查看模式是否为只读（被分享查看）
 function isWPReadOnly(){
