@@ -1040,19 +1040,21 @@ async function _renderMergedUrgentView(){
 
   var weekLabel=cy+'年'+cm+'月 第'+cw+'周';
   var infoBar=document.createElement('div');
-  infoBar.className='wp-info-bar';
-  infoBar.innerHTML='<strong style="color:#FF3B30;font-size:14px">⚠️ 下属重急事项</strong> '+
-    '<span style="color:#475569;font-size:12px">'+weekLabel+'</span> '+
-    '<span style="color:#6b7280;font-size:11px">共 <strong>'+merged.length+'</strong> 项，来自 '+subs.length+' 位下属</span>'+
-    (allTasks.length>limit?'<span style="color:#D64352;font-size:11px;margin-left:12px">显示前'+limit+'项（共'+allTasks.length+'项）</span>':'')+
-    (overdueItems.length>0&&allTasks.length<=limit?'<span style="color:#D64352;font-size:11px;margin-left:12px">其中 <strong>'+overdueItems.length+'</strong> 项已逾期</span>':'');
+  infoBar.className='wp-info-bar merged-urgent';
+  // ★ V0.6.1dl: 全部统一 13px 字体 + padding-left 让位侧栏
+  infoBar.innerHTML='<strong style="color:#FF3B30;font-size:13px">⚠️ 下属重急事项</strong> '+
+    '<span style="color:#475569;font-size:13px">'+weekLabel+'</span> '+
+    '<span style="color:#6b7280;font-size:13px">共 <strong>'+merged.length+'</strong> 项，来自 '+subs.length+' 位下属</span>'+
+    (allTasks.length>limit?'<span style="color:#D64352;font-size:13px;margin-left:12px">显示前'+limit+'项（共'+allTasks.length+'项）</span>':'')+
+    (overdueItems.length>0&&allTasks.length<=limit?'<span style="color:#D64352;font-size:13px;margin-left:12px">其中 <strong>'+overdueItems.length+'</strong> 项已逾期</span>':'');
   content.appendChild(infoBar);
 
   // 工具栏
   var toolbar=document.createElement('div');
-  toolbar.className='wp-toolbar';
+  toolbar.className='wp-toolbar merged-urgent';
   toolbar.id='wpToolbar';
-  toolbar.innerHTML='<span style="color:#3B7DB4;font-weight:600;font-size:12px">📋 合并视图 — 只读模式</span>'+
+  // ★ V0.6.1dl: 工具栏文字统一 13px；导出按钮 margin-left:auto 让其靠右
+  toolbar.innerHTML='<span style="color:#3B7DB4;font-weight:600;font-size:13px">📋 合并视图 — 只读模式</span>'+
     '<button class="wp-btn-export" onclick="exportMergedUrgent()" style="margin-left:auto"><span>📥</span> 导出合并表</button>';
   content.appendChild(toolbar);
 

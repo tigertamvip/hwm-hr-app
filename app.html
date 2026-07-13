@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.6.1dk">
+<meta name="version" content="V0.6.1dl">
 <!-- cache-bust: 2026-07-12-18-25 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json?v=bc">
@@ -2077,6 +2077,11 @@ body{
 .wp-content{flex:1;height:100%;overflow:hidden;padding:0;min-width:0;background:#FBF8F3;display:flex;flex-direction:column}
 /* V0.5.152: 独立滚动容器 — 让 left/top sticky 双向生效 */
 .wp-scroll-area{flex:1;overflow:auto;padding:0 24px 16px;display:block;min-width:0;background:#FBF8F3}
+/* ★ V0.6.1dl: 下属重急事项合并视图 — 标题/工具栏左让侧栏2字距离 */
+.wp-info-bar.merged-urgent{padding-left:24px}
+.wp-toolbar.merged-urgent{padding-left:24px}
+/* ★ V0.6.1dl: 合并视图导出按钮 — 垂直对齐 Save & Back 按钮中心线 */
+.wp-toolbar.merged-urgent .wp-btn-export{align-self:center;margin-top:-6px}
 .wp-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--text-hint);padding:16px 24px}
 .wp-empty-icon{font-size:48px;margin-bottom:16px;opacity:.5}
 .wp-empty-title{font-size:18px;font-weight:500;margin-bottom:8px;color:var(--text-secondary)}
@@ -6452,7 +6457,7 @@ if('serviceWorker' in navigator){
 <script src="js/modules/policies.js"></script>
 <script>
 </script>
-<script src="js/modules/mbo.js?v=30"></script>
+<script src="js/modules/mbo.js?v=31"></script>
 <script src="js/modules/pm.js?v=4"></script>
 <script src="js/modules/system.js"></script>
 <script>
