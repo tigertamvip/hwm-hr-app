@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.6.1dy">
+<meta name="version" content="V0.6.1dz">
 <!-- cache-bust: 2026-07-13-18-40 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json?v=bc">
@@ -4971,30 +4971,30 @@ function handleFile(e){
     try{
       const data=new Uint8Array(ev.target.result);
       const wb=XLSX.read(data,{type:'array'});
-      const ws=wb.Sheets[wb.SheetNames[0]];
-      // ★ V0.5.78k: 双重导入策略 — 先尝试标准方法，失败则扫描表头行
-      var rows=XLSX.utils.sheet_to_json(ws,{defval:''});
-      var firstObj=rows[0]||{};
-      if(!(firstObj['姓名']||firstObj['name']||firstObj['工号']||firstObj['empId'])){
-        // 标准方法失败（表头不在第1行），扫描原始数据查找表头
-        var raw=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
+      // ★ V0.6.1dz: 智能选择 sheet — 扫描所有 sheet，自动选数据最多的那张
+      var bestRows=[], bestCount=0, bestHIdx=-1, bestHdr=null, bestName='';
+      for(var si=0;si<wb.SheetNames.length;si++){
+        var raw=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[si]],{header:1,defval:''});
         var hIdx=-1;
-        for(var i=0;i<Math.min(raw.length,15);i++){
+        for(var i=0;i<Math.min(raw.length,10);i++){
           var rr=raw[i]||[];
           for(var j=0;j<rr.length;j++){
-            var cell=rr[j];if(cell===null||cell===undefined)continue;
-            if(String(cell).trim()==='姓名'||String(cell).trim()==='工号'){hIdx=i;break;}
+            var cstr=String(rr[j]||'').trim().toLowerCase();
+            if(cstr.indexOf('姓名')>=0||cstr.indexOf('工号')>=0||cstr==='name'||cstr==='empid'){hIdx=i;break;}
           }
           if(hIdx>=0)break;
         }
-        if(hIdx<0){showToast('未找到表头行（需包含"姓名"或"工号"列），请检查文件格式');return;}
-        var hdr=raw[hIdx];
-        rows=[];
-        for(var r=hIdx+1;r<raw.length;r++){
-          var obj={};
-          for(var c=0;c<hdr.length;c++){if(hdr[c]!=null&&hdr[c]!=='')obj[String(hdr[c]).trim()]=raw[r][c];}
-          rows.push(obj);
-        }
+        if(hIdx<0)continue;
+        var hdr=raw[hIdx],dc=0;
+        for(var r=hIdx+1;r<raw.length;r++){for(var c=0;c<(raw[r]||[]).length;c++){if(raw[r][c]&&String(raw[r][c]).trim()){dc++;break;}}}
+        if(dc>bestCount){bestCount=dc;bestHIdx=hIdx;bestHdr=hdr;bestRows=raw;bestName=wb.SheetNames[si];}
+      }
+      if(!bestHdr){showToast('未找到包含"姓名"或"工号"列的工作表，请检查文件格式');return;}
+      var rows=[];
+      for(var r=bestHIdx+1;r<bestRows.length;r++){
+        var obj={},rr=bestRows[r]||[];
+        for(var c=0;c<bestHdr.length;c++){if(bestHdr[c]!=null&&String(bestHdr[c]).trim()!=='')obj[String(bestHdr[c]).trim()]=rr[c];}
+        rows.push(obj);
       }
       if(rows.length===0){showToast('Excel 中没有数据行');return;}
       var newRecords=[];
