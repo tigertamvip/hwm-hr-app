@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.6.1cj">
+<meta name="version" content="V0.6.1ck">
 <!-- cache-bust: 2026-07-12-18-25 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json?v=bc">
@@ -2329,7 +2329,7 @@ table.collab-table tbody tr:hover{background:#fffdf5}
 .wp-eval-cancel:hover{background:#E8F4FE}
 
 /* 下属选择下拉 — 毛玻璃风格 */
-.wp-sub-select{display:flex;align-items:center;gap:16px;font-size:12px;color:#2A476A}
+.wp-sub-select{display:flex;align-items:center;margin-left:20px;gap:16px;font-size:12px;color:#2A476A}
 .wp-sub-select>.wp-custom-select{flex:0 1 auto;min-width:160px;max-width:200px}
 .wp-sub-select>.wp-btn-visibility{flex:0 0 auto}
 .wp-sub-select>.wp-btn-myplan{flex:0 0 auto}
@@ -2468,7 +2468,7 @@ function togglePortalTips(){
   <div class="login-right">
   <div class="password-card">
     <div class="lock-icon">🔐</div>
-    <h2 id="portal-title">登陆MBO+AI目标计划管理系统</h2>
+    <h2 id="portal-title">MBO+AI团队目标计划管理系统</h2>
     <div class="sub" id="loginSub">请输入用户名和密码</div>
     <input type="text" id="loginUser" placeholder="用户名" autocomplete="off" style="margin-bottom:10px;letter-spacing:1px;-webkit-text-security:none;text-security:none" onkeydown="if(event.key==='Enter')document.getElementById('pwdInput').focus()">
     <input type="password" id="pwdInput" placeholder="密码" autocomplete="off" onkeydown="if(event.key==='Enter')verifyLogin()">
@@ -3221,7 +3221,7 @@ console.log('HWM HR v20260712-drawer-v6 loaded');
 (function setBrandTexts(){
   var c=window.APP_CONFIG.company;
   var t=document.getElementById('portal-title');
-  if(t && !t.textContent)t.textContent='登陆MBO+AI目标计划管理系统';
+  if(t && !t.textContent)t.textContent='MBO+AI团队目标计划管理系统';
   var f=document.getElementById('footer-copy');
   if(f)f.textContent='© '+c.copyright+' 版权所有';
 })();
@@ -6434,7 +6434,7 @@ if('serviceWorker' in navigator){
 <script src="js/modules/policies.js"></script>
 <script>
 </script>
-<script src="js/modules/mbo.js?v=13"></script>
+<script src="js/modules/mbo.js?v=14"></script>
 <script src="js/modules/pm.js?v=4"></script>
 <script src="js/modules/system.js"></script>
 <script>
