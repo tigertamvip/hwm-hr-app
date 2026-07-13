@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.6.1db">
+<meta name="version" content="V0.6.1dc">
 <!-- cache-bust: 2026-07-12-18-25 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json?v=bc">
@@ -871,7 +871,9 @@ body{
 .login-left .value-item .en{font-size:15px;opacity:.6;margin-left:4px}
 .login-right{flex:0 0 auto;margin-right:95px}
 .password-card{
-  background:#fff;
+  background:rgba(255,255,255,.8);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
   border-radius:20px;
   padding:40px 28px 32px;
   width:360px;
@@ -1304,16 +1306,16 @@ body{
 .portal-card.disabled .portal-card-badge{background:rgba(0,0,0,.08);color:#6b7280;border-color:rgba(0,0,0,.06)}
 .portal-card.disabled:hover{opacity:.8}
 
-/* ★ V0.6.1k: 未授权模块 — 高透明显示，保持界面完整 */
+/* ★ V0.6.1k: 未授权模块 — 看得见但低饱和（提高可见性） */
 .portal-card.unauthorized{
-  opacity:.3;
+  opacity:.55;
   cursor:default;
-  filter:grayscale(.6);
+  filter:grayscale(.35);
   transition:opacity .3s ease,filter .3s ease;
 }
 .portal-card.unauthorized:hover{
-  opacity:.5;
-  filter:grayscale(.4);
+  opacity:.75;
+  filter:grayscale(.15);
 }
 .portal-card.unauthorized .portal-card-label,
 .portal-card.unauthorized .portal-card-en{
