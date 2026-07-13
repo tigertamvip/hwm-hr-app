@@ -3473,7 +3473,7 @@ function _renderEisenhowerMatrix(year){
   var toggleIcon=_matrixExpanded?'▲':'▼';
   var toggleText=_matrixExpanded?'收起':'展开';
   var contentStyle=_matrixExpanded?'transition:max-height 0.6s cubic-bezier(.25,.1,.25,1),opacity 0.6s cubic-bezier(.25,.1,.25,1);overflow:hidden':'transition:max-height 0.6s cubic-bezier(.25,.1,.25,1),opacity 0.6s cubic-bezier(.25,.1,.25,1);overflow:hidden;max-height:0;opacity:0';
-  html+='<div class="wp-card-title">🎯 艾森豪威尔矩阵<button type="button" onclick="toggleEisenhowerMatrix()" id="matrixToggleBtn" style="margin-left:auto;padding:2px;border:none;border-radius:6px;background:transparent;color:#6b7280;font-size:13px;font-weight:400;cursor:pointer;display:inline-flex;align-items:center;gap:3px;transition:all .25s ease;white-space:nowrap"><span id="matrixToggleIcon" style="color:#9ca3af">'+toggleIcon+'</span><span id="matrixToggleText">'+toggleText+'</span></button></div>';
+  html+='<div class="wp-card-title">🎯 艾森豪威尔矩阵<button type="button" onclick="toggleEisenhowerMatrix()" id="matrixToggleBtn" style="margin-left:auto;padding:2px;border:none;border-radius:6px;background:transparent;color:#F2F2F2;font-size:13px;font-weight:400;cursor:pointer;display:inline-flex;align-items:center;gap:3px;transition:all .25s ease;white-space:nowrap"><span id="matrixToggleIcon" style="color:#F2F2F2">'+toggleIcon+'</span><span id="matrixToggleText">'+toggleText+'</span></button></div>';
   html+='<div id="matrixContent" style="'+contentStyle+'">';
   if(tasks.length===0){
     html+='<div style="text-align:center;color:#9ca3af;font-size:11px;padding:40px 0">暂无年度计划数据</div>';

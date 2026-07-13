@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.6.1dr">
+<meta name="version" content="V0.6.1ds">
 <!-- cache-bust: 2026-07-12-18-25 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json?v=bc">
@@ -2397,7 +2397,7 @@ table.collab-table tbody tr:hover{background:#fffdf5}
 .sys-main-content{padding:24px;max-width:1400px;margin:0 auto}
 .sys-toolbar{display:flex;align-items:center;margin-bottom:20px}
 .sys-table-wrap{overflow-x:auto;overflow-y:auto;max-height:calc(100vh - 200px);background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow)} /* V0.1.77: 表头sticky需容器有滚动上下文 */
-.sys-user-table{width:100%;border-collapse:collapse;font-size:13px;min-width:1100px}
+.sys-user-table{width:100%;border-collapse:collapse;font-size:13px;min-width:1250px}
 .sys-user-table thead{position:sticky;top:0;z-index:1}
 .sys-user-table th{background:#3B7DB4;color:#fff;font-weight:600;font-size:12px;padding:12px 8px;text-align:center;white-space:nowrap;border-right:1px solid rgba(255,255,255,.15)}
 .sys-user-table th:last-child{border-right:none}
@@ -2927,11 +2927,11 @@ function togglePortalTips(){
         <div class="wp-custom-select" id="wpSubCustom">
           <div class="wp-custom-trigger" id="wpSubTrigger" onclick="toggleWPSubDropdown()">
             <span id="wpSubTriggerText">审阅团队周行动项</span>
-            <span style="font-size:10px;margin-left:4px;color:rgba(156,163,175,.9)">▼</span>
+            <span style="font-size:10px;margin-left:4px;color:#F2F2F2">▼</span>
           </div>
           <div class="wp-custom-dropdown" id="wpSubDropdown" style="display:none"></div>
         </div>
-        <button class="wp-btn-visibility" onclick="openWPVisibility()" title="管理周行动项可见性">分享我的周行动项 <span style="font-size:10px;color:rgba(156,163,175,.9)">▼</span></button>
+        <button class="wp-btn-visibility" onclick="openWPVisibility()" title="管理周行动项可见性">分享我的周行动项 <span style="font-size:10px;color:#F2F2F2">▼</span></button>
         <button class="wp-btn-myplan" id="wpBtnMyPlan" onclick="switchToMyWP()" title="返回我的周行动项">返回我的周行动项</button>
       </div>
     </div>
@@ -2976,7 +2976,7 @@ function togglePortalTips(){
       </select>
       <div class="wp-month-trigger" id="wpYearTrigger" onclick="toggleYearDropdown()">
         <span id="wpYearLabel">2026年</span>
-        <span style="font-size:10px;color:rgba(156,163,175,.9)">▼</span>
+        <span style="font-size:10px;color:#F2F2F2">▼</span>
       </div>
       <div class="wp-sidebar-label">月份</div>
       <select id="wpMonth" onchange="onWPMonthChange()" class="hidden-select">
@@ -2987,7 +2987,7 @@ function togglePortalTips(){
       </select>
       <div class="wp-month-trigger" id="wpMonthTrigger" onclick="toggleMonthDropdown()">
         <span id="wpMonthLabel">7月</span>
-        <span style="font-size:10px;color:rgba(156,163,175,.9)">▼</span>
+        <span style="font-size:10px;color:#F2F2F2">▼</span>
       </div>
       <div class="wp-sidebar-label">周次</div>
       <div class="wp-sidebar-plan-list" id="wpPlanList">
@@ -3098,8 +3098,9 @@ function togglePortalTips(){
             <th class="sys-col-uid">用户名</th>
             <th class="sys-col-pwd">密码</th>
             <th class="sys-col-module">人才团队</th>
-            <th class="sys-col-module">周计划</th>
+            <th class="sys-col-module">当周行动</th>
             <th class="sys-col-module">年度目标</th>
+            <th class="sys-col-module">项目协同</th>
             <th class="sys-col-module">项目管理</th>
             <th class="sys-col-module">岗位胜任力</th>
             <th class="sys-col-module">决策工具</th>
@@ -3108,7 +3109,7 @@ function togglePortalTips(){
             <th class="sys-col-module">系统维护</th>
             <th class="sys-col-module" style="color:rgba(255,255,255,.6)">三年规划</th>
             <th class="sys-col-module" style="color:rgba(255,255,255,.6)">数据中心</th>
-            <th class="sys-col-module" style="color:rgba(255,255,255,.6)">月计划</th>
+            <th class="sys-col-module" style="color:rgba(255,255,255,.6)">本月计划</th>
             <th class="sys-col-action" style="width:70px">编辑</th>
             <th class="sys-col-action">下属</th>
           </tr>
@@ -3312,7 +3313,7 @@ var AUTH_UID_KEY='hr_auth_uid';
 // 用户数据库：用户名 → {pwd: SHA256哈希, name: 显示名, role: 角色, centerKeyword: 中心关键词}
 // 模块权限定义
 var HWM_MODULES=['hr','mbo','kpi','talent','pm','learning','payroll','ideas','policies','maintenance','decision','dashboard','rd'];
-var HWM_MODULE_LABELS={hr:'人才团队',mbo:'当周行动',kpi:'年度目标',pm:'项目管理',talent:'项目管理',learning:'岗位胜任力',payroll:'决策工具',ideas:'敬业度',policies:'体系流程',maintenance:'系统维护',decision:'三年规划',dashboard:'数据中心',rd:'本月计划'};
+var HWM_MODULE_LABELS={hr:'人才团队',mbo:'当周行动',kpi:'年度目标',pm:'项目协同',talent:'项目管理',learning:'岗位胜任力',payroll:'决策工具',ideas:'敬业度',policies:'体系流程',maintenance:'系统维护',decision:'三年规划',dashboard:'数据中心',rd:'本月计划'};
 
 // 默认权限：admin 全开，其余按角色
 function _defaultPerms(role){
@@ -6471,7 +6472,7 @@ if('serviceWorker' in navigator){
 <script src="js/modules/policies.js"></script>
 <script>
 </script>
-<script src="js/modules/mbo.js?v=37"></script>
+<script src="js/modules/mbo.js?v=38"></script>
 <script src="js/modules/pm.js?v=4"></script>
 <script src="js/modules/system.js"></script>
 <script>
