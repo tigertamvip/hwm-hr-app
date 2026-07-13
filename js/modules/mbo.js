@@ -2352,7 +2352,7 @@ async function deleteTaskRow(idx){
 
 // ★ V0.6.1dv: 清空单行所有字段（保留行结构）
 // 用于 total=1 时，无法删除整行时清空内容重新填写
-function clearTaskRow(idx){
+async function clearTaskRow(idx){
   var p=_wpCurrent.plan;if(!p)return;
   var tasks=p.tasks;
   if(idx<0||idx>=tasks.length)return;
@@ -2365,7 +2365,9 @@ function clearTaskRow(idx){
     (t.supporters&&t.supporters.length>0)||t.aiSuggestion||t.bossFeedback;
   if(!hasContent){showToast('该行已经是空行，无需清空');return;}
   var taskLabel=(t.work||'第'+(idx+1)+'项').substring(0,20);
-  if(!confirm('确定要清空「'+taskLabel+'」的所有内容吗？\n\n行结构和序号将保留。'))return;
+  // ★ V0.6.1dx: 改用项目统一的 _showConfirm 弹窗，与 deleteTaskRow 风格一致
+  var ok=await _showConfirm('确定要清空「'+taskLabel+'」的所有内容吗？\n\n行结构和序号将保留。','清空该行 / Clear Row');
+  if(!ok)return;
   // 保留 seq/年份月份周/协同来源，清空其他所有字段
   var keepSeq=t.seq;
   var keepCollab=t.collab_from;
