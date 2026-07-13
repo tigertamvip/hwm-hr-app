@@ -518,86 +518,102 @@ function sysCloseModal(){
   _sysEditingUid=null;
 }
 
-// ★ V0.6.1ea: 从团队人才批量导入用户
-function sysOpenImportFromRoster(){
+// ★ V0.6.1ed: 智能同步 — 自动过滤工人/检验员，新增+离职清理一键确认
+function sysSmartSync(){
   var emps=(typeof allEmployees!=='undefined'&&allEmployees)?allEmployees:[];
-  if(emps.length===0){_showAlert('暂无团队人才数据，请先到"人才团队"导入花名册');return;}
-  var available=[];
-  for(var i=0;i<emps.length;i++){var e=emps[i];if(!e||!e.name)continue;if(USERS[e.name])continue;available.push(e);}
-  if(available.length===0){_showAlert('团队人才中所有员工都已是授权用户');return;}
-  var html='<div class="_confirm-card" style="max-width:620px">';
-  html+='<div class="_confirm-title" style="padding:18px 24px 12px">📥 从团队人才导入授权用户</div>';
-  html+='<div class="_confirm-body" style="padding:0 24px 12px">';
-  html+='<div style="font-size:12px;color:#6b7280;margin-bottom:10px">共 '+available.length+' 位员工可导入，初始密码统一为 1234，员工可自行修改</div>';
-  html+='<div style="display:flex;gap:10px;align-items:center;margin-bottom:10px;flex-wrap:wrap">';
-  html+='<label style="cursor:pointer;white-space:nowrap"><input type="checkbox" id="sysImportSelectAll" onchange="var ov=document.getElementById(\'_sysImportOverlay\');if(!ov)return;var vis=ov.querySelectorAll(\'.sys-import-row\'),cs;for(var i=0;i<vis.length;i++){if(vis[i].style.display!==\'none\'){cs=vis[i].querySelector(\'.sys-import-chk\');if(cs)cs.checked=this.checked;}}" checked> <strong>全选/取消全选</strong></label>';
-  html+='<span style="color:#d1d5db">|</span>';
-  // ★ V0.6.1ec: 固定预设 — 中心 + 部门
-  var _presetCenters=['总经办','营销中心','研发中心','制造中心','财务部','人力资源部','质量管理','供应链及物流中心'];
-  var _presetDepts=['总经办','人事行政部','人力资源部','仓管部','医学市场部','商务部','国内销售','工程技术部'];
-  html+='<select id="sysImportFilterCenter" onchange="sysFilterImportList()" style="padding:4px 8px;border:1px solid #d1d5db;border-radius:4px;font-size:12px;background:#fff;cursor:pointer"><option value="">🛡 中心（全部）</option>';
-  _presetCenters.forEach(function(c){html+='<option value="'+esc(c)+'">'+esc(c)+'</option>';});
-  html+='</select>';
-  html+='<select id="sysImportFilterDept" onchange="sysFilterImportList()" style="padding:4px 8px;border:1px solid #d1d5db;border-radius:4px;font-size:12px;background:#fff;cursor:pointer"><option value="">🏢 部门（全部）</option>';
-  _presetDepts.forEach(function(d){html+='<option value="'+esc(d)+'">'+esc(d)+'</option>';});
-  html+='</select>';
+  if(emps.length===0){_showAlert('暂无团队人才数据，请先到"人才团队"导入花名册','提示');return;}
+  var skips=(typeof SKIP_POSITIONS!=='undefined'&&SKIP_POSITIONS)?SKIP_POSITIONS:[];
+  var toAdd=[];
+  var toRemove=[];
+  var skipped=[];
+  var activeNames={};
+  for(var i=0;i<emps.length;i++){
+    var e=emps[i];if(!e||!e.name)continue;
+    var pos=(e.position||'').trim();
+    var isSkipped=false;
+    for(var s=0;s<skips.length;s++){if(pos.indexOf(skips[s])>=0||pos===skips[s]){isSkipped=true;break;}}
+    if(isSkipped){skipped.push(e);continue;}
+    activeNames[e.name]=true;
+    if(!USERS[e.name])toAdd.push(e);
+  }
+  var userNames=Object.keys(USERS);
+  for(var u=0;u<userNames.length;u++){
+    var uname=userNames[u];
+    if(!activeNames[uname])toRemove.push(uname);
+  }
+  if(toAdd.length===0&&toRemove.length===0){
+    _showAlert('系统维护与人才团队已完全同步，无需操作','✅ 智能同步');
+    return;
+  }
+  // 构建弹窗
+  var html='<div class="_confirm-card" style="max-width:560px">';
+  html+='<div class="_confirm-title" style="padding:18px 24px 12px">🔄 智能同步</div>';
+  html+='<div class="_confirm-body" style="padding:0 24px 12px;line-height:1.6">';
+  html+='<div style="font-size:12px;color:#6b7280;margin-bottom:12px">人才团队 '+emps.length+' 人 → 系统维护 '+userNames.length+' 人</div>';
+  if(toAdd.length>0){
+    html+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px"><span style="color:#10b981;font-size:16px">➕</span><strong style="color:#10b981">新增 '+toAdd.length+' 人</strong><span style="color:#9ca3af;font-size:11px">（初始密码 1234）</span></div>';
+    html+='<div style="background:#f0fdf4;border-radius:6px;padding:6px 10px;margin-bottom:10px;max-height:120px;overflow-y:auto">';
+    for(var a=0;a<toAdd.length;a++){
+      var ae=toAdd[a];
+      html+='<div style="font-size:12px;padding:2px 0"><strong>'+esc(ae.name)+'</strong>';
+      if(ae.dept)html+=' <span style="color:#6b7280">'+esc(ae.dept)+'</span>';
+      if(ae.position)html+=' <span style="color:#9ca3af">· '+esc(ae.position)+'</span>';
+      html+='</div>';
+    }
+    html+='</div>';
+  }
+  if(toRemove.length>0){
+    html+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px"><span style="color:#D64352;font-size:16px">🗑</span><strong style="color:#D64352">离职清理 '+toRemove.length+' 人</strong><span style="color:#9ca3af;font-size:11px">（人才团队已不在职）</span></div>';
+    html+='<div style="background:#fef2f2;border-radius:6px;padding:6px 10px;margin-bottom:10px;font-size:12px">';
+    for(var r=0;r<toRemove.length;r++){html+=esc(toRemove[r])+(r<toRemove.length-1?'、':'');}
+    html+='</div>';
+  }
+  if(skipped.length>0){
+    html+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px"><span style="color:#9ca3af;font-size:14px">⏭</span><strong style="color:#9ca3af">已过滤 '+skipped.length+' 人</strong><span style="color:#9ca3af;font-size:11px">（工人/检验员/已存在）</span></div>';
+    if(skipped.length<=6){
+      html+='<div style="font-size:11px;color:#9ca3af;margin-bottom:6px">';
+      for(var k=0;k<skipped.length;k++){html+=esc(skipped[k].name)+(k<skipped.length-1?'、':'');}
+      html+='</div>';
+    }
+  }
   html+='</div>';
-  html+='<div id="sysImportList" style="max-height:360px;overflow-y:auto;border:1px solid #e5e7eb;border-radius:6px;padding:8px;background:#fafafa">';
-  for(var j=0;j<available.length;j++){var emp=available[j];
-  var _center='';if(emp.dept){var _m=String(emp.dept).match(/^([^/]+)/);if(_m)_center=_m[1];}
-  html+='<label class="sys-import-row" data-center="'+esc(_center)+'" data-dept="'+esc(emp.dept||'')+'" style="display:flex;align-items:center;gap:6px;padding:6px 8px;cursor:pointer;border-radius:4px;margin-bottom:2px;background:#fff">';
-  html+='<input type="checkbox" class="sys-import-chk" value="'+esc(emp.name)+'" data-pos="'+esc(emp.position||'')+'" data-dept="'+esc(emp.dept||'')+'" checked>';
-  html+='<span style="flex:1"><strong>'+esc(emp.name)+'</strong>';
-  if(emp.position)html+=' <span style="color:#6b7280;font-size:12px">· '+esc(emp.position)+'</span>';
-  if(emp.dept)html+=' <span style="color:#9ca3af;font-size:11px">'+esc(emp.dept)+'</span>';
-  html+='</span></label>';}
-  html+='</div></div>';
   html+='<div class="_confirm-actions" style="padding:0 24px 18px">';
-  html+='<button class="_confirm-btn-cancel" onclick="document.getElementById(\'_sysImportOverlay\').remove()">取消</button>';
-  html+='<button class="_confirm-btn-ok" onclick="sysDoImportFromRoster()">确认导入</button>';
+  html+='<button class="_confirm-btn-cancel" onclick="document.getElementById(\'_sysSyncOverlay\').remove()">取消</button>';
+  html+='<button class="_confirm-btn-ok" onclick="sysDoSmartSync()">确认同步</button>';
   html+='</div></div>';
   var overlay=document.createElement('div');
-  overlay.id='_sysImportOverlay';
-  overlay.className='modal-overlay';
-  overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:center;justify-content:center';
+  overlay.id='_sysSyncOverlay';
+  overlay.className='_confirm-overlay';
   overlay.innerHTML=html;
+  overlay._toAdd=toAdd;
+  overlay._toRemove=toRemove;
   overlay.addEventListener('click',function(e){if(e.target===overlay)overlay.remove();});
   document.body.appendChild(overlay);
 }
 
-async function sysDoImportFromRoster(){
-  var overlay=document.getElementById('_sysImportOverlay');
+async function sysDoSmartSync(){
+  var overlay=document.getElementById('_sysSyncOverlay');
   if(!overlay)return;
-  var checked=overlay.querySelectorAll('.sys-import-chk:checked');
-  if(checked.length===0){_showAlert('请至少选择一位员工');return;}
-  var added=0,skipped=0;
-  for(var i=0;i<checked.length;i++){
-    var chk=checked[i],name=chk.value,pos=chk.dataset.pos||'',dept=chk.dataset.dept||'';
-    if(USERS[name]){skipped++;continue;}
-    USERS[name]={pwd:'1234',name:name,role:'staff',dept:dept,position:pos,centerKeyword:'',permissions:{hr:false,mbo:false,kpi:false,talent:false,pm:false,learning:false,payroll:false,ideas:false,policies:false,maintenance:false,decision:false,dashboard:false,rd:false},subordinates:{},reports:{boss:'',supervisor:'',subordinates:[]}};
+  var toAdd=overlay._toAdd||[];
+  var toRemove=overlay._toRemove||[];
+  var added=0;
+  for(var i=0;i<toAdd.length;i++){
+    var ae=toAdd[i];
+    if(USERS[ae.name])continue;
+    USERS[ae.name]={pwd:'1234',name:ae.name,role:'staff',dept:ae.dept||'',position:ae.position||'',centerKeyword:'',permissions:{hr:false,mbo:false,kpi:false,talent:false,pm:false,learning:false,payroll:false,ideas:false,policies:false,maintenance:false,decision:false,dashboard:false,rd:false},subordinates:{},reports:{boss:'',supervisor:'',subordinates:[]}};
     added++;
   }
-  if(added>0){saveUserSettings();syncAllToCloud();sysRenderUserTable();_showAlert('✅ 成功导入 '+added+' 个用户（初始密码 1234）'+(skipped>0?'，跳过 '+skipped+' 个已存在':''));}
-  else{_showAlert('没有可导入的用户（已全部存在）');}
+  var removed=0;
+  for(var j=0;j<toRemove.length;j++){
+    if(USERS[toRemove[j]]){delete USERS[toRemove[j]];removed++;}
+  }
+  if(added>0||removed>0){
+    saveUserSettings();syncAllToCloud();sysRenderUserTable();
+    var msg='';
+    if(added>0)msg+='✅ 新增 '+added+' 个用户';
+    if(removed>0)msg+=(msg?'，':'')+'🗑 清理 '+removed+' 个离职用户';
+    _showAlert(msg,'智能同步完成');
+  }
   overlay.remove();
 }
 
-// ★ V0.6.1ec: 筛选导入列表（中心 + 部门，固定预设）
-function sysFilterImportList(){
-  var overlay=document.getElementById('_sysImportOverlay');if(!overlay)return;
-  var c=overlay.querySelector('#sysImportFilterCenter').value;
-  var d=overlay.querySelector('#sysImportFilterDept').value;
-  var rows=overlay.querySelectorAll('.sys-import-row');
-  for(var i=0;i<rows.length;i++){
-    var r=rows[i];
-    var ok=(!c||r.dataset.center===c)&&(!d||r.dataset.dept===d);
-    r.style.display=ok?'flex':'none';
-  }
-  var all=overlay.querySelector('#sysImportSelectAll');
-  if(all){
-    var visibleChks=overlay.querySelectorAll('.sys-import-row[style*="display: flex"] .sys-import-chk');
-    var checkedCount=0;for(var j=0;j<visibleChks.length;j++)if(visibleChks[j].checked)checkedCount++;
-    all.checked=visibleChks.length>0&&checkedCount===visibleChks.length;
-    all.indeterminate=checkedCount>0&&checkedCount<visibleChks.length;
-  }
-}

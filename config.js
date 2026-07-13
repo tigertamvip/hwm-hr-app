@@ -54,6 +54,9 @@ window.APP_CONFIG = {
 var SUPABASE_URL = 'https://xgysfujnhwgevmojzkbf.supabase.co';
 var SUPABASE_ANON_KEY = 'sb_publishable_dPt0sB5D8ZQ6ZdHt6wuvyA_MkjOeknx';
 
+// ★ V0.6.1ed: 智能同步 — 跳过无需系统账号的职位（工人/检验员等）
+var SKIP_POSITIONS = ['工人','检验员','生产工人','质检员','操作工','普工','包装工','装配工'];
+
 // Supabase 数据表名（一般不需要改，除非客户有用到多项目共享表的需求）
 var SUPABASE_TABLE = 'hwm_employees';
 var SUPABASE_WP_TABLE = 'hwm_workplans';
