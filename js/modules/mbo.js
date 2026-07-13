@@ -978,8 +978,8 @@ async function _renderMergedUrgentView(){
     for(var ti=0;ti<plan.tasks.length;ti++){
       var t=plan.tasks[ti];
       if(!t.work||!t.work.trim())continue;
-      var pri=(t.pri||'').replace('pri-','');
-      if(pri!=='urgent')continue;
+      // ★ pri 存储的是中文值如 '重要紧急' 或 CSS类如 'pri-urgent'
+      if(t.pri!=='重要紧急'&&t.pri!=='pri-urgent')continue;
       var clone=JSON.parse(JSON.stringify(t));
       clone._empName=sname;clone._empId=sname;
       clone._isOverdue=false;clone._daysOverdue=0;
