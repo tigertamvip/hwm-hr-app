@@ -276,7 +276,7 @@ function sysBuildPermGrid(perms){
   if(!grid)return;
   var html='';
   for(var i=0;i<HWM_MODULES.length;i++){
-    var mod=HWM_MODULES[i],on=perms[mod]!==false;
+    var mod=HWM_MODULES[i],on=perms[mod]===true; // ★ V0.6.1fm: 显式 true 才算开启（修复未定义字段也变 ✓ 的 BUG）
     html+='<div class="sys-perm-item '+(on?'on':'off')+'" onclick="sysFlipPermItem(this,\''+mod+'\')" data-mod="'+mod+'">';
     html+='<span class="sys-perm-icon">'+(on?'✓':'✕')+'</span>';
     html+='<span class="sys-perm-label">'+HWM_MODULE_LABELS[mod]+'</span>';
