@@ -526,8 +526,10 @@ function sysCloseModal(){
   _sysEditingUid=null;
 }
 
-// ★ V0.6.1ee: 智能同步 — 自动过滤已离职/工人/检验员/试用期，新增+清理一键确认
-function sysSmartSync(){
+// ★ V0.6.1ex: 同步花名册 — 两阶段预览确认，透明安全
+// 阶段1：扫描花名册 → 过滤蓝领/离职 → 对比差异 → 展示预览
+// 阶段2：用户确认后才执行新增/删除
+function sysRosterSync(){
   var emps=(typeof allEmployees!=='undefined'&&allEmployees)?allEmployees:[];
   if(emps.length===0){_showAlert('暂无团队人才数据，请先到"人才团队"导入花名册','提示');return;}
   var skips=(typeof SKIP_POSITIONS!=='undefined'&&SKIP_POSITIONS)?SKIP_POSITIONS:[];
@@ -535,68 +537,67 @@ function sysSmartSync(){
   var activeStatus=(typeof ACTIVE_STATUS!=='undefined'&&ACTIVE_STATUS)?ACTIVE_STATUS:[];
   var toAdd=[];
   var toRemove=[];
-  var skipped=[];   // 工人/检验员等
-  var resigned=[];  // 离职（不导入但也不删）
-  var activeNames={};
+  var skipped=[];   // 工人/检验员（不导入）
+  var rosterNames={}; // 花名册中所有在职白领
+  var userCount=Object.keys(USERS).length;
+
   for(var i=0;i<emps.length;i++){
     var e=emps[i];if(!e||!e.name)continue;
     var pos=(e.position||'').trim();
     var status=(e.status||'').trim();
-    // ★ V0.6.1ee: 状态过滤 — 已离职不导入
+    // 状态过滤：已离职 → 记录到清理列表（如果 USERS 中有同名用户）
     var isResigned=false;
     for(var rs=0;rs<skipStatus.length;rs++){if(status===skipStatus[rs]||status.indexOf(skipStatus[rs])>=0){isResigned=true;break;}}
-    if(isResigned){resigned.push(e);continue;}
-    // ★ V0.6.1ee: 状态必须在白名单（默认"已转正"才导入；如果有 activeStatus 列表则按列表判断）
+    if(isResigned){
+      if(USERS[e.name])toRemove.push(e.name);
+      continue;
+    }
+    // 状态必须是白名单才走后续逻辑
     if(activeStatus.length>0){
       var isActive=false;
       for(var as=0;as<activeStatus.length;as++){if(status===activeStatus[as]){isActive=true;break;}}
       if(!isActive){skipped.push(e);continue;}
     }
-    // ★ 职位过滤 — 工人/检验员等不导入
+    // 职位过滤 — 工人/检验员等不导入
     var isSkipped=false;
     for(var s=0;s<skips.length;s++){if(pos.indexOf(skips[s])>=0){isSkipped=true;break;}}
     if(isSkipped){skipped.push(e);continue;}
-    activeNames[e.name]=true;
+    // 在职白领：记录名字
+    rosterNames[e.name]=true;
     if(!USERS[e.name])toAdd.push(e);
   }
-  // ★ V0.6.1ee: 离职清理 = 人才团队中已不在职的员工（resigned）
-  for(var ri=0;ri<resigned.length;ri++){
-    if(USERS[resigned[ri].name])toRemove.push(resigned[ri].name);
+
+  // ★ 关键安全设计：只清理"花名册中标记为离职"的用户，不碰其他任何 USERS
+  // 管理员手动添加的用户、不在花名册中的用户，统统保留
+
+  if(toAdd.length===0&&toRemove.length===0){
+    _showAlert('系统用户已与花名册在职白领完全一致，无需操作','✅ 同步花名册');
+    return;
   }
-  var userNames=Object.keys(USERS);
-  for(var u=0;u<userNames.length;u++){
-    var uname=userNames[u];
-    if(!activeNames[uname]&&!resigned.find(function(r){return r.name===uname;})&&toRemove.indexOf(uname)<0)toRemove.push(uname);
-  }
-  // ★ V0.6.1ee: 安全阈值 — 清理超过 50% 现有用户时强制确认（防止误删）
-  if(toRemove.length>userNames.length*0.5&&userNames.length>10){
-    var confirm_msg='⚠️ 系统维护中现有 '+userNames.length+' 个用户，本次将清理 '+toRemove.length+' 个\n\n';
-    if(userNames.length>200)confirm_msg+='这通常是因为之前的同步错误导入了大量数据。\n\n';
-    confirm_msg+='是否继续？';
-    _showConfirm(confirm_msg,'大批量清理确认').then(function(ok){
+
+  // ★ 安全阈值：新增过多时强制确认
+  if(toAdd.length>30){
+    _showConfirm('⚠️ 本次将新增 '+toAdd.length+' 个用户（超过30人安全阈值）\n\n花名册在职白领 '+(Object.keys(rosterNames).length)+' 人，现有用户 '+userCount+' 人\n\n是否继续？','新增安全确认').then(function(ok){
       if(!ok)return;
-      // 继续弹窗
-      showSmartSyncDialog(toAdd,toRemove,resigned,skipped,emps.length,userNames.length);
+      showRosterSyncDialog(toAdd,toRemove,skipped,emps.length,userCount);
     });
     return;
   }
-  if(toAdd.length===0&&toRemove.length===0){
-    _showAlert('系统维护与人才团队已完全同步，无需操作','✅ 智能同步');
-    return;
-  }
-  showSmartSyncDialog(toAdd,toRemove,resigned,skipped,emps.length,userNames.length);
+
+  showRosterSyncDialog(toAdd,toRemove,skipped,emps.length,userCount);
 }
 
-// ★ V0.6.1ee: 弹窗渲染函数（提取出来供安全确认后调用）
-function showSmartSyncDialog(toAdd,toRemove,resigned,skipped,empTotal,userTotal){
-  // 构建弹窗
-  var html='<div class="_confirm-card" style="max-width:560px">';
-  html+='<div class="_confirm-title" style="padding:18px 24px 12px">🔄 智能同步</div>';
+function showRosterSyncDialog(toAdd,toRemove,skipped,empTotal,userTotal){
+  var unchanged=userTotal-toRemove.length;
+  var html='<div class="_confirm-card" style="max-width:580px">';
+  html+='<div class="_confirm-title" style="padding:18px 24px 12px">📋 同步花名册</div>';
   html+='<div class="_confirm-body" style="padding:0 24px 12px;line-height:1.6">';
-  html+='<div style="font-size:12px;color:#6b7280;margin-bottom:12px">人才团队 '+empTotal+' 人 → 系统维护 '+userTotal+' 人</div>';
+  html+='<div style="font-size:12px;color:#6b7280;margin-bottom:12px">花名册 '+empTotal+' 人（不含蓝领）→ 现有 '+userTotal+' 个系统用户</div>';
+
+  // 新增
   if(toAdd.length>0){
-    html+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px"><span style="color:#10b981;font-size:16px">➕</span><strong style="color:#10b981">新增 '+toAdd.length+' 人</strong><span style="color:#9ca3af;font-size:11px">（初始密码 1234）</span></div>';
-    html+='<div style="background:#f0fdf4;border-radius:6px;padding:6px 10px;margin-bottom:10px;max-height:120px;overflow-y:auto">';
+    html+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px"><span style="color:#2563EB;font-size:16px">➕</span><strong style="color:#2563EB">新增 '+toAdd.length+' 人</strong><span style="color:#9ca3af;font-size:11px">（默认关闭全部模块权限）</span></div>';
+    html+='<div style="background:#eff6ff;border-radius:6px;padding:6px 10px;margin-bottom:10px;max-height:140px;overflow-y:auto">';
     for(var a=0;a<toAdd.length;a++){
       var ae=toAdd[a];
       html+='<div style="font-size:12px;padding:2px 0"><strong>'+esc(ae.name)+'</strong>';
@@ -606,28 +607,29 @@ function showSmartSyncDialog(toAdd,toRemove,resigned,skipped,empTotal,userTotal)
     }
     html+='</div>';
   }
+
+  // 离职清理
   if(toRemove.length>0){
-    html+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px"><span style="color:#D64352;font-size:16px">🗑</span><strong style="color:#D64352">离职清理 '+toRemove.length+' 人</strong><span style="color:#9ca3af;font-size:11px">（人才团队已不在职）</span></div>';
+    html+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px"><span style="color:#D64352;font-size:16px">🗑</span><strong style="color:#D64352">离职清理 '+toRemove.length+' 人</strong></div>';
     html+='<div style="background:#fef2f2;border-radius:6px;padding:6px 10px;margin-bottom:10px;font-size:12px">';
     for(var r=0;r<toRemove.length;r++){html+=esc(toRemove[r])+(r<toRemove.length-1?'、':'');}
     html+='</div>';
   }
+
+  // 不变
+  html+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px"><span style="color:#6b7280;font-size:14px">✓</span><strong style="color:#6b7280">不变 '+unchanged+' 人</strong></div>';
+
+  // 已过滤
   if(skipped.length>0){
-    html+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px"><span style="color:#9ca3af;font-size:14px">⏭</span><strong style="color:#9ca3af">已过滤 '+skipped.length+' 人</strong><span style="color:#9ca3af;font-size:11px">（工人/检验员/未匹配状态）</span></div>';
-    if(skipped.length<=6){
-      html+='<div style="font-size:11px;color:#9ca3af;margin-bottom:6px">';
-      for(var k=0;k<skipped.length;k++){html+=esc(skipped[k].name)+(k<skipped.length-1?'、':'');}
-      html+='</div>';
-    }
+    html+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;margin-top:8px"><span style="color:#9ca3af;font-size:14px">⏭</span><strong style="color:#9ca3af">已过滤 '+skipped.length+' 人</strong><span style="color:#9ca3af;font-size:11px">（工人/检验员/非在职状态）</span></div>';
   }
-  if(resigned.length>0){
-    html+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px"><span style="color:#D97706;font-size:14px">🚪</span><strong style="color:#D97706">已离职 '+resigned.length+' 人</strong><span style="color:#9ca3af;font-size:11px">（不导入，可手动清理系统维护中的同名账号）</span></div>';
-  }
+
   html+='</div>';
   html+='<div class="_confirm-actions" style="padding:0 24px 18px">';
   html+='<button class="_confirm-btn-cancel" onclick="document.getElementById(\'_sysSyncOverlay\').remove()">取消</button>';
-  html+='<button class="_confirm-btn-ok" onclick="sysDoSmartSync()">确认同步</button>';
+  html+='<button class="_confirm-btn-ok" onclick="sysDoRosterSync()">确认同步</button>';
   html+='</div></div>';
+
   var overlay=document.createElement('div');
   overlay.id='_sysSyncOverlay';
   overlay.className='_confirm-overlay';
@@ -638,7 +640,7 @@ function showSmartSyncDialog(toAdd,toRemove,resigned,skipped,empTotal,userTotal)
   document.body.appendChild(overlay);
 }
 
-async function sysDoSmartSync(){
+function sysDoRosterSync(){
   var overlay=document.getElementById('_sysSyncOverlay');
   if(!overlay)return;
   var toAdd=overlay._toAdd||[];
@@ -659,7 +661,7 @@ async function sysDoSmartSync(){
     var msg='';
     if(added>0)msg+='✅ 新增 '+added+' 个用户';
     if(removed>0)msg+=(msg?'，':'')+'🗑 清理 '+removed+' 个离职用户';
-    _showAlert(msg,'智能同步完成');
+    _showAlert(msg,'同步花名册完成');
   }
   overlay.remove();
 }
