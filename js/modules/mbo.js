@@ -378,16 +378,23 @@ function loadWPData(){
         var row=allRows[i];
         var cloudUpd=row.plan_data.updatedAt||'';
         var localUpd=(localData[row.week_id]&&localData[row.week_id].updatedAt)||'';
+        // ★ V0.6.1ge: 判断云端/本地是否有真实工作内容
+        var cloudHasWork=!!(row.plan_data.tasks||[]).some(function(t){return t.work&&t.work.trim();});
+        var localHasWork=!!(localData[row.week_id]&&(localData[row.week_id].tasks||[]).some(function(t){return t.work&&t.work.trim();}));
+        // ★ V0.6.1ge: 云端空壳绝不能覆盖本地有内容的计划
+        if(localHasWork&&!cloudHasWork){continue;}
         if(!localData[row.week_id]||cloudUpd>localUpd){
           localData[row.week_id]=row.plan_data;
           seenNewer=true;
         }
       }
-      // ★ V0.3.117: 云端已删除的周计划 → 本地同步删除
+      // ★ V0.6.1ge: 云端已删除的周计划 → 本地同步删除（但有内容的本地数据绝不删除）
       var cloudIds={};
       for(var i=0;i<allRows.length;i++){cloudIds[allRows[i].week_id]=true;}
       for(var wk in localData){
         if(!cloudIds[wk]){
+          var localHasContent=!!(localData[wk].tasks||[]).some(function(t){return t.work&&t.work.trim();});
+          if(localHasContent){console.log('[V0.6.1ge] 云端无双有内容本地数据，保护不删:',wk);continue;}
           delete localData[wk];seenNewer=true;
           console.log('[V0.3.117] Removed stale local cache for',wk);
         }
