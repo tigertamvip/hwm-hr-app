@@ -1472,6 +1472,9 @@ function _absWeek(y,m,w){
 }
 function _fromAbsWeek(aw){
   var WEEKS=[4,4,5,4,4,5,4,4,5,4,4,5];
+  // ★ V0.6.1fj: 处理第53周（年网格渲染53周，_fromAbsWeek必须能反向映射）
+  if(aw>52)return{month:12,week:aw-47};
+  if(aw<1)return{month:1,week:1};
   var month=1, week=aw;
   for(var i=0;i<12;i++){
     if(week<=WEEKS[i]){month=i+1;break;}
@@ -1634,18 +1637,22 @@ function selectWP(y,m,w){
 }
 
 function createNewWP(){
-  // ★ V0.6.1fi: 单一真源 _wpCurrent — ISO周+1直接跳转
+  // ★ V0.6.1fj: 直接 y/m/w +1，年末特殊处理 52→53→下年W1
   var y = (_wpCurrent && _wpCurrent.year) || parseInt(document.getElementById('wpYear').value)||new Date().getFullYear();
   var m = (_wpCurrent && _wpCurrent.month) || parseInt(document.getElementById('wpMonth').value)||(new Date().getMonth()+1);
   var w = (_wpCurrent && _wpCurrent.week) || 1;
-  var currIso = _absWeek(y, m, w);
-  var WEEKS = [4,4,5,4,4,5,4,4,5,4,4,5];
-  var totalWeeks = WEEKS.reduce(function(a,b){return a+b;}, 0);
-  var nextIso = currIso + 1;
-  var newYear = y;
-  if (nextIso > totalWeeks) { nextIso = 1; newYear = y + 1; }
-  var mw = _fromAbsWeek(nextIso);
-  var newM = mw.month, newW = mw.week;
+  var newYear=y, newM, newW;
+  if(m===12 && w===5){
+    // 年末52周 → 虚拟53周（同年12月第6周）
+    newYear=y; newM=12; newW=6;
+  }else if(m===12 && w===6){
+    // 虚拟53周 → 下年第1周
+    newYear=y+1; newM=1; newW=1;
+  }else{
+    // 正常情况：ISO周+1
+    var mw=_fromAbsWeek(_absWeek(y,m,w)+1);
+    newM=mw.month; newW=mw.week; newYear=y;
+  }
   // 跨年时自动添加年份 option
   var yEl = document.getElementById('wpYear');
   if (yEl && !Array.from(yEl.options).find(function(o){return parseInt(o.value)===newYear;})) {
