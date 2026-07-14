@@ -212,7 +212,7 @@ function sysOpenAddUser(){
     document.getElementById('sysFormDept').value='';
     document.getElementById('sysFormRole').value='';
     document.getElementById('sysDeleteUserBtn').style.display='none';
-    sysBuildPermGrid({});
+    sysBuildPermGrid({mbo:true}); // ★ V0.6.1fl: 新用户默认仅开通「当周行动」
     document.getElementById('sysUserModal').style.display='flex';
   }catch(e){
     console.error('HWM: sysOpenAddUser error:',e);
