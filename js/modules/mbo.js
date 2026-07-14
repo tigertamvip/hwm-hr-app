@@ -1634,52 +1634,44 @@ function selectWP(y,m,w){
 }
 
 function createNewWP(){
-  var yEl=document.getElementById('wpYear');
-  var mEl=document.getElementById('wpMonth');
-  var y=yEl?parseInt(yEl.value):new Date().getFullYear();
-  var m=mEl?parseInt(mEl.value):(new Date().getMonth()+1);
-  // ★ V0.6.1fh: 直接 +1 当前 ISO 日历周（不找空周，跳转下一周即可）
-  var currW=(_wpCurrent&&_wpCurrent.week)||1;
-  var WEEKS=[4,4,5,4,4,5,4,4,5,4,4,5];
-  var totalWeeks=WEEKS.reduce(function(a,b){return a+b;},0);
-  var currAbs=_absWeek(y,m,currW);
-  var nextAbs=currAbs+1;
-  var newY=y,newM,newW;
-  if(nextAbs>totalWeeks){
-    // 跨年：跳到下一年的第1周
-    newY=y+1;newM=1;newW=1;
-    if(yEl&&!Array.from(yEl.options).find(function(o){return parseInt(o.value)===newY;})){
-      var newOpt=document.createElement('option');
-      newOpt.value=String(newY);newOpt.textContent=newY+'年';
-      yEl.appendChild(newOpt);
-    }
-  }else{
-    var fromAbs=_fromAbsWeek(nextAbs);
-    newM=fromAbs.month;newW=fromAbs.week;
+  // ★ V0.6.1fi: 单一真源 _wpCurrent — ISO周+1直接跳转
+  var y = (_wpCurrent && _wpCurrent.year) || parseInt(document.getElementById('wpYear').value)||new Date().getFullYear();
+  var m = (_wpCurrent && _wpCurrent.month) || parseInt(document.getElementById('wpMonth').value)||(new Date().getMonth()+1);
+  var w = (_wpCurrent && _wpCurrent.week) || 1;
+  var currIso = _absWeek(y, m, w);
+  var WEEKS = [4,4,5,4,4,5,4,4,5,4,4,5];
+  var totalWeeks = WEEKS.reduce(function(a,b){return a+b;}, 0);
+  var nextIso = currIso + 1;
+  var newYear = y;
+  if (nextIso > totalWeeks) { nextIso = 1; newYear = y + 1; }
+  var mw = _fromAbsWeek(nextIso);
+  var newM = mw.month, newW = mw.week;
+  // 跨年时自动添加年份 option
+  var yEl = document.getElementById('wpYear');
+  if (yEl && !Array.from(yEl.options).find(function(o){return parseInt(o.value)===newYear;})) {
+    var newOpt = document.createElement('option');
+    newOpt.value = String(newYear); newOpt.textContent = newYear + '年';
+    yEl.appendChild(newOpt);
   }
-  // 同步更新下拉框
-  if(yEl)yEl.value=String(newY);
-  if(mEl)mEl.value=String(newM);
-  var yLbl=document.getElementById('wpYearLabel');if(yLbl)yLbl.textContent=newY+'年';
-  var mLbl=document.getElementById('wpMonthLabel');if(mLbl)mLbl.textContent=newM+'月';
-  // ★ 已有计划 → 直接显示；空周 → 创建
-  var existingPlan=getWP(newY,newM,newW);
-  if(existingPlan){
-    _wpCurrent={year:newY,month:newM,week:newW,plan:existingPlan};
-    renderWPPlanList(newY,newM);
-    renderWPTable(existingPlan);
-    renderWPUserInfo();
-    if(typeof renderWPYearGrid==='function')renderWPYearGrid(newY);
-    return;
+  // 同步下拉框和标签
+  if (yEl) yEl.value = String(newYear);
+  var mEl = document.getElementById('wpMonth'); if (mEl) mEl.value = String(newM);
+  var yLbl = document.getElementById('wpYearLabel'); if (yLbl) yLbl.textContent = newYear + '年';
+  var mLbl = document.getElementById('wpMonthLabel'); if (mLbl) mLbl.textContent = newM + '月';
+  // 找或建计划
+  var plan = getWP(newYear, newM, newW);
+  if (plan) {
+    _wpCurrent = {year:newYear, month:newM, week:newW, plan:plan};
+  } else {
+    plan = createEmptyPlan(newYear, newM, newW);
+    saveWP(newYear, newM, newW, plan);
+    _autoCarryTasks(plan, newYear, newM, newW);
+    _wpCurrent = {year:newYear, month:newM, week:newW, plan:plan};
   }
-  var plan=createEmptyPlan(newY,newM,newW);
-  saveWP(newY,newM,newW,plan);
-  _autoCarryTasks(plan,newY,newM,newW);
-  _wpCurrent={year:newY,month:newM,week:newW,plan:plan};
-  renderWPPlanList(newY,newM);
+  renderWPPlanList(newYear, newM);
   renderWPTable(plan);
   renderWPUserInfo();
-  if(typeof renderWPYearGrid==='function')renderWPYearGrid(newY);
+  if (typeof renderWPYearGrid === 'function') renderWPYearGrid(newYear);
 }
 
 function showWPEmpty(){
