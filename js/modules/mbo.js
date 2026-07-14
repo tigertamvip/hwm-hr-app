@@ -743,11 +743,11 @@ function renderWPSubSelect(){
     var directOpts=_wpSubData.options.filter(function(o){return o.rel==='direct';});
     // ★ V0.6.1dh: 下属重急事项放最前面（关注优先）
     if(subs.length>0){
-      ddHtml+='<div class="wp-custom-option'+(_wpViewingMergedUrgent?' active':'')+'" onclick="selectWPSubOption(\'__merged_urgent_direct__\',\'直接下属重急项\',\'merged-urgent\')" style="color:#FF3B30;font-weight:600"><span style="margin-right:8px">⚠️</span>直接下属重急项</div>';
+      ddHtml+='<div class="wp-custom-option'+(_wpViewingMergedUrgent?' active':'')+'" onclick="selectWPSubOption(\'__merged_urgent_direct__\',\'直接下属重急项\',\'merged-urgent\')"><span style="margin-right:8px">⚠️</span>直接下属重急项</div>';
     }
     // ★ V0.6.1do: 间接下属重急项
     if(nonDirect.length>0){
-      ddHtml+='<div class="wp-custom-option" onclick="selectWPSubOption(\'__merged_urgent_indirect__\',\'间接下属重急项\',\'merged-urgent-indirect\')" style="color:#D97706;font-weight:600"><span style="margin-right:8px">⚡</span>间接下属重急项</div>';
+      ddHtml+='<div class="wp-custom-option" onclick="selectWPSubOption(\'__merged_urgent_indirect__\',\'间接下属重急项\',\'merged-urgent-indirect\')"><span style="margin-right:8px">⚡</span>间接下属重急项</div>';
     }
     if(subs.length>0||nonDirect.length>0){
       ddHtml+='<div style="border-top:1px solid #e5e7eb;margin:6px 0"></div>';
@@ -1256,6 +1256,8 @@ function onWPSubordinateChange(val){
   // ★ V0.6.1fc: 从重急合并视图点下属名 → 重置标记，进入该下属正常周行动项
   _wpViewingMergedUrgent=false;
   _wpViewingMergedIndirect=false;
+  // ★ V0.6.1fd: 切到直属时清掉部门成员选中状态，避免两个高亮
+  _wpViewingDeptMember=null;
   var v=(typeof val==='string')?val:_wpSubData.selected;
   var myName=(currentUser&&currentUser.name)||'';
   // 选中自己 = 切换回自己的周计划
