@@ -55,10 +55,6 @@ function sysRenderUserTable(){
     html+='<td class="sys-td-left"><strong>'+_h(u.name)+'</strong></td>';
     html+='<td class="sys-td-left" style="font-size:12px;color:var(--text-secondary)">'+_h(u.position)+'</td>';
     html+='<td style="font-family:monospace;font-size:12px">'+_h(uid)+'</td>';
-    for(var j=0;j<HWM_MODULES.length;j++){
-      var mod=HWM_MODULES[j],on=!!perms[mod];
-      html+='<td><span class="sys-perm-toggle '+(on?'sys-perm-yes':'sys-perm-no')+'" onclick="sysTogglePerm(\''+uid+'\',\''+mod+'\')" title="点击切换">'+(on?'✓':'—')+'</span></td>';
-    }
     html+='<td><button class="sys-action-btn" onclick="sysOpenEditUser(\''+uid+'\')">编辑</button></td>';
     // 下属列
     var subs=u.subordinates||{};
@@ -70,6 +66,10 @@ function sysRenderUserTable(){
       subLabel='<span style="font-size:11px">'+dC+'直/'+iC+'间</span>';
     }
     html+='<td style="text-align:center">'+subLabel+'</td>';
+    for(var j=0;j<HWM_MODULES.length;j++){
+      var mod=HWM_MODULES[j],on=!!perms[mod];
+      html+='<td><span class="sys-perm-toggle '+(on?'sys-perm-yes':'sys-perm-no')+'" onclick="sysTogglePerm(\''+uid+'\',\''+mod+'\')" title="点击切换">'+(on?'✓':'—')+'</span></td>';
+    }
     html+='</tr>';
   }
   tbody.innerHTML=html;
