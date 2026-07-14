@@ -829,6 +829,7 @@ function switchToMyWP(){
   if(yEl) yEl.value=autoY;
   if(mEl) mEl.value=autoM;
   syncMonthLabel();
+  syncYearLabel(); // ★ V0.6.1fk: 同步年份标签（避免 createNewWP 跨年时只改了 label 文字）
   
   var currInfo=getCurrentISOWeek();
   var mapped=isoWeekToMonthWeek(currInfo.week);
