@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.6.1ex">
+<meta name="version" content="V0.6.1ey">
 <!-- cache-bust: 2026-07-13-18-40 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json?v=bc">
@@ -3087,6 +3087,7 @@ function togglePortalTips(){
     <div class="sys-toolbar">
       <button class="btn btn-primary" onclick="sysOpenAddUser()">＋ 新增用户</button>
       <button class="btn btn-outline" onclick="sysRosterSync()" style="margin-left:8px;border-color:#2563EB;color:#2563EB">📋 同步花名册</button>
+      <button class="btn btn-outline" onclick="sysCleanUnauthorized()" style="margin-left:8px;border-color:#D64352;color:#D64352">🧹 清理未授权</button>
       <span style="display:flex;align-items:center;gap:8px;margin-left:auto">
         <div class="search-box" style="width:200px;margin:0">
           <span class="search-icon">🔍</span>
@@ -3482,8 +3483,7 @@ function loadUserSettings(){
 }
 
 // 用户数据云端同步：拉取
-// ★ 新逻辑：首次访问（localStorage 为空）时，从 Supabase 全量拉取用户列表
-//   后续访问：只合并更新，不新增（防止已删除用户复活）
+// ★ V0.6.1ey: 只同步已存在的用户（跨设备更新），绝不从云端新增（防止污染复活）
 function syncUsersFromCloud(){
   (async function(){
     try{
@@ -3491,39 +3491,25 @@ function syncUsersFromCloud(){
       if(resp.error){console.warn('HWM: Users cloud sync failed',resp.error.message);return;}
       if(!resp.data||resp.data.length===0)return;
       var localSaved=localStorage.getItem('HWM_USER_SETTINGS');
-      var localData=localSaved?JSON.parse(localSaved):{};
-      var isFirstTime=(Object.keys(localData).length===0); // 首次访问 = localStorage 完全为空
+      if(!localSaved)return; // ★ 本地为空时，不拉云端（防止污染），用 _DEFAULT_USERS
+      var localData=JSON.parse(localSaved);
       var changed=false;
-
-      if(isFirstTime){
-        // ★ 首次访问：全量从 Supabase 拉取所有用户
-        console.log('[users] 首次访问，从云端全量拉取用户列表');
-        for(var i=0;i<resp.data.length;i++){
-          var row=resp.data[i];
-          if(!row.uid||!row.user_data)continue;
+      // ★ 只更新本地已有的用户，绝不新增
+      for(var i=0;i<resp.data.length;i++){
+        var row=resp.data[i];
+        if(!localData[row.uid])continue; // 本地没有 → 跳过（不新增）
+        var cloudUpd=row.updated_at||'';
+        var localUpd=localData[row.uid]._cloudUpdated||'';
+        if(cloudUpd>localUpd){
           localData[row.uid]=row.user_data;
-          localData[row.uid]._cloudUpdated=row.updated_at||'';
-        }
-        changed=true;
-      }else{
-        // 后续访问：只更新已有用户，不新增（防止删除的用户复活）
-        for(var i=0;i<resp.data.length;i++){
-          var row=resp.data[i];
-          if(!localData[row.uid])continue; // 本地没有 = 已被管理员删除 → 跳过
-          var cloudUpd=row.updated_at||'';
-          var localUpd=localData[row.uid]._cloudUpdated||'';
-          if(cloudUpd>localUpd){
-            localData[row.uid]=row.user_data;
-            localData[row.uid]._cloudUpdated=cloudUpd;
-            changed=true;
-          }
+          localData[row.uid]._cloudUpdated=cloudUpd;
+          changed=true;
         }
       }
-
       if(changed){
         try{localStorage.setItem('HWM_USER_SETTINGS',JSON.stringify(localData));}catch(e){}
         USERS=loadUserSettingsFromLocal();
-        console.log('[users] 同步完成,',resp.data.length,'条记录, 首次='+isFirstTime);
+        console.log('[users] 云端更新完成');
         forceCleanShadowUsers();
       }
     }catch(e){console.warn('HWM: Users cloud sync error (non-critical)',e.message);}
