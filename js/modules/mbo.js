@@ -1639,8 +1639,13 @@ function createNewWP(){
   var y=yEl?parseInt(yEl.value):new Date().getFullYear();
   var m=mEl?parseInt(mEl.value):(new Date().getMonth()+1);
   var w;
-  // ★ V0.1.87b: 先找完全不存在的周
-  for(w=1;w<=4;w++){if(!getWP(y,m,w))break;}
+  // ★ V0.6.1ff: 从当前周次之后开始找下一个空周（而非从周1开始）
+  var startFromW=(_wpCurrent&&_wpCurrent.week)||1;
+  for(w=startFromW+1;w<=4;w++){if(!getWP(y,m,w))break;}
+  // 当前周之后没空位 → 回退到当前周之前找空位
+  if(w>4){
+    for(w=1;w<=startFromW;w++){if(!getWP(y,m,w))break;}
+  }
   // 如果4周都存在，找第一个空壳周（无实质内容）
   if(w>4){
     var emptyW=0;
