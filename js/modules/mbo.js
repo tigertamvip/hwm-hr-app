@@ -1253,6 +1253,9 @@ function _setupDropdownScrollHint(dd){
 // selectWPDeptOption removed (V0.5.80: merged into selectWPSubOption with rel param)
 
 function onWPSubordinateChange(val){
+  // ★ V0.6.1fc: 从重急合并视图点下属名 → 重置标记，进入该下属正常周行动项
+  _wpViewingMergedUrgent=false;
+  _wpViewingMergedIndirect=false;
   var v=(typeof val==='string')?val:_wpSubData.selected;
   var myName=(currentUser&&currentUser.name)||'';
   // 选中自己 = 切换回自己的周计划
@@ -1406,6 +1409,9 @@ function toggleYearDropdown(){
 }
 
 function onWPDeptMemberChange(val){
+  // ★ V0.6.1fc: 从重急合并视图点部门成员 → 重置标记，进入该成员正常周行动项
+  _wpViewingMergedUrgent=false;
+  _wpViewingMergedIndirect=false;
   var v=val||'';
   if(!v){switchToMyWP();return;}
   if(!val){switchToMyWP();return;}
