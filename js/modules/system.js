@@ -74,6 +74,28 @@ function sysRenderUserTable(){
     html+='</tr>';
   }
   tbody.innerHTML=html;
+  // ★ V0.6.1fu: 渲染后动态计算固定列 left（避免CSS预设left和实际宽度错位）
+  setTimeout(_recalcSysFixedColumns,0);
+}
+
+// 测量并应用固定列的 left 值（实际宽度更可靠）
+function _recalcSysFixedColumns(){
+  var table=document.getElementById('sysUserTable');
+  if(!table)return;
+  var firstRow=table.querySelector('tbody tr');
+  if(!firstRow)return;
+  var tds=firstRow.querySelectorAll('td');
+  var fixedClasses=['sys-col-center','sys-col-dept','sys-col-name','sys-col-position','sys-col-uid','sys-col-action','sys-col-sub'];
+  var cumulative=0;
+  for(var i=0;i<tds.length&&i<7;i++){
+    var td=tds[i];
+    var cls=fixedClasses[i];
+    td.style.left=cumulative+'px';
+    // 同步表头
+    var ths=table.querySelectorAll('thead th.'+cls);
+    for(var k=0;k<ths.length;k++)ths[k].style.left=cumulative+'px';
+    cumulative+=td.offsetWidth;
+  }
 }
 
 function sysTogglePerm(uid,mod){

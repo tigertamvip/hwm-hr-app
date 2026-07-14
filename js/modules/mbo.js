@@ -1148,11 +1148,20 @@ async function _renderMergedUrgentView(){
   var thWork=document.createElement('th');
   thWork.textContent='本周重点行动项';thWork.style.cssText='position:sticky;left:126px;z-index:6;min-width:180px;background:#E8EAED';
   tr.appendChild(thWork);
+  // ★ V0.6.1fv: 可排序列加 ⇅ 提示图标 + title
   var headers=['优先级','启动日期','计划完成','剩余天数','实际完成','耗时','状态','协同','问题','需要上级','上级建议'];
   var hWids=['80px','80px','80px','80px','80px','56px','56px','80px','56px','56px','120px'];
+  var sortableKeys=['priority','startDate','plannedDate','daysLeft',null,null,null,null,null,null,null];
   for(var hi=0;hi<headers.length;hi++){
     var th=document.createElement('th');
-    th.textContent=headers[hi];th.style.minWidth=hWids[hi];
+    if(sortableKeys[hi]){
+      th.innerHTML=headers[hi]+' <span style="opacity:.4;font-size:10px;margin-left:2px">⇅</span>';
+      th.ondblclick=function(k){return function(){toggleWPSort(k);};}(sortableKeys[hi]);
+      th.title='💡 双击表头切换排序';
+      th.style.cssText='cursor:pointer;min-width:'+hWids[hi]+';user-select:none';
+    }else{
+      th.textContent=headers[hi];th.style.minWidth=hWids[hi];
+    }
     tr.appendChild(th);
   }
   thead.appendChild(tr);
@@ -2579,10 +2588,10 @@ function renderWPTable(plan){
     switch(_wpSort.col){case'priority':_sPri=_arr;break;case'startDate':_sSd=_arr;break;case'plannedDate':_sPd=_arr;break;case'remainingDays':_sRd=_arr;break;case'actualDate':_sAd=_arr;break;case'status':_sSt=_arr;break;}
   }
   html+='<th class="col-num">#</th><th class="col-work">本周重点行动项</th>';
-  html+='<th class="col-goal wp-sortable" ondblclick="toggleWPSort(\'priority\')" title="双击排序" style="cursor:pointer">优先级'+_sPri+'</th>';
-  html+='<th class="col-hours wp-sortable" ondblclick="toggleWPSort(\'startDate\')" title="双击排序" style="cursor:pointer">启动日期'+_sSd+'</th>';
-  html+='<th class="col-hours wp-sortable" ondblclick="toggleWPSort(\'plannedDate\')" title="双击排序" style="cursor:pointer">计划完成日期'+_sPd+'</th>';
-  html+='<th class="col-remaining wp-sortable" ondblclick="toggleWPSort(\'remainingDays\')" title="双击排序" style="cursor:pointer;min-width:80px">剩余办结天数'+_sRd+'</th>';
+  html+='<th class="col-goal wp-sortable" ondblclick="toggleWPSort(\'priority\')" title="💡 双击表头切换排序" style="cursor:pointer">优先级 <span style="opacity:.5;font-size:9px">⇅</span>'+_sPri+'</th>';
+  html+='<th class="col-hours wp-sortable" ondblclick="toggleWPSort(\'startDate\')" title="💡 双击表头切换排序" style="cursor:pointer">启动日期 <span style="opacity:.5;font-size:9px">⇅</span>'+_sSd+'</th>';
+  html+='<th class="col-hours wp-sortable" ondblclick="toggleWPSort(\'plannedDate\')" title="💡 双击表头切换排序" style="cursor:pointer">计划完成日期 <span style="opacity:.5;font-size:9px">⇅</span>'+_sPd+'</th>';
+  html+='<th class="col-remaining wp-sortable" ondblclick="toggleWPSort(\'remainingDays\')" title="💡 双击表头切换排序" style="cursor:pointer;min-width:80px">剩余办结天数 <span style="opacity:.5;font-size:9px">⇅</span>'+_sRd+'</th>';
   html+='<th class="col-hours wp-sortable" ondblclick="toggleWPSort(\'actualDate\')" title="双击排序" style="cursor:pointer">实际完成日期'+_sAd+'</th>';
   html+='<th class="col-hours dur-tooltip" style="min-width:80px">计划/实际耗时</th>';
   html+='<th class="col-status wp-sortable" ondblclick="toggleWPSort(\'status\')" title="双击排序" style="cursor:pointer">完成状态'+_sSt+'</th>';
