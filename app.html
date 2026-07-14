@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.6.1fn">
+<meta name="version" content="V0.6.1fo">
 <!-- cache-bust: 2026-07-13-18-40 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json?v=bc">
@@ -3336,7 +3336,7 @@ var AUTH_UID_KEY='hr_auth_uid';
 var HWM_MODULES=['hr','editHr','mbo','kpi','talent','learning','payroll','ideas','policies','maintenance','decision','dashboard','rd'];
 var HWM_MODULE_LABELS={hr:'人才团队',editHr:'编辑档案',mbo:'当周行动',kpi:'年度目标',talent:'项目管理',learning:'岗位胜任力',payroll:'决策工具',ideas:'敬业度',policies:'体系流程',maintenance:'系统维护',decision:'三年规划',dashboard:'数据中心',rd:'本月计划'};
 
-// ★ V0.6.1fn: 默认权限 — 仅 admin / data_admin 全开，其余角色全关，手动逐项开启
+// ★ V0.6.1fo: 默认权限 — 仅 admin / data_admin 全开，其余角色全关，手动逐项开启
 function _defaultPerms(role){
   if(role==='admin'||role==='data_admin'){
     return {hr:true,editHr:true,mbo:true,kpi:true,talent:true,learning:true,payroll:true,ideas:true,policies:true,maintenance:true,decision:true,dashboard:true,rd:true};
@@ -5771,9 +5771,12 @@ function showDetail(empId){
   currentDetailEmpId=empId;
   const e=allEmployees.find(function(x){return (x.empId||x.empid)===empId;});
   if(!e)return;
-  // ★ V0.6.1fn: 必须先计算 canEditBasic（之前在函数中部声明，导致第 5779 行使用时是 undefined）
+  // ★ V0.6.1fo/fo: 必须先计算 canEditBasic（之前在函数中部声明，导致第 5779 行使用时是 undefined）
   var currPerms=_effectivePerms(currentUser||{});
-  var canEditBasic=!!(currentUser&&(currentUser.role==='admin'||currentUser.role==='data_admin'||currPerms.editHr===true));
+  // 兜底：直接从 USERS 读 role（防止 currentUser.role 状态异常）
+  var usrObj=(currentUser&&USERS&&USERS[currentUser.name])||{};
+  var effectiveRole=(currentUser&&currentUser.role)||usrObj.role||'';
+  var canEditBasic=!!(effectiveRole==='admin'||effectiveRole==='data_admin'||currPerms.editHr===true);
   var initials=e.name?e.name.slice(0,1):'?';
   var avatarHtml=e.photo?
     '<div class="detail-avatar" style="background:none;position:relative;flex-shrink:0;margin-bottom:0" id="detailAvatar"><img src="'+e.photo+'" style="width:100%;height:100%;border-radius:50%;object-fit:cover" alt=""></div>':
@@ -5840,7 +5843,7 @@ function showDetail(empId){
     currentGridFields.push({key:cfg.key,label:cfg.label,type:cfg.type||'text',opts:cfg.opts,editable:canEdit});
   }
   _flushHRSection();
-  // canEditBasic 已在函数顶部计算（V0.6.1fn 修复时序问题）
+  // canEditBasic 已在函数顶部计算（V0.6.1fo 修复时序问题）
   // 基础字段配置：{key, label, type: text|dropdown|date|auto}
   var basicConfig=[
     {key:'empId',label:'工号',type:'text'},
