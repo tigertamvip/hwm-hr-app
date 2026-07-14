@@ -1638,7 +1638,7 @@ function createNewWP(){
   var mEl=document.getElementById('wpMonth');
   var y=yEl?parseInt(yEl.value):new Date().getFullYear();
   var m=mEl?parseInt(mEl.value):(new Date().getMonth()+1);
-  // ★ V0.6.1fg: 永远在当前日历周基础上 +1（ISO 自然周）
+  // ★ V0.6.1fh: 直接 +1 当前 ISO 日历周（不找空周，跳转下一周即可）
   var currW=(_wpCurrent&&_wpCurrent.week)||1;
   var WEEKS=[4,4,5,4,4,5,4,4,5,4,4,5];
   var totalWeeks=WEEKS.reduce(function(a,b){return a+b;},0);
@@ -1648,7 +1648,6 @@ function createNewWP(){
   if(nextAbs>totalWeeks){
     // 跨年：跳到下一年的第1周
     newY=y+1;newM=1;newW=1;
-    // 确保 wpYear 下拉框有新年份
     if(yEl&&!Array.from(yEl.options).find(function(o){return parseInt(o.value)===newY;})){
       var newOpt=document.createElement('option');
       newOpt.value=String(newY);newOpt.textContent=newY+'年';
@@ -1658,41 +1657,25 @@ function createNewWP(){
     var fromAbs=_fromAbsWeek(nextAbs);
     newM=fromAbs.month;newW=fromAbs.week;
   }
-  // 同步更新下拉框显示
+  // 同步更新下拉框
   if(yEl)yEl.value=String(newY);
   if(mEl)mEl.value=String(newM);
   var yLbl=document.getElementById('wpYearLabel');if(yLbl)yLbl.textContent=newY+'年';
   var mLbl=document.getElementById('wpMonthLabel');if(mLbl)mLbl.textContent=newM+'月';
-  // 从 newW 开始找空周
-  var w;
-  for(w=newW;w<=4;w++){if(!getWP(newY,newM,w))break;}
-  // newM 没空位 → 看后续月份
-  if(w>4){
-    for(var nm=newM+1;nm<=12;nm++){
-      for(w=1;w<=4;w++){if(!getWP(newY,nm,w))break;}
-      if(w<=4){newM=nm;break;}
-    }
-    if(w<=4){if(mEl)mEl.value=String(newM);if(mLbl)mLbl.textContent=newM+'月';}
+  // ★ 已有计划 → 直接显示；空周 → 创建
+  var existingPlan=getWP(newY,newM,newW);
+  if(existingPlan){
+    _wpCurrent={year:newY,month:newM,week:newW,plan:existingPlan};
+    renderWPPlanList(newY,newM);
+    renderWPTable(existingPlan);
+    renderWPUserInfo();
+    if(typeof renderWPYearGrid==='function')renderWPYearGrid(newY);
+    return;
   }
-  // 整年都没空位 → 跳下一年第一周
-  if(w>4){
-    newY=y+1;newM=1;newW=1;
-    if(yEl&&!Array.from(yEl.options).find(function(o){return parseInt(o.value)===newY;})){
-      var newOpt=document.createElement('option');
-      newOpt.value=String(newY);newOpt.textContent=newY+'年';
-      yEl.appendChild(newOpt);
-    }
-    yEl.value=String(newY);mEl.value=String(newM);
-    if(yLbl)yLbl.textContent=newY+'年';
-    if(mLbl)mLbl.textContent=newM+'月';
-    for(w=1;w<=4;w++){if(!getWP(newY,newM,w))break;}
-  }
-  if(w>4){_showAlert('系统异常：找不到空周，请刷新后重试');return;}
-  // 找空壳周（存在但无内容）
-  var plan=createEmptyPlan(newY,newM,w);
-  saveWP(newY,newM,w,plan);
-  _autoCarryTasks(plan,newY,newM,w);
-  _wpCurrent={year:newY,month:newM,week:w,plan:plan};
+  var plan=createEmptyPlan(newY,newM,newW);
+  saveWP(newY,newM,newW,plan);
+  _autoCarryTasks(plan,newY,newM,newW);
+  _wpCurrent={year:newY,month:newM,week:newW,plan:plan};
   renderWPPlanList(newY,newM);
   renderWPTable(plan);
   renderWPUserInfo();
