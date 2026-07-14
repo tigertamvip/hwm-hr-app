@@ -992,7 +992,7 @@ async function _renderMergedUrgentView(){
       var emp=content.querySelector('.wp-empty');if(emp)emp.remove();
       var emptyDiv=document.createElement('div');
       emptyDiv.className='wp-empty';
-      emptyDiv.innerHTML='<div class="wp-empty-title">本周暂无'+( _wpViewingMergedIndirect?'间接':'直接')+'下属重要紧急事项</div><div class="wp-empty-desc">你的'+( _wpViewingMergedIndirect?'间接':'直接')+'下属本周没有标记为"重要紧急"的行动项，团队节奏良好 👍</div>';
+      emptyDiv.innerHTML='<div class="wp-empty-title" style="font-size:15px">本周暂无'+( _wpViewingMergedIndirect?'间接':'直接')+'下属重要紧急事项</div><div class="wp-empty-desc">你的'+( _wpViewingMergedIndirect?'间接':'直接')+'下属本周没有标记为"重要紧急"的行动项，团队节奏良好 👍<div style="font-size:12px;color:var(--text-hint);margin-top:4px">No urgent & important items from your '+( _wpViewingMergedIndirect?'indirect':'direct')+' subordinates this week</div></div>';
       content.appendChild(emptyDiv);
     }
     return;
@@ -1067,7 +1067,7 @@ async function _renderMergedUrgentView(){
       var emp=content.querySelector('.wp-empty');if(emp)emp.remove();
       var emptyDiv=document.createElement('div');
       emptyDiv.className='wp-empty';
-      emptyDiv.innerHTML='<div class="wp-empty-title">本周暂无'+( _wpViewingMergedIndirect?'间接':'直接')+'下属重要紧急事项</div><div class="wp-empty-desc">你的'+( _wpViewingMergedIndirect?'间接':'直接')+'下属本周没有标记为"重要紧急"的行动项，团队节奏良好 👍</div>';
+      emptyDiv.innerHTML='<div class="wp-empty-title" style="font-size:15px">本周暂无'+( _wpViewingMergedIndirect?'间接':'直接')+'下属重要紧急事项</div><div class="wp-empty-desc">你的'+( _wpViewingMergedIndirect?'间接':'直接')+'下属本周没有标记为"重要紧急"的行动项，团队节奏良好 👍<div style="font-size:12px;color:var(--text-hint);margin-top:4px">No urgent & important items from your '+( _wpViewingMergedIndirect?'indirect':'direct')+' subordinates this week</div></div>';
       content.appendChild(emptyDiv);
     }
     return;

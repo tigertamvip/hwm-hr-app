@@ -68,7 +68,8 @@ function sysRenderUserTable(){
     html+='<td style="text-align:center">'+subLabel+'</td>';
     for(var j=0;j<HWM_MODULES.length;j++){
       var mod=HWM_MODULES[j],on=!!perms[mod];
-      html+='<td><span class="sys-perm-toggle '+(on?'sys-perm-yes':'sys-perm-no')+'" onclick="sysTogglePerm(\''+uid+'\',\''+mod+'\')" title="点击切换">'+(on?'✓':'—')+'</span></td>';
+      var cellCls=(typeof HWM_LIVE_MODULES!=='undefined'&&!HWM_LIVE_MODULES[mod])?'sys-perm-offline':'';
+      html+='<td class="'+cellCls+'"><span class="sys-perm-toggle '+(on?'sys-perm-yes':'sys-perm-no')+'" onclick="sysTogglePerm(\''+uid+'\',\''+mod+'\')" title="'+(cellCls?'该模块尚未上线':(on?'已授权':'未授权'))+'">'+(on?'✓':'—')+'</span></td>';
     }
     html+='</tr>';
   }
