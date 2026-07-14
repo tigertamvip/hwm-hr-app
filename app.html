@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.6.1ge">
+<meta name="version" content="V0.6.1gf">
 <!-- cache-bust: 2026-07-13-18-40 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json?v=bc">
@@ -665,7 +665,7 @@ body{
 }
 .modal-header-btn:hover{opacity:.9;transform:translateY(-1px)}
 .modal-header-btn:active{transform:translateY(0)}
-/* ★ V0.6.1ge: 三个按钮统一动效 — translateY(-1px) + 同步 transition */
+/* ★ V0.6.1gf: 三个按钮统一动效 — translateY(-1px) + 同步 transition */
 .modal-header-btn--save{background:#3B7DB4;transition:all .2s cubic-bezier(.4,0,.2,1)}
 .modal-header-btn--save:hover{background:#2A6A9A;transform:translateY(-1px);box-shadow:0 4px 12px rgba(59,125,180,.3)}
 .modal-header-btn--save:active{transform:translateY(0);box-shadow:0 2px 4px rgba(59,125,180,.2)}
@@ -2110,14 +2110,14 @@ body{
 .wp-toolbar button{padding:8px 18px;border:1px solid #3B7DB4;border-radius:8px;background:#fff;color:#3B7DB4;font-size:13px;cursor:pointer;transition:all .15s ease;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:5px;font-weight:500;min-width:130px;box-shadow:none;line-height:1.4}
 .wp-toolbar button:hover{background:#E8F4FE;border-color:#2A6A9A;color:#2A6A9A}
 .wp-toolbar button:active{background:#D0E8FD;border-color:#004A9E}
-/* ★ V0.6.1ge: 统一操作按钮 — font-size 13px + padding 8px 18px + 配色去透明度 */
+/* ★ V0.6.1gf: 统一操作按钮 — font-size 13px + padding 8px 18px + 配色去透明度 */
 .wp-toolbar button.wp-btn-primary{background:#6D9D39;color:#fff;border-color:#6D9D39}
 .wp-toolbar button.wp-btn-primary:hover{background:rgba(109,157,57,.2);border-color:rgba(109,157,57,.25);color:#5a8530}
 .wp-toolbar button.wp-btn-summary{background:#289FB7;color:#fff;border-color:#289FB7}
 .wp-toolbar button.wp-btn-summary:hover{background:rgba(40,159,183,.2);border-color:rgba(40,159,183,.25);color:#1f7a8f}
 .wp-toolbar button.wp-btn-delete{background:#F07167;color:#fff;border-color:#F07167}
 .wp-toolbar button.wp-btn-delete:hover{background:rgba(240,113,103,.2);border-color:rgba(240,113,103,.25);color:#d65a52}
-/* ★ V0.6.1ge: 导出按钮改幽灵风格（辅助操作不抢视觉焦点） */
+/* ★ V0.6.1gf: 导出按钮改幽灵风格（辅助操作不抢视觉焦点） */
 .wp-toolbar button.wp-btn-export{background:#fff;color:#6B7280;border-color:#D1D5DB}
 .wp-toolbar button.wp-btn-export:hover{background:#F3F4F6;border-color:#9CA3AF;color:#374151}
 /* 统一禁用状态 */
@@ -2407,7 +2407,7 @@ table.collab-table tbody tr:hover{background:#fffdf5}
 .sys-user-table td.sys-td-left{text-align:left}
 .sys-user-table tbody tr:hover{background:#f0f7ff}
 .sys-user-table tbody tr:last-child td{border-bottom:none}
-/* ★ V0.6.1ge: 前7列固定（中心→下属），从"人才团队"开始可横向滚动 */
+/* ★ V0.6.1gf: 前7列固定（中心→下属），从"人才团队"开始可横向滚动 */
 .sys-user-table .sys-col-center,.sys-user-table .sys-col-dept,.sys-user-table .sys-col-name,.sys-user-table .sys-col-position,.sys-user-table .sys-col-uid,.sys-user-table .sys-col-action,.sys-user-table .sys-col-sub{position:sticky;background:var(--card);z-index:1;border-right:1px solid var(--border)}
 .sys-user-table thead .sys-col-center,.sys-user-table thead .sys-col-dept,.sys-user-table thead .sys-col-name,.sys-user-table thead .sys-col-position,.sys-user-table thead .sys-col-uid,.sys-user-table thead .sys-col-action,.sys-user-table thead .sys-col-sub{background:#3B7DB4;z-index:4}
 .sys-user-table .sys-col-center{left:0px;min-width:90px}
@@ -2427,7 +2427,7 @@ table.collab-table tbody tr:hover{background:#fffdf5}
 .sys-perm-no{color:var(--text-hint);font-size:13px}
 .sys-perm-toggle{cursor:pointer;padding:2px 6px;border-radius:4px;transition:all .15s;display:inline-block;border:1px solid transparent;user-select:none}
 .sys-perm-toggle:hover{background:rgba(5,150,105,.08);border-color:rgba(5,150,105,.2)}
-/* ★ V0.6.1ge: 未上线模块单元格灰色 */
+/* ★ V0.6.1gf: 未上线模块单元格灰色 */
 .sys-perm-offline{background:#E5E7EB !important;color:#9CA3AF !important;cursor:not-allowed}
 .sys-perm-offline .sys-perm-toggle{cursor:not-allowed;color:#9CA3AF !important;background:transparent !important;border-color:transparent !important}
 .sys-perm-offline:hover{background:#D1D5DB !important}
@@ -2470,8 +2470,8 @@ select.form-input{padding-right:28px;appearance:auto;-webkit-appearance:menulist
 </head>
 <body>
 
-<!-- ★ V0.6.1ge: 版本号左下、提示窗右下，同一水平线 bottom:24px -->
-<!-- ★ V0.6.1ge: 版本号徽章 — 改深色毛玻璃（白/深色背景都可见，避开 iOS Safari 底部工具栏） -->
+<!-- ★ V0.6.1gf: 版本号左下、提示窗右下，同一水平线 bottom:24px -->
+<!-- ★ V0.6.1gf: 版本号徽章 — 改深色毛玻璃（白/深色背景都可见，避开 iOS Safari 底部工具栏） -->
 <div id="appVersionBadge" style="position:fixed;left:24px;bottom:max(24px,env(safe-area-inset-bottom));z-index:9999;font-size:11px;color:#fff;font-family:'SF Mono',Menlo,Monaco,Consolas,monospace;pointer-events:none;user-select:none;line-height:1.4">
   <span id="appVersionBadgeText" style="background:rgba(0,0,0,.25);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:6px 14px;border-radius:24px;border:1px solid rgba(255,255,255,.2);box-shadow:0 2px 10px rgba(0,0,0,.15)"></span>
 </div>
@@ -2613,7 +2613,7 @@ function togglePortalTips(){
     如果使用过程中有任何问题，请咨询人力资源部<br>
     <span id="footer-copy">&copy; Tiger-Buddy+AI 版权所有</span>
   </div>
-  <!-- ★ V0.6.1ge: 提示窗开关移至右下角，与版本号同一水平线 bottom:24px -->
+  <!-- ★ V0.6.1gf: 提示窗开关移至右下角，与版本号同一水平线 bottom:24px -->
   <div id="portalTipToggle" style="position:fixed;right:24px;bottom:24px;z-index:10000;font-size:11px;color:rgba(255,255,255,.55);font-family:-apple-system,'苹方',sans-serif;display:flex;align-items:center;gap:6px" onclick="togglePortalTips()" title="关闭后鼠标悬停模块不弹窗">
     <span>提示窗</span>
     <span id="portalTipSlider"><span id="portalTipKnob"></span></span>
@@ -3353,10 +3353,10 @@ var AUTH_UID_KEY='hr_auth_uid';
 // 模块权限定义
 var HWM_MODULES=['hr','editHr','mbo','kpi','talent','learning','payroll','ideas','policies','maintenance','decision','dashboard','rd'];
 var HWM_MODULE_LABELS={hr:'人才团队',editHr:'编辑档案',mbo:'当周行动',kpi:'年度目标',talent:'项目管理',learning:'岗位胜任力',payroll:'决策工具',ideas:'敬业度',policies:'体系流程',maintenance:'系统维护',decision:'三年规划',dashboard:'数据中心',rd:'本月计划'};
-// ★ V0.6.1ge: 已上线模块（未列出的在系统维护表中灰色显示）
+// ★ V0.6.1gf: 已上线模块（未列出的在系统维护表中灰色显示）
 var HWM_LIVE_MODULES={hr:true,editHr:true,mbo:true,talent:true,maintenance:true};
 
-// ★ V0.6.1ge: 默认权限 — 仅 admin / data_admin 全开，其余角色全关，手动逐项开启
+// ★ V0.6.1gf: 默认权限 — 仅 admin / data_admin 全开，其余角色全关，手动逐项开启
 function _defaultPerms(role){
   if(role==='admin'||role==='data_admin'){
     return {hr:true,editHr:true,mbo:true,kpi:true,talent:true,learning:true,payroll:true,ideas:true,policies:true,maintenance:true,decision:true,dashboard:true,rd:true};
@@ -3377,9 +3377,7 @@ function _defaultReports(){ return {boss:'',supervisor:'',subordinates:[]}; }
 var _DEFAULT_USERS={
   '李欣华':{pwd:'123',name:'李欣华',role:'center_head',centerKeyword:'海外销售',dept:'营销中心（海外）',position:'负责人',permissions:_defaultPerms('center_head'),reports:_defaultReports()},
   '刘星梦':{pwd:'123',name:'刘星梦',role:'center_head',centerKeyword:'质量管理',dept:'质量管理中心',position:'负责人',permissions:_defaultPerms('center_head'),reports:_defaultReports()},
-  '谭晨航':{pwd:'6688',name:'谭晨航',role:'admin',dept:'人力资源部',position:'人力资源总监',permissions:_defaultPerms('admin'),reports:_defaultReports(),subordinates:{'赵小姣':'direct','尤亚君':'direct'}},
-  '赵小姣':{pwd:'123',name:'赵小姣',role:'staff',dept:'人力资源部',position:'人资专员',permissions:_defaultPerms('staff'),reports:_defaultReports(),subordinates:{'钟雅洁':'direct'}},
-  '尤亚君':{pwd:'123',name:'尤亚君',role:'staff',dept:'行政部',position:'副总经理助理',permissions:_defaultPerms('staff'),reports:_defaultReports()},
+  '谭晨航':{pwd:'6688',name:'谭晨航',role:'admin',dept:'人力资源部',position:'人力资源总监',permissions:_defaultPerms('admin'),reports:_defaultReports(),subordinates:{}},
   '葛师师':{pwd:'123',name:'葛师师',role:'center_head',centerKeyword:'研发',dept:'研发中心',position:'经理',permissions:_defaultPerms('center_head'),reports:_defaultReports()},
   '杨成':{pwd:'123',name:'杨成',role:'center_head',centerKeyword:'营销中心',dept:'营销中心（国内）',position:'负责人',permissions:_defaultPerms('center_head'),reports:_defaultReports()},
   '韩铁工':{pwd:'123',name:'韩铁工',role:'senior',dept:'总经办',position:'董事长',permissions:_defaultPerms('senior'),reports:_defaultReports()},
@@ -5791,12 +5789,12 @@ function showDetail(empId){
   currentDetailEmpId=empId;
   const e=allEmployees.find(function(x){return (x.empId||x.empid)===empId;});
   if(!e)return;
-  // ★ V0.6.1ge: 从 USERS 表读 role + permissions（currentUser 没有 permissions 字段）
+  // ★ V0.6.1gf: 从 USERS 表读 role + permissions（currentUser 没有 permissions 字段）
   var usrObj=(currentUser&&USERS&&USERS[currentUser.name])||{};
   var effectiveRole=(currentUser&&currentUser.role)||usrObj.role||'';
   var currPerms=_effectivePerms(usrObj);
   var canEditBasic=!!(effectiveRole==='admin'||effectiveRole==='data_admin'||currPerms.editHr===true);
-  // ★ V0.6.1ge: 自检 — USERS表editHr=true 但 canEditBasic=false 时告警
+  // ★ V0.6.1gf: 自检 — USERS表editHr=true 但 canEditBasic=false 时告警
   if(usrObj.permissions&&usrObj.permissions.editHr===true&&!canEditBasic){
     console.error('[HR-EDIT-BUG] '+currentUser.name+' 在USERS里editHr=true但canEditBasic=false，请检查_effectivePerms逻辑！');
   }
@@ -5866,7 +5864,7 @@ function showDetail(empId){
     currentGridFields.push({key:cfg.key,label:cfg.label,type:cfg.type||'text',opts:cfg.opts,editable:canEdit});
   }
   _flushHRSection();
-  // canEditBasic 已在函数顶部计算（V0.6.1ge 修复时序问题）
+  // canEditBasic 已在函数顶部计算（V0.6.1gf 修复时序问题）
   // 基础字段配置：{key, label, type: text|dropdown|date|auto}
   var basicConfig=[
     {key:'empId',label:'工号',type:'text'},
