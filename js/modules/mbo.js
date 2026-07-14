@@ -1062,10 +1062,11 @@ async function _renderMergedUrgentView(){
       var sc=content.querySelector('.wp-scroll-area');if(sc)sc.remove();
       var ta=content.querySelector('.wp-table-area');if(ta)ta.remove();
       var ib=content.querySelector('.wp-info-bar');if(ib)ib.remove();
+      var tb=content.querySelector('.wp-toolbar');if(tb)tb.remove();
       var emp=content.querySelector('.wp-empty');if(emp)emp.remove();
       var emptyDiv=document.createElement('div');
       emptyDiv.className='wp-empty';
-      emptyDiv.innerHTML='<div class="wp-empty-title">本周暂无下属重要紧急事项</div><div class="wp-empty-desc">你的直属下属本周没有标记为"重要紧急"的行动项，团队节奏良好 👍</div>';
+      emptyDiv.innerHTML='<div class="wp-empty-title">本周暂无'+( _wpViewingMergedIndirect?'间接':'直接')+'下属重要紧急事项</div><div class="wp-empty-desc">你的'+( _wpViewingMergedIndirect?'间接':'直接')+'下属本周没有标记为"重要紧急"的行动项，团队节奏良好 👍</div>';
       content.appendChild(emptyDiv);
     }
     return;
@@ -1101,6 +1102,8 @@ async function _renderMergedUrgentView(){
   var oldTa=content.querySelectorAll('.wp-table-area');oldTa.forEach(function(el){el.remove();});
   var oldIb=content.querySelectorAll('.wp-info-bar.merged-urgent');oldIb.forEach(function(el){el.remove();});
   var oldTb=content.querySelectorAll('.wp-toolbar.merged-urgent');oldTb.forEach(function(el){el.remove();});
+  // ★ V0.6.1fe: 切视图前清掉之前的 wp-empty，避免与新数据共存
+  var oldEmpty=content.querySelectorAll('.wp-empty');oldEmpty.forEach(function(el){el.remove();});
 
   var weekLabel=cy+'年'+cm+'月 第'+cw+'周';
   var infoBar=document.createElement('div');
