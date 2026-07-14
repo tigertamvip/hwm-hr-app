@@ -3355,17 +3355,17 @@ function _effectivePerms(u){
 function _defaultReports(){ return {boss:'',supervisor:'',subordinates:[]}; }
 
 var _DEFAULT_USERS={
-  '李欣华':{pwd:'123',name:'李欣华',role:'center_head',centerKeyword:'海外销售',dept:'营销中心（海外）',position:'负责人',permissions:_defaultPerms('center_head'),reports:_defaultReports()},
-  '刘星梦':{pwd:'123',name:'刘星梦',role:'center_head',centerKeyword:'质量管理',dept:'质量管理中心',position:'负责人',permissions:_defaultPerms('center_head'),reports:_defaultReports()},
+  '李欣华':{pwd:'123',name:'李欣华',role:'center_head',centerKeyword:'海外销售',dept:'营销中心（海外）',position:'负责人',permissions:{hr:true,editHr:false,mbo:true,kpi:false,talent:false,learning:false,payroll:false,ideas:false,policies:false,maintenance:false,decision:false,dashboard:false,rd:false},reports:_defaultReports()},
+  '刘星梦':{pwd:'123',name:'刘星梦',role:'center_head',centerKeyword:'质量管理',dept:'质量管理中心',position:'负责人',permissions:{hr:false,editHr:false,mbo:true,kpi:false,talent:false,learning:false,payroll:false,ideas:false,policies:false,maintenance:false,decision:false,dashboard:false,rd:false},reports:_defaultReports()},
   '谭晨航':{pwd:'6688',name:'谭晨航',role:'admin',dept:'人力资源部',position:'人力资源总监',permissions:_defaultPerms('admin'),reports:_defaultReports(),subordinates:{'赵小姣':'direct','尤亚君':'direct'}},
-  '赵小姣':{pwd:'123',name:'赵小姣',role:'staff',dept:'人力资源部',position:'人资专员',permissions:_defaultPerms('staff'),reports:_defaultReports(),subordinates:{'钟雅洁':'direct'}},
-  '尤亚君':{pwd:'123',name:'尤亚君',role:'staff',dept:'行政部',position:'副总经理助理',permissions:_defaultPerms('staff'),reports:_defaultReports()},
-  '葛师师':{pwd:'123',name:'葛师师',role:'center_head',centerKeyword:'研发',dept:'研发中心',position:'经理',permissions:_defaultPerms('center_head'),reports:_defaultReports()},
-  '杨成':{pwd:'123',name:'杨成',role:'center_head',centerKeyword:'营销中心',dept:'营销中心（国内）',position:'负责人',permissions:_defaultPerms('center_head'),reports:_defaultReports()},
-  '韩铁工':{pwd:'123',name:'韩铁工',role:'senior',dept:'总经办',position:'董事长',permissions:_defaultPerms('senior'),reports:_defaultReports()},
-  '张向利':{pwd:'123',name:'张向利',role:'center_head',centerKeyword:'供应链',dept:'供应链',position:'总监',permissions:_defaultPerms('center_head'),reports:_defaultReports()},
-  '徐亮':{pwd:'123',name:'徐亮',role:'center_head',centerKeyword:'财务',dept:'财务部',position:'负责人',permissions:_defaultPerms('center_head'),reports:_defaultReports()},
-  '孙颖':{pwd:'110088',name:'孙颖',role:'staff',dept:'人力资源部',position:'人事专员',permissions:_defaultPerms('staff'),reports:_defaultReports()},
+  '赵小姣':{pwd:'123',name:'赵小姣',role:'staff',dept:'人力资源部',position:'人资专员',permissions:{hr:true,editHr:true,mbo:true,kpi:false,talent:false,learning:false,payroll:false,ideas:false,policies:false,maintenance:false,decision:false,dashboard:false,rd:false},reports:_defaultReports(),subordinates:{'钟雅洁':'direct'}},
+  '尤亚君':{pwd:'123',name:'尤亚君',role:'staff',dept:'行政部',position:'副总经理助理',permissions:{hr:true,editHr:false,mbo:true,kpi:false,talent:false,learning:false,payroll:false,ideas:false,policies:false,maintenance:false,decision:false,dashboard:false,rd:false},reports:_defaultReports()},
+  '葛师师':{pwd:'123',name:'葛师师',role:'center_head',centerKeyword:'研发',dept:'研发中心',position:'经理',permissions:{hr:false,editHr:false,mbo:true,kpi:false,talent:false,learning:false,payroll:false,ideas:false,policies:false,maintenance:false,decision:false,dashboard:false,rd:false},reports:_defaultReports()},
+  '杨成':{pwd:'123',name:'杨成',role:'center_head',centerKeyword:'营销中心',dept:'营销中心（国内）',position:'负责人',permissions:{hr:true,editHr:false,mbo:true,kpi:true,talent:true,learning:true,payroll:false,ideas:true,policies:true,maintenance:false,decision:false,dashboard:false,rd:false},reports:_defaultReports()},
+  '韩铁工':{pwd:'123',name:'韩铁工',role:'senior',dept:'总经办',position:'董事长',permissions:{hr:true,editHr:false,mbo:true,kpi:false,talent:false,learning:false,payroll:false,ideas:false,policies:false,maintenance:false,decision:false,dashboard:false,rd:false},reports:_defaultReports()},
+  '张向利':{pwd:'123',name:'张向利',role:'center_head',centerKeyword:'供应链',dept:'供应链',position:'总监',permissions:{hr:false,editHr:false,mbo:true,kpi:false,talent:false,learning:false,payroll:false,ideas:false,policies:false,maintenance:false,decision:false,dashboard:false,rd:false},reports:_defaultReports()},
+  '徐亮':{pwd:'123',name:'徐亮',role:'center_head',centerKeyword:'财务',dept:'财务部',position:'负责人',permissions:{hr:false,editHr:false,mbo:true,kpi:false,talent:false,learning:false,payroll:false,ideas:false,policies:false,maintenance:false,decision:false,dashboard:false,rd:false},reports:_defaultReports()},
+  '孙颖':{pwd:'110088',name:'孙颖',role:'staff',dept:'人力资源部',position:'人事专员',permissions:{hr:true,editHr:false,mbo:true,kpi:false,talent:false,learning:false,payroll:false,ideas:false,policies:false,maintenance:false,decision:false,dashboard:false,rd:false},reports:_defaultReports()},
   '管理员':{pwd:'123',name:'管理员',role:'admin',dept:'系统',position:'管理员',permissions:_defaultPerms('admin'),reports:_defaultReports()}
 };
 
