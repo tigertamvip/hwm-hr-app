@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.6.1ev">
+<meta name="version" content="V0.6.1ew">
 <!-- cache-bust: 2026-07-13-18-40 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json?v=bc">
@@ -3106,6 +3106,7 @@ function togglePortalTips(){
             <th class="sys-col-position">职务</th>
             <th class="sys-col-uid">用户名</th>
             <th class="sys-col-module">人才团队</th>
+            <th class="sys-col-module" style="color:rgba(255,255,255,.7)">编辑档案</th>
             <th class="sys-col-module">当周行动</th>
             <th class="sys-col-module">年度目标</th>
             <th class="sys-col-module">项目管理</th>
@@ -3331,12 +3332,12 @@ var AUTH_UID_KEY='hr_auth_uid';
 
 // 用户数据库：用户名 → {pwd: SHA256哈希, name: 显示名, role: 角色, centerKeyword: 中心关键词}
 // 模块权限定义
-var HWM_MODULES=['hr','mbo','kpi','talent','learning','payroll','ideas','policies','maintenance','decision','dashboard','rd'];
-var HWM_MODULE_LABELS={hr:'人才团队',mbo:'当周行动',kpi:'年度目标',talent:'项目管理',learning:'岗位胜任力',payroll:'决策工具',ideas:'敬业度',policies:'体系流程',maintenance:'系统维护',decision:'三年规划',dashboard:'数据中心',rd:'本月计划'};
+var HWM_MODULES=['hr','editHr','mbo','kpi','talent','learning','payroll','ideas','policies','maintenance','decision','dashboard','rd'];
+var HWM_MODULE_LABELS={hr:'人才团队',editHr:'编辑档案',mbo:'当周行动',kpi:'年度目标',talent:'项目管理',learning:'岗位胜任力',payroll:'决策工具',ideas:'敬业度',policies:'体系流程',maintenance:'系统维护',decision:'三年规划',dashboard:'数据中心',rd:'本月计划'};
 
 // 默认权限：admin 全开，其余按角色
 function _defaultPerms(role){
-  var all={hr:true,mbo:true,kpi:true,talent:true,learning:true,payroll:true,ideas:true,policies:true,maintenance:true,decision:true,dashboard:true,rd:true};
+  var all={hr:true,editHr:true,mbo:true,kpi:true,talent:true,learning:true,payroll:true,ideas:true,policies:true,maintenance:true,decision:true,dashboard:true,rd:true};
   if(role==='admin')return all;
   // 普通用户默认全部开放，由管理员在系统维护中调整
   return all;
@@ -5842,8 +5843,9 @@ function showDetail(empId){
     currentGridFields.push({key:cfg.key,label:cfg.label,type:cfg.type||'text',opts:cfg.opts,editable:canEdit});
   }
   _flushHRSection();
-  // admin/data_admin 可编辑基础字段（仅这两个角色）
-  var canEditBasic=(currentUser&&(currentUser.role==='admin'||currentUser.role==='data_admin'));
+  // ★ V0.6.1ew: admin/data_admin 或系统维护中开放了 editHr 权限的用户可编辑基础字段
+  var currPerms=_effectivePerms(currentUser||{});
+  var canEditBasic=(currentUser&&(currentUser.role==='admin'||currentUser.role==='data_admin'||currPerms.editHr===true));
   // 基础字段配置：{key, label, type: text|dropdown|date|auto}
   var basicConfig=[
     {key:'empId',label:'工号',type:'text'},
