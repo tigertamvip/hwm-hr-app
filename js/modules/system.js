@@ -50,12 +50,12 @@ function sysRenderUserTable(){
     var rosterCenter=u.dept||getRosterCenterForName(u.name)||'';
     var rosterDept=u.dept||getRosterDeptForName(u.name)||'';
     html+='<tr>';
-    html+='<td style="font-size:12px;color:var(--text-secondary);text-align:left;white-space:nowrap">'+_h(rosterCenter||'-')+'</td>';
-    html+='<td style="font-size:12px;color:var(--text-secondary);text-align:left;white-space:nowrap">'+_h(rosterDept||'-')+'</td>';
-    html+='<td class="sys-td-left"><strong>'+_h(u.name)+'</strong></td>';
-    html+='<td class="sys-td-left" style="font-size:12px;color:var(--text-secondary)">'+_h(u.position)+'</td>';
-    html+='<td style="font-family:monospace;font-size:12px">'+_h(uid)+'</td>';
-    html+='<td><button class="sys-action-btn" onclick="sysOpenEditUser(\''+uid+'\')">编辑</button></td>';
+    html+='<td class="sys-col-center" style="font-size:12px;color:var(--text-secondary);text-align:left;white-space:nowrap">'+_h(rosterCenter||'-')+'</td>';
+    html+='<td class="sys-col-dept" style="font-size:12px;color:var(--text-secondary);text-align:left;white-space:nowrap">'+_h(rosterDept||'-')+'</td>';
+    html+='<td class="sys-col-name sys-td-left"><strong>'+_h(u.name)+'</strong></td>';
+    html+='<td class="sys-col-position sys-td-left" style="font-size:12px;color:var(--text-secondary)">'+_h(u.position)+'</td>';
+    html+='<td class="sys-col-uid" style="font-family:monospace;font-size:12px">'+_h(uid)+'</td>';
+    html+='<td class="sys-col-action" style="width:70px"><button class="sys-action-btn" onclick="sysOpenEditUser(\''+uid+'\')">编辑</button></td>';
     // 下属列
     var subs=u.subordinates||{};
     var subCount=Object.keys(subs).length;
@@ -65,7 +65,7 @@ function sysRenderUserTable(){
       for(var sk in subs){if(subs[sk]==='direct')dC++;else iC++;}
       subLabel='<span style="font-size:11px">'+dC+'直/'+iC+'间</span>';
     }
-    html+='<td style="text-align:center">'+subLabel+'</td>';
+    html+='<td class="sys-col-sub" style="text-align:center">'+subLabel+'</td>';
     for(var j=0;j<HWM_MODULES.length;j++){
       var mod=HWM_MODULES[j],on=!!perms[mod];
       var cellCls=(typeof HWM_LIVE_MODULES!=='undefined'&&!HWM_LIVE_MODULES[mod])?'sys-perm-offline':'';
