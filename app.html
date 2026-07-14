@@ -657,7 +657,7 @@ body{
 .modal-handle{width:36px;height:5px;background:var(--border);border-radius:3px;margin:12px auto 0}
 .modal-header{padding:16px 20px 16px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:rgba(255,255,255,.82);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);z-index:1;min-height:76px;box-sizing:border-box}
 .modal-header h2{font-size:17px;font-weight:600}
-.modal-header-actions{display:flex;align-items:center;gap:8px;margin-right:40px}
+.modal-header-actions{display:flex;align-items:center;gap:8px;margin-right:8px;margin-left:auto}
 .modal-header-btn{
   padding:8px 20px;border-radius:6px;border:none;
   font-size:13px;font-weight:500;cursor:pointer;
@@ -667,8 +667,8 @@ body{
 .modal-header-btn:active{transform:translateY(0)}
 .modal-header-btn--save{background:#3B7DB4}
 .modal-header-btn--save:hover{background:rgba(59,125,180,.2);color:#3B7DB4}
-.modal-header-btn--cancel{background:#8D8D8D}
-.modal-header-btn--cancel:hover{background:rgba(141,141,141,.2);color:#616161}
+.modal-header-btn--cancel{background:#5A6470}
+.modal-header-btn--cancel:hover{background:rgba(90,100,112,.2);color:#3A4250}
 .modal-header-btn--delete{background:#F57770}
 .modal-header-btn--delete:hover{background:rgba(245,119,112,.2);color:#D64352}
 .modal-close{width:32px;height:32px;border-radius:50%;border:1px solid var(--border);background:var(--card);font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary)}
@@ -3137,9 +3137,9 @@ function togglePortalTips(){
     <div class="modal-header">
       <h2 id="sysModalTitle">编辑用户</h2>
       <div class="modal-header-actions" id="sysModalHeaderActions" style="display:flex;align-items:center;gap:8px;margin-right:8px">
-        <button type="button" class="modal-header-btn" style="min-width:90px" onclick="sysCloseModal()">取消</button>
-        <button type="button" class="modal-header-btn modal-header-btn--save" style="min-width:90px" onclick="sysSaveUser()">保存</button>
-        <button type="button" class="modal-header-btn modal-header-btn--delete" id="sysDeleteUserBtn" style="display:none;min-width:90px" onclick="sysDeleteUser()">🗑 删除用户</button>
+        <button type="button" class="modal-header-btn" style="width:110px" onclick="sysCloseModal()">取消</button>
+        <button type="button" class="modal-header-btn modal-header-btn--save" style="width:110px" onclick="sysSaveUser()">保存</button>
+        <button type="button" class="modal-header-btn modal-header-btn--delete" id="sysDeleteUserBtn" style="display:none;width:110px" onclick="sysDeleteUser()">🗑 删除用户</button>
       </div>
       <button class="modal-close" onclick="sysCloseModal()">✕</button>
     </div>
