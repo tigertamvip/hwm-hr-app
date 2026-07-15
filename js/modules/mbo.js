@@ -399,7 +399,27 @@ function loadWPData(){
           console.log('[V0.3.117] Removed stale local cache for',wk);
         }
       }
-      if(!seenNewer)return;
+      // ★ V0.6.1.gi: 多重备份自动恢复 — 防御云端覆盖导致数据丢失
+      try{
+        for(var wk in localData){
+          var hasContent=!!(localData[wk].tasks||[]).some(function(t){return t.work&&t.work.trim();});
+          if(!hasContent){
+            // 当前 localData 是空壳，尝试从 xxx_backup 恢复
+            var bkKey=currentKey+'_backup';
+            var bkRaw=localStorage.getItem(bkKey);
+            if(bkRaw){
+              try{
+                var bkData=JSON.parse(bkRaw);
+                if(bkData[wk]&&(bkData[wk].tasks||[]).some(function(t){return t.work&&t.work.trim();})){
+                  localData[wk]=bkData[wk];
+                  console.log('[V0.6.1.gi] 备份恢复：'+wk);
+                  seenNewer=true;
+                }
+              }catch(e){}
+            }
+          }
+        }
+      }catch(e){console.warn('[V0.6.1.gi] 备份恢复失败',e.message);}
       // 写回 localStorage
       try{localStorage.setItem(currentKey,JSON.stringify(localData));}catch(e){}
       // 如果当前页面仍在查看同一用户，刷新显示

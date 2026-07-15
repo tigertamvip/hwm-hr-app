@@ -74,27 +74,33 @@ function sysRenderUserTable(){
     html+='</tr>';
   }
   tbody.innerHTML=html;
-  // ★ V0.6.1fu: 渲染后动态计算固定列 left（避免CSS预设left和实际宽度错位）
-  setTimeout(_recalcSysFixedColumns,0);
+  // ★ V0.6.1.gi: 渲染后立即 + 100ms 再算一次（确保 DOM 完全渲染）
+  _recalcSysFixedColumns();
+  setTimeout(_recalcSysFixedColumns,100);
 }
 
 // 测量并应用固定列的 left 值（实际宽度更可靠）
 function _recalcSysFixedColumns(){
   var table=document.getElementById('sysUserTable');
   if(!table)return;
-  var firstRow=table.querySelector('tbody tr');
-  if(!firstRow)return;
-  var tds=firstRow.querySelectorAll('td');
+  var ths=table.querySelectorAll('thead th');
+  if(ths.length<7)return;
   var fixedClasses=['sys-col-center','sys-col-dept','sys-col-name','sys-col-position','sys-col-uid','sys-col-action','sys-col-sub'];
+  // ★ V0.6.1.gi: 用 th 的 offsetWidth（th 不会被内容撑大）作为 left 计算基准
   var cumulative=0;
-  for(var i=0;i<tds.length&&i<7;i++){
-    var td=tds[i];
+  for(var i=0;i<7;i++){
     var cls=fixedClasses[i];
-    td.style.left=cumulative+'px';
+    var w=80;
+    for(var h=0;h<ths.length;h++){
+      if(ths[h].classList.contains(cls)){w=ths[h].offsetWidth;break;}
+    }
     // 同步表头
-    var ths=table.querySelectorAll('thead th.'+cls);
-    for(var k=0;k<ths.length;k++)ths[k].style.left=cumulative+'px';
-    cumulative+=td.offsetWidth;
+    var ths2=table.querySelectorAll('thead th.'+cls);
+    for(var k=0;k<ths2.length;k++)ths2[k].style.left=cumulative+'px';
+    // 同步所有 tbody td
+    var allTds=table.querySelectorAll('tbody td.'+cls);
+    for(var t=0;t<allTds.length;t++)allTds[t].style.left=cumulative+'px';
+    cumulative+=w;
   }
 }
 
