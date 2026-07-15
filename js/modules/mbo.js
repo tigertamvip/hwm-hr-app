@@ -3169,9 +3169,11 @@ function startEditCell(cell){
       document.body.appendChild(dropdown);
 
       function positionDropdown(){
-        var rect=inp.getBoundingClientRect();
-        dropdown.style.left=rect.left+'px';
-        dropdown.style.top=(rect.bottom+2)+'px';
+        // ★ V0.6.1.gw: 跟 cell 对齐(不是input),中线与单元格对齐
+        var cellRect=cell.getBoundingClientRect();
+        dropdown.style.left=cellRect.left+'px';
+        dropdown.style.top=(cellRect.bottom+2)+'px';
+        dropdown.style.minWidth=cellRect.width+'px';
       }
       function createChipFromInput(inputEl,forcedVal){
         var v=(forcedVal!==undefined?forcedVal:inputEl.value).trim();
