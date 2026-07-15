@@ -3194,7 +3194,8 @@ function startEditCell(cell){
         dropdown.style.display='block';
       }
 
-      inp.addEventListener('focus',function(){showDropdown(inp.value);});
+      // ★ V0.6.1.gs: focus时不主动弹下拉,等用户输入再弹(避免空白时显示全部员工)
+      inp.addEventListener('focus',function(){if(inp.value)showDropdown(inp.value);});
       inp.addEventListener('input',function(){showDropdown(inp.value);});
       inp.addEventListener('keydown',function(e){
         if(e.key==='Enter'||e.key===','||e.key==='，'){
