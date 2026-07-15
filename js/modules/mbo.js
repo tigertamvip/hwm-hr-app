@@ -1903,6 +1903,25 @@ function _getEmpDB(){
   return [];
 }
 
+// ★ V0.6.1.gj: 刷新协同人 datalist — 从 allEmployees 动态生成立即可用
+function _refreshEmpDatalist(){
+  var dl=document.getElementById('empDatalist');
+  if(!dl){
+    dl=document.createElement('datalist');
+    dl.id='empDatalist';
+    document.body.appendChild(dl);
+  }
+  var emps=_getEmpDB();
+  if(emps.length===0)return;
+  var names=[]; var seen={};
+  for(var i=0;i<emps.length;i++){
+    var n=emps[i].name||emps[i]['姓名'];
+    if(n&&!seen[n]){seen[n]=true;names.push(n);}
+  }
+  dl.innerHTML=names.map(function(n){return '<option value="'+_h(n)+'">';}).join('');
+  console.log('[V0.6.1.gj] empDatalist refreshed: '+names.length+' names');
+}
+
 // 生成协同任务的唯一 ID
 function _collabReqId(fromUid,weekId,taskSeq,supporterUid){
   return fromUid+'_'+weekId+'_'+taskSeq+'_'+supporterUid;
@@ -2933,6 +2952,8 @@ function renderWPTable(plan){
       });
     });
   },10);
+  // ★ V0.6.1.gj: 周计划表格渲染完成后，更新协同人输入建议列表
+  _refreshEmpDatalist();
 }
 
 // ★ V0.1.23: 审核并锁定 — 上级锁定下属周计划的核心三列
@@ -3114,7 +3135,7 @@ function startEditCell(cell){
     cell.innerHTML='<input class="wp-cell-input" type="date" value="'+_h(dateVal)+'" onblur="commitEditCell()" onchange="commitEditCell(this)">';
     var dEl=cell.querySelector('input');if(dEl){dEl.focus();dEl.style.minWidth='120px';}
   }else{
-    cell.innerHTML='<input class="wp-cell-input" type="text" value="'+_h(cur)+'" onblur="commitEditCell()">';
+    cell.innerHTML='<input class="wp-cell-input" type="text" value="'+_h(cur)+'" onblur="commitEditCell()"'+(field&&field.indexOf('.supporters')>=0?' list="empDatalist" autocomplete="off"':'')+'>';
     var inp2=cell.querySelector('input');if(inp2)inp2.focus();
   }
 }
