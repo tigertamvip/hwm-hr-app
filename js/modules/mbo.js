@@ -3136,10 +3136,10 @@ function startEditCell(cell){
     cell.innerHTML='<input class="wp-cell-input" type="date" value="'+_h(dateVal)+'" onblur="commitEditCell()" onchange="commitEditCell(this)">';
     var dEl=cell.querySelector('input');if(dEl){dEl.focus();dEl.style.minWidth='120px';}
   }else{
-    // ★ V0.6.1.gl: 协同人列 — chip 标签编辑器（支持多人逐个输入+智能提示）
+    // ★ V0.6.1.gp: 协同人列 — chip 标签编辑器（支持多人逐个输入+智能提示）
     var isSupporters=field&&field.indexOf('.supporters')>=0;
     if(isSupporters){
-      cell.innerHTML='<div class="supporter-chip-editor" style="display:flex;flex-wrap:wrap;gap:3px;align-items:center;min-width:100px;padding:2px 0"></div>';
+      cell.innerHTML='<div class="supporter-chip-editor" style="display:flex;flex-wrap:wrap;gap:3px;align-items:center;min-width:100px;padding:2px 0;position:relative"></div>';
       var editor=cell.querySelector('.supporter-chip-editor');
       var names=cur?cur.split(/[,，;；]/).filter(function(x){return x.trim();}):[];
       var seen={};
@@ -3156,22 +3156,56 @@ function startEditCell(cell){
       }
       var inp=document.createElement('input');
       inp.type='text';inp.className='wp-cell-input';
-      inp.setAttribute('list','empDatalist');
       inp.setAttribute('autocomplete','off');
       inp.style.cssText='flex:1;min-width:60px;border:none;outline:none;font-size:12px;padding:2px 0;background:transparent';
       inp.placeholder='输入姓名后回车';
+      // ★ V0.6.1.gp: 自定义下拉（替代浏览器原生 datalist）
+      var dropdown=document.createElement('div');
+      dropdown.className='supporter-dropdown';
+      dropdown.style.cssText='display:none;position:absolute;top:100%;left:0;z-index:9999;background:#fff;border:1px solid #d1d5db;border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,.12);max-height:160px;overflow-y:auto;min-width:140px;font-size:12px';
+      editor.appendChild(inp);
+      editor.appendChild(dropdown);
+
+      function showDropdown(q){
+        dropdown.innerHTML='';
+        var pool=(typeof allEmployees!=='undefined'&&allEmployees)?allEmployees:[];
+        var hits=[];
+        for(var i=0;i<pool.length;i++){
+          var e=pool[i];if(!e||!e.name)continue;
+          if(!q||e.name.indexOf(q)>=0){
+            var dup=false;for(var j=0;j<hits.length;j++)if(hits[j].name===e.name){dup=true;break;}
+            if(!dup)hits.push(e);
+          }
+        }
+        if(hits.length===0){dropdown.style.display='none';return;}
+        for(var k=0;k<hits.length;k++){
+          (function(emp){
+            var item=document.createElement('div');
+            item.style.cssText='padding:4px 8px;cursor:pointer;font-size:12px;color:#1f2937';
+            item.textContent=emp.name+(emp.position?' · '+emp.position:'');
+            item.onmouseover=function(){item.style.background='#E8F0FE';};
+            item.onmouseout=function(){item.style.background='#fff';};
+            item.onmousedown=function(e){e.preventDefault();createChipFromInput(inp,emp.name);dropdown.style.display='none';inp.value='';inp.focus();};
+            dropdown.appendChild(item);
+          })(hits[k]);
+        }
+        dropdown.style.display='block';
+      }
+
+      inp.addEventListener('focus',function(){showDropdown(inp.value);});
+      inp.addEventListener('input',function(){showDropdown(inp.value);});
       inp.addEventListener('keydown',function(e){
         if(e.key==='Enter'||e.key===','||e.key==='，'){
           e.preventDefault();
           createChipFromInput(inp);
+          dropdown.style.display='none';
+        }else if(e.key==='Escape'){
+          dropdown.style.display='none';
         }
       });
-      // ★ V0.6.1.gp: 从 datalist 点选时不触发 Enter，监听 input 事件
-      inp.addEventListener('change',function(){createChipFromInput(inp);});
-      inp.addEventListener('blur',function(){commitEditCell(this);});
-      editor.appendChild(inp);
-      function createChipFromInput(inputEl){
-        var v=inputEl.value.trim();
+      inp.addEventListener('blur',function(){setTimeout(function(){dropdown.style.display='none';commitEditCell(inp);},150);});
+      function createChipFromInput(inputEl,forcedVal){
+        var v=forcedVal||inputEl.value.trim();
         if(!v)return;
         var chip2=document.createElement('span');
         chip2.className='supporter-chip';
