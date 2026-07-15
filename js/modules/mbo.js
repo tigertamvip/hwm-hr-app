@@ -3161,12 +3161,19 @@ function startEditCell(cell){
       inp.setAttribute('autocomplete','off');
       inp.style.cssText='flex:1;min-width:60px;border:none;outline:none;font-size:12px;padding:2px 0;background:transparent';
       inp.placeholder='输入姓名后回车';
-      // ★ V0.6.1.gp: 自定义下拉（替代浏览器原生 datalist）
+      editor.appendChild(inp);
+      // ★ V0.6.1.gt: 自定义下拉挂到 body（避免被 td height:36px 截断）
       var dropdown=document.createElement('div');
       dropdown.className='supporter-dropdown';
-      dropdown.style.cssText='display:none;position:absolute;top:100%;left:0;z-index:9999;background:#fff;border:1px solid #d1d5db;border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,.12);max-height:160px;overflow-y:auto;min-width:180px;font-size:12px;white-space:nowrap;z-index:9999';
-      editor.appendChild(inp);
-      editor.appendChild(dropdown);
+      dropdown.style.cssText='display:none;position:fixed;z-index:99999;background:#fff;border:1px solid #d1d5db;border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,.12);max-height:200px;overflow-y:auto;min-width:180px;font-size:12px;white-space:nowrap';
+      document.body.appendChild(dropdown);
+
+      function positionDropdown(){
+        var rect=inp.getBoundingClientRect();
+        dropdown.style.left=rect.left+'px';
+        dropdown.style.top=(rect.bottom+2)+'px';
+        dropdown.style.minWidth=rect.width+'px';
+      }
 
       function showDropdown(q){
         dropdown.innerHTML='';
@@ -3180,10 +3187,10 @@ function startEditCell(cell){
           }
         }
         if(hits.length===0){dropdown.style.display='none';return;}
-        for(var k=0;k<hits.length;k++){
+        for(var k=0;k<Math.min(hits.length,8);k++){  // ★ 限制最多8条
           (function(emp){
             var item=document.createElement('div');
-            item.style.cssText='padding:4px 8px;cursor:pointer;font-size:12px;color:#1f2937';
+            item.style.cssText='padding:5px 10px;cursor:pointer;font-size:12px;color:#1f2937;line-height:1.4';
             item.textContent=emp.name+(emp.position?' · '+emp.position:'');
             item.onmouseover=function(){item.style.background='#E8F0FE';};
             item.onmouseout=function(){item.style.background='#fff';};
@@ -3191,6 +3198,7 @@ function startEditCell(cell){
             dropdown.appendChild(item);
           })(hits[k]);
         }
+        positionDropdown();
         dropdown.style.display='block';
       }
 
@@ -3206,7 +3214,7 @@ function startEditCell(cell){
           dropdown.style.display='none';
         }
       });
-      inp.addEventListener('blur',function(){setTimeout(function(){dropdown.style.display='none';commitEditCell(inp);},150);});
+      inp.addEventListener('blur',function(){setTimeout(function(){dropdown.style.display='none';if(dropdown.parentNode)dropdown.parentNode.removeChild(dropdown);commitEditCell(inp);},150);});
       function createChipFromInput(inputEl,forcedVal){
         var v=forcedVal||inputEl.value.trim();
         if(!v)return;
