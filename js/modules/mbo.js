@@ -1875,9 +1875,8 @@ function _renderSupportersCell(plan,taskIndex,rawSupporters){
   }
   var revSuffix=revPrefix?'</span>':'';
   // ★ V0.3.118: 始终显示协同状态徽章（无状态数据时默认"待响应"）
-  var html='';
+  var html='<div style="display:flex;flex-direction:column;gap:2px;width:100%">';
   for(var i=0;i<sups.length;i++){
-    if(i>0)html+='<br>';
     var s=sups[i];
     var st='pending';
     if(hasStatuses){
@@ -1888,11 +1887,13 @@ function _renderSupportersCell(plan,taskIndex,rawSupporters){
     if(st==='accepted'){badgeColor='#16a34a';badgeIcon='✅';badgeText='已接受';}
     else if(st==='rejected'){badgeColor='#dc2626';badgeIcon='❌';badgeText='已拒绝';}
     else{badgeColor='#9ca3af';badgeIcon='⏳';badgeText='待响应';}
-    html+='<span style="display:inline-flex;align-items:center;gap:2px;white-space:nowrap">';
-    html+='<span style="font-weight:500">'+_h(s.name)+'</span>';
-    html+='<span style="font-size:9px;padding:1px 4px;border-radius:3px;background:'+badgeColor+';color:#fff;font-weight:600;line-height:1.4">'+badgeIcon+' '+badgeText+'</span>';
-    html+='</span>';
+    // ★ V0.6.1.gn: 姓名左对齐 + 徽章右对齐（flex space-between）
+    html+='<div style="display:flex;align-items:center;justify-content:space-between;gap:4px">';
+    html+='<span style="font-weight:500;text-align:left">'+_h(s.name)+'</span>';
+    html+='<span style="font-size:9px;padding:1px 5px;border-radius:3px;background:'+badgeColor+';color:#fff;font-weight:600;line-height:1.4;white-space:nowrap">'+badgeIcon+' '+badgeText+'</span>';
+    html+='</div>';
   }
+  html+='</div>';
   return revPrefix+html+revSuffix;
 }
 
