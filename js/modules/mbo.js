@@ -3188,7 +3188,7 @@ function startEditCell(cell){
       }
       function showDropdown(q){
         dropdown.innerHTML='';
-        var pool=(typeof allEmployees!=='undefined'&&allEmployees)?allEmployees:[];
+        var pool=(typeof allEmployees!=='undefined'&&allEmployees&&allEmployees.length>0)?allEmployees:_getEmpDB();
         var hits=[];
         for(var i=0;i<pool.length;i++){
           var e=pool[i];if(!e||!e.name)continue;
