@@ -3135,8 +3135,50 @@ function startEditCell(cell){
     cell.innerHTML='<input class="wp-cell-input" type="date" value="'+_h(dateVal)+'" onblur="commitEditCell()" onchange="commitEditCell(this)">';
     var dEl=cell.querySelector('input');if(dEl){dEl.focus();dEl.style.minWidth='120px';}
   }else{
-    cell.innerHTML='<input class="wp-cell-input" type="text" value="'+_h(cur)+'" onblur="commitEditCell()"'+(field&&field.indexOf('.supporters')>=0?' list="empDatalist" autocomplete="off"':'')+'>';
-    var inp2=cell.querySelector('input');if(inp2)inp2.focus();
+    // ★ V0.6.1.gl: 协同人列 — chip 标签编辑器（支持多人逐个输入+智能提示）
+    var isSupporters=field&&field.indexOf('.supporters')>=0;
+    if(isSupporters){
+      cell.innerHTML='<div class="supporter-chip-editor" style="display:flex;flex-wrap:wrap;gap:3px;align-items:center;min-width:100px;padding:2px 0"></div>';
+      var editor=cell.querySelector('.supporter-chip-editor');
+      var names=cur?cur.split(/[,，;；]/).filter(function(x){return x.trim();}):[];
+      var seen={};
+      for(var nx=0;nx<names.length;nx++){
+        var nm=names[nx].trim();
+        if(nm&&!seen[nm]){
+          seen[nm]=true;
+          var chip=document.createElement('span');
+          chip.className='supporter-chip';
+          chip.style.cssText='display:inline-flex;align-items:center;background:#E8F0FE;color:#1B6EC4;font-size:11px;font-weight:500;padding:2px 6px;border-radius:12px;gap:4px;white-space:nowrap';
+          chip.innerHTML='<span>'+_h(nm)+'</span><span class="chip-x" style="cursor:pointer;opacity:.6;font-size:13px;line-height:1" onclick="this.parentNode.remove()">&times;</span>';
+          editor.appendChild(chip);
+        }
+      }
+      var inp=document.createElement('input');
+      inp.type='text';inp.className='wp-cell-input';
+      inp.setAttribute('list','empDatalist');
+      inp.setAttribute('autocomplete','off');
+      inp.style.cssText='flex:1;min-width:60px;border:none;outline:none;font-size:12px;padding:2px 0;background:transparent';
+      inp.placeholder='输入姓名后回车';
+      inp.addEventListener('keydown',function(e){
+        if(e.key==='Enter'||e.key===','||e.key==='，'){
+          e.preventDefault();
+          var v=inp.value.trim();
+          if(!v)return;
+          var chip2=document.createElement('span');
+          chip2.className='supporter-chip';
+          chip2.style.cssText='display:inline-flex;align-items:center;background:#E8F0FE;color:#1B6EC4;font-size:11px;font-weight:500;padding:2px 6px;border-radius:12px;gap:4px;white-space:nowrap';
+          chip2.innerHTML='<span>'+_h(v)+'</span><span class="chip-x" style="cursor:pointer;opacity:.6;font-size:13px;line-height:1" onclick="this.parentNode.remove()">&times;</span>';
+          editor.insertBefore(chip2,inp);
+          inp.value='';
+        }
+      });
+      inp.addEventListener('blur',function(){commitEditCell(this);});
+      editor.appendChild(inp);
+      setTimeout(function(){inp.focus();},30);
+    }else{
+      cell.innerHTML='<input class="wp-cell-input" type="text" value="'+_h(cur)+'" onblur="commitEditCell()">';
+      var inp2=cell.querySelector('input');if(inp2)inp2.focus();
+    }
   }
 }
 
@@ -3148,6 +3190,16 @@ async function commitEditCell(el){
     var field=cell.dataset.field;
     var input=el||cell.querySelector('input,textarea,select');
     var newVal=input?input.value:'';
+    // ★ V0.6.1.gl: 协同人 chip 编辑器 — 从 chips 收集姓名，逗号分隔
+    if(field&&field.indexOf('.supporters')>=0){
+      var chips=cell.querySelectorAll('.supporter-chip span:first-child');
+      var names=[];
+      for(var c=0;c<chips.length;c++){
+        var n=chips[c].textContent.trim();
+        if(n)names.push(n);
+      }
+      newVal=names.join(',');
+    }
 
     // ★ V0.4.90m: 状态字段自定义下拉无 input，从 cell 文本提取
     if(!newVal && field && field.indexOf('.status')>=0){
