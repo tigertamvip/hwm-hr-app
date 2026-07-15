@@ -3163,18 +3163,23 @@ function startEditCell(cell){
       inp.addEventListener('keydown',function(e){
         if(e.key==='Enter'||e.key===','||e.key==='，'){
           e.preventDefault();
-          var v=inp.value.trim();
-          if(!v)return;
-          var chip2=document.createElement('span');
-          chip2.className='supporter-chip';
-          chip2.style.cssText='display:inline-flex;align-items:center;background:#E8F0FE;color:#1B6EC4;font-size:11px;font-weight:500;padding:2px 6px;border-radius:12px;gap:4px;white-space:nowrap';
-          chip2.innerHTML='<span>'+_h(v)+'</span><span class="chip-x" style="cursor:pointer;opacity:.6;font-size:13px;line-height:1" onclick="this.parentNode.remove()">&times;</span>';
-          editor.insertBefore(chip2,inp);
-          inp.value='';
+          createChipFromInput(inp);
         }
       });
+      // ★ V0.6.1.gp: 从 datalist 点选时不触发 Enter，监听 input 事件
+      inp.addEventListener('change',function(){createChipFromInput(inp);});
       inp.addEventListener('blur',function(){commitEditCell(this);});
       editor.appendChild(inp);
+      function createChipFromInput(inputEl){
+        var v=inputEl.value.trim();
+        if(!v)return;
+        var chip2=document.createElement('span');
+        chip2.className='supporter-chip';
+        chip2.style.cssText='display:inline-flex;align-items:center;background:#E8F0FE;color:#1B6EC4;font-size:11px;font-weight:500;padding:2px 6px;border-radius:12px;gap:4px;white-space:nowrap';
+        chip2.innerHTML='<span>'+_h(v)+'</span><span class="chip-x" style="cursor:pointer;opacity:.6;font-size:13px;line-height:1" onclick="this.parentNode.remove()">&times;</span>';
+        editor.insertBefore(chip2,inputEl);
+        inputEl.value='';
+      }
       setTimeout(function(){inp.focus();},30);
     }else{
       cell.innerHTML='<input class="wp-cell-input" type="text" value="'+_h(cur)+'" onblur="commitEditCell()">';
