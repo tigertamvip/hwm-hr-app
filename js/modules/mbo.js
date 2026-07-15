@@ -670,22 +670,24 @@ function getAllIndirectSubordinates(uid){
   var allDirect={};
   for(var i=0;i<direct.length;i++)allDirect[direct[i]]=true;
   var indirect=[];
-  var visited={};
-  visited[uid]=true;
+  var seen={};
   // BFS 遍历所有下属的下属
   var queue=direct.slice();
   while(queue.length>0){
     var name=queue.shift();
+    if(seen[name])continue;
+    seen[name]=true;
     // 通过 name 反查 uid
     var subUid=null;
-    for(var id in USERS){if(USERS[id].name===name){subUid=id;break;}}
-    if(visited[subUid])continue;
-    visited[subUid]=true;
-    var subs=getSubordinates(subUid||'');
+    for(var id in USERS){if(USERS[id]&&USERS[id].name===name){subUid=id;break;}}
+    if(!subUid)continue;
+    var subs=getSubordinates(subUid);
     if(subs)for(var i=0;i<subs.length;i++){
       if(allDirect[subs[i]])continue; // 排除直属下属
-      indirect.push(subs[i]);
-      queue.push(subs[i]);
+      if(!seen[subs[i]]){
+        indirect.push(subs[i]);
+        queue.push(subs[i]);
+      }
     }
   }
   return indirect;
@@ -3162,7 +3164,7 @@ function startEditCell(cell){
       // ★ V0.6.1.gp: 自定义下拉（替代浏览器原生 datalist）
       var dropdown=document.createElement('div');
       dropdown.className='supporter-dropdown';
-      dropdown.style.cssText='display:none;position:absolute;top:100%;left:0;z-index:9999;background:#fff;border:1px solid #d1d5db;border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,.12);max-height:160px;overflow-y:auto;min-width:140px;font-size:12px';
+      dropdown.style.cssText='display:none;position:absolute;top:100%;left:0;z-index:9999;background:#fff;border:1px solid #d1d5db;border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,.12);max-height:160px;overflow-y:auto;min-width:180px;font-size:12px;white-space:nowrap;z-index:9999';
       editor.appendChild(inp);
       editor.appendChild(dropdown);
 
