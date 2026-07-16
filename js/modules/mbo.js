@@ -4385,6 +4385,11 @@ function saveWPRating(rating, el) {
   if (p.weeklyRating === rating) { p.weeklyRating = ''; }
   else { p.weeklyRating = rating; }
   p.updatedAt = new Date().toISOString();
+  // ★ V0.6.1.ht: 记录评分人 + 评分时间（用于数据中心「我评出的奖牌」统计）
+  if (currentUser && currentUser.name) {
+    p.bossEvaluatedBy = currentUser.name;
+    p.bossEvaluatedAt = new Date().toISOString();
+  }
   saveWP(p.year, p.month, p.week, p);
   // 触发积分重算
   setTimeout(function(){ _calcWeekScore(p); selectWP(p.year, p.month, p.week); }, 100);

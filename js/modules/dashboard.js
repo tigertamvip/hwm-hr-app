@@ -142,13 +142,26 @@ function _dsRefreshData() {
   _dsRankData.sort(function (a, b) { return b.score - a.score; });
 
   var myName = (currentUser && currentUser.name) || '';
-  var myScore = 0, myRank = '—', myGold = 0;
+  var myScore = 0, myRank = '—', myGold = 0, myGivenGold = 0, myGivenTotal = 0;
+  // ★ V0.6.1.ht: 统计「我评出的奖牌」— 当前用户作为上级给下属打过的奖牌数
+  for (var wkId2 in allPlans) {
+    var pplans = allPlans[wkId2];
+    if (!pplans) continue;
+    for (var pname in pplans) {
+      var pp2 = pplans[pname];
+      if (pp2 && pp2.weeklyRating && pp2.bossEvaluatedBy === myName) {
+        myGivenTotal++;
+        if (pp2.weeklyRating === 'gold') myGivenGold++;
+      }
+    }
+  }
   for (var ri = 0; ri < _dsRankData.length; ri++) {
     if (_dsRankData[ri].name === myName) { myScore = _dsRankData[ri].score; myRank = (ri + 1) + '/' + _dsRankData.length; myGold = _dsRankData[ri].gold; break; }
   }
 
   _dsData = {
     totalUsers: totalUsers, myScore: myScore, myRank: myRank, myGold: myGold,
+    myGivenGold: myGivenGold, myGivenTotal: myGivenTotal,
     cWeekId: cWeekId, week: week,
     planRate: totalUsers ? Math.round(planSub / totalUsers * 100) : 0, planSub: planSub,
     sumRate: totalUsers ? Math.round(sumSub / totalUsers * 100) : 0, sumSub: sumSub,
@@ -198,6 +211,11 @@ function _dsSyncFromCloud() {
       if (merged) {
         // 重新计算排名
         _dsRefreshData();
+        // ★ V0.6.1.ht: 云端同步后有新数据，重新渲染整个驾驶舱（包括奖牌卡片）
+        var content = document.getElementById('dashboardContent');
+        if (content && (_dsTab === 'cockpit' || _dsTab === 'weekly')) {
+          content.innerHTML = _dsBuildCockpit();
+        }
         setTimeout(function () { _dsRenderRankTable(); }, 50);
       }
     } catch (e) { console.warn('[DS] Cloud sync error (non-critical):', e.message); }
@@ -251,7 +269,8 @@ function _dsBuildCards() {
   return '<div class="ds-cards-row">' +
     '<div class="ds-card ds-card-gold"><div class="ds-card-num">' + (dd.myScore >= 0 ? '+' : '') + dd.myScore + '</div><div class="ds-card-label">🏅 我的净积分</div></div>' +
     '<div class="ds-card ds-card-gold"><div class="ds-card-num">' + dd.myRank + '</div><div class="ds-card-label">🏆 我的排名</div></div>' +
-    '<div class="ds-card ds-card-silver"><div class="ds-card-num">🥇×' + dd.myGold + '</div><div class="ds-card-label">🏅 我的奖牌</div></div>' +
+    '<div class="ds-card ds-card-silver"><div class="ds-card-num">🥇×' + dd.myGold + '</div><div class="ds-card-label">🏅 我获得的奖牌</div></div>' +
+    '<div class="ds-card ds-card-amber"><div class="ds-card-num" style="color:#D97706">🎖️×' + dd.myGivenTotal + '</div><div class="ds-card-label">🎖️ 我评出的奖牌</div></div>' +
     '<div class="ds-card ds-card-blue"><div class="ds-card-num" style="color:#3B82F6">' + dd.planRate + '%</div><div class="ds-card-label">⏰ 我的周计划按时提交率</div></div>' +
     '<div class="ds-card ds-card-green"><div class="ds-card-num" style="color:#059669">' + dd.sumRate + '%</div><div class="ds-card-label">⏰ 我的周小结按时提交率</div></div>' +
     '</div>';
