@@ -635,20 +635,32 @@ function renderWPUserInfo(){
     div.textContent='📖 查看分享：'+sharedName+' | '+sharedDept+' | '+sharedPos;
   }else if(_wpViewingSubordinate){
     var subName=_wpViewingSubordinate;
-    var subDept='', subPos='';
+    var subDept='', subPos='', subMood='';
     if(_wpCurrent&&_wpCurrent.plan){
       subDept=_wpCurrent.plan.dept||'';
       subPos=_wpCurrent.plan.position||'';
+      subMood=_wpCurrent.plan.mood||'';
     }
-    div.textContent='查看直属下属：'+subName+' | '+subDept+' | '+subPos;
+    var moodDot='';
+    if(subMood){
+      var moodCls={happy:'mood-happy',calm:'mood-calm',tired:'mood-tired',pain:'mood-pain'}[subMood]||'';
+      moodDot=' <span class="wp-mood-dot '+moodCls+'" title="本周心情：'+( {happy:'开心',calm:'平静',tired:'疲惫',pain:'痛苦'}[subMood]||'')+'"></span>';
+    }
+    div.innerHTML='查看直属下属：'+_h(subName)+' | '+_h(subDept)+' | '+_h(subPos)+moodDot;
   }else if(_wpViewingDeptMember){
     var memName=_wpViewingDeptMember;
-    var memDept='', memPos='';
+    var memDept='', memPos='', memMood='';
     if(_wpCurrent&&_wpCurrent.plan){
       memDept=_wpCurrent.plan.dept||'';
       memPos=_wpCurrent.plan.position||'';
+      memMood=_wpCurrent.plan.mood||'';
     }
-    div.textContent='查看更多下属：'+memName+' | '+memDept+' | '+memPos;
+    var moodDot2='';
+    if(memMood){
+      var moodCls2={happy:'mood-happy',calm:'mood-calm',tired:'mood-tired',pain:'mood-pain'}[memMood]||'';
+      moodDot2=' <span class="wp-mood-dot '+moodCls2+'" title="本周心情：'+( {happy:'开心',calm:'平静',tired:'疲惫',pain:'痛苦'}[memMood]||'')+'"></span>';
+    }
+    div.innerHTML='查看更多下属：'+_h(memName)+' | '+_h(memDept)+' | '+_h(memPos)+moodDot2;
   }else{
     var emp=getCurrentEmployee();
     var displayName=emp.name, displayDept=emp.dept, displayPos=emp.position;
@@ -2799,8 +2811,24 @@ function renderWPTable(plan){
   html+='</div>';
   if(isEmployee){
     html+='<textarea class="wp-feedback-textarea" id="wpWeekSummary" placeholder="请总结本周工作完成情况、主要产出、遇到的问题及下周计划..." onblur="saveWPFeedback(\'weekSummary\',this.value)">'+_h(summaryContent)+'</textarea>';
+    // ★ V0.6.1.hd: 心情选择器 — 员工点击选择本周真实感受
+    var currentMood=plan.mood||'';
+    var moods=[{key:'happy',emoji:'😊',label:'开心',cls:'mood-happy'},{key:'calm',emoji:'😌',label:'平静',cls:'mood-calm'},{key:'tired',emoji:'😩',label:'疲惫',cls:'mood-tired'},{key:'pain',emoji:'😭',label:'痛苦',cls:'mood-pain'}];
+    html+='<div class="wp-mood-selector"><span class="wp-mood-label">本周心情：</span>';
+    for(var mi=0;mi<moods.length;mi++){
+      var m=moods[mi];
+      html+='<span class="wp-mood-emoji '+m.cls+(currentMood===m.key?' mood-selected':'')+'" data-tip="'+m.label+'" onclick="saveWPMood(\''+m.key+'\',this)" title="'+m.label+'">'+m.emoji+'</span>';
+    }
+    html+='</div>';
   }else if(summaryContent){
     html+='<div class="wp-feedback-textarea" style="background:var(--card-alt);cursor:default">'+_h(summaryContent)+'</div>';
+    // 上级看下属时显示其心情
+    var moodRead=plan.mood||'';
+    if(moodRead){
+      var moodMap={happy:{emoji:'😊',label:'开心'},calm:{emoji:'😌',label:'平静'},tired:{emoji:'😩',label:'疲惫'},pain:{emoji:'😭',label:'痛苦'}};
+      var md=moodMap[moodRead];
+      if(md) html+='<div class="wp-mood-display"><span class="wp-mood-display-emoji">'+md.emoji+'</span> '+md.label+'</div>';
+    }
   }else{
     html+='<div class="wp-feedback-empty">员工暂未填写工作小结</div>';
   }
@@ -4279,6 +4307,28 @@ function saveWPFeedback(field, value) {
   
   p.updatedAt = new Date().toISOString();
   saveWP(p.year, p.month, p.week, p);
+}
+
+// ★ V0.6.1.hd: 保存本周心情 — 点击emoji切换
+function saveWPMood(mood, el) {
+  var p = _wpCurrent.plan;
+  if (!p) return;
+  // 再次点击同一心情可取消
+  if (p.mood === mood) { p.mood = ''; }
+  else { p.mood = mood; }
+  p.updatedAt = new Date().toISOString();
+  saveWP(p.year, p.month, p.week, p);
+  // 刷新当前视图
+  var section = el.closest('.wp-feedback-section');
+  if (section) {
+    var allEmojis = section.querySelectorAll('.wp-mood-emoji');
+    for (var i = 0; i < allEmojis.length; i++) {
+      allEmojis[i].classList.toggle('mood-selected', p.mood === allEmojis[i].getAttribute('data-tip') === ('开心'||'平静'||'疲惫'||'痛苦'));
+    }
+  }
+  // 重新渲染表格底色以刷新数据
+  selectWP(p.year, p.month, p.week);
+  showToast(p.mood ? '💬 心情已记录' : '💬 心情已清除', 'info');
 }
 
 // ========== 从云端恢复周计划数据 ==========
