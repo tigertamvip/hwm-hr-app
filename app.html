@@ -6,8 +6,8 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.6.1.ht">
-<!-- cache-bust: 2026-07-17-06-58 -->
+<meta name="version" content="V0.6.1.hu">
+<!-- cache-bust: 2026-07-17-07-15 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json?v=bc">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2346,15 +2346,15 @@ table.collab-table tbody tr:hover{background:#fffdf5}
 /* ===== 数据中心 Dashboard ===== */
 .ds-grid{display:flex;flex-direction:column;gap:20px;width:100%}
 .ds-cards-row{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
-.ds-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 10px;text-align:center;transition:all .2s}
+.ds-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px 10px;text-align:center;transition:all .2s}
 .ds-card:hover{box-shadow:var(--shadow-md);transform:translateY(-1px)}
 .ds-card.ds-card-gold{background:linear-gradient(135deg,#FFF8E1,#FFECB3);border-color:#FFB300}
 .ds-card.ds-card-silver{background:linear-gradient(135deg,#F3F4F6,#E5E7EB);border-color:#9CA3AF}
 .ds-card.ds-card-amber{background:linear-gradient(135deg,#FFF7ED,#FED7AA);border-color:#FB923C}
 .ds-card.ds-card-blue{background:linear-gradient(135deg,#EFF6FF,#DBEAFE);border-color:#93C5FD}
 .ds-card.ds-card-green{background:linear-gradient(135deg,#ECFDF5,#D1FAE5);border-color:#6EE7B7}
-.ds-card-num{font-size:22px;font-weight:700;color:var(--text);margin-bottom:4px;letter-spacing:-0.5px}
-.ds-card-label{font-size:11.5px;color:var(--text-secondary);font-weight:500}
+.ds-card-num{font-size:24px;font-weight:700;color:var(--text);margin-bottom:4px;letter-spacing:-0.5px}
+.ds-card-label{font-size:12.5px;color:var(--text-secondary);font-weight:500}
 .ds-filter-bar{display:flex;align-items:center;gap:10px;padding:14px 18px;background:var(--card);border:1px solid var(--border);border-radius:10px;flex-wrap:wrap}
 .ds-select{padding:7px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;background:var(--bg);color:var(--text);cursor:pointer;outline:none;min-width:130px}
 .ds-select:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba(59,125,180,.12)}
@@ -3040,7 +3040,7 @@ function togglePortalTips(){
 <div id="dashboardView" style="display:none;flex-direction:column;height:100vh;background:var(--bg)">
   <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 24px;border-bottom:1px solid var(--border);background:var(--card);flex-shrink:0">
     <div style="display:flex;align-items:center;gap:12px">
-      <h1 style="font-size:20px;font-weight:600;color:var(--text);margin:0">📊 数据中心</h1>
+      <h1 style="font-size:22px;font-weight:600;color:var(--text);margin:0">📊 数据中心</h1>
       <span style="font-size:13px;color:var(--text-secondary)">Data Center</span>
     </div>
     <button class="btn btn-return-mbo" onclick="goHome()" style="margin:0">← 返回首页</button>
@@ -4075,6 +4075,8 @@ function toggleEmpStats(){
 function goHome(){
   closeModal();
   sysCloseModal(); // ★ 清理系统维护弹窗
+  // ★ V0.6.1.hu: 清理所有残留 tooltip（防止耗时列 tooltip 跨页面残留）
+  document.querySelectorAll('.wp-tooltip').forEach(function(t){t.remove();});
   document.getElementById('appView').style.display='none';
   document.getElementById('hrPoliciesView').style.display='none';
   document.getElementById('kpiView').style.display='none';
@@ -4097,6 +4099,8 @@ function goHome(){
 }
 
 function enterModule(mod){
+  // ★ V0.6.1.hu: 清理任何残留的 tooltip（耗时列等，模块切换时清除）
+  document.querySelectorAll('.wp-tooltip').forEach(function(t){t.remove();});
   // 权限检查
   var permKey=mod==='workplan'?'mbo':(mod==='system'?'maintenance':mod);
   if(!hasPermission(permKey)){
