@@ -464,13 +464,13 @@ function sysRenderSubList(){
     html+='<td style="padding:8px 12px;font-weight:500">'+_h(e.name)+'</td>';
     html+='<td style="padding:8px 12px;color:#797973">'+_h(e.dept)+'</td>';
     html+='<td style="padding:8px 12px;color:#797973">'+_h(e.position)+'</td>';
-    // ★ V0.6.1.gy: 选中的 select 本身显示彩色文字 + option 背景色
+    // ★ V0.6.1.ha: 用彩色 emoji 替代 "●" (Mac Chrome 下拉框忽略option颜色,emoji走OS彩色)
     var selColor=rel==='direct'?'#16A34A':(rel==='indirect'?'#3B82F6':'#6B7280');
     var selWeight=rel==='none'?'normal':'600';
-    html+='<td style="padding:6px 12px;text-align:center"><select onchange="sysToggleSubRel(\''+_h(e.name)+'\',this.value)" style="font-size:12px;padding:4px 8px;border-radius:4px;border:1px solid var(--border);cursor:pointer;color:'+selColor+';font-weight:'+selWeight+'">';
-    html+='<option value="none" style="background:#F3F4F6;color:#6B7280"'+(rel==='none'?' selected':'')+'>○ 无</option>';
-    html+='<option value="direct" style="background:#D1FAE5;color:#16A34A;font-weight:600"'+(rel==='direct'?' selected':'')+'>● 直属</option>';
-    html+='<option value="indirect" style="background:#DBEAFE;color:#3B82F6;font-weight:600"'+(rel==='indirect'?' selected':'')+'>● 间接</option>';
+    html+='<td style="padding:6px 12px;text-align:center"><select onchange="sysToggleSubRel(\''+_h(e.name)+'\',this.value)" style="font-size:13px;padding:4px 8px;border-radius:4px;border:1px solid var(--border);cursor:pointer;color:'+selColor+';font-weight:'+selWeight+'">';
+    html+='<option value="none"'+(rel==='none'?' selected':'')+'>⚪ 无</option>';
+    html+='<option value="direct"'+(rel==='direct'?' selected':'')+'>🟢 直属</option>';
+    html+='<option value="indirect"'+(rel==='indirect'?' selected':'')+'>🔵 间接</option>';
     html+='</select></td>';
     // WP可见性复选框
     html+='<td style="padding:8px 12px;text-align:center"><input type="checkbox" '+(wpShared?'checked':'')+' onchange="sysToggleWPShared(\''+_h(e.name)+'\',this.checked)" style="cursor:pointer;accent-color:#3B7DB4;width:16px;height:16px"></td>';
