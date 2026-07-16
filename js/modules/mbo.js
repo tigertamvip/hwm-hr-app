@@ -2626,6 +2626,13 @@ function renderWPTable(plan){
     var tsSign=_taskTotal>0?'+':'';
     html+='<div class="wp-summary-item"><span class="wp-summary-label">📊 任务积分：</span><span class="wp-summary-value" style="color:'+tsColor+'">'+tsSign+_taskTotal+'</span></div>';
   }
+  // ★ V0.6.1.hh: 上级评级显示
+  var ratingRead=plan.weeklyRating||'';
+  if(ratingRead){
+    var ratingMap={gold:{emoji:'🥇',label:'金牌',val:'+2'},silver:{emoji:'🥈',label:'银牌',val:'+1'},bronze:{emoji:'🥉',label:'铜牌',val:'0'},warn:{emoji:'⚠️',label:'待改',val:'-1'},danger:{emoji:'⛔',label:'严重',val:'-2'}};
+    var rd=ratingMap[ratingRead];
+    if(rd) html+='<div class="wp-summary-item"><span class="wp-summary-label">🏅 评级：</span><span class="wp-summary-value">'+rd.emoji+' '+rd.label+' '+rd.val+'</span></div>';
+  }
   html+='</div>';
 
   // ★ V0.6.1cd: 表头双击排序 — 临时替换plan.tasks为排序副本
@@ -2848,8 +2855,24 @@ function renderWPTable(plan){
   html+='</div>';
   if(isSupervisor&&!isEmployee){
     html+='<textarea class="wp-feedback-textarea" id="wpSupervisorReview" placeholder="请对下属本周工作表现进行评价，包括工作质量、效率、态度等方面..." onblur="saveWPFeedback(\'supervisorReview\',this.value)">'+_h(reviewContent)+'</textarea>';
+    // ★ V0.6.1.hh: 奖牌选择器 — 上级点击选择整体评级
+    var currentRating=plan.weeklyRating||'';
+    var medals=[{key:'gold',emoji:'🥇',label:'金牌 +2',cls:'rating-gold'},{key:'silver',emoji:'🥈',label:'银牌 +1',cls:'rating-silver'},{key:'bronze',emoji:'🥉',label:'铜牌 0',cls:'rating-bronze'},{key:'warn',emoji:'⚠️',label:'待改进 -1',cls:'rating-warn'},{key:'danger',emoji:'⛔',label:'严重偏离 -2',cls:'rating-danger'}];
+    html+='<div class="wp-rating-selector"><span class="wp-rating-label">整体评级：</span>';
+    for(var ri=0;ri<medals.length;ri++){
+      var md=medals[ri];
+      html+='<span class="wp-rating-emoji '+md.cls+(currentRating===md.key?' rating-selected':'')+'" data-tip="'+md.label+'" onclick="saveWPRating(\''+md.key+'\',this)" title="'+md.label+'">'+md.emoji+'</span>';
+    }
+    html+='</div>';
   }else if(reviewContent){
     html+='<div class="wp-feedback-textarea" style="background:var(--card-alt);cursor:default">'+_h(reviewContent)+'</div>';
+    // 非上级看下属时显示其评级
+    var ratingRead=plan.weeklyRating||'';
+    if(ratingRead){
+      var ratingMap={gold:{emoji:'🥇',label:'金牌（优秀）'},silver:{emoji:'🥈',label:'银牌（良好）'},bronze:{emoji:'🥉',label:'铜牌（合格）'},warn:{emoji:'⚠️',label:'待改进'},danger:{emoji:'⛔',label:'严重偏离'}};
+      var rd=ratingMap[ratingRead];
+      if(rd) html+='<div class="wp-rating-display"><span class="wp-rating-display-emoji">'+rd.emoji+'</span> '+rd.label+'</div>';
+    }
   }else{
     html+='<div class="wp-feedback-empty">领导暂未评价</div>';
   }
@@ -3646,6 +3669,14 @@ function _calcWeekScore(plan){
   plan._taskScores=_taskScores;
   weekScore+=taskScore;
 
+  // ★ V0.6.1.hh: 上级评级加分（金+2 银+1 铜0 待改-1 严重-2）
+  var ratingScore=0;
+  var ratingMap={gold:2, silver:1, bronze:0, warn:-1, danger:-2};
+  if(plan.weeklyRating && ratingMap[plan.weeklyRating]!==undefined){
+    ratingScore=ratingMap[plan.weeklyRating];
+  }
+  weekScore+=ratingScore;
+
   // 豁免时归零
   if(plan.exempted)weekScore=0;
 
@@ -3656,11 +3687,13 @@ function _calcWeekScore(plan){
     taskScore:taskScore,
     onTimeScore:onTimeScore, overdueScore:overdueScore,
     notDoneScore:notDoneScore, lateSubmitScore:lateSubmitScore,
-    reviewScore:reviewScore, onTimeSubmitScore:onTimeSubmitScore
+    reviewScore:reviewScore, onTimeSubmitScore:onTimeSubmitScore,
+    ratingScore:ratingScore, weeklyRating:plan.weeklyRating||''
   };
 
   // 重新汇总（含明细 + 兼容旧数据）
-  var totalOnTime=0,totalOverdue=0,totalNotDone=0,totalLateSubmit=0,totalReview=0,totalOnTimeSubmit=0,legacyScore=0;
+  var totalOnTime=0,totalOverdue=0,totalNotDone=0,totalLateSubmit=0,totalReview=0,totalOnTimeSubmit=0,totalRating=0,legacyScore=0;
+  var medalCounts={gold:0,silver:0,bronze:0,warn:0,danger:0};
   for(var wid in scores.weeks){
     var ws=scores.weeks[wid];
     var hasNewFields=(ws.onTimeScore!==undefined)||(ws.lateSubmitScore!==undefined);
@@ -3671,16 +3704,18 @@ function _calcWeekScore(plan){
       totalLateSubmit+=ws.lateSubmitScore||0;
       totalReview+=ws.reviewScore||0;
       totalOnTimeSubmit+=ws.onTimeSubmitScore||0;
+      totalRating+=ws.ratingScore||0;
+      if(ws.weeklyRating&&medalCounts[ws.weeklyRating]!==undefined)medalCounts[ws.weeklyRating]++;
     }else{
-      // 旧数据（无分类字段）：score 包含总分，归入 legacy
       legacyScore+=ws.score||0;
     }
   }
   scores.totalOnTime=totalOnTime; scores.totalOverdue=totalOverdue;
   scores.totalNotDone=totalNotDone; scores.totalLateSubmit=totalLateSubmit;
   scores.totalReview=totalReview; scores.totalOnTimeSubmit=totalOnTimeSubmit;
+  scores.totalRating=totalRating; scores.medalCounts=medalCounts;
   scores.legacyScore=legacyScore;
-  scores.net=totalOnTime+totalOverdue+totalNotDone+totalLateSubmit+totalReview+totalOnTimeSubmit+legacyScore;
+  scores.net=totalOnTime+totalOverdue+totalNotDone+totalLateSubmit+totalReview+totalOnTimeSubmit+totalRating+legacyScore;
   _saveAnnualScores(uid,year,scores);
   return scores;
 }
@@ -3944,6 +3979,18 @@ function _renderTimeManagementPanel(plan){
   if(tosSub>0)html+='<div class="wp-card-score-row"><span class="wp-card-score-label">提交按时</span><span class="wp-card-score-val" style="color:#059669">+'+tosSub+'</span></div>';
   var trs=scores.totalReview||0;
   if(trs>0)html+='<div class="wp-card-score-row"><span class="wp-card-score-label">上级评价</span><span class="wp-card-score-val" style="color:#059669">+'+trs+'</span></div>';
+  // ★ V0.6.1.hh: 奖牌评级分
+  var rtg=scores.totalRating||0;
+  if(rtg!==0)html+='<div class="wp-card-score-row"><span class="wp-card-score-label">🏅 评级</span><span class="wp-card-score-val" style="color:'+(rtg>0?'#059669':'#dc2626')+'">'+(rtg>0?'+':'')+rtg+'</span></div>';
+  // ★ V0.6.1.hh: 奖牌战绩
+  var mc=scores.medalCounts||{};
+  var medalBadges=[];
+  if(mc.gold)medalBadges.push('🥇×'+mc.gold);
+  if(mc.silver)medalBadges.push('🥈×'+mc.silver);
+  if(mc.bronze)medalBadges.push('🥉×'+mc.bronze);
+  if(mc.warn)medalBadges.push('⚠️×'+mc.warn);
+  if(mc.danger)medalBadges.push('⛔×'+mc.danger);
+  if(medalBadges.length>0)html+='<div class="wp-card-score-row" style="color:#6b7280;font-size:11px;justify-content:flex-start;gap:6px">'+medalBadges.join(' ')+'</div>';
   // 扣分项
   var tds=scores.totalOverdue||0;
   if(tds<0)html+='<div class="wp-card-score-row"><span class="wp-card-score-label">逾期完成</span><span class="wp-card-score-val" style="color:#dc2626">'+tds+'</span></div>';
@@ -4329,6 +4376,19 @@ function saveWPMood(mood, el) {
   // 重新渲染表格底色以刷新数据
   selectWP(p.year, p.month, p.week);
   showToast(p.mood ? '💬 心情已记录' : '💬 心情已清除', 'info');
+}
+
+// ★ V0.6.1.hh: 保存上级评级（奖牌）
+function saveWPRating(rating, el) {
+  var p = _wpCurrent.plan;
+  if (!p) return;
+  if (p.weeklyRating === rating) { p.weeklyRating = ''; }
+  else { p.weeklyRating = rating; }
+  p.updatedAt = new Date().toISOString();
+  saveWP(p.year, p.month, p.week, p);
+  // 触发积分重算
+  setTimeout(function(){ _calcWeekScore(p); selectWP(p.year, p.month, p.week); }, 100);
+  showToast(p.weeklyRating ? '🏅 评级已记录' : '🏅 评级已清除', 'info');
 }
 
 // ========== 从云端恢复周计划数据 ==========
