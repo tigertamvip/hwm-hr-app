@@ -74,17 +74,24 @@ function _dsRefreshData() {
   var week = _getISOWeek(now);
   var allPlans = {};
   try {
+    // Step 1: 从 localStorage 读取所有 hwm_workplans_* 数据
     for (var k in localStorage) {
       if (k.startsWith('hwm_workplans_')) {
         var d = JSON.parse(localStorage.getItem(k) || '{}');
         for (var wk in d) { if (!allPlans[wk]) allPlans[wk] = {}; allPlans[wk][k.replace('hwm_workplans_', '')] = d[wk]; }
       }
     }
+    // ★ V0.6.1.hs: 智能合并 _wpData — 只覆盖较新的版本
     if (typeof _wpData !== 'undefined' && _wpData) {
       for (var wk2 in _wpData) {
-        if (!allPlans[wk2]) allPlans[wk2] = {};
+        if (!allPlans[wk2]) { allPlans[wk2] = {}; }
         var uk = (_wpData[wk2] && _wpData[wk2].name) || ((currentUser && currentUser.name) || 'me');
-        allPlans[wk2][uk] = _wpData[wk2];
+        var lp = allPlans[wk2][uk];
+        var wpp = _wpData[wk2];
+        // 比较 updatedAt，只保留较新版本（避免陈旧 _wpData 覆盖 localStorage 新数据）
+        if (!lp || (wpp.updatedAt && lp.updatedAt && wpp.updatedAt > lp.updatedAt)) {
+          allPlans[wk2][uk] = wpp;
+        }
       }
     }
   } catch (e) {}
@@ -149,8 +156,52 @@ function _dsRefreshData() {
     prevSumRate: totalUsers ? Math.round(prevSum / totalUsers * 100) : 0, prevSumSub: prevSum,
     ytdPlanRate: ytdWeeks ? Math.round(ytdPlan / ytdWeeks * 100) : 0,
     ytdSumRate: ytdWeeks ? Math.round(ytdSum / ytdWeeks * 100) : 0,
-    ratings: ratings, totalRatings: ratings.gold + ratings.silver + ratings.bronze + ratings.warn + ratings.danger
+    ratings: ratings, totalRatings: ratings.gold + ratings.silver + ratings.bronze + ratings.warn + ratings.danger,
+    lastUpdate: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
   };
+
+  // ★ V0.6.1.hs: 异步从 Supabase 同步最新评分数据（跨设备一致）
+  _dsSyncFromCloud();
+}
+
+// ★ V0.6.1.hs: 从 Supabase 拉取最新评分（补充跨设备同步）
+function _dsSyncFromCloud() {
+  if (typeof supabase === 'undefined' || !supabase || !supabase.from) return;
+  (async function () {
+    try {
+      var resp = await supabase.from('hwm_workplans').select('username,week_id,plan_data').order('updated_at', { ascending: false }).limit(500);
+      if (resp.error || !resp.data) return;
+      var merged = false;
+      for (var i = 0; i < resp.data.length; i++) {
+        var row = resp.data[i];
+        var wk = row.week_id;
+        var un = row.username;
+        var pd = row.plan_data;
+        if (!pd || !pd.weeklyRating) continue;
+        // 只同步有评级变化的数据
+        var localKey = 'hwm_workplans_' + un;
+        try {
+          var local = JSON.parse(localStorage.getItem(localKey) || '{}');
+          var localPlan = local[wk] || {};
+          var localRating = localPlan.weeklyRating || '';
+          var cloudRating = pd.weeklyRating || '';
+          if (cloudRating && cloudRating !== localRating) {
+            // 云端有本地没有的评级：更新本地
+            localPlan.weeklyRating = cloudRating;
+            localPlan.updatedAt = pd.updatedAt || row.updated_at || '';
+            local[wk] = localPlan;
+            localStorage.setItem(localKey, JSON.stringify(local));
+            merged = true;
+          }
+        } catch (e) {}
+      }
+      if (merged) {
+        // 重新计算排名
+        _dsRefreshData();
+        setTimeout(function () { _dsRenderRankTable(); }, 50);
+      }
+    } catch (e) { console.warn('[DS] Cloud sync error (non-critical):', e.message); }
+  })();
 }
 
 function _dsCalcUserScore(userName, allPlans, period) {
