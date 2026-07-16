@@ -17,33 +17,28 @@ function _h(v) { return String(v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;')
 function _dsBuildNav() {
   var nav = document.getElementById('dsNavItems');
   if (!nav) return;
+  var html = '<div class="ds-nav-section-title">📊 数据驾驶舱</div>';
   var items = [
-    { icon: '🚗', label: '驾驶舱', tab: 'cockpit' },
-    { icon: '📋', label: '本周行动', tab: 'weekly' },
+    { icon: '📋', label: '本周行动', tab: 'cockpit' },
     { icon: '📅', label: '月度计划', tab: 'monthly' },
     { icon: '🎯', label: '年度目标', tab: 'annual' },
     { icon: '🏆', label: '三年规划', tab: 'plan3y', disabled: true },
-    '',
-    { group: '数据报告' },
-    { icon: '🔬', label: '研发数据', tab: 'rd_data' },
-    { icon: '🏭', label: '制造数据', tab: 'mfg_data' },
-    { icon: '📦', label: '采购数据', tab: 'buy_data' },
-    { icon: '✅', label: '质量数据', tab: 'qa_data' },
-    { icon: '📣', label: '营销数据', tab: 'mkt_data' },
-    { icon: '👥', label: '人力数据', tab: 'hr_data' },
-    { icon: '💰', label: '财务数据', tab: 'fin_data' },
-    { icon: '📋', label: '注册数据', tab: 'reg_data' },
-    { icon: '📑', label: '其他数据', tab: 'misc_data' },
-    '',
-    { group: '工具' },
-    { icon: '⚙', label: '数据导出', tab: 'export', disabled: true },
-    { icon: '🔍', label: '全员检索', tab: 'search', disabled: true }
+    '<sep>',
+    '<group>数据报告</group>',
+    { icon: '🔬', label: '研发数据', tab: 'data_report', disabled: true },
+    { icon: '🏭', label: '制造数据', tab: 'data_report', disabled: true },
+    { icon: '📦', label: '采购数据', tab: 'data_report', disabled: true },
+    { icon: '✅', label: '质量数据', tab: 'data_report', disabled: true },
+    { icon: '📣', label: '营销数据', tab: 'data_report', disabled: true },
+    { icon: '👥', label: '人力数据', tab: 'data_report', disabled: true },
+    { icon: '💰', label: '财务数据', tab: 'data_report', disabled: true },
+    { icon: '📋', label: '注册数据', tab: 'data_report', disabled: true },
+    { icon: '📑', label: '其他数据', tab: 'data_report', disabled: true }
   ];
-  var html = '';
   for (var i = 0; i < items.length; i++) {
     var it = items[i];
-    if (it === '') { html += '<div class="ds-nav-sep"></div>'; continue; }
-    if (it.group) { html += '<div class="ds-nav-group">' + it.group + '</div>'; continue; }
+    if (it === '<sep>') { html += '<div class="ds-nav-sep"></div>'; continue; }
+    if (it === '<group>数据报告</group>') { html += '<div class="ds-nav-group">数据报告</div>'; continue; }
     var cls = 'ds-nav-item' + (_dsTab === it.tab ? ' ds-nav-active' : '') + (it.disabled ? ' disabled' : '');
     var onclick = it.disabled ? '' : ' onclick="_dsSwitchTab(\'' + it.tab + '\')"';
     html += '<div class="' + cls + '"' + onclick + ' style="' + (it.disabled ? 'opacity:.4;cursor:default' : '') + '"><span class="ds-nav-icon">' + it.icon + '</span>' + it.label + '</div>';
@@ -59,9 +54,10 @@ function _dsSwitchTab(tab) {
   _dsRefreshData();
   switch (tab) {
     case 'cockpit': content.innerHTML = _dsBuildCockpit(); _dsRenderRankTable(); break;
-    case 'weekly': content.innerHTML = _dsBuildWeekly(); break;
+    case 'weekly': content.innerHTML = _dsBuildCockpit(); _dsRenderRankTable(); break;
     case 'monthly': content.innerHTML = _dsBuildMonthly(); break;
     case 'annual': content.innerHTML = _dsBuildAnnual(); break;
+    case 'data_report': content.innerHTML = _dsBuildDataReport(); break;
     case 'quality': content.innerHTML = _dsBuildQuality(); break;
     case 'trend': content.innerHTML = _dsBuildTrend(); break;
     case 'medalboard': content.innerHTML = _dsBuildMedalBoard(); break;
@@ -258,7 +254,7 @@ function _dsBuildRankTable() {
 }
 
 // ===== 占位页面 =====
-function _dsBuildWeekly() { return '<div class="ds-grid"><div class="ds-card" style="text-align:center;padding:60px;color:var(--text-hint)"><div style="font-size:48px;margin-bottom:12px">📋</div>本周行动详情页 — 建设中</div></div>'; }
+function _dsBuildDataReport() { return '<div class="ds-grid"><div class="ds-card" style="text-align:center;padding:80px 40px"><div style="font-size:64px;margin-bottom:16px;opacity:.5">🔧</div><div style="font-size:18px;font-weight:600;color:var(--text-secondary);margin-bottom:8px">业务数据报告中</div><div style="font-size:13px;color:var(--text-hint)">该模块正在建设中，敬请期待</div></div></div>'; }
 function _dsBuildMonthly() { return '<div class="ds-grid"><div class="ds-card" style="text-align:center;padding:60px;color:var(--text-hint)"><div style="font-size:48px;margin-bottom:12px">📅</div>月度计划页面 — 建设中</div></div>'; }
 function _dsBuildAnnual() { return '<div class="ds-grid"><div class="ds-card" style="text-align:center;padding:60px;color:var(--text-hint)"><div style="font-size:48px;margin-bottom:12px">🎯</div>年度目标页面 — 建设中</div></div>'; }
 function _dsBuildQuality() { return '<div class="ds-grid"><div class="ds-card" style="text-align:center;padding:60px;color:var(--text-hint)"><div style="font-size:48px;margin-bottom:12px">📊</div>任务质量分析 — 建设中</div></div>'; }
