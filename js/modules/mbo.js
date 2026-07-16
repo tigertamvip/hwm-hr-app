@@ -643,8 +643,8 @@ function renderWPUserInfo(){
     }
     var moodDot='';
     if(subMood){
-      var moodCls={happy:'mood-happy',calm:'mood-calm',tired:'mood-tired',pain:'mood-pain'}[subMood]||'';
-      moodDot=' <span class="wp-mood-dot '+moodCls+'" title="本周心情：'+( {happy:'开心',calm:'平静',tired:'疲惫',pain:'痛苦'}[subMood]||'')+'"></span>';
+      var moodCls={happy:'mood-happy',calm:'mood-calm',tired:'mood-tired',pain:'mood-pain',silent:'mood-silent'}[subMood]||'';
+      moodDot=' <span class="wp-mood-dot '+moodCls+'" title="本周心情：'+( {happy:'开心',calm:'平静',tired:'疲惫',pain:'痛苦',silent:'沉默'}[subMood]||'')+'"></span>';
     }
     div.innerHTML='查看直属下属：'+_h(subName)+' | '+_h(subDept)+' | '+_h(subPos)+moodDot;
   }else if(_wpViewingDeptMember){
@@ -657,8 +657,8 @@ function renderWPUserInfo(){
     }
     var moodDot2='';
     if(memMood){
-      var moodCls2={happy:'mood-happy',calm:'mood-calm',tired:'mood-tired',pain:'mood-pain'}[memMood]||'';
-      moodDot2=' <span class="wp-mood-dot '+moodCls2+'" title="本周心情：'+( {happy:'开心',calm:'平静',tired:'疲惫',pain:'痛苦'}[memMood]||'')+'"></span>';
+      var moodCls2={happy:'mood-happy',calm:'mood-calm',tired:'mood-tired',pain:'mood-pain',silent:'mood-silent'}[memMood]||'';
+      moodDot2=' <span class="wp-mood-dot '+moodCls2+'" title="本周心情：'+( {happy:'开心',calm:'平静',tired:'疲惫',pain:'痛苦',silent:'沉默'}[memMood]||'')+'"></span>';
     }
     div.innerHTML='查看更多下属：'+_h(memName)+' | '+_h(memDept)+' | '+_h(memPos)+moodDot2;
   }else{
@@ -2813,7 +2813,7 @@ function renderWPTable(plan){
     html+='<textarea class="wp-feedback-textarea" id="wpWeekSummary" placeholder="请总结本周工作完成情况、主要产出、遇到的问题及下周计划..." onblur="saveWPFeedback(\'weekSummary\',this.value)">'+_h(summaryContent)+'</textarea>';
     // ★ V0.6.1.hd: 心情选择器 — 员工点击选择本周真实感受
     var currentMood=plan.mood||'';
-    var moods=[{key:'happy',emoji:'😊',label:'开心',cls:'mood-happy'},{key:'calm',emoji:'😌',label:'平静',cls:'mood-calm'},{key:'tired',emoji:'😩',label:'疲惫',cls:'mood-tired'},{key:'pain',emoji:'😭',label:'痛苦',cls:'mood-pain'}];
+    var moods=[{key:'happy',emoji:'😊',label:'开心',cls:'mood-happy'},{key:'calm',emoji:'😌',label:'平静',cls:'mood-calm'},{key:'tired',emoji:'😩',label:'疲惫',cls:'mood-tired'},{key:'pain',emoji:'😭',label:'痛苦',cls:'mood-pain'},{key:'silent',emoji:'😶',label:'沉默',cls:'mood-silent'}];
     html+='<div class="wp-mood-selector"><span class="wp-mood-label">本周心情：</span>';
     for(var mi=0;mi<moods.length;mi++){
       var m=moods[mi];
@@ -2825,7 +2825,7 @@ function renderWPTable(plan){
     // 上级看下属时显示其心情
     var moodRead=plan.mood||'';
     if(moodRead){
-      var moodMap={happy:{emoji:'😊',label:'开心'},calm:{emoji:'😌',label:'平静'},tired:{emoji:'😩',label:'疲惫'},pain:{emoji:'😭',label:'痛苦'}};
+      var moodMap={happy:{emoji:'😊',label:'开心'},calm:{emoji:'😌',label:'平静'},tired:{emoji:'😩',label:'疲惫'},pain:{emoji:'😭',label:'痛苦'},silent:{emoji:'😶',label:'沉默'}};
       var md=moodMap[moodRead];
       if(md) html+='<div class="wp-mood-display"><span class="wp-mood-display-emoji">'+md.emoji+'</span> '+md.label+'</div>';
     }
