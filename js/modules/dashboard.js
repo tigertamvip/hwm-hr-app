@@ -52,7 +52,7 @@ function _dsSwitchTab(tab) {
   if (!content) return;
   _dsRefreshData();
   switch (tab) {
-    case 'cockpit': content.innerHTML = _dsBuildCockpit(); _dsAnimate(); break;
+    case 'cockpit': content.innerHTML = _dsBuildCockpit(); _dsRenderRankTable(); break;
     case 'weekly': content.innerHTML = _dsBuildWeekly(); break;
     case 'monthly': content.innerHTML = _dsBuildMonthly(); break;
     case 'annual': content.innerHTML = _dsBuildAnnual(); break;
@@ -106,8 +106,6 @@ function _dsRefreshData() {
     if (wp.summarySubmittedAt) sumSub++;
     if (wpp.submittedAt || wpp.firstSubmittedAt) prevPlan++;
     if (wpp.summarySubmittedAt) prevSum++;
-    var r = wp.weeklyRating || '';
-    if (ratings[r] !== undefined) ratings[r]++;
 
     for (var wkId in allPlans) {
       var parts = wkId.split('-W');
@@ -116,6 +114,9 @@ function _dsRefreshData() {
       if (pp.submittedAt || pp.firstSubmittedAt) ytdPlan++;
       if (pp.summarySubmittedAt) ytdSum++;
       ytdWeeks++;
+      // ★ V0.6.1.hn: 评级统计 - 累计全年所有周的评级
+      var rr = pp.weeklyRating || '';
+      if (ratings[rr] !== undefined) ratings[rr]++;
     }
   }
 
@@ -184,10 +185,8 @@ function _getISOWeek(d) {
 
 // ===== 驾驶舱 =====
 function _dsBuildCockpit() {
-  var dd = _dsData;
   return '<div class="ds-grid">' +
     _dsBuildCards() +
-    _dsBuildDonuts() +
     _dsBuildStats() +
     _dsBuildFilterBar() +
     _dsBuildRankTable() +
@@ -200,33 +199,9 @@ function _dsBuildCards() {
     '<div class="ds-card ds-card-gold"><div class="ds-card-num">' + (dd.myScore >= 0 ? '+' : '') + dd.myScore + '</div><div class="ds-card-label">🏅 我的净积分</div></div>' +
     '<div class="ds-card ds-card-gold"><div class="ds-card-num">' + dd.myRank + '</div><div class="ds-card-label">🏆 我的排名</div></div>' +
     '<div class="ds-card ds-card-silver"><div class="ds-card-num">🥇×' + dd.myGold + '</div><div class="ds-card-label">🏅 奖牌战绩</div></div>' +
-    '<div class="ds-card ds-card-blue"><div class="ds-card-num" style="color:#3B82F6">' + dd.planRate + '%</div><div class="ds-card-label">⏰ 周计划提交率</div></div>' +
-    '<div class="ds-card ds-card-green"><div class="ds-card-num" style="color:#059669">' + dd.sumRate + '%</div><div class="ds-card-label">⏰ 周小结提交率</div></div>' +
+    '<div class="ds-card ds-card-blue"><div class="ds-card-num" style="color:#3B82F6">' + dd.planRate + '%</div><div class="ds-card-label">⏰ 我的周计划按时提交率</div></div>' +
+    '<div class="ds-card ds-card-green"><div class="ds-card-num" style="color:#059669">' + dd.sumRate + '%</div><div class="ds-card-label">⏰ 我的周小结按时提交率</div></div>' +
     '</div>';
-}
-
-function _dsBuildDonuts() {
-  var dd = _dsData;
-  var donuts = [
-    { title: '年度周计划提交率', sub: dd.ytdPlanRate + '%', pct: dd.ytdPlanRate, color: '#EF4444', total: '—', actual: '—' },
-    { title: '年度周小结提交率', sub: dd.ytdSumRate + '%', pct: dd.ytdSumRate, color: '#3B82F6', total: '—', actual: '—' },
-    { title: '本周周计划提交', sub: dd.planRate + '% (' + dd.planSub + '/' + dd.totalUsers + ')', pct: dd.planRate, color: '#10B981', total: dd.totalUsers, actual: dd.planSub },
-    { title: '本周周小结提交', sub: dd.sumRate + '% (' + dd.sumSub + '/' + dd.totalUsers + ')', pct: dd.sumRate, color: '#F59E0B', total: dd.totalUsers, actual: dd.sumSub }
-  ];
-  var html = '<div class="ds-donuts">';
-  for (var i = 0; i < donuts.length; i++) {
-    var d = donuts[i];
-    var circumference = 2 * Math.PI * 52;
-    var offset = circumference * (1 - Math.min(d.pct, 100) / 100);
-    html += '<div class="ds-donut-card"><div class="ds-donut-title">' + d.title + '</div>' +
-      '<svg width="130" height="130" viewBox="0 0 130 130"><circle cx="65" cy="65" r="52" fill="none" stroke="#f3f4f6" stroke-width="10"/>' +
-      '<circle class="ds-donut-ring" cx="65" cy="65" r="52" fill="none" stroke="' + d.color + '" stroke-width="10" stroke-linecap="round" stroke-dasharray="' + circumference + '" stroke-dashoffset="' + circumference + '" data-offset="' + offset + '" transform="rotate(-90 65 65)" style="transition:stroke-dashoffset .8s ease"/>' +
-      '<text x="65" y="62" text-anchor="middle" font-size="22" font-weight="700" fill="' + d.color + '">' + d.pct + '%</text>' +
-      '<text x="65" y="82" text-anchor="middle" font-size="11" fill="#6b7280">W' + dd.week + '</text></svg>' +
-      '<div class="ds-donut-sub">' + d.sub + '</div></div>';
-  }
-  html += '</div>';
-  return html;
 }
 
 function _dsBuildStats() {
@@ -246,11 +221,11 @@ function _dsBuildStats() {
   rhtml += '</div>';
 
   return '<div class="ds-stats-row">' +
-    '<div class="ds-stat-module"><div class="ds-stat-head">📋 年度周计划提交率</div><div class="ds-stat-num" style="color:#EF4444">' + dd.ytdPlanRate + '%</div><div class="ds-stat-detail">累计统计</div><div class="ds-stat-bar"><div style="width:' + dd.ytdPlanRate + '%;background:#EF4444"></div></div></div>' +
-    '<div class="ds-stat-module"><div class="ds-stat-head">📝 年度周小结提交率</div><div class="ds-stat-num" style="color:#3B82F6">' + dd.ytdSumRate + '%</div><div class="ds-stat-detail">累计统计</div><div class="ds-stat-bar"><div style="width:' + dd.ytdSumRate + '%;background:#3B82F6"></div></div></div>' +
-    '<div class="ds-stat-module"><div class="ds-stat-head">📋 上周周计划提交率</div><div class="ds-stat-num" style="color:#10B981">' + dd.prevPlanRate + '%</div><div class="ds-stat-detail">' + dd.prevPlanSub + '/' + dd.totalUsers + '</div><div class="ds-stat-bar"><div style="width:' + dd.prevPlanRate + '%;background:#10B981"></div></div></div>' +
-    '<div class="ds-stat-module"><div class="ds-stat-head">📝 上周周小结提交率</div><div class="ds-stat-num" style="color:#F59E0B">' + dd.prevSumRate + '%</div><div class="ds-stat-detail">' + dd.prevSumSub + '/' + dd.totalUsers + '</div><div class="ds-stat-bar"><div style="width:' + dd.prevSumRate + '%;background:#F59E0B"></div></div></div>' +
-    '<div class="ds-stat-module"><div class="ds-stat-head">🏅 上级评价分布（本周）</div>' + rhtml + '<div class="ds-stat-detail" style="margin-top:4px">共 ' + tr + ' 次评价</div></div>' +
+    '<div class="ds-stat-module"><div class="ds-stat-head">📋 全员年度周计划及时提交率</div><div class="ds-stat-num" style="color:#EF4444">' + dd.ytdPlanRate + '%</div><div class="ds-stat-detail">累计统计</div><div class="ds-stat-bar"><div style="width:' + dd.ytdPlanRate + '%;background:#EF4444"></div></div></div>' +
+    '<div class="ds-stat-module"><div class="ds-stat-head">📝 全员年度周小结及时提交率</div><div class="ds-stat-num" style="color:#3B82F6">' + dd.ytdSumRate + '%</div><div class="ds-stat-detail">累计统计</div><div class="ds-stat-bar"><div style="width:' + dd.ytdSumRate + '%;background:#3B82F6"></div></div></div>' +
+    '<div class="ds-stat-module"><div class="ds-stat-head">📋 全员上周周计划及时提交率</div><div class="ds-stat-num" style="color:#10B981">' + dd.prevPlanRate + '%</div><div class="ds-stat-detail">' + dd.prevPlanSub + '/' + dd.totalUsers + '</div><div class="ds-stat-bar"><div style="width:' + dd.prevPlanRate + '%;background:#10B981"></div></div></div>' +
+    '<div class="ds-stat-module"><div class="ds-stat-head">📝 全员上周周小结及时提交率</div><div class="ds-stat-num" style="color:#F59E0B">' + dd.prevSumRate + '%</div><div class="ds-stat-detail">' + dd.prevSumSub + '/' + dd.totalUsers + '</div><div class="ds-stat-bar"><div style="width:' + dd.prevSumRate + '%;background:#F59E0B"></div></div></div>' +
+    '<div class="ds-stat-module"><div class="ds-stat-head">🏅 全员上级评价分布：（年度累计）</div>' + rhtml + '<div class="ds-stat-detail" style="margin-top:4px">共 ' + tr + ' 次评价（年度）</div></div>' +
     '</div>';
 }
 
@@ -274,16 +249,6 @@ function _dsBuildFilterBar() {
 
 function _dsBuildRankTable() {
   return '<div class="ds-table-wrap"><table class="ds-table"><thead><tr><th>#</th><th>姓名</th><th>中心/部门</th><th>积分</th><th>🥇</th><th>本周评级</th><th>📈 趋势</th></tr></thead><tbody id="dsTbody"><tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-hint)">点击刷新排名</td></tr></tbody></table></div>';
-}
-
-function _dsAnimate() {
-  setTimeout(function () {
-    var rings = document.querySelectorAll('.ds-donut-ring');
-    for (var i = 0; i < rings.length; i++) {
-      rings[i].style.strokeDashoffset = rings[i].getAttribute('data-offset');
-    }
-  }, 200);
-  _dsRenderRankTable();
 }
 
 // ===== 占位页面 =====
