@@ -143,13 +143,15 @@ function _dsRefreshData() {
 
   var myName = (currentUser && currentUser.name) || '';
   var myScore = 0, myRank = '—', myGold = 0, myGivenGold = 0, myGivenTotal = 0;
-  // ★ V0.6.1.ht: 统计「我评出的奖牌」— 当前用户作为上级给下属打过的奖牌数
+  // ★ V0.6.1.hv: 统计「我评出的奖牌」— 只统计有效评级（gold/silver/bronze/warn/danger）
+  var _validRatings = ['gold','silver','bronze','warn','danger'];
   for (var wkId2 in allPlans) {
     var pplans = allPlans[wkId2];
     if (!pplans) continue;
     for (var pname in pplans) {
       var pp2 = pplans[pname];
-      if (pp2 && pp2.weeklyRating && pp2.bossEvaluatedBy === myName) {
+      if (!pp2) continue;
+      if (_validRatings.indexOf(pp2.weeklyRating) >= 0 && pp2.bossEvaluatedBy === myName) {
         myGivenTotal++;
         if (pp2.weeklyRating === 'gold') myGivenGold++;
       }
@@ -225,7 +227,12 @@ function _dsSyncFromCloud() {
 function _dsCalcUserScore(userName, allPlans, period) {
   var net = 0, gold = 0, trend = 0, cr = '';
   var now = new Date(), year = now.getFullYear(), week = _getISOWeek(now);
-  var cWeekId = year + '-W' + week, pWeekId = year + '-W' + (week - 1);
+  // ★ V0.6.1.hv: 把 ISO 周转为月-周（与 makeWPId 格式一致："yyyy-mm-Ww"）
+  var sMapped = (typeof isoWeekToMonthWeek === 'function') ? isoWeekToMonthWeek(week) : { month: now.getMonth() + 1, week: week };
+  var cMonth = sMapped.month, cWeekInMonth = sMapped.week;
+  // 上一周（简化处理：同月 week-1；跨月则月份-1）
+  var pMonth = cMonth, pWeekInMonth = cWeekInMonth - 1;
+  if (pWeekInMonth < 1) { pMonth = cMonth - 1; pWeekInMonth = 4; }
   var cw = 0, pw = 0;
   for (var wkId in allPlans) {
     var pp = allPlans[wkId][userName] || {};
@@ -234,13 +241,16 @@ function _dsCalcUserScore(userName, allPlans, period) {
     if (pp._taskScores) for (var ti = 0; ti < pp._taskScores.length; ti++) ws += pp._taskScores[ti] || 0;
     var rm = { gold: 2, silver: 1, bronze: 0, warn: -1, danger: -2 };
     if (pp.weeklyRating && rm[pp.weeklyRating] !== undefined) { ws += rm[pp.weeklyRating]; if (pp.weeklyRating === 'gold') gold++; }
-    if (wkId === cWeekId) { cr = pp.weeklyRating || ''; cw = ws; }
-    if (wkId === pWeekId) pw = ws;
+    // ★ V0.6.1.hv: 用 plan 自身的 year/month/week 字段判断当前周/上周期（避免 wkId 格式不匹配）
+    var isCurrentWeek = (pp.year === year && pp.month === cMonth && pp.week === cWeekInMonth);
+    var isPrevWeek = (pp.year === year && pp.month === pMonth && pp.week === pWeekInMonth);
+    if (isCurrentWeek) { cr = pp.weeklyRating || ''; cw = ws; }
+    if (isPrevWeek) pw = ws;
     var include = false;
-    if (period === 'week') include = (wkId === cWeekId);
-    else if (period === 'month') include = (parseInt(wkId.split('-W')[0]) === year && Math.ceil(parseInt(wkId.split('-W')[1]) / 4.33) === Math.ceil((now.getMonth() + 1) / 4.33));
-    else if (period === 'quarter') include = (parseInt(wkId.split('-W')[0]) === year && Math.ceil(Math.ceil(parseInt(wkId.split('-W')[1]) / 4.33) / 3) === Math.ceil((now.getMonth() + 1) / 3));
-    else if (period === 'ytd') include = (parseInt(wkId.split('-W')[0]) === year);
+    if (period === 'week') include = isCurrentWeek;
+    else if (period === 'month') include = (pp.year === year && pp.month === now.getMonth() + 1);
+    else if (period === 'quarter') include = (pp.year === year && Math.ceil(pp.month / 3) === Math.ceil((now.getMonth() + 1) / 3));
+    else if (period === 'ytd') include = (pp.year === year);
     if (include) net += ws;
   }
   trend = cw - pw;
