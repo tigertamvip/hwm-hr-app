@@ -25,15 +25,15 @@ function _dsBuildNav() {
     { icon: '🏆', label: '三年规划', tab: 'plan3y', disabled: true },
     '<sep>',
     '<group>数据报告</group>',
-    { icon: '🔬', label: '研发数据', tab: 'data_report', disabled: true },
-    { icon: '🏭', label: '制造数据', tab: 'data_report', disabled: true },
-    { icon: '📦', label: '采购数据', tab: 'data_report', disabled: true },
-    { icon: '✅', label: '质量数据', tab: 'data_report', disabled: true },
-    { icon: '📣', label: '营销数据', tab: 'data_report', disabled: true },
-    { icon: '👥', label: '人力数据', tab: 'data_report', disabled: true },
-    { icon: '💰', label: '财务数据', tab: 'data_report', disabled: true },
-    { icon: '📋', label: '注册数据', tab: 'data_report', disabled: true },
-    { icon: '📑', label: '其他数据', tab: 'data_report', disabled: true }
+    { icon: '🔬', label: '研发数据', tab: 'data_report' },
+    { icon: '🏭', label: '制造数据', tab: 'data_report' },
+    { icon: '📦', label: '采购数据', tab: 'data_report' },
+    { icon: '✅', label: '质量数据', tab: 'data_report' },
+    { icon: '📣', label: '营销数据', tab: 'data_report' },
+    { icon: '👥', label: '人力数据', tab: 'data_report' },
+    { icon: '💰', label: '财务数据', tab: 'data_report' },
+    { icon: '📋', label: '注册数据', tab: 'data_report' },
+    { icon: '📑', label: '其他数据', tab: 'data_report' }
   ];
   for (var i = 0; i < items.length; i++) {
     var it = items[i];
