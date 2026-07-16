@@ -198,7 +198,7 @@ function _dsBuildCards() {
   return '<div class="ds-cards-row">' +
     '<div class="ds-card ds-card-gold"><div class="ds-card-num">' + (dd.myScore >= 0 ? '+' : '') + dd.myScore + '</div><div class="ds-card-label">🏅 我的净积分</div></div>' +
     '<div class="ds-card ds-card-gold"><div class="ds-card-num">' + dd.myRank + '</div><div class="ds-card-label">🏆 我的排名</div></div>' +
-    '<div class="ds-card ds-card-silver"><div class="ds-card-num">🥇×' + dd.myGold + '</div><div class="ds-card-label">🏅 奖牌战绩</div></div>' +
+    '<div class="ds-card ds-card-silver"><div class="ds-card-num">🥇×' + dd.myGold + '</div><div class="ds-card-label">🏅 我的奖牌</div></div>' +
     '<div class="ds-card ds-card-blue"><div class="ds-card-num" style="color:#3B82F6">' + dd.planRate + '%</div><div class="ds-card-label">⏰ 我的周计划按时提交率</div></div>' +
     '<div class="ds-card ds-card-green"><div class="ds-card-num" style="color:#059669">' + dd.sumRate + '%</div><div class="ds-card-label">⏰ 我的周小结按时提交率</div></div>' +
     '</div>';
