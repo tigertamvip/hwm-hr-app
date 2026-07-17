@@ -187,7 +187,9 @@ function _dsRefreshData() {
     prevPlanRate: totalUsers ? Math.round(prevPlan / totalUsers * 100) : 0, prevPlanSub: prevPlan,
     prevSumRate: totalUsers ? Math.round(prevSum / totalUsers * 100) : 0, prevSumSub: prevSum,
     ytdPlanRate: ytdWeeks ? Math.round(ytdPlan / ytdWeeks * 100) : 0,
+    ytdPlanSub: ytdPlan,
     ytdSumRate: ytdWeeks ? Math.round(ytdSum / ytdWeeks * 100) : 0,
+    ytdSumSub: ytdSum,
     ratings: ratings, totalRatings: ratings.gold + ratings.silver + ratings.bronze + ratings.warn + ratings.danger,
     lastUpdate: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
   };
@@ -283,22 +285,27 @@ function _getISOWeek(d) {
 
 // ===== 驾驶舱 =====
 function _dsBuildCockpit() {
-  return '<div class="ds-grid">' +
-    _dsBuildHeroStats() +
-    _dsBuildRatingPanel() +
-    _dsBuildFilterBar() +
-    _dsBuildRankTable() +
-    '</div>';
+  try {
+    return '<div class="ds-grid">' +
+      _dsBuildHeroStats() +
+      _dsBuildRatingPanel() +
+      _dsBuildFilterBar() +
+      _dsBuildRankTable() +
+      '</div>';
+  } catch (e) {
+    console.error('[DS] _dsBuildCockpit error:', e);
+    return '<div class="ds-grid"><div class="ds-card" style="padding:40px;text-align:center;color:#dc2626"><div style="font-size:16px;font-weight:600;margin-bottom:8px">⚠️ 驾驶舱渲染异常</div><div style="font-size:12px;color:var(--text-hint)">' + (e.message || '未知错误') + '</div></div></div>';
+  }
 }
 
 // ★ V0.6.1.hx: 全员 4 大提交率卡片（年度×计划/小结 + 上周×计划/小结）
 function _dsBuildHeroStats() {
-  var dd = _dsData;
+  var dd = _dsData || {};
   var cards = [
-    { title: '📋 全员年度周计划及时提交率', num: dd.ytdPlanRate, sub: dd.ytdPlanSub + ' 次 / ' + (dd.ytdWeeks * dd.totalUsers) + ' 人周', color: '#EF4444' },
-    { title: '📝 全员年度周小结及时提交率', num: dd.ytdSumRate, sub: dd.ytdSumSub + ' 次 / ' + (dd.ytdWeeks * dd.totalUsers) + ' 人周', color: '#3B82F6' },
-    { title: '📋 上周周计划及时提交率', num: dd.prevPlanRate, sub: dd.prevPlanSub + ' / ' + dd.totalUsers + ' 人', color: '#10B981' },
-    { title: '📝 上周周小结及时提交率', num: dd.prevSumRate, sub: dd.prevSumSub + ' / ' + dd.totalUsers + ' 人', color: '#F59E0B' }
+    { title: '📋 全员年度周计划及时提交率', num: dd.ytdPlanRate || 0, sub: (dd.ytdPlanSub || 0) + ' 次 / ' + ((dd.ytdWeeks || 0) * (dd.totalUsers || 0)) + ' 人周', color: '#EF4444' },
+    { title: '📝 全员年度周小结及时提交率', num: dd.ytdSumRate || 0, sub: (dd.ytdSumSub || 0) + ' 次 / ' + ((dd.ytdWeeks || 0) * (dd.totalUsers || 0)) + ' 人周', color: '#3B82F6' },
+    { title: '📋 上周周计划及时提交率', num: dd.prevPlanRate || 0, sub: (dd.prevPlanSub || 0) + ' / ' + (dd.totalUsers || 0) + ' 人', color: '#10B981' },
+    { title: '📝 上周周小结及时提交率', num: dd.prevSumRate || 0, sub: (dd.prevSumSub || 0) + ' / ' + (dd.totalUsers || 0) + ' 人', color: '#F59E0B' }
   ];
   var html = '<div class="ds-hero-row">';
   for (var i = 0; i < cards.length; i++) {
