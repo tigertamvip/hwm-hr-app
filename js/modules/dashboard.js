@@ -437,10 +437,10 @@ function _dsBuildMoodPanel() {
   var collapsed = '';
   var mItems = [
     { label: '😊 顺利', key: 'happy', color: '#FFD700' },
-    { label: '😌 平静', key: 'calm', color: '#94A3B8' },
-    { label: '😩 困惑', key: 'tired', color: '#CD7F32' },
+    { label: '😌 平常', key: 'calm', color: '#94A3B8' },
+    { label: '😩 郁闷', key: 'tired', color: '#CD7F32' },
     { label: '😢 委屈', key: 'aggrieved', color: '#F59E0B' },
-    { label: '😶 难言', key: 'silent', color: '#9CA3AF' }
+    { label: '😶 无言', key: 'silent', color: '#9CA3AF' }
   ];
   var mhtml = '<div class="ds-rating-bars">';
   for (var i = 0; i < mItems.length; i++) {
