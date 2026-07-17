@@ -191,10 +191,15 @@ function _dsRefreshData() {
       var ppK = allPlans[wkId][uname];
       if (!ppK) continue;
       var planMonth = ppK.month, planWeek = ppK.week;
-      if (planYear === year && planMonth === curMonthIdx && planWeek === curWeekInMonth) {
+      // ★ V0.6.1.is: 心情统计改查"本周+上周"（避免周次边界错位导致全 0）
+      var isCurrentWeek = (planYear === year && planMonth === curMonthIdx && planWeek === curWeekInMonth);
+      var isPrevWeek = (planYear === year && planMonth === prevMonthIdx && planWeek === prevWeekInMonth);
+      if (isCurrentWeek) {
         if (ppK.submittedAt || ppK.firstSubmittedAt) planSub++;
         if (ppK.summarySubmittedAt) sumSub++;
-        // ★ V0.6.1.iq: 心情统计 - 兼容单值和多值（多种字段名都查）
+      }
+      if (isCurrentWeek || isPrevWeek) {
+        // 心情统计 - 兼容单值和多值（多种字段名都查）
         var pMoods = [];
         if (ppK.moods && Array.isArray(ppK.moods)) pMoods = ppK.moods;
         else if (ppK.moodA && ppK.moodB) pMoods = [ppK.moodA, ppK.moodB];
@@ -473,11 +478,11 @@ function _dsBuildMoodPanel() {
   mhtml += '</div>';
   return '<div class="ds-rating-panel' + collapsed + '">' +
     '<div class="ds-rating-panel-head" onclick="_dsToggleRatingPanel(this)" style="cursor:pointer;user-select:none">' +
-    '<span>🎭 员工本周状态统计</span>' +
+    '<span>🎭 员工本周状态统计 <span class="ds-rating-panel-sub">（近 2 周）</span></span>' +
     '<span class="ds-rating-panel-toggle">' + (collapsed ? '▶ 展开' : '▼ 收起') + '</span>' +
     '</div>' +
     '<div class="ds-rating-panel-body">' + mhtml +
-    '<div class="ds-rating-panel-foot">共 <strong>' + tr + '</strong> 人填写本周心情</div>' +
+    '<div class="ds-rating-panel-foot">共 <strong>' + tr + '</strong> 人填写近 2 周心情</div>' +
     '</div>' +
     '</div>';
 }
