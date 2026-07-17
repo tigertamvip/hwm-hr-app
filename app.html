@@ -6,8 +6,8 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.6.1.io">
-<!-- cache-bust: 2026-07-17-20-00 -->
+<meta name="version" content="V0.6.1.ip">
+<!-- cache-bust: 2026-07-17-21-01 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json?v=bc">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2741,6 +2741,13 @@ function togglePortalTips(){
     如果使用过程中有任何问题，请咨询人力资源部<br>
     <span id="footer-copy">&copy; Tiger-Buddy+AI 版权所有</span>
   </div>
+  <!-- ★ V0.6.1.ip: 登录员工头像 — 从团队档案提取照片，无照片用灰色占位 -->
+  <div id="portalAvatar" style="position:fixed;left:32px;bottom:28px;z-index:100;display:none">
+    <div id="portalAvatarImg" style="width:52px;height:52px;border-radius:50%;overflow:hidden;border:2px solid rgba(255,255,255,.25);box-shadow:0 4px 16px rgba(0,0,0,.15);background:#4a5568;display:flex;align-items:center;justify-content:center;transition:transform .2s;cursor:default" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
+      <span id="portalAvatarFallback" style="font-size:22px;color:rgba(255,255,255,.5)">👤</span>
+      <img id="portalAvatarPic" src="" style="display:none;width:100%;height:100%;object-fit:cover">
+    </div>
+  </div>
   <!-- ★ V0.6.1.hs: 提示窗开关移至右下角，与版本号同一水平线 bottom:24px -->
   <div id="portalTipToggle" style="position:fixed;right:24px;bottom:24px;z-index:10000;font-size:11px;color:rgba(255,255,255,.55);font-family:-apple-system,'苹方',sans-serif;display:flex;align-items:center;gap:6px" onclick="togglePortalTips()" title="关闭后鼠标悬停模块不弹窗">
     <span>提示窗</span>
@@ -4020,6 +4027,41 @@ function initPortalInfoPanel(){
   });
 }
 
+// ★ V0.6.1.ip: 首页显示登录员工头像（从 employee-photos.js 提取）
+function refreshPortalAvatar(){
+  var av = document.getElementById('portalAvatar');
+  var img = document.getElementById('portalAvatarPic');
+  var fb = document.getElementById('portalAvatarFallback');
+  if(!av){return;}
+  av.style.display = 'flex';
+  var name = (currentUser && currentUser.name) || '';
+  var src = '';
+  if(window.__EMPLOYEE_PHOTOS__ && window.__EMPLOYEE_PHOTOS__[name]){
+    src = window.__EMPLOYEE_PHOTOS__[name];
+  }
+  // ★ fallback: 如果 name 对不上，从 USERS 反查
+  if(!src && currentUser && currentUser._uid){
+    var uu = USERS[currentUser._uid];
+    if(uu && window.__EMPLOYEE_PHOTOS__){
+      var tryNames = [uu.name, uu.cname, uu.displayName, currentUser._uid].filter(Boolean);
+      for(var i=0;i<tryNames.length;i++){
+        if(window.__EMPLOYEE_PHOTOS__[tryNames[i]]){
+          src = window.__EMPLOYEE_PHOTOS__[tryNames[i]];
+          break;
+        }
+      }
+    }
+  }
+  if(src){
+    img.src = src;
+    img.style.display = 'block';
+    fb.style.display = 'none';
+  } else {
+    img.style.display = 'none';
+    fb.style.display = 'flex';
+  }
+}
+
 // ★ V0.5.78f: 统计卡片展开/收起
 var _empStatsExpanded=false;
 
@@ -4113,6 +4155,8 @@ function goHome(){
   var pmv2=document.getElementById('pmView');
   if(pmv2)pmv2.style.display='none';
   document.getElementById('portalView').style.display='flex';
+  // ★ V0.6.1.ip: 刷新登录员工头像
+  refreshPortalAvatar();
   // 刷新权限卡片显隐
   applyRoleUI();
   // 清理人力资源制度模块状态
