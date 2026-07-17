@@ -95,6 +95,8 @@ function _dsRefreshData() {
   try {
     // Step 1: 从 localStorage 读取所有 hwm_workplans_* 数据
     for (var k in localStorage) {
+      // ★ V0.6.1.ia: 跳过 _backup 备份 key（避免被当成另一用户）
+      if (k.indexOf('_backup') > 0) continue;
       if (k.startsWith('hwm_workplans_')) {
         var d = JSON.parse(localStorage.getItem(k) || '{}');
         for (var wk in d) { if (!allPlans[wk]) allPlans[wk] = {}; allPlans[wk][k.replace('hwm_workplans_', '')] = d[wk]; }

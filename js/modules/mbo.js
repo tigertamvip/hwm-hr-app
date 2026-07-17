@@ -440,7 +440,8 @@ function saveWPData(){
   // ★ V0.6.1eh: 保存前先备份 — 防止数据丢失
   var oldData=localStorage.getItem(key);
   if(oldData){
-    try{localStorage.setItem(key+'_backup',oldData);}catch(e){}
+    // ★ V0.6.1.ia: 备份 key 用 `__hwm_backup_` 前缀，避免被当作用户名
+    try{localStorage.setItem('__hwm_backup__'+key,oldData);}catch(e){}
   }
   localStorage.setItem(key,JSON.stringify(_wpData));
   // 异步推送到 Supabase（静默，失败不影响使用）
