@@ -175,6 +175,13 @@ function _dsRefreshData() {
     if (uid === '管理员' || USERS[uid].role === 'admin') continue;
     users[USERS[uid].name || uid] = USERS[uid];
   }
+  // ★ V0.6.1.iw: 关键修复 — 把 allPlans 里的所有 user 也加入 users 字典
+  // (避免 USERS 没注册该员工时,心情/评级数据被忽略)
+  for (var _wka in allPlans) {
+    for (var _uka in allPlans[_wka]) {
+      if (!users[_uka]) users[_uka] = { name: _uka, role: 'staff' };
+    }
+  }
   var totalUsers = Object.keys(users).length;
   // ★ V0.6.1.ip: 本周统计（不再依赖外部函数，直接用 WEEKS 表）
   var MOOD_WEEKS = [4,4,5,4,4,5,4,4,5,4,4,5];
