@@ -186,8 +186,8 @@ function _dsRefreshData() {
             console.warn('[DS] 未知心情值:', pm, '用户:', ppK.name);
           }
         }
-        // ★ V0.6.1.iy: 每个 plan 只算 1 人（不管填了几个心情）
-        moodPlanCount++;
+        // ★ V0.6.1.iz: 只有累加到有效心情的 plan 才计入人/次
+        if (Object.keys(seenM).length > 0) moodPlanCount++;
       }
     }
 
@@ -443,7 +443,7 @@ function _dsBuildMoodPanel() {
   var mhtml = '<div class="ds-rating-bars">';
   for (var i = 0; i < mItems.length; i++) {
     var mi = mItems[i], v = mt[mi.key] || 0, w = tr ? Math.round(v / tr * 100) : 0;
-    mhtml += '<div class="ds-rating-row"><span class="ds-r-label" style="width:28px;text-align:center;font-size:18px">' + mi.label.split(' ')[0] + '</span><span class="ds-r-label" style="width:28px;text-align:left;font-size:12px;margin-left:2px">' + mi.label.split(' ')[1] + '</span><div class="ds-r-bar"><div style="width:' + w + '%;background:' + mi.color + '"></div></div><span class="ds-r-count" style="width:46px">' + v + ' 人</span></div>';
+    mhtml += '<div class="ds-rating-row"><span class="ds-r-label" style="width:28px;text-align:center;font-size:18px">' + mi.label.split(' ')[0] + '</span><span class="ds-r-label" style="width:28px;text-align:left;font-size:12px;margin-left:2px">' + mi.label.split(' ')[1] + '</span><div class="ds-r-bar"><div style="width:' + w + '%;background:' + mi.color + '"></div></div><span class="ds-r-count" style="width:46px">' + v + ' 次</span></div>';
   }
   mhtml += '</div>';
   return '<div class="ds-rating-panel' + collapsed + '">' +
@@ -453,7 +453,7 @@ function _dsBuildMoodPanel() {
     '<span class="ds-rating-panel-toggle" onclick="_dsToggleRatingPanel(this.parentElement)" style="cursor:pointer">▼ 收起</span>' +
     '</div>' +
     '<div class="ds-rating-panel-body">' + mhtml +
-    '<div class="ds-rating-panel-foot">共 <strong>' + tr + '</strong> 人填写近 2 周心情</div>' +
+    '<div class="ds-rating-panel-foot">共 <strong>' + tr + '</strong> 人次填写近 2 周心情</div>' +
     '</div>' +
     '</div>';
 }
