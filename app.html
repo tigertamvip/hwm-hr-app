@@ -6,8 +6,8 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.6.1.ib">
-<!-- cache-bust: 2026-07-17-08-32 -->
+<meta name="version" content="V0.6.1.ic">
+<!-- cache-bust: 2026-07-17-08-35 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json?v=bc">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2357,9 +2357,15 @@ table.collab-table tbody tr:hover{background:#fffdf5}
 .ds-hero-bar>div{height:100%;border-radius:3px;transition:width .8s ease}
 /* 评价分布独立面板 */
 .ds-rating-panel{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px 20px;box-shadow:var(--shadow-sm)}
-.ds-rating-panel-head{font-size:14px;font-weight:600;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:6px}
+.ds-rating-panel-head{font-size:14px;font-weight:600;color:var(--text);margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
+.ds-rating-panel-head:hover{color:var(--brand-tech)}
+.ds-rating-panel-toggle{font-size:12px;color:var(--text-hint);font-weight:400;transition:all .2s;user-select:none}
+.ds-rating-panel-head:hover .ds-rating-panel-toggle{color:var(--brand-tech)}
 .ds-rating-panel-sub{font-size:12px;color:var(--text-hint);font-weight:400;margin-left:4px}
 .ds-rating-panel-foot{font-size:12px;color:var(--text-secondary);margin-top:12px;padding-top:10px;border-top:1px solid var(--border);text-align:right}
+/* 收起时隐藏 body 内容 */
+.ds-rating-panel.ds-rating-collapsed .ds-rating-panel-body{display:none}
+.ds-rating-panel.ds-rating-collapsed .ds-rating-panel-head{margin-bottom:0}
 /* 兼容旧样式（保留以防其他模块引用） */
 .ds-cards-row{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
 .ds-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px 10px;text-align:center;transition:all .2s}
@@ -6764,7 +6770,7 @@ if('serviceWorker' in navigator){
 <script src="js/modules/mbo.js?v=50"></script>
 <script src="js/modules/pm.js?v=4"></script>
 <script src="js/modules/system.js"></script>
-<script src="js/modules/dashboard.js?v=hy20260717"></script>
+<script src="js/modules/dashboard.js?v=ic20260717"></script>
 <script>
 // PWA Service Worker Registration — V0.1.52 永久根治缓存
 if('serviceWorker' in navigator){

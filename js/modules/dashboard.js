@@ -340,6 +340,8 @@ function _dsBuildHeroStats() {
 // ★ V0.6.1.hx: 全员上级评价分布（独立面板）
 function _dsBuildRatingPanel() {
   var dd = _dsData, rt = dd.ratings || {}, tr = dd.totalRatings || 0;
+  // 默认收起（如果总评分为 0）— 节省空间
+  var collapsed = (tr === 0) ? ' ds-rating-collapsed' : '';
   var rItems = [
     { label: '🥇 金牌', key: 'gold', color: '#FFD700' },
     { label: '🥈 银牌', key: 'silver', color: '#C0C0C0' },
@@ -353,11 +355,24 @@ function _dsBuildRatingPanel() {
     rhtml += '<div class="ds-rating-row"><span class="ds-r-label" style="width:90px;text-align:left">' + ri.label + '</span><div class="ds-r-bar"><div style="width:' + w + '%;background:' + ri.color + '"></div></div><span class="ds-r-count" style="width:50px">' + v + ' 次</span></div>';
   }
   rhtml += '</div>';
-  return '<div class="ds-rating-panel">' +
-    '<div class="ds-rating-panel-head">🏅 全员上级评价分布 <span class="ds-rating-panel-sub">（年度累计）</span></div>' +
-    rhtml +
+  return '<div class="ds-rating-panel' + collapsed + '">' +
+    '<div class="ds-rating-panel-head" onclick="_dsToggleRatingPanel(this)" style="cursor:pointer;user-select:none">' +
+    '<span>🏅 全员上级评价分布 <span class="ds-rating-panel-sub">（年度累计）</span></span>' +
+    '<span class="ds-rating-panel-toggle">▼ 收起</span>' +
+    '</div>' +
+    '<div class="ds-rating-panel-body">' + rhtml +
     '<div class="ds-rating-panel-foot">共 <strong>' + tr + '</strong> 次评价</div>' +
+    '</div>' +
     '</div>';
+}
+
+// ★ V0.6.1.ic: 展开/收起「全员上级评价分布」面板
+function _dsToggleRatingPanel(head) {
+  var panel = head.parentElement;
+  if (!panel) return;
+  var isCollapsed = panel.classList.toggle('ds-rating-collapsed');
+  var toggle = head.querySelector('.ds-rating-panel-toggle');
+  if (toggle) toggle.textContent = isCollapsed ? '▶ 展开' : '▼ 收起';
 }
 
 function _dsBuildFilterBar() {
@@ -444,3 +459,4 @@ window.dashboardInit = dashboardInit;
 window._dsOnFilter = _dsOnFilter;
 window._dsRefresh = _dsRefresh;
 window._dsSwitchTab = _dsSwitchTab;
+window._dsToggleRatingPanel = _dsToggleRatingPanel;
