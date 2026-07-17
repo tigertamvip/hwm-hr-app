@@ -501,7 +501,7 @@ function _dsBuildFilterBar() {
 }
 
 function _dsBuildRankTable() {
-  return '<div class="ds-table-wrap"><table class="ds-table"><thead><tr><th>#</th><th>姓名</th><th>中心/部门</th><th>年度累计积分</th><th>🥇</th><th>本周评级</th><th>📈 趋势</th></tr></thead><tbody id="dsTbody"><tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-hint)">点击刷新排名</td></tr></tbody></table></div>';
+  return '<div class="ds-table-wrap"><table class="ds-table"><thead><tr><th>#</th><th>姓名</th><th>中心/部门</th><th>年度累计积分</th><th>🏅 本年度累计"优"评数</th><th>本周评级</th><th>📈 趋势</th></tr></thead><tbody id="dsTbody"><tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-hint)">点击刷新排名</td></tr></tbody></table></div>';
 }
 
 // ===== 占位页面 =====
