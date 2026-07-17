@@ -6,8 +6,8 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.6.1.ij">
-<!-- cache-bust: 2026-07-17-16-16 -->
+<meta name="version" content="V0.6.1.ik">
+<!-- cache-bust: 2026-07-17-16-21 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json?v=bc">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2674,15 +2674,15 @@ function togglePortalTips(){
       <div class="portal-card-label">三年规划</div>
       <div class="portal-card-badge">In Progress</div>
     </div>
-    <div id="portalCard_kpi" class="portal-card" data-module="kpi" style="display:none" data-tip-head="年度目标" data-tip-cn="设定年度关键绩效目标，将公司战略层层分解到部门与个人。目标驱动的管理确保上下对齐、聚焦重点。" data-tip-en="Set annual key performance goals, decompose company strategy to departments and individuals. Goal-driven management ensures alignment and focus." onclick="enterModule('kpi')">
+    <div id="portalCard_kpi" class="portal-card" data-module="kpi" style="display:none" data-tip-head="本年目标" data-tip-cn="设定年度关键绩效目标，将公司战略层层分解到部门与个人。目标驱动的管理确保上下对齐、聚焦重点。" data-tip-en="Set annual key performance goals, decompose company strategy to departments and individuals. Goal-driven management ensures alignment and focus." onclick="enterModule('kpi')">
       <div class="portal-card-en">Annual Goals</div>
-      <div class="portal-card-label">年度目标</div>
+      <div class="portal-card-label">本年目标</div>
     </div>
-    <div id="portalCard_mbo" class="portal-card" data-module="mbo" style="display:none" data-tip-head="当周行动" data-tip-cn="团队目标计划管理下沉到周，公司运营效率和绩效才有扎实根基。借助信息化系统内嵌管理规则与约束机制，用系统自动追踪跟进员工计划进度，优于管理者反复催促督办。一个人如果周计划长期落实不到位，其绩效表现大概率不会理想。" data-tip-en="Weekly team goal management underpins operational efficiency and performance management. An information system auto-tracks task progress instead of frequent managerial chasing. Persistent failure on weekly plans usually leads to poor performance." onclick="enterModule('workplan')">
+    <div id="portalCard_mbo" class="portal-card" data-module="mbo" style="display:none" data-tip-head="本周任务" data-tip-cn="团队目标计划管理下沉到周，公司运营效率和绩效才有扎实根基。借助信息化系统内嵌管理规则与约束机制，用系统自动追踪跟进员工计划进度，优于管理者反复催促督办。一个人如果周计划长期落实不到位，其绩效表现大概率不会理想。" data-tip-en="Weekly team goal management underpins operational efficiency and performance management. An information system auto-tracks task progress instead of frequent managerial chasing. Persistent failure on weekly plans usually leads to poor performance." onclick="enterModule('workplan')">
       <div class="portal-card-en">Weekly To-Do</div>
-      <div class="portal-card-label">当周行动</div>
+      <div class="portal-card-label">本周任务</div>
     </div>
-    <div id="portalCard_rd" class="portal-card portal-card-orange disabled" data-module="rd" style="display:none" data-tip-head="本月计划" data-tip-cn="承上启下的月度计划管理，将年度目标分解为月度里程碑，确保战略执行不脱节。" data-tip-en="Monthly plan management bridging annual and weekly goals. Decompose annual targets into monthly milestones to ensure strategic execution continuity." onclick="moduleBuilding()">
+    <div id="portalCard_rd" class="portal-card portal-card-orange disabled" data-module="rd" style="display:none" data-tip-head="本月计划" data-tip-cn="承上启下的月度计划管理，将本年目标分解为月度里程碑，确保战略执行不脱节。" data-tip-en="Monthly plan management bridging annual and weekly goals. Decompose annual targets into monthly milestones to ensure strategic execution continuity." onclick="moduleBuilding()">
       <div class="portal-card-en">Month Plan</div>
       <div class="portal-card-label">本月计划</div>
       <div class="portal-card-badge">In Progress</div>
@@ -2705,9 +2705,9 @@ function togglePortalTips(){
       <div class="portal-card-label">决策工具</div>
       <div class="portal-card-badge">In Progress</div>
     </div>
-    <div id="portalCard_learning" class="portal-card disabled" data-module="learning" style="display:none" data-tip-head="岗位胜任力" data-tip-cn="建立岗位能力模型与胜任力标准，评估员工岗位匹配度与发展潜力。人岗匹配是组织效能的基石。" data-tip-en="Build job competency models and standards, evaluate employee-job fit and development potential. Right people in right roles is the foundation of organizational effectiveness." onclick="moduleBuilding()">
-      <div class="portal-card-en">Job Competency</div>
-      <div class="portal-card-label">岗位胜任力</div>
+    <div id="portalCard_learning" class="portal-card disabled" data-module="learning" style="display:none" data-tip-head="职业生涯" data-tip-cn="建立岗位能力模型与胜任力标准，评估员工岗位匹配度与发展潜力。人岗匹配是组织效能的基石。" data-tip-en="Build job competency models and standards, evaluate employee-job fit and development potential. Right people in right roles is the foundation of organizational effectiveness." onclick="moduleBuilding()">
+      <div class="portal-card-en">IDP</div>
+      <div class="portal-card-label">职业生涯</div>
       <div class="portal-card-badge">In Progress</div>
     </div>
     <div id="portalCard_policies" class="portal-card" data-module="policies" style="display:none" data-tip-head="体系流程" data-tip-cn="管理公司制度、流程与标准化文档。完善的制度体系是规范化运营与风险管控的基础保障。" data-tip-en="Manage company policies, processes and standardized documents. Sound system frameworks are the foundation for standardized operations and risk control." onclick="enterModule('policies')">
@@ -3276,10 +3276,10 @@ function togglePortalTips(){
             <th class="sys-col-sub">下属</th>
             <th class="sys-col-module">团队</th>
             <th class="sys-col-module" style="color:rgba(255,255,255,.7)">编辑档案</th>
-            <th class="sys-col-module">当周行动</th>
-            <th class="sys-col-module">年度目标</th>
+            <th class="sys-col-module">本周任务</th>
+            <th class="sys-col-module">本年目标</th>
             <th class="sys-col-module">项目管理</th>
-            <th class="sys-col-module">岗位胜任力</th>
+            <th class="sys-col-module">职业生涯</th>
             <th class="sys-col-module">决策工具</th>
             <th class="sys-col-module">敬业度</th>
             <th class="sys-col-module">体系流程</th>
@@ -3501,7 +3501,7 @@ var AUTH_UID_KEY='hr_auth_uid';
 // 用户数据库：用户名 → {pwd: SHA256哈希, name: 显示名, role: 角色, centerKeyword: 中心关键词}
 // 模块权限定义
 var HWM_MODULES=['hr','editHr','mbo','kpi','talent','learning','payroll','ideas','policies','maintenance','decision','dashboard','rd'];
-var HWM_MODULE_LABELS={hr:'团队',editHr:'编辑档案',mbo:'当周行动',kpi:'年度目标',talent:'项目管理',learning:'岗位胜任力',payroll:'决策工具',ideas:'敬业度',policies:'体系流程',maintenance:'系统维护',decision:'三年规划',dashboard:'数据中心',rd:'本月计划'};
+var HWM_MODULE_LABELS={hr:'团队',editHr:'编辑档案',mbo:'本周任务',kpi:'本年目标',talent:'项目管理',learning:'职业生涯',payroll:'决策工具',ideas:'敬业度',policies:'体系流程',maintenance:'系统维护',decision:'三年规划',dashboard:'数据中心',rd:'本月计划'};
 // ★ V0.6.1.hs: 已上线模块（未列出的在系统维护表中灰色显示）
 var HWM_LIVE_MODULES={hr:true,editHr:true,mbo:true,talent:true,maintenance:true,dashboard:true};
 
