@@ -3878,7 +3878,7 @@ function _renderAnnualProgress(year){
   // 合计行
   var overallPct=totalCount>0?Math.round(totalDone/totalCount*100):0;
   html+='<div style="margin-top:6px;padding-top:6px;border-top:1px solid #e5e7eb">';
-  html+='<div class="wp-progress-row"><span class="wp-progress-label" style="font-weight:600;color:#1E3A5F">合计</span><div class="wp-progress-bar-wrap" style="height:11px"><div class="wp-progress-bar-fill" style="width:'+overallPct+'%;height:11px"></div></div><span class="wp-progress-num" style="font-weight:600;color:#1E3A5F">'+totalDone+'/'+totalCount+' ('+overallPct+'%)</span></div>';
+  html+='<div class="wp-progress-row"><span class="wp-progress-label" style="font-weight:600;color:#1E3A5F">合计</span><div class="wp-progress-bar-wrap" style="height:6px"><div class="wp-progress-bar-fill" style="width:'+overallPct+'%;height:6px"></div></div><span class="wp-progress-num" style="font-weight:600;color:#1E3A5F">'+totalDone+'/'+totalCount+' ('+overallPct+'%)</span></div>';
   html+='</div>';
   html+='</div>';
   html+='</div>';
