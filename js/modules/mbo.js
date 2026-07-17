@@ -2820,7 +2820,7 @@ function renderWPTable(plan){
     html+='<textarea class="wp-feedback-textarea" id="wpWeekSummary" placeholder="请总结本周工作完成情况、主要产出、遇到的问题及下周计划..." onblur="saveWPFeedback(\'weekSummary\',this.value)">'+_h(summaryContent)+'</textarea>';
     // ★ V0.6.1.hd: 心情选择器 — 员工点击选择本周真实感受
     var currentMood=plan.mood||'';
-    var moods=[{key:'happy',emoji:'😊',label:'开心',cls:'mood-happy'},{key:'calm',emoji:'😌',label:'平静',cls:'mood-calm'},{key:'tired',emoji:'😩',label:'疲惫',cls:'mood-tired'},{key:'pain',emoji:'😭',label:'痛苦',cls:'mood-pain'},{key:'silent',emoji:'😶',label:'沉默',cls:'mood-silent'}];
+    var moods=[{key:'happy',emoji:'😊',label:'开心',cls:'mood-happy'},{key:'calm',emoji:'😌',label:'平静',cls:'mood-calm'},{key:'tired',emoji:'😩',label:'疲惫',cls:'mood-tired'},{key:'aggrieved',emoji:'😢',label:'委屈',cls:'mood-aggrieved'},{key:'silent',emoji:'😶',label:'沉默',cls:'mood-silent'}];
     html+='<div class="wp-mood-selector"><span class="wp-mood-label">本周心情：</span>';
     for(var mi=0;mi<moods.length;mi++){
       var m=moods[mi];

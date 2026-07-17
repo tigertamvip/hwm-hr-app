@@ -131,7 +131,7 @@ function _dsRefreshData() {
   var planSub = 0, sumSub = 0, prevPlan = 0, prevSum = 0, ytdPlan = 0, ytdSum = 0, ytdWeeks = 0;
   var ratings = { gold: 0, silver: 0, bronze: 0, warn: 0, danger: 0 };
   // ★ V0.6.1.im: 本周心情统计
-  var moods = { happy: 0, calm: 0, tired: 0, pain: 0, silent: 0 };
+  var moods = { happy: 0, calm: 0, tired: 0, aggrieved: 0, silent: 0 };
 
   for (var uname in users) {
     // ★ V0.6.1.hx: 用 plan 字段判断本周/上周（避免 wkId 格式不匹配）
@@ -145,8 +145,15 @@ function _dsRefreshData() {
     if (currentPlan) {
       if (currentPlan.submittedAt || currentPlan.firstSubmittedAt) planSub++;
       if (currentPlan.summarySubmittedAt) sumSub++;
-      // ★ V0.6.1.im: 统计本周员工心情
-      if (currentPlan.mood && moods[currentPlan.mood] !== undefined) moods[currentPlan.mood]++;
+      // ★ V0.6.1.in: 统计本周员工心情
+      if (currentPlan.mood && moods[currentPlan.mood] !== undefined) {
+        moods[currentPlan.mood]++;
+      } else if (currentPlan.mood === 'pain') {
+        // 兼容旧数据"pain"映射到"aggrieved"
+        moods.aggrieved++;
+      } else if (currentPlan.mood) {
+        console.warn('[DS] 未知心情值:', currentPlan.mood, '用户:', currentPlan.name);
+      }
     }
     if (prevPlanObj) {
       if (prevPlanObj.submittedAt || prevPlanObj.firstSubmittedAt) prevPlan++;
@@ -211,7 +218,7 @@ function _dsRefreshData() {
     ytdSumRate: ytdWeeks ? Math.round(ytdSum / ytdWeeks * 100) : 0,
     ytdSumSub: ytdSum,
     ratings: ratings, totalRatings: ratings.gold + ratings.silver + ratings.bronze + ratings.warn + ratings.danger,
-    moods: moods, totalMoods: moods.happy + moods.calm + moods.tired + moods.pain + moods.silent,
+    moods: moods, totalMoods: moods.happy + moods.calm + moods.tired + moods.aggrieved + moods.silent,
     lastUpdate: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
   };
 
@@ -392,7 +399,7 @@ function _dsBuildMoodPanel() {
     { label: '😊 开心', key: 'happy', color: '#FFD700' },
     { label: '😌 平静', key: 'calm', color: '#94A3B8' },
     { label: '😩 疲惫', key: 'tired', color: '#CD7F32' },
-    { label: '😭 痛苦', key: 'pain', color: '#F59E0B' },
+    { label: '😢 委屈', key: 'aggrieved', color: '#F59E0B' },
     { label: '😶 沉默', key: 'silent', color: '#9CA3AF' }
   ];
   var mhtml = '<div class="ds-rating-bars">';
