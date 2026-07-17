@@ -210,10 +210,12 @@ function _dsRefreshData() {
   for (var uname2 in users) {
     var u = users[uname2];
     var sc = _dsCalcUserScore(uname2, allPlans, _dsFilter.period);
+    // ★ V0.6.1.iu: 排名表"积分"列固定显示年度累计(不受 _dsFilter.period 影响)
+    var scYtd = _dsCalcUserScore(uname2, allPlans, 'ytd');
     _dsRankData.push({
       name: uname2, dept: u.dept || u.centerKeyword || '',
       center: u.centerKeyword || u.dept || '', role: u.role || '',
-      score: sc.net || 0, gold: sc._gold || 0, rating: sc.currentRating || '', trend: sc.trend || 0
+      score: scYtd.net || 0, gold: scYtd._gold || 0, rating: sc.currentRating || '', trend: sc.trend || 0
     });
   }
   _dsRankData.sort(function (a, b) { return b.score - a.score; });
@@ -496,7 +498,7 @@ function _dsBuildFilterBar() {
 }
 
 function _dsBuildRankTable() {
-  return '<div class="ds-table-wrap"><table class="ds-table"><thead><tr><th>#</th><th>姓名</th><th>中心/部门</th><th>积分</th><th>🥇</th><th>本周评级</th><th>📈 趋势</th></tr></thead><tbody id="dsTbody"><tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-hint)">点击刷新排名</td></tr></tbody></table></div>';
+  return '<div class="ds-table-wrap"><table class="ds-table"><thead><tr><th>#</th><th>姓名</th><th>中心/部门</th><th>年度累计积分</th><th>🥇</th><th>本周评级</th><th>📈 趋势</th></tr></thead><tbody id="dsTbody"><tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-hint)">点击刷新排名</td></tr></tbody></table></div>';
 }
 
 // ===== 占位页面 =====
