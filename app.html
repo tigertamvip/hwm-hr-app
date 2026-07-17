@@ -6,8 +6,8 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.6.1.hv">
-<!-- cache-bust: 2026-07-17-07-30 -->
+<meta name="version" content="V0.6.1.hx">
+<!-- cache-bust: 2026-07-17-08-05 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json?v=bc">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2345,6 +2345,22 @@ table.collab-table tbody tr:hover{background:#fffdf5}
 
 /* ===== 数据中心 Dashboard ===== */
 .ds-grid{display:flex;flex-direction:column;gap:20px;width:100%}
+/* ★ V0.6.1.hx: Hero 4 大提交率卡片（年度×计划/小结 + 上周×计划/小结） */
+.ds-hero-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:8px}
+.ds-hero-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px 18px;box-shadow:var(--shadow-sm);transition:all .2s;position:relative;overflow:hidden}
+.ds-hero-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px)}
+.ds-hero-title{font-size:13px;font-weight:600;color:var(--text-secondary);margin-bottom:10px;letter-spacing:.2px}
+.ds-hero-num{font-size:42px;font-weight:800;line-height:1;margin-bottom:8px;letter-spacing:-1.5px;display:flex;align-items:baseline;gap:2px}
+.ds-hero-pct{font-size:24px;font-weight:600;opacity:.7;margin-left:2px}
+.ds-hero-sub{font-size:12px;color:var(--text-hint);margin-bottom:12px}
+.ds-hero-bar{height:6px;border-radius:3px;background:#F3F4F6;overflow:hidden;margin-top:8px}
+.ds-hero-bar>div{height:100%;border-radius:3px;transition:width .8s ease}
+/* 评价分布独立面板 */
+.ds-rating-panel{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px 20px;box-shadow:var(--shadow-sm)}
+.ds-rating-panel-head{font-size:14px;font-weight:600;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:6px}
+.ds-rating-panel-sub{font-size:12px;color:var(--text-hint);font-weight:400;margin-left:4px}
+.ds-rating-panel-foot{font-size:12px;color:var(--text-secondary);margin-top:12px;padding-top:10px;border-top:1px solid var(--border);text-align:right}
+/* 兼容旧样式（保留以防其他模块引用） */
 .ds-cards-row{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
 .ds-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px 10px;text-align:center;transition:all .2s}
 .ds-card:hover{box-shadow:var(--shadow-md);transform:translateY(-1px)}
@@ -2394,8 +2410,8 @@ table.collab-table tbody tr:hover{background:#fffdf5}
 .ds-rating-row .ds-r-count{width:28px;text-align:right;color:var(--text-secondary)}
 .ds-rating-row .ds-r-bar{flex:1;height:12px;border-radius:6px;overflow:hidden;background:#f3f4f6}
 .ds-rating-row .ds-r-bar>div{height:100%;border-radius:6px;transition:width .8s ease}
-@media(max-width:1024px){.ds-donuts{grid-template-columns:repeat(2,1fr)}.ds-stats-row{grid-template-columns:repeat(2,1fr)}.ds-cards-row{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:768px){#dsNav{width:140px!important}.ds-cards-row{grid-template-columns:repeat(2,1fr)}.ds-filter-bar{flex-direction:column;align-items:flex-start}.ds-donuts{grid-template-columns:1fr}}
+@media(max-width:1024px){.ds-donuts{grid-template-columns:repeat(2,1fr)}.ds-stats-row{grid-template-columns:repeat(2,1fr)}.ds-cards-row{grid-template-columns:repeat(3,1fr)}.ds-hero-row{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:768px){#dsNav{width:140px!important}.ds-cards-row{grid-template-columns:repeat(2,1fr)}.ds-hero-row{grid-template-columns:repeat(2,1fr)}.ds-filter-bar{flex-direction:column;align-items:flex-start}.ds-donuts{grid-template-columns:1fr}.ds-hero-num{font-size:36px}}
 
 /* ★ V0.3.74: 卡片仪表盘 */
 .wp-cards-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:6px 0 4px 0}

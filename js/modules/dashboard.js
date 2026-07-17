@@ -102,19 +102,36 @@ function _dsRefreshData() {
     users[USERS[uid].name || uid] = USERS[uid];
   }
   var totalUsers = Object.keys(users).length;
-  var cWeekId = year + '-W' + week;
-  var pWeekId = year + '-W' + (week - 1);
+  // ★ V0.6.1.hx: 把 ISO 周转月-周（与 plan 字段匹配）
+  var sMapped = (typeof isoWeekToMonthWeek === 'function') ? isoWeekToMonthWeek(week) : { month: 1, week: week };
+  var cMonth = sMapped.month, cWeekInMonth = sMapped.week;
+  var pWeekInMonth = cWeekInMonth - 1, pMonth = cMonth;
+  if (pWeekInMonth < 1) { pWeekInMonth = 4; pMonth = cMonth - 1; }
+  if (pMonth < 1) pMonth = 12; // 跨年回退
+  // 本周字段值（用于 YTD 排除本周等）
+  var currentPlans = { month: cMonth, week: cWeekInMonth };
+  var prevPlans = { month: pMonth, week: pWeekInMonth };
 
   var planSub = 0, sumSub = 0, prevPlan = 0, prevSum = 0, ytdPlan = 0, ytdSum = 0, ytdWeeks = 0;
   var ratings = { gold: 0, silver: 0, bronze: 0, warn: 0, danger: 0 };
 
   for (var uname in users) {
-    var wp = (allPlans[cWeekId] && allPlans[cWeekId][uname]) || {};
-    var wpp = (allPlans[pWeekId] && allPlans[pWeekId][uname]) || {};
-    if (wp.submittedAt || wp.firstSubmittedAt) planSub++;
-    if (wp.summarySubmittedAt) sumSub++;
-    if (wpp.submittedAt || wpp.firstSubmittedAt) prevPlan++;
-    if (wpp.summarySubmittedAt) prevSum++;
+    // ★ V0.6.1.hx: 用 plan 字段判断本周/上周（避免 wkId 格式不匹配）
+    var currentPlan = null, prevPlanObj = null;
+    for (var wkK in allPlans) {
+      var ppK = allPlans[wkK][uname];
+      if (!ppK) continue;
+      if (ppK.year === year && ppK.month === cMonth && ppK.week === cWeekInMonth) currentPlan = ppK;
+      if (ppK.year === year && ppK.month === pMonth && ppK.week === pWeekInMonth) prevPlanObj = ppK;
+    }
+    if (currentPlan) {
+      if (currentPlan.submittedAt || currentPlan.firstSubmittedAt) planSub++;
+      if (currentPlan.summarySubmittedAt) sumSub++;
+    }
+    if (prevPlanObj) {
+      if (prevPlanObj.submittedAt || prevPlanObj.firstSubmittedAt) prevPlan++;
+      if (prevPlanObj.summarySubmittedAt) prevSum++;
+    }
 
     for (var wkId in allPlans) {
       var parts = wkId.split('-W');
@@ -267,47 +284,56 @@ function _getISOWeek(d) {
 // ===== 驾驶舱 =====
 function _dsBuildCockpit() {
   return '<div class="ds-grid">' +
-    _dsBuildCards() +
-    _dsBuildStats() +
+    _dsBuildHeroStats() +
+    _dsBuildRatingPanel() +
     _dsBuildFilterBar() +
     _dsBuildRankTable() +
     '</div>';
 }
 
-function _dsBuildCards() {
+// ★ V0.6.1.hx: 全员 4 大提交率卡片（年度×计划/小结 + 上周×计划/小结）
+function _dsBuildHeroStats() {
   var dd = _dsData;
-  return '<div class="ds-cards-row">' +
-    '<div class="ds-card ds-card-gold"><div class="ds-card-num">' + (dd.myScore >= 0 ? '+' : '') + dd.myScore + '</div><div class="ds-card-label">🏅 我的净积分</div></div>' +
-    '<div class="ds-card ds-card-gold"><div class="ds-card-num">' + dd.myRank + '</div><div class="ds-card-label">🏆 我的排名</div></div>' +
-    '<div class="ds-card ds-card-silver"><div class="ds-card-num">🥇×' + dd.myGold + '</div><div class="ds-card-label">🏅 我获得的奖牌</div></div>' +
-    '<div class="ds-card ds-card-amber"><div class="ds-card-num" style="color:#D97706">🎖️×' + dd.myGivenTotal + '</div><div class="ds-card-label">🎖️ 我评出的奖牌</div></div>' +
-    '<div class="ds-card ds-card-blue"><div class="ds-card-num" style="color:#3B82F6">' + dd.planRate + '%</div><div class="ds-card-label">⏰ 我的周计划按时提交率</div></div>' +
-    '<div class="ds-card ds-card-green"><div class="ds-card-num" style="color:#059669">' + dd.sumRate + '%</div><div class="ds-card-label">⏰ 我的周小结按时提交率</div></div>' +
-    '</div>';
+  var cards = [
+    { title: '📋 全员年度周计划及时提交率', num: dd.ytdPlanRate, sub: dd.ytdPlanSub + ' 次 / ' + (dd.ytdWeeks * dd.totalUsers) + ' 人周', color: '#EF4444' },
+    { title: '📝 全员年度周小结及时提交率', num: dd.ytdSumRate, sub: dd.ytdSumSub + ' 次 / ' + (dd.ytdWeeks * dd.totalUsers) + ' 人周', color: '#3B82F6' },
+    { title: '📋 上周周计划及时提交率', num: dd.prevPlanRate, sub: dd.prevPlanSub + ' / ' + dd.totalUsers + ' 人', color: '#10B981' },
+    { title: '📝 上周周小结及时提交率', num: dd.prevSumRate, sub: dd.prevSumSub + ' / ' + dd.totalUsers + ' 人', color: '#F59E0B' }
+  ];
+  var html = '<div class="ds-hero-row">';
+  for (var i = 0; i < cards.length; i++) {
+    var c = cards[i];
+    html += '<div class="ds-hero-card" style="border-top:4px solid ' + c.color + '">' +
+      '<div class="ds-hero-title">' + c.title + '</div>' +
+      '<div class="ds-hero-num" style="color:' + c.color + '">' + c.num + '<span class="ds-hero-pct">%</span></div>' +
+      '<div class="ds-hero-sub">' + c.sub + '</div>' +
+      '<div class="ds-hero-bar"><div style="width:' + c.num + '%;background:' + c.color + '"></div></div>' +
+      '</div>';
+  }
+  html += '</div>';
+  return html;
 }
 
-function _dsBuildStats() {
+// ★ V0.6.1.hx: 全员上级评价分布（独立面板）
+function _dsBuildRatingPanel() {
   var dd = _dsData, rt = dd.ratings || {}, tr = dd.totalRatings || 0;
   var rItems = [
-    { label: '🥇', key: 'gold', color: '#FFD700' },
-    { label: '🥈', key: 'silver', color: '#C0C0C0' },
-    { label: '🥉', key: 'bronze', color: '#CD7F32' },
-    { label: '⚠️', key: 'warn', color: '#F59E0B' },
-    { label: '⛔', key: 'danger', color: '#EF4444' }
+    { label: '🥇 金牌', key: 'gold', color: '#FFD700' },
+    { label: '🥈 银牌', key: 'silver', color: '#C0C0C0' },
+    { label: '🥉 铜牌', key: 'bronze', color: '#CD7F32' },
+    { label: '⚠️ 待改进', key: 'warn', color: '#F59E0B' },
+    { label: '⛔ 严重偏离', key: 'danger', color: '#EF4444' }
   ];
   var rhtml = '<div class="ds-rating-bars">';
   for (var i = 0; i < rItems.length; i++) {
     var ri = rItems[i], v = rt[ri.key] || 0, w = tr ? Math.round(v / tr * 100) : 0;
-    rhtml += '<div class="ds-rating-row"><span class="ds-r-label">' + ri.label + '</span><div class="ds-r-bar"><div style="width:' + w + '%;background:' + ri.color + '"></div></div><span class="ds-r-count">' + v + '</span></div>';
+    rhtml += '<div class="ds-rating-row"><span class="ds-r-label" style="width:90px;text-align:left">' + ri.label + '</span><div class="ds-r-bar"><div style="width:' + w + '%;background:' + ri.color + '"></div></div><span class="ds-r-count" style="width:50px">' + v + ' 次</span></div>';
   }
   rhtml += '</div>';
-
-  return '<div class="ds-stats-row">' +
-    '<div class="ds-stat-module"><div class="ds-stat-head">📋 全员年度周计划及时提交率</div><div class="ds-stat-num" style="color:#EF4444">' + dd.ytdPlanRate + '%</div><div class="ds-stat-detail">累计统计</div><div class="ds-stat-bar"><div style="width:' + dd.ytdPlanRate + '%;background:#EF4444"></div></div></div>' +
-    '<div class="ds-stat-module"><div class="ds-stat-head">📝 全员年度周小结及时提交率</div><div class="ds-stat-num" style="color:#3B82F6">' + dd.ytdSumRate + '%</div><div class="ds-stat-detail">累计统计</div><div class="ds-stat-bar"><div style="width:' + dd.ytdSumRate + '%;background:#3B82F6"></div></div></div>' +
-    '<div class="ds-stat-module"><div class="ds-stat-head">📋 全员上周周计划及时提交率</div><div class="ds-stat-num" style="color:#10B981">' + dd.prevPlanRate + '%</div><div class="ds-stat-detail">' + dd.prevPlanSub + '/' + dd.totalUsers + '</div><div class="ds-stat-bar"><div style="width:' + dd.prevPlanRate + '%;background:#10B981"></div></div></div>' +
-    '<div class="ds-stat-module"><div class="ds-stat-head">📝 全员上周周小结及时提交率</div><div class="ds-stat-num" style="color:#F59E0B">' + dd.prevSumRate + '%</div><div class="ds-stat-detail">' + dd.prevSumSub + '/' + dd.totalUsers + '</div><div class="ds-stat-bar"><div style="width:' + dd.prevSumRate + '%;background:#F59E0B"></div></div></div>' +
-    '<div class="ds-stat-module"><div class="ds-stat-head">🏅 全员上级评价分布：（年度累计）</div>' + rhtml + '<div class="ds-stat-detail" style="margin-top:4px">共 ' + tr + ' 次评价（年度）</div></div>' +
+  return '<div class="ds-rating-panel">' +
+    '<div class="ds-rating-panel-head">🏅 全员上级评价分布 <span class="ds-rating-panel-sub">（年度累计）</span></div>' +
+    rhtml +
+    '<div class="ds-rating-panel-foot">共 <strong>' + tr + '</strong> 次评价</div>' +
     '</div>';
 }
 
