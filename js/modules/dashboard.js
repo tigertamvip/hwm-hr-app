@@ -90,7 +90,8 @@ var _dsData = {};
 function _dsRefreshData() {
   var now = new Date();
   var year = now.getFullYear();
-  var week = _getISOWeek(now);
+  // ★ V0.6.1.iv: 评估周 = ISO 周 -1（不显示本周还没填的数据,改用上周数据）
+  var week = Math.max(1, _getISOWeek(now) - 1);
   var allPlans = {};
   try {
     // Step 1: 从 localStorage 读取所有 hwm_workplans_* 数据
@@ -308,7 +309,9 @@ function _dsSyncFromCloud() {
 
 function _dsCalcUserScore(userName, allPlans, period) {
   var net = 0, gold = 0, trend = 0, cr = '';
-  var now = new Date(), year = now.getFullYear(), week = _getISOWeek(now);
+  var now = new Date(), year = now.getFullYear();
+  // ★ V0.6.1.iv: 同上 — 评估周 = ISO 周 -1
+  var week = Math.max(1, _getISOWeek(now) - 1);
   // ★ V0.6.1.ip: 用自有 WEEKS 表计算月-周（不依赖外部函数）
   var MOOD_WEEKS = [4,4,5,4,4,5,4,4,5,4,4,5];
   var cMonth = 1, cWeekInMonth = week;
