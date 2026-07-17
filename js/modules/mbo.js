@@ -2823,7 +2823,7 @@ function renderWPTable(plan){
     var currentMoods=[];
     if(Array.isArray(plan.moods)) currentMoods=plan.moods;
     else if(typeof plan.mood==='string' && plan.mood) currentMoods=plan.mood.split(',');
-    var moods=[{key:'happy',emoji:'😊',label:'开心',cls:'mood-happy'},{key:'calm',emoji:'😌',label:'平静',cls:'mood-calm'},{key:'tired',emoji:'😩',label:'疲惫',cls:'mood-tired'},{key:'aggrieved',emoji:'😢',label:'委屈',cls:'mood-aggrieved'},{key:'silent',emoji:'😶',label:'沉默',cls:'mood-silent'}];
+    var moods=[{key:'happy',emoji:'😊',label:'顺利',cls:'mood-happy'},{key:'calm',emoji:'😌',label:'平静',cls:'mood-calm'},{key:'tired',emoji:'😩',label:'困惑',cls:'mood-tired'},{key:'aggrieved',emoji:'😢',label:'委屈',cls:'mood-aggrieved'},{key:'silent',emoji:'😶',label:'难言',cls:'mood-silent'}];
     html+='<div class="wp-mood-selector"><span class="wp-mood-label">本周心情：</span><span style="font-size:11px;color:var(--text-hint);margin-left:4px">（最多选 2 种）</span>';
     for(var mi=0;mi<moods.length;mi++){
       var m=moods[mi];
