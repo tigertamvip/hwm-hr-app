@@ -20,6 +20,52 @@ function dashboardInit() {
   }
 }
 
+// ★ V0.6.1.ir: 调试弹窗 — 直接显示本周 localStorage 数据
+function _dsShowDebug() {
+  var lines = [];
+  lines.push('当前视图: ' + _dsTab);
+  lines.push('当前 _dsData.moods: ' + JSON.stringify(_dsData.moods || {}));
+  lines.push('当前 _dsData.totalMoods: ' + (_dsData.totalMoods || 0));
+  lines.push('当前 _dsData.ratings: ' + JSON.stringify(_dsData.ratings || {}));
+  lines.push('当前 _dsData.totalRatings: ' + (_dsData.totalRatings || 0));
+  lines.push('curMonthIdx / curWeekInMonth: ' + _dsData.cMonth + ' / ' + _dsData.cWeekInMonth);
+  lines.push('---');
+  lines.push('localStorage 里的所有 hwm_workplans_*:');
+  var allKeys = [];
+  for (var k in localStorage) {
+    if (k.indexOf('hwm_workplans_') === 0) allKeys.push(k);
+  }
+  if (allKeys.length === 0) {
+    lines.push('  (无数据)');
+  } else {
+    for (var i = 0; i < allKeys.length; i++) {
+      var key = allKeys[i];
+      var d = JSON.parse(localStorage.getItem(key) || '{}');
+      for (var wk in d) {
+        var p = d[wk];
+        var mark = '';
+        if (p.mood) mark += ' [mood=' + p.mood + ']';
+        if (p.moods) mark += ' [moods=' + JSON.stringify(p.moods) + ']';
+        if (p.weeklyRating) mark += ' [rating=' + p.weeklyRating + ']';
+        if (mark) {
+          lines.push('  ' + key.replace('hwm_workplans_','') + ' / ' + wk + ' (year=' + p.year + ', m=' + p.month + ', w=' + p.week + ')' + mark);
+        }
+      }
+    }
+    if (lines.length <= 8) lines.push('  (没有找到带 mood/rating 的 plan)');
+  }
+  // 弹窗
+  var html = '<div id="_dsDebugModal" style="position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:99999;display:flex;align-items:center;justify-content:center" onclick="if(event.target===this) this.remove()">' +
+    '<div style="background:white;padding:24px;border-radius:12px;max-width:720px;max-height:80vh;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.3)">' +
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">' +
+    '<h3 style="margin:0;font-size:16px">🔍 数据中心调试 - 本地数据</h3>' +
+    '<button onclick="document.getElementById(\'_dsDebugModal\').remove()" style="background:#f3f4f6;border:none;padding:6px 14px;border-radius:6px;cursor:pointer">关闭</button>' +
+    '</div>' +
+    '<pre style="font:12px/1.5 ui-monospace,monospace;background:#f8fafc;padding:14px;border-radius:6px;border:1px solid #e2e8f0;white-space:pre-wrap;word-break:break-all">' + lines.join('\n') + '</pre>' +
+    '</div></div>';
+  document.body.insertAdjacentHTML('beforeend', html);
+}
+
 function _h(v) { return String(v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 function _dsBuildNav() {
@@ -148,9 +194,11 @@ function _dsRefreshData() {
       if (planYear === year && planMonth === curMonthIdx && planWeek === curWeekInMonth) {
         if (ppK.submittedAt || ppK.firstSubmittedAt) planSub++;
         if (ppK.summarySubmittedAt) sumSub++;
-        // ★ V0.6.1.iq: 心情统计 - 兼容单值和多值
+        // ★ V0.6.1.iq: 心情统计 - 兼容单值和多值（多种字段名都查）
         var pMoods = [];
         if (ppK.moods && Array.isArray(ppK.moods)) pMoods = ppK.moods;
+        else if (ppK.moodA && ppK.moodB) pMoods = [ppK.moodA, ppK.moodB];
+        else if (ppK.mood1 && ppK.mood2) pMoods = [ppK.mood1, ppK.mood2];
         else if (typeof ppK.mood === 'string' && ppK.mood.indexOf(',') >= 0) pMoods = ppK.mood.split(',');
         else if (ppK.mood) pMoods = [ppK.mood];
         for (var pmi = 0; pmi < pMoods.length; pmi++) {
@@ -332,6 +380,8 @@ function _dsBuildCockpit() {
       _dsBuildRatingPanel() +
       _dsBuildMoodPanel() +
       '</div>' +
+      // ★ V0.6.1.ir: 调试按钮（开发用，一键查看localStorage统计）
+      '<div style="text-align:right;margin:-8px 0 -4px"><button class="ds-debug-btn" onclick="_dsShowDebug()">🔍 调试: 查看本周plan数据</button></div>' +
       _dsBuildFilterBar() +
       _dsBuildRankTable() +
       '</div>';
