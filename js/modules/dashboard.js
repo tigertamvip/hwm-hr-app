@@ -97,24 +97,6 @@ function _dsRefreshData() {
         for (var wk in d) { if (!allPlans[wk]) allPlans[wk] = {}; allPlans[wk][k.replace('hwm_workplans_', '')] = d[wk]; }
       }
     }
-    // ★ V0.6.1.in: 临时诊断 — 打印 localStorage 整体结构（默认开启，修复后关闭）
-    if (window._dsMoodDebug !== false) {
-      console.log('[DS-debug] 当前周:', year, '月-周', cMonth, '/', cWeekInMonth);
-      var wpCount = 0, moodCount = 0, moodVals = {};
-      for (var wkk in allPlans) {
-        for (var un in allPlans[wkk]) {
-          wpCount++;
-          var p = allPlans[wkk][un];
-          if (p && p.mood) {
-            moodCount++;
-            moodVals[p.mood] = (moodVals[p.mood] || 0) + 1;
-            console.log('[DS-debug] 找到心情:', un, '→', p.mood, '周', p.year, p.month, p.week);
-          }
-        }
-      }
-      console.log('[DS-debug] 共', wpCount, '条周计划，其中', moodCount, '条有心情');
-      console.log('[DS-debug] 心情分布:', JSON.stringify(moodVals));
-    }
     // ★ V0.6.1.hs: 智能合并 _wpData — 只覆盖较新的版本
     if (typeof _wpData !== 'undefined' && _wpData) {
       for (var wk2 in _wpData) {
@@ -136,55 +118,60 @@ function _dsRefreshData() {
     users[USERS[uid].name || uid] = USERS[uid];
   }
   var totalUsers = Object.keys(users).length;
-  // ★ V0.6.1.hx: 把 ISO 周转月-周（与 plan 字段匹配）
-  var sMapped = (typeof isoWeekToMonthWeek === 'function') ? isoWeekToMonthWeek(week) : { month: 1, week: week };
-  var cMonth = sMapped.month, cWeekInMonth = sMapped.week;
-  var pWeekInMonth = cWeekInMonth - 1, pMonth = cMonth;
-  if (pWeekInMonth < 1) { pWeekInMonth = 4; pMonth = cMonth - 1; }
-  if (pMonth < 1) pMonth = 12; // 跨年回退
-  // 本周字段值（用于 YTD 排除本周等）
-  var currentPlans = { month: cMonth, week: cWeekInMonth };
-  var prevPlans = { month: pMonth, week: pWeekInMonth };
+  // ★ V0.6.1.ip: 本周统计（不再依赖外部函数，直接用 WEEKS 表）
+  var MOOD_WEEKS = [4,4,5,4,4,5,4,4,5,4,4,5];
+  var curMonthIdx = 1, curWeekInMonth = week;
+  for (var mi = 0; mi < 12; mi++) {
+    if (curWeekInMonth <= MOOD_WEEKS[mi]) { curMonthIdx = mi + 1; break; }
+    curWeekInMonth -= MOOD_WEEKS[mi];
+  }
+  if (curMonthIdx > 12) curMonthIdx = 12;
+  if (curWeekInMonth < 1) curWeekInMonth = 1;
+  // 上一周回退
+  var prevMonthIdx = curMonthIdx, prevWeekInMonth = curWeekInMonth - 1;
+  if (prevWeekInMonth < 1) { prevMonthIdx = curMonthIdx - 1; prevWeekInMonth = 4; }
+  if (prevMonthIdx < 1) prevMonthIdx = 12;
 
   var planSub = 0, sumSub = 0, prevPlan = 0, prevSum = 0, ytdPlan = 0, ytdSum = 0, ytdWeeks = 0;
   var ratings = { gold: 0, silver: 0, bronze: 0, warn: 0, danger: 0 };
-  // ★ V0.6.1.im: 本周心情统计
+  // ★ V0.6.1.ip: 本周心情统计（不再依赖外部函数 isoWeekToMonthWeek）
   var moods = { happy: 0, calm: 0, tired: 0, aggrieved: 0, silent: 0 };
+  // 计算当前 ISO 周对应的月-周（自带 WEEKS 表，与 mbo.js 同步）
+  var MOOD_WEEKS = [4,4,5,4,4,5,4,4,5,4,4,5];
+  var curMonthIdx = 1, curWeekInMonth = week;
+  for (var mi = 0; mi < 12; mi++) {
+    if (curWeekInMonth <= MOOD_WEEKS[mi]) { curMonthIdx = mi + 1; break; }
+    curWeekInMonth -= MOOD_WEEKS[mi];
+  }
+  if (curMonthIdx > 12) curMonthIdx = 12;
+  if (curWeekInMonth < 1) curWeekInMonth = 1;
 
   for (var uname in users) {
-    // ★ V0.6.1.hx: 用 plan 字段判断本周/上周（避免 wkId 格式不匹配）
-    var currentPlan = null, prevPlanObj = null;
-    for (var wkK in allPlans) {
-      var ppK = allPlans[wkK][uname];
-      if (!ppK) continue;
-      if (ppK.year === year && ppK.month === cMonth && ppK.week === cWeekInMonth) currentPlan = ppK;
-      if (ppK.year === year && ppK.month === pMonth && ppK.week === pWeekInMonth) prevPlanObj = ppK;
-    }
-    if (currentPlan) {
-      if (currentPlan.submittedAt || currentPlan.firstSubmittedAt) planSub++;
-      if (currentPlan.summarySubmittedAt) sumSub++;
-      // ★ V0.6.1.in: 统计本周员工心情
-      if (currentPlan.mood && moods[currentPlan.mood] !== undefined) {
-        moods[currentPlan.mood]++;
-        // ★ 临时调试：每个心情都打印
-        if (window._dsMoodDebug) console.log('[DS-mood]', uname, '心情:', currentPlan.mood, '周:', currentPlan.year + 'W' + currentPlan.week);
-      } else if (currentPlan.mood === 'pain') {
-        // 兼容旧数据"pain"映射到"aggrieved"
-        moods.aggrieved++;
-        if (window._dsMoodDebug) console.log('[DS-mood]', uname, '旧pain映射aggrieved');
-      } else if (currentPlan.mood) {
-        console.warn('[DS] 未知心情值:', currentPlan.mood, '用户:', currentPlan.name, '期望:happy/calm/tired/aggrieved/silent');
-      }
-    }
-    if (prevPlanObj) {
-      if (prevPlanObj.submittedAt || prevPlanObj.firstSubmittedAt) prevPlan++;
-      if (prevPlanObj.summarySubmittedAt) prevSum++;
-    }
-
     for (var wkId in allPlans) {
       var parts = wkId.split('-W');
-      if (parseInt(parts[0]) !== year) continue;
-      var pp = allPlans[wkId][uname] || {};
+      var planYear = parseInt(parts[0]);
+      if (planYear !== year) continue;
+      var ppK = allPlans[wkId][uname];
+      if (!ppK) continue;
+      var planMonth = ppK.month, planWeek = ppK.week;
+      if (planYear === year && planMonth === curMonthIdx && planWeek === curWeekInMonth) {
+        if (ppK.submittedAt || ppK.firstSubmittedAt) planSub++;
+        if (ppK.summarySubmittedAt) sumSub++;
+        // ★ V0.6.1.ip: 心情统计（用自有 WEEKS 表，不依赖外部函数）
+        if (ppK.mood && moods[ppK.mood] !== undefined) {
+          moods[ppK.mood]++;
+        } else if (ppK.mood === 'pain') {
+          moods.aggrieved++;
+        } else if (ppK.mood) {
+          console.warn('[DS] 未知心情值:', ppK.mood, '用户:', ppK.name);
+        }
+      }
+    }
+
+    for (var wkId2 in allPlans) {
+      var parts2 = wkId2.split('-W');
+      if (parseInt(parts2[0]) !== year) continue;
+      var pp = allPlans[wkId2][uname] || {};
       if (pp.submittedAt || pp.firstSubmittedAt) ytdPlan++;
       if (pp.summarySubmittedAt) ytdSum++;
       ytdWeeks++;
@@ -229,7 +216,7 @@ function _dsRefreshData() {
   _dsData = {
     totalUsers: totalUsers, myScore: myScore, myRank: myRank, myGold: myGold,
     myGivenGold: myGivenGold, myGivenTotal: myGivenTotal,
-    cMonth: cMonth, cWeekInMonth: cWeekInMonth, week: week,
+    cMonth: curMonthIdx, cWeekInMonth: curWeekInMonth, week: week,
     planRate: totalUsers ? Math.round(planSub / totalUsers * 100) : 0, planSub: planSub,
     sumRate: totalUsers ? Math.round(sumSub / totalUsers * 100) : 0, sumSub: sumSub,
     prevPlanRate: totalUsers ? Math.round(prevPlan / totalUsers * 100) : 0, prevPlanSub: prevPlan,
@@ -295,10 +282,15 @@ function _dsSyncFromCloud() {
 function _dsCalcUserScore(userName, allPlans, period) {
   var net = 0, gold = 0, trend = 0, cr = '';
   var now = new Date(), year = now.getFullYear(), week = _getISOWeek(now);
-  // ★ V0.6.1.hv: 把 ISO 周转为月-周（与 makeWPId 格式一致："yyyy-mm-Ww"）
-  var sMapped = (typeof isoWeekToMonthWeek === 'function') ? isoWeekToMonthWeek(week) : { month: now.getMonth() + 1, week: week };
-  var cMonth = sMapped.month, cWeekInMonth = sMapped.week;
-  // 上一周（简化处理：同月 week-1；跨月则月份-1）
+  // ★ V0.6.1.ip: 用自有 WEEKS 表计算月-周（不依赖外部函数）
+  var MOOD_WEEKS = [4,4,5,4,4,5,4,4,5,4,4,5];
+  var cMonth = 1, cWeekInMonth = week;
+  for (var mi2 = 0; mi2 < 12; mi2++) {
+    if (cWeekInMonth <= MOOD_WEEKS[mi2]) { cMonth = mi2 + 1; break; }
+    cWeekInMonth -= MOOD_WEEKS[mi2];
+  }
+  if (cMonth > 12) cMonth = 12;
+  if (cWeekInMonth < 1) cWeekInMonth = 1;
   var pMonth = cMonth, pWeekInMonth = cWeekInMonth - 1;
   if (pWeekInMonth < 1) { pMonth = cMonth - 1; pWeekInMonth = 4; }
   var cw = 0, pw = 0;
