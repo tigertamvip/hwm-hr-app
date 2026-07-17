@@ -130,6 +130,8 @@ function _dsRefreshData() {
 
   var planSub = 0, sumSub = 0, prevPlan = 0, prevSum = 0, ytdPlan = 0, ytdSum = 0, ytdWeeks = 0;
   var ratings = { gold: 0, silver: 0, bronze: 0, warn: 0, danger: 0 };
+  // ★ V0.6.1.im: 本周心情统计
+  var moods = { happy: 0, calm: 0, tired: 0, pain: 0, silent: 0 };
 
   for (var uname in users) {
     // ★ V0.6.1.hx: 用 plan 字段判断本周/上周（避免 wkId 格式不匹配）
@@ -143,6 +145,8 @@ function _dsRefreshData() {
     if (currentPlan) {
       if (currentPlan.submittedAt || currentPlan.firstSubmittedAt) planSub++;
       if (currentPlan.summarySubmittedAt) sumSub++;
+      // ★ V0.6.1.im: 统计本周员工心情
+      if (currentPlan.mood && moods[currentPlan.mood] !== undefined) moods[currentPlan.mood]++;
     }
     if (prevPlanObj) {
       if (prevPlanObj.submittedAt || prevPlanObj.firstSubmittedAt) prevPlan++;
@@ -207,6 +211,7 @@ function _dsRefreshData() {
     ytdSumRate: ytdWeeks ? Math.round(ytdSum / ytdWeeks * 100) : 0,
     ytdSumSub: ytdSum,
     ratings: ratings, totalRatings: ratings.gold + ratings.silver + ratings.bronze + ratings.warn + ratings.danger,
+    moods: moods, totalMoods: moods.happy + moods.calm + moods.tired + moods.pain + moods.silent,
     lastUpdate: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
   };
 
@@ -304,7 +309,11 @@ function _dsBuildCockpit() {
   try {
     return '<div class="ds-grid">' +
       _dsBuildHeroStats() +
+      // ★ V0.6.1.im: 左右50/50 两栏布局（评价分布 + 心情统计）
+      '<div class="ds-halves-row">' +
       _dsBuildRatingPanel() +
+      _dsBuildMoodPanel() +
+      '</div>' +
       _dsBuildFilterBar() +
       _dsBuildRankTable() +
       '</div>';
@@ -373,6 +382,34 @@ function _dsToggleRatingPanel(head) {
   var isCollapsed = panel.classList.toggle('ds-rating-collapsed');
   var toggle = head.querySelector('.ds-rating-panel-toggle');
   if (toggle) toggle.textContent = isCollapsed ? '▶ 展开' : '▼ 收起';
+}
+
+// ★ V0.6.1.im: 员工本周状态统计（心情分布，镜像评价分布）
+function _dsBuildMoodPanel() {
+  var dd = _dsData, mt = dd.moods || {}, tr = dd.totalMoods || 0;
+  var collapsed = (tr === 0) ? ' ds-rating-collapsed' : '';
+  var mItems = [
+    { label: '😊 开心', key: 'happy', color: '#FFD700' },
+    { label: '😌 平静', key: 'calm', color: '#94A3B8' },
+    { label: '😩 疲惫', key: 'tired', color: '#CD7F32' },
+    { label: '😭 痛苦', key: 'pain', color: '#F59E0B' },
+    { label: '😶 沉默', key: 'silent', color: '#9CA3AF' }
+  ];
+  var mhtml = '<div class="ds-rating-bars">';
+  for (var i = 0; i < mItems.length; i++) {
+    var mi = mItems[i], v = mt[mi.key] || 0, w = tr ? Math.round(v / tr * 100) : 0;
+    mhtml += '<div class="ds-rating-row"><span class="ds-r-label" style="width:28px;text-align:center;font-size:18px">' + mi.label.split(' ')[0] + '</span><span class="ds-r-label" style="width:28px;text-align:left;font-size:12px;margin-left:2px">' + mi.label.split(' ')[1] + '</span><div class="ds-r-bar"><div style="width:' + w + '%;background:' + mi.color + '"></div></div><span class="ds-r-count" style="width:46px">' + v + ' 人</span></div>';
+  }
+  mhtml += '</div>';
+  return '<div class="ds-rating-panel' + collapsed + '">' +
+    '<div class="ds-rating-panel-head" onclick="_dsToggleRatingPanel(this)" style="cursor:pointer;user-select:none">' +
+    '<span>🎭 员工本周状态统计</span>' +
+    '<span class="ds-rating-panel-toggle">' + (collapsed ? '▶ 展开' : '▼ 收起') + '</span>' +
+    '</div>' +
+    '<div class="ds-rating-panel-body">' + mhtml +
+    '<div class="ds-rating-panel-foot">共 <strong>' + tr + '</strong> 人填写本周心情</div>' +
+    '</div>' +
+    '</div>';
 }
 
 function _dsBuildFilterBar() {
