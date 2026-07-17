@@ -144,6 +144,8 @@ function _dsRefreshData() {
 
   var planSub = 0, sumSub = 0, prevPlan = 0, prevSum = 0, ytdPlan = 0, ytdSum = 0, ytdWeeks = 0;
   var ratings = { gold: 0, silver: 0, bronze: 0, warn: 0, danger: 0 };
+  // ★ V0.6.1.iy: 心情相关计数（按"提交过心情的 plan 数"算人，而不是心情条目相加）
+  var moodPlanCount = 0;
   // ★ V0.6.1.ip: 本周心情统计（不再依赖外部函数 isoWeekToMonthWeek）
   var moods = { happy: 0, calm: 0, tired: 0, aggrieved: 0, silent: 0 };
 
@@ -170,9 +172,13 @@ function _dsRefreshData() {
         else if (ppK.mood1 && ppK.mood2) pMoods = [ppK.mood1, ppK.mood2];
         else if (typeof ppK.mood === 'string' && ppK.mood.indexOf(',') >= 0) pMoods = ppK.mood.split(',');
         else if (ppK.mood) pMoods = [ppK.mood];
+        // ★ V0.6.1.iy: 心情去重 + 计数（一个人填多次只算一次）
+        var seenM = {};
         for (var pmi = 0; pmi < pMoods.length; pmi++) {
           var pm = (pMoods[pmi] || '').trim();
-          if (pm && moods[pm] !== undefined) {
+          if (!pm || seenM[pm]) continue;
+          seenM[pm] = true;
+          if (moods[pm] !== undefined) {
             moods[pm]++;
           } else if (pm === 'pain') {
             moods.aggrieved++;
@@ -180,6 +186,8 @@ function _dsRefreshData() {
             console.warn('[DS] 未知心情值:', pm, '用户:', ppK.name);
           }
         }
+        // ★ V0.6.1.iy: 每个 plan 只算 1 人（不管填了几个心情）
+        moodPlanCount++;
       }
     }
 
@@ -241,7 +249,7 @@ function _dsRefreshData() {
     ytdSumRate: ytdWeeks ? Math.round(ytdSum / ytdWeeks * 100) : 0,
     ytdSumSub: ytdSum,
     ratings: ratings, totalRatings: ratings.gold + ratings.silver + ratings.bronze + ratings.warn + ratings.danger,
-    moods: moods, totalMoods: moods.happy + moods.calm + moods.tired + moods.aggrieved + moods.silent,
+    moods: moods, totalMoods: moodPlanCount,
     lastUpdate: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
   };
 
@@ -439,14 +447,32 @@ function _dsBuildMoodPanel() {
   }
   mhtml += '</div>';
   return '<div class="ds-rating-panel' + collapsed + '">' +
-    '<div class="ds-rating-panel-head" onclick="_dsToggleRatingPanel(this)" style="cursor:pointer;user-select:none">' +
-    '<span>🎭 员工本周状态统计 <span class="ds-rating-panel-sub">（近 2 周）</span></span>' +
-    '<span class="ds-rating-panel-toggle">' + (collapsed ? '▶ 展开' : '▼ 收起') + '</span>' +
+    '<div class="ds-rating-panel-head">' +
+    '<span onclick="_dsToggleRatingPanel(this)" style="cursor:pointer;flex:1">🎭 员工本周状态统计 <span class="ds-rating-panel-sub">（近 2 周）</span></span>' +
+    '<a href="#" onclick="event.preventDefault();event.stopPropagation();_dsRefreshMood()" title="刷新数据" style="font-size:14px;text-decoration:none;margin-right:4px;opacity:.6">🔄</a>' +
+    '<span class="ds-rating-panel-toggle" onclick="_dsToggleRatingPanel(this.parentElement)" style="cursor:pointer">▼ 收起</span>' +
     '</div>' +
     '<div class="ds-rating-panel-body">' + mhtml +
     '<div class="ds-rating-panel-foot">共 <strong>' + tr + '</strong> 人填写近 2 周心情</div>' +
     '</div>' +
     '</div>';
+}
+
+// ★ V0.6.1.iy: 点击🔄重新读取localStorage并刷新心情面板
+function _dsRefreshMood() {
+  _dsRefreshData();
+  // 重建面板 HTML
+  var container = document.querySelector('.ds-halves-row');
+  if (!container) return;
+  var panels = container.querySelectorAll('.ds-rating-panel');
+  // 心情面板是第二个
+  if (panels.length >= 2) {
+    panels[1].outerHTML = _dsBuildMoodPanel();
+  }
+  // 也刷新评价分布
+  if (panels.length >= 1) {
+    panels[0] = panels[0]; // trigger for next iteration
+  }
 }
 
 function _dsBuildFilterBar() {
