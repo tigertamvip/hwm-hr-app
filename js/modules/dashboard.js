@@ -438,7 +438,7 @@ function _dsBuildMoodPanel() {
   var mItems = [
     { label: '😊 愉悦', key: 'happy', color: '#FFD700' },
     { label: '😌 平静', key: 'calm', color: '#94A3B8' },
-    { label: '😩 疲倦', key: 'tired', color: '#CD7F32' },
+    { label: '😩 失眠', key: 'tired', color: '#CD7F32' },
     { label: '😢 委屈', key: 'aggrieved', color: '#F59E0B' },
     { label: '😶 难言', key: 'silent', color: '#9CA3AF' }
   ];
