@@ -20,63 +20,8 @@ function dashboardInit() {
   }
 }
 
-// ★ V0.6.1.iu: 重新加调试按钮（带 _dsData 原始值输出）
-function _dsShowDebug() {
-  var lines = [];
-  lines.push('=== currentUser ===');
-  lines.push('currentUser.name: ' + ((currentUser && currentUser.name) || 'null'));
-  lines.push('=== _dsData 原始值 ===');
-  lines.push('cMonth / cWeekInMonth: ' + (_dsData.cMonth) + ' / ' + (_dsData.cWeekInMonth));
-  lines.push('prevMonth / prevWeek: ' + (_dsData.prevMonth || 'n/a') + ' / ' + (_dsData.prevWeek || 'n/a'));
-  lines.push('totalUsers: ' + (_dsData.totalUsers || 0));
-  lines.push('moods: ' + JSON.stringify(_dsData.moods || {}));
-  lines.push('totalMoods: ' + (_dsData.totalMoods || 0));
-  lines.push('---');
-  lines.push('=== USERS 里非管理员的 key 列表 ===');
-  if (typeof USERS !== 'undefined') {
-    var ukeys = [];
-    for (var uk in USERS) {
-      if (uk === '管理员' || (USERS[uk] && USERS[uk].role === 'admin')) continue;
-      ukeys.push(uk + (USERS[uk].name !== uk ? ' (name=' + USERS[uk].name + ')' : ''));
-    }
-    lines.push('  共 ' + ukeys.length + ' 人: ' + ukeys.join(', '));
-  } else {
-    lines.push('  USERS 未定义!');
-  }
-  lines.push('---');
-  lines.push('=== localStorage 里的 plan (只列有mood/moods/rating的) ===');
-  var allKeys = [];
-  for (var k in localStorage) {
-    if (k.indexOf('hwm_workplans_') === 0) allKeys.push(k);
-  }
-  if (allKeys.length === 0) {
-    lines.push('  (无数据)');
-  } else {
-    for (var i = 0; i < allKeys.length; i++) {
-      var key = allKeys[i];
-      var d = JSON.parse(localStorage.getItem(key) || '{}');
-      for (var wk in d) {
-        var p = d[wk];
-        var mark = '';
-        if (p.mood) mark += ' mood=' + p.mood;
-        if (p.moods) mark += ' moods=' + JSON.stringify(p.moods);
-        if (p.weeklyRating) mark += ' rating=' + p.weeklyRating;
-        if (mark) {
-          lines.push('  ' + key.replace('hwm_workplans_','') + ' / ' + wk + ' (y=' + p.year + ',m=' + p.month + ',w=' + p.week + ',name=' + (p.name||'?') + ')' + mark);
-        }
-      }
-    }
-  }
-  var html = '<div id="_dsDebugModal" style="position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:99999;display:flex;align-items:center;justify-content:center" onclick="if(event.target===this) this.remove()">' +
-    '<div style="background:white;padding:24px;border-radius:12px;max-width:820px;max-height:85vh;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.3)">' +
-    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">' +
-    '<h3 style="margin:0;font-size:16px">🔍 数据中心调试 (V0.6.1.iv)</h3>' +
-    '<button onclick="document.getElementById(\'_dsDebugModal\').remove()" style="background:#f3f4f6;border:none;padding:6px 14px;border-radius:6px;cursor:pointer">关闭</button>' +
-    '</div>' +
-    '<pre style="font:11px/1.5 ui-monospace,monospace;background:#f8fafc;padding:14px;border-radius:6px;border:1px solid #e2e8f0;white-space:pre-wrap;word-break:break-all">' + lines.join('\n') + '</pre>' +
-    '</div></div>';
-  document.body.insertAdjacentHTML('beforeend', html);
-}
+// ★ V0.6.1.ix: _dsShowDebug 已移除（调试任务完成）
+
 
 function _h(v) { return String(v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
@@ -404,8 +349,6 @@ function _dsBuildCockpit() {
       _dsBuildRatingPanel() +
       _dsBuildMoodPanel() +
       '</div>' +
-      // ★ V0.6.1.iu: 调试按钮
-      '<div style="text-align:right;margin:-8px 0 -4px"><button class="ds-debug-btn" onclick="_dsShowDebug()" style="font-size:11px;padding:3px 10px;border:1px solid #d1d5db;background:#f9fafb;border-radius:4px;cursor:pointer;color:#6b7280">🔍 调试</button></div>' +
       _dsBuildFilterBar() +
       _dsBuildRankTable() +
       '</div>';
