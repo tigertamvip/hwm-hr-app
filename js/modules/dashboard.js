@@ -97,6 +97,24 @@ function _dsRefreshData() {
         for (var wk in d) { if (!allPlans[wk]) allPlans[wk] = {}; allPlans[wk][k.replace('hwm_workplans_', '')] = d[wk]; }
       }
     }
+    // ★ V0.6.1.in: 临时诊断 — 打印 localStorage 整体结构（默认开启，修复后关闭）
+    if (window._dsMoodDebug !== false) {
+      console.log('[DS-debug] 当前周:', year, '月-周', cMonth, '/', cWeekInMonth);
+      var wpCount = 0, moodCount = 0, moodVals = {};
+      for (var wkk in allPlans) {
+        for (var un in allPlans[wkk]) {
+          wpCount++;
+          var p = allPlans[wkk][un];
+          if (p && p.mood) {
+            moodCount++;
+            moodVals[p.mood] = (moodVals[p.mood] || 0) + 1;
+            console.log('[DS-debug] 找到心情:', un, '→', p.mood, '周', p.year, p.month, p.week);
+          }
+        }
+      }
+      console.log('[DS-debug] 共', wpCount, '条周计划，其中', moodCount, '条有心情');
+      console.log('[DS-debug] 心情分布:', JSON.stringify(moodVals));
+    }
     // ★ V0.6.1.hs: 智能合并 _wpData — 只覆盖较新的版本
     if (typeof _wpData !== 'undefined' && _wpData) {
       for (var wk2 in _wpData) {
@@ -148,11 +166,14 @@ function _dsRefreshData() {
       // ★ V0.6.1.in: 统计本周员工心情
       if (currentPlan.mood && moods[currentPlan.mood] !== undefined) {
         moods[currentPlan.mood]++;
+        // ★ 临时调试：每个心情都打印
+        if (window._dsMoodDebug) console.log('[DS-mood]', uname, '心情:', currentPlan.mood, '周:', currentPlan.year + 'W' + currentPlan.week);
       } else if (currentPlan.mood === 'pain') {
         // 兼容旧数据"pain"映射到"aggrieved"
         moods.aggrieved++;
+        if (window._dsMoodDebug) console.log('[DS-mood]', uname, '旧pain映射aggrieved');
       } else if (currentPlan.mood) {
-        console.warn('[DS] 未知心情值:', currentPlan.mood, '用户:', currentPlan.name);
+        console.warn('[DS] 未知心情值:', currentPlan.mood, '用户:', currentPlan.name, '期望:happy/calm/tired/aggrieved/silent');
       }
     }
     if (prevPlanObj) {
