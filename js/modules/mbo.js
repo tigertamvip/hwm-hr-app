@@ -2818,13 +2818,16 @@ function renderWPTable(plan){
   html+='</div>';
   if(isEmployee){
     html+='<textarea class="wp-feedback-textarea" id="wpWeekSummary" placeholder="请总结本周工作完成情况、主要产出、遇到的问题及下周计划..." onblur="saveWPFeedback(\'weekSummary\',this.value)">'+_h(summaryContent)+'</textarea>';
-    // ★ V0.6.1.hd: 心情选择器 — 员工点击选择本周真实感受
-    var currentMood=plan.mood||'';
+    // ★ V0.6.1.hd: 心情选择器 — 员工点击选择本周真实感受（最多2种）
+    var currentMoods=[];
+    if(Array.isArray(plan.moods)) currentMoods=plan.moods;
+    else if(typeof plan.mood==='string' && plan.mood) currentMoods=plan.mood.split(',');
     var moods=[{key:'happy',emoji:'😊',label:'开心',cls:'mood-happy'},{key:'calm',emoji:'😌',label:'平静',cls:'mood-calm'},{key:'tired',emoji:'😩',label:'疲惫',cls:'mood-tired'},{key:'aggrieved',emoji:'😢',label:'委屈',cls:'mood-aggrieved'},{key:'silent',emoji:'😶',label:'沉默',cls:'mood-silent'}];
-    html+='<div class="wp-mood-selector"><span class="wp-mood-label">本周心情：</span>';
+    html+='<div class="wp-mood-selector"><span class="wp-mood-label">本周心情：</span><span style="font-size:11px;color:var(--text-hint);margin-left:4px">（最多选 2 种）</span>';
     for(var mi=0;mi<moods.length;mi++){
       var m=moods[mi];
-      html+='<span class="wp-mood-emoji '+m.cls+(currentMood===m.key?' mood-selected':'')+'" data-tip="'+m.label+'" onclick="saveWPMood(\''+m.key+'\',this)" title="'+m.label+'">'+m.emoji+'</span>';
+      var isSel=currentMoods.indexOf(m.key)>=0;
+      html+='<span class="wp-mood-emoji '+m.cls+(isSel?' mood-selected':'')+'" data-mood-key="'+m.key+'" data-tip="'+m.label+'" onclick="saveWPMood(\''+m.key+'\',this)" title="'+m.label+'">'+m.emoji+'</span>';
     }
     html+='</div>';
   }else if(summaryContent){
@@ -4356,26 +4359,43 @@ function saveWPFeedback(field, value) {
   saveWP(p.year, p.month, p.week, p);
 }
 
-// ★ V0.6.1.hd: 保存本周心情 — 点击emoji切换
+// ★ V0.6.1.hd / iq: 保存本周心情 — 最多选 2 种，点击同一表情可取消
 function saveWPMood(mood, el) {
   var p = _wpCurrent.plan;
   if (!p) return;
-  // 再次点击同一心情可取消
-  if (p.mood === mood) { p.mood = ''; }
-  else { p.mood = mood; }
+  // 读取当前心情列表（兼容旧版单值字段）
+  var moodList = [];
+  if (Array.isArray(p.moods)) moodList = p.moods.slice();
+  else if (typeof p.mood === 'string' && p.mood) moodList = p.mood.split(',');
+  // 判断是否已选
+  var idx = moodList.indexOf(mood);
+  if (idx >= 0) {
+    // 取消该心情
+    moodList.splice(idx, 1);
+  } else {
+    // 最多 2 种；满了就提示
+    if (moodList.length >= 2) {
+      showToast('最多可选 2 种心情，请先取消一个', 'warning');
+      return;
+    }
+    moodList.push(mood);
+  }
+  p.moods = moodList;
+  p.mood = moodList.join(','); // 兼容旧字段
   p.updatedAt = new Date().toISOString();
   saveWP(p.year, p.month, p.week, p);
-  // 刷新当前视图
+  // 刷新当前视图的 emoji 高亮
   var section = el.closest('.wp-feedback-section');
   if (section) {
     var allEmojis = section.querySelectorAll('.wp-mood-emoji');
     for (var i = 0; i < allEmojis.length; i++) {
-      allEmojis[i].classList.toggle('mood-selected', p.mood === allEmojis[i].getAttribute('data-tip') === ('开心'||'平静'||'疲惫'||'痛苦'));
+      var key = allEmojis[i].getAttribute('data-mood-key');
+      allEmojis[i].classList.toggle('mood-selected', moodList.indexOf(key) >= 0);
     }
   }
   // 重新渲染表格底色以刷新数据
   selectWP(p.year, p.month, p.week);
-  showToast(p.mood ? '💬 心情已记录' : '💬 心情已清除', 'info');
+  showToast(moodList.length > 0 ? ('💬 已选 ' + moodList.length + ' 种心情') : '💬 心情已清除', 'info');
 }
 
 // ★ V0.6.1.hh: 保存上级评级（奖牌）

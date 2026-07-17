@@ -136,15 +136,6 @@ function _dsRefreshData() {
   var ratings = { gold: 0, silver: 0, bronze: 0, warn: 0, danger: 0 };
   // ★ V0.6.1.ip: 本周心情统计（不再依赖外部函数 isoWeekToMonthWeek）
   var moods = { happy: 0, calm: 0, tired: 0, aggrieved: 0, silent: 0 };
-  // 计算当前 ISO 周对应的月-周（自带 WEEKS 表，与 mbo.js 同步）
-  var MOOD_WEEKS = [4,4,5,4,4,5,4,4,5,4,4,5];
-  var curMonthIdx = 1, curWeekInMonth = week;
-  for (var mi = 0; mi < 12; mi++) {
-    if (curWeekInMonth <= MOOD_WEEKS[mi]) { curMonthIdx = mi + 1; break; }
-    curWeekInMonth -= MOOD_WEEKS[mi];
-  }
-  if (curMonthIdx > 12) curMonthIdx = 12;
-  if (curWeekInMonth < 1) curWeekInMonth = 1;
 
   for (var uname in users) {
     for (var wkId in allPlans) {
@@ -157,13 +148,20 @@ function _dsRefreshData() {
       if (planYear === year && planMonth === curMonthIdx && planWeek === curWeekInMonth) {
         if (ppK.submittedAt || ppK.firstSubmittedAt) planSub++;
         if (ppK.summarySubmittedAt) sumSub++;
-        // ★ V0.6.1.ip: 心情统计（用自有 WEEKS 表，不依赖外部函数）
-        if (ppK.mood && moods[ppK.mood] !== undefined) {
-          moods[ppK.mood]++;
-        } else if (ppK.mood === 'pain') {
-          moods.aggrieved++;
-        } else if (ppK.mood) {
-          console.warn('[DS] 未知心情值:', ppK.mood, '用户:', ppK.name);
+        // ★ V0.6.1.iq: 心情统计 - 兼容单值和多值
+        var pMoods = [];
+        if (ppK.moods && Array.isArray(ppK.moods)) pMoods = ppK.moods;
+        else if (typeof ppK.mood === 'string' && ppK.mood.indexOf(',') >= 0) pMoods = ppK.mood.split(',');
+        else if (ppK.mood) pMoods = [ppK.mood];
+        for (var pmi = 0; pmi < pMoods.length; pmi++) {
+          var pm = (pMoods[pmi] || '').trim();
+          if (pm && moods[pm] !== undefined) {
+            moods[pm]++;
+          } else if (pm === 'pain') {
+            moods.aggrieved++;
+          } else if (pm) {
+            console.warn('[DS] 未知心情值:', pm, '用户:', ppK.name);
+          }
         }
       }
     }
@@ -370,7 +368,8 @@ function _dsBuildHeroStats() {
 function _dsBuildRatingPanel() {
   var dd = _dsData, rt = dd.ratings || {}, tr = dd.totalRatings || 0;
   // 默认收起（如果总评分为 0）— 节省空间
-  var collapsed = (tr === 0) ? ' ds-rating-collapsed' : '';
+  // ★ V0.6.1.iq: 评价分布面板默认展开
+  var collapsed = '';
   var rItems = [
     { label: '🥇 金牌', key: 'gold', color: '#FFD700' },
     { label: '🥈 银牌', key: 'silver', color: '#C0C0C0' },
@@ -407,7 +406,8 @@ function _dsToggleRatingPanel(head) {
 // ★ V0.6.1.im: 员工本周状态统计（心情分布，镜像评价分布）
 function _dsBuildMoodPanel() {
   var dd = _dsData, mt = dd.moods || {}, tr = dd.totalMoods || 0;
-  var collapsed = (tr === 0) ? ' ds-rating-collapsed' : '';
+  // ★ V0.6.1.iq: 评价分布面板默认展开
+  var collapsed = '';
   var mItems = [
     { label: '😊 开心', key: 'happy', color: '#FFD700' },
     { label: '😌 平静', key: 'calm', color: '#94A3B8' },
