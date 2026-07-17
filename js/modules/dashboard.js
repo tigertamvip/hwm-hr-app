@@ -6,10 +6,18 @@ var _dsRankData = [];
 var _dsTab = 'cockpit';
 
 function dashboardInit() {
-  _dsFilter = { scope: 'all', period: 'week', sort: 'score_desc' };
-  _dsTab = 'cockpit';
-  _dsBuildNav();
-  _dsSwitchTab('cockpit');
+  try {
+    _dsFilter = { scope: 'all', period: 'week', sort: 'score_desc' };
+    _dsTab = 'cockpit';
+    _dsBuildNav();
+    _dsSwitchTab('cockpit');
+  } catch (e) {
+    console.error('[DS] dashboardInit error:', e);
+    var content = document.getElementById('dashboardContent');
+    if (content) {
+      content.innerHTML = '<div class="ds-card" style="padding:40px;text-align:center;color:#dc2626"><div style="font-size:16px;font-weight:600;margin-bottom:8px">⚠️ 数据中心初始化异常</div><div style="font-size:12px;color:var(--text-hint);font-family:monospace;text-align:left;max-width:600px;margin:0 auto;white-space:pre-wrap">' + (e.stack || e.message || '未知错误') + '</div></div>';
+    }
+  }
 }
 
 function _h(v) { return String(v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
@@ -47,21 +55,29 @@ function _dsBuildNav() {
 }
 
 function _dsSwitchTab(tab) {
-  _dsTab = tab;
-  _dsBuildNav();
-  var content = document.getElementById('dashboardContent');
-  if (!content) return;
-  _dsRefreshData();
-  switch (tab) {
-    case 'cockpit': content.innerHTML = _dsBuildCockpit(); _dsRenderRankTable(); break;
-    case 'weekly': content.innerHTML = _dsBuildCockpit(); _dsRenderRankTable(); break;
-    case 'monthly': content.innerHTML = _dsBuildMonthly(); break;
-    case 'annual': content.innerHTML = _dsBuildAnnual(); break;
-    case 'data_report': content.innerHTML = _dsBuildDataReport(); break;
-    case 'quality': content.innerHTML = _dsBuildQuality(); break;
-    case 'trend': content.innerHTML = _dsBuildTrend(); break;
-    case 'medalboard': content.innerHTML = _dsBuildMedalBoard(); break;
-    default: content.innerHTML = _dsBuildCockpit();
+  try {
+    _dsTab = tab;
+    _dsBuildNav();
+    var content = document.getElementById('dashboardContent');
+    if (!content) return;
+    _dsRefreshData();
+    switch (tab) {
+      case 'cockpit': content.innerHTML = _dsBuildCockpit(); _dsRenderRankTable(); break;
+      case 'weekly': content.innerHTML = _dsBuildCockpit(); _dsRenderRankTable(); break;
+      case 'monthly': content.innerHTML = _dsBuildMonthly(); break;
+      case 'annual': content.innerHTML = _dsBuildAnnual(); break;
+      case 'data_report': content.innerHTML = _dsBuildDataReport(); break;
+      case 'quality': content.innerHTML = _dsBuildQuality(); break;
+      case 'trend': content.innerHTML = _dsBuildTrend(); break;
+      case 'medalboard': content.innerHTML = _dsBuildMedalBoard(); break;
+      default: content.innerHTML = _dsBuildCockpit();
+    }
+  } catch (e) {
+    console.error('[DS] _dsSwitchTab error:', e);
+    var content = document.getElementById('dashboardContent');
+    if (content) {
+      content.innerHTML = '<div class="ds-card" style="padding:40px;text-align:center;color:#dc2626"><div style="font-size:16px;font-weight:600;margin-bottom:8px">⚠️ 页面切换异常</div><div style="font-size:12px;color:var(--text-hint);font-family:monospace;text-align:left;max-width:600px;margin:0 auto;white-space:pre-wrap">' + (e.stack || e.message || '未知错误') + '</div></div>';
+    }
   }
 }
 
