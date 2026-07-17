@@ -197,7 +197,7 @@ function _dsRefreshData() {
   _dsData = {
     totalUsers: totalUsers, myScore: myScore, myRank: myRank, myGold: myGold,
     myGivenGold: myGivenGold, myGivenTotal: myGivenTotal,
-    cWeekId: cWeekId, week: week,
+    cMonth: cMonth, cWeekInMonth: cWeekInMonth, week: week,
     planRate: totalUsers ? Math.round(planSub / totalUsers * 100) : 0, planSub: planSub,
     sumRate: totalUsers ? Math.round(sumSub / totalUsers * 100) : 0, sumSub: sumSub,
     prevPlanRate: totalUsers ? Math.round(prevPlan / totalUsers * 100) : 0, prevPlanSub: prevPlan,
