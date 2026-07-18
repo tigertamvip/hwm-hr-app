@@ -441,9 +441,9 @@ function _dsBuildMoodPanel() {
   // ★ V0.6.1.iq: 评价分布面板默认展开
   var collapsed = '';
   var mItems = [
-    { label: '😊 愉悦', key: 'happy', color: '#FFD700' },
+    { label: '😊 成就', key: 'happy', color: '#FFD700' },
     { label: '😌 平静', key: 'calm', color: '#94A3B8' },
-    { label: '😩 失眠', key: 'tired', color: '#CD7F32' },
+    { label: '😩 失望', key: 'tired', color: '#CD7F32' },
     { label: '😢 委屈', key: 'aggrieved', color: '#F59E0B' },
     { label: '😶 难言', key: 'silent', color: '#9CA3AF' }
   ];
