@@ -3516,6 +3516,15 @@ function _getWeekDeadline(year,month,week){
   return sat;
 }
 
+// ★ V0.6.1.iy: 法定节假日豁免 — 提交截止时间恰逢法定节假日即免除扣分
+function _isDeadlineHoliday(year,month,week){
+  var sat=_getWeekDeadline(year,month,week);
+  var dateStr=sat.getFullYear()+'-'+String(sat.getMonth()+1).padStart(2,'0')+'-'+String(sat.getDate()).padStart(2,'0');
+  var hy=CN_HOLIDAYS[year];
+  if(hy&&hy._hSet&&hy._hSet.has(dateStr))return true;
+  return false;
+}
+
 // ★ V0.1.35: 判断提交/评价是否按时
 // 返回: "on_time" | "late" | "exempted" | "pending"
 function _checkSubmissionStatus(plan,type){
@@ -3598,16 +3607,23 @@ function _calcWeekScore(plan){
     if(ews.summaryStatus==='late')existingLateCount++;
   }
 
-  // ★ V0.6.1ac: 提交评分（简化规则：每次-1，累计>3次后-2）
-  if(subStatus==='on_time'){weekScore+=2;onTimeSubmitScore=2;}
+  // ★ V0.6.1.iy: 法定节假日豁免 — 周六截止日恰逢法定节假日，免除扣分
+  if(_isDeadlineHoliday(plan.year,plan.month,plan.week))plan.exempted=true;
+
+  // ★ V0.6.1.iy: 提交评分（对齐制度 — 按时+0.5，未按时-1，第4次起-2）
+  if(subStatus==='exempted'){
+    // 法定节假日豁免，不加分也不扣分
+  }else if(subStatus==='on_time'){weekScore+=0.5;onTimeSubmitScore=0.5;}
   else if(subStatus==='late'&&plan.firstSubmittedAt){
     existingLateCount++;
     var penalty=(existingLateCount>3)?-2:-1;
     lateSubmitScore+=penalty;weekScore+=penalty;
   }
 
-  // ★ V0.6.1ac: 小结提交评分（同样 -1 / -2 规则）
-  if(sumStatus==='on_time'){/* 小结按时不额外加分 */}
+  // ★ V0.6.1.iy: 小结提交评分（按时+0.5，未按时同规则）
+  if(sumStatus==='exempted'){
+    // 法定节假日豁免
+  }else if(sumStatus==='on_time'){weekScore+=0.5;/* 小结按时得分已在制度统一合并为+0.5 */}
   else if(sumStatus==='late'&&plan.summarySubmittedAt){
     existingLateCount++;
     var spenalty=(existingLateCount>3)?-2:-1;
