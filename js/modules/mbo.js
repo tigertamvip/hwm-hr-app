@@ -3945,8 +3945,8 @@ function _renderTimeManagementPanel(plan){
   html+='<div class="wp-card-title">📋 计分规则</div>';
   html+='<div id="wpCardContent_rules" style="'+_cs('rules')+'">';
   html+='<table class="wp-card-table">';
-  html+='<tr><td><span style="color:#059669;margin-right:6px">✓</span>周六12:00前提交</td><td class="td-val td-pos" style="color:#059669;font-weight:600">+0.5</td></tr>';
-  html+='<tr><td><span style="color:#059669;margin-right:6px">✓</span>上级周一12:00评价</td><td class="td-val td-pos" style="color:#059669;font-weight:600">+0.5</td></tr>';
+  html+='<tr><td><span style="color:#059669;margin-right:6px">✓</span>周六12:00前提交上周小结</td><td class="td-val td-pos" style="color:#059669;font-weight:600">+0.5</td></tr>';
+  html+='<tr><td><span style="color:#059669;margin-right:6px">✓</span>周六12:00前提交下周计划</td><td class="td-val td-pos" style="color:#059669;font-weight:600">+0.5</td></tr>';
   html+='<tr><td style="color:#6b7280"><span style="margin-right:6px">—</span>法定节假日顺延</td><td class="td-val" style="color:#6b7280">免扣</td></tr>';
   html+='<tr><td style="color:#6b7280"><span style="margin-right:6px">○</span>未按时提交计划</td><td class="td-val" style="color:#dc2626;font-weight:500">−1</td></tr>';
   html+='<tr><td style="color:#6b7280"><span style="margin-right:6px">○</span>未按时提交小结</td><td class="td-val" style="color:#dc2626;font-weight:500">−1</td></tr>';
