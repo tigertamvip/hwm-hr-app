@@ -412,7 +412,7 @@ function _dsBuildRatingPanel() {
   var rhtml = '<div class="ds-rating-bars">';
   for (var i = 0; i < rItems.length; i++) {
     var ri = rItems[i], v = rt[ri.key] || 0, w = tr ? Math.round(v / tr * 100) : 0;
-    rhtml += '<div class="ds-rating-row"><span class="ds-r-label" style="width:90px;text-align:left">' + ri.label + '</span><div class="ds-r-bar"><div style="width:' + w + '%;background:' + ri.color + '"></div></div><span class="ds-r-count" style="width:50px">' + v + ' 次</span></div>';
+    rhtml += '<div class="ds-rating-row"><span class="ds-r-label" style="width:28px;text-align:center;font-size:18px">' + ri.label.split(' ')[0] + '</span><span class="ds-r-label" style="width:28px;text-align:left;font-size:12px;margin-left:2px">' + ri.label.split(' ')[1] + '</span><div class="ds-r-bar"><div style="width:' + w + '%;background:' + ri.color + '"></div></div><span class="ds-r-count" style="width:50px">' + v + ' 次</span></div>';
   }
   rhtml += '</div>';
   return '<div class="ds-rating-panel' + collapsed + '">' +
