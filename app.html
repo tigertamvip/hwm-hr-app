@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.6.1.j19">
+<meta name="version" content="V0.6.1.j20">
 <!-- cache-bust: 2026-07-19-18-58 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json?v=bc">
@@ -1502,10 +1502,7 @@ body{
   background:#E6F1FB;border-radius:10px;padding:1px 8px;
 }
 .policies-nav-item small{display:block;font-size:11px;color:#5F5E5A;font-weight:400;margin-top:2px}
-.policies-nav-contact{flex-direction:column;align-items:flex-start;gap:2px;padding:12px 20px;margin-top:auto;border-top:1px solid #D3D1C7}
-.policies-nav-contact .policies-nav-icon-row{display:flex;align-items:center;gap:10px;width:100%}
-.policies-nav-contact .policies-nav-icon-row .policies-nav-icon{font-size:16px;width:24px;text-align:center;flex-shrink:0}
-.policies-nav-contact small{margin-left:34px;font-size:11px;color:#5F5E5A}
+/* ★ V0.6.1.j20: 删除 policies-nav-contact 整段 CSS（对应UI项已删除） */
 
 /* ---- 右侧内容区 ---- */
 .policies-content{flex:1;padding:24px;min-width:0;display:flex;flex-direction:column;overflow:hidden}
@@ -2952,13 +2949,6 @@ function togglePortalTips(){
       <span>人力资源管理工具</span>
     </div>
     <div class="policies-sidebar-section" style="margin-top:12px">其他</div>
-    <div class="policies-nav-item policies-nav-contact" data-category="contact" onclick="switchPolicyCategory('contact')">
-      <div class="policies-nav-icon-row">
-        <span class="policies-nav-icon">💬</span>
-        <span>联系人力资源</span>
-      </div>
-      <small>对制度有任何疑问？</small>
-    </div>
   </div>
   <!-- 右侧内容 -->
   <div class="policies-content" id="policiesContent">
