@@ -6,8 +6,8 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.6.1.j17">
-<!-- cache-bust: 2026-07-19-18-50 -->
+<meta name="version" content="V0.6.1.j18">
+<!-- cache-bust: 2026-07-19-18-58 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json?v=bc">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1435,9 +1435,9 @@ body{
 .policies-topbar{
   display:flex;align-items:center;justify-content:space-between;
   padding:14px 20px;min-height:56px;
-  background:#004a8d;color:#fff;
+  background:linear-gradient(180deg,#7FB8E0 0%,#A8D5F2 50%,#D4EAF7 100%);color:#0F2C4A;
   position:sticky;top:0;z-index:100;
-  box-shadow:0 2px 8px rgba(74,101,128,.15);flex-shrink:0
+  box-shadow:0 2px 4px rgba(127,184,224,.3);flex-shrink:0
 }
 .policies-topbar-left{display:flex;align-items:center;gap:16px}
 .policies-topbar-logo{font-size:19px;font-weight:600;display:flex;align-items:center;gap:10px;white-space:nowrap}
@@ -1446,12 +1446,12 @@ body{
   position:relative;margin-left:24px;
 }
 .policies-search-box input{
-  width:280px;height:36px;border-radius:18px;border:1px solid rgba(255,255,255,.25);
-  background:rgba(255,255,255,.12);color:#fff;font-size:13px;
+  width:280px;height:36px;border-radius:18px;border:1px solid rgba(15,44,74,.2);
+  background:rgba(255,255,255,.5);color:#0F2C4A;font-size:13px;
   padding:0 16px 0 38px;outline:none;transition:all .2s;
 }
-.policies-search-box input::placeholder{color:rgba(255,255,255,.5)}
-.policies-search-box input:focus{background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.5)}
+.policies-search-box input::placeholder{color:rgba(15,44,74,.4)}
+.policies-search-box input:focus{background:rgba(255,255,255,.8);border-color:rgba(15,44,74,.4)}
 .policies-search-icon{
   position:absolute;left:12px;top:50%;transform:translateY(-50%);
   font-size:16px;opacity:.6;pointer-events:none;
@@ -1459,11 +1459,11 @@ body{
 .policies-topbar-right{display:flex;align-items:center;gap:12px}
 .policies-back-btn{
   display:inline-flex;align-items:center;gap:6px;
-  padding:6px 14px;border-radius:6px;border:1px solid rgba(255,255,255,.25);
-  background:transparent;color:#fff;font-size:13px;cursor:pointer;
+  padding:6px 14px;border-radius:6px;border:1px solid rgba(15,44,74,.25);
+  background:rgba(255,255,255,.5);color:#0F2C4A;font-size:13px;cursor:pointer;
   transition:all .15s;
 }
-.policies-back-btn:hover{background:rgba(255,255,255,.12)}
+.policies-back-btn:hover{background:rgba(255,255,255,.8);border-color:rgba(15,44,74,.5)}
 
 /* ---- 面包屑导航 ---- */
 .policies-breadcrumb{
@@ -2910,7 +2910,7 @@ function togglePortalTips(){
     <div class="policies-topbar-logo">
       <span class="logo-icon">📋</span>
       <span>体系流程</span>
-      <span style="font-size:13px;color:rgba(255,255,255,.55);margin-left:8px;letter-spacing:.3px;font-weight:400">Process</span>
+      <span style="font-size:13px;color:rgba(15,44,74,.5);margin-left:8px;letter-spacing:.3px;font-weight:400">Process</span>
     </div>
     <div class="policies-search-box">
       <span class="policies-search-icon">🔍</span>
