@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.6.1.j20">
+<meta name="version" content="V0.6.1.j21">
 <!-- cache-bust: 2026-07-19-18-58 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json?v=bc">
@@ -2612,7 +2612,12 @@ select.form-input{padding-right:28px;appearance:auto;-webkit-appearance:menulist
 </head>
 <body>
 
-<!-- ★ V0.6.1.j19: 全局版本号水印已删除(左下角V0.6.1.j18徽章) — 保留meta供调试,UI不再显示 -->
+<!-- ★ V0.6.1.j21: 版本号左下、提示窗右下，同一水平线 bottom:24px -->
+<!-- ★ V0.6.1.j21: 版本号徽章 — 深色毛玻璃（白/深色背景都可见，避开 iOS Safari 底部工具栏） -->
+<div id="appVersionBadge" style="position:fixed;left:24px;bottom:max(24px,env(safe-area-inset-bottom));z-index:9999;font-size:11px;color:#fff;font-family:'SF Mono',Menlo,Monaco,Consolas,monospace;pointer-events:none;user-select:none;line-height:1.4">
+  <span id="appVersionBadgeText" style="background:rgba(0,0,0,.25);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:6px 14px;border-radius:24px;border:1px solid rgba(255,255,255,.2);box-shadow:0 2px 10px rgba(0,0,0,.15)"></span>
+</div>
+<script>document.getElementById('appVersionBadgeText').textContent=document.querySelector('meta[name="version"]').content</script>
 
 <!-- ★ V0.6.1bd: 门户提示窗开关逻辑 -->
 <script>
