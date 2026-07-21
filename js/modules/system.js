@@ -884,7 +884,7 @@ async function sysToggleEmailNotifications(){
   btn.textContent='⏳ 切换中…';
   
   try{
-    var supabase=getSupabase();
+    var supabase=window.supabaseClient||(typeof supabase!=='undefined'?supabase:null);
     if(!supabase){
       // fallback: 读 localStorage
       var saved=localStorage.getItem('__hwm_email_toggle__');
@@ -940,7 +940,7 @@ async function _initEmailToggleStatus(){
   var btn=document.getElementById('sysEmailToggle');
   if(!btn)return;
   try{
-    var supabase=getSupabase();
+    var supabase=window.supabaseClient||(typeof supabase!=='undefined'?supabase:null);
     if(supabase){
       var {data:row}=await supabase.from('hwm_settings').select('value').eq('key','email_notifications').single();
       if(row&&row.value&&row.value.enabled===false){
