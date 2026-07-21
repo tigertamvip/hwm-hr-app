@@ -300,6 +300,31 @@ function getWPLocalStorageKey(){
   return 'hwm_workplans_'+user;
 }
 
+// ★ V0.6.1.j52: 周计划删除统一使用同一目标用户，避免“本地删了、云端仍在”
+function _wpTargetUser(){
+  return _wpViewingShared||_wpViewingSubordinate||_wpViewingDeptMember||(currentUser&&currentUser.name)||getCurrentEmployee().name;
+}
+function _wpIsForcedDeleted(user,weekId){
+  var list=window.HWM_FORCED_DELETED_PLANS||[];
+  for(var i=0;i<list.length;i++)if(list[i].username===user&&list[i].weekId===weekId)return true;
+  return false;
+}
+function _wpBackupKeys(key){return ['__hwm_backup__'+key,key+'_backup'];}
+function _wpRemoveBackups(key){
+  var keys=_wpBackupKeys(key);
+  for(var i=0;i<keys.length;i++){try{localStorage.removeItem(keys[i]);}catch(e){}}
+}
+function _wpCanForceDelete(){
+  var u=(currentUser&&USERS&&USERS[currentUser.name])||{};
+  return u.role==='admin'||u.role==='data_admin'||(currentUser&&(currentUser.role==='admin'||currentUser.role==='data_admin'));
+}
+async function _wpDeleteCloudPlan(user,weekId){
+  if(typeof supabase==='undefined'||!supabase||!supabase.from)return {skipped:true};
+  var resp=await supabase.from(SUPABASE_WP_TABLE).delete().eq('username',user).eq('week_id',weekId);
+  if(resp.error)throw resp.error;
+  return resp;
+}
+
 // ★ V0.1.19: 批量修复当前用户所有周计划的脏数据
 // 修复场景：跨浏览器登录、UID迁移后 localStorage 中残留其他用户信息
 function fixAllPlanDirtyData(){
@@ -330,14 +355,33 @@ function fixAllPlanDirtyData(){
 function loadWPData(){
   // ① 先读 localStorage（秒出，不卡）
   try{_wpData=JSON.parse(localStorage.getItem(getWPLocalStorageKey())||'{}');}catch(e){_wpData={};}
-  // ★ V0.6.1eh: 备份恢复 — 当前数据为空但备份存在时自动恢复
+  // ★ V0.6.1eh/j52: 备份恢复 — 仅恢复未被明确删除的周计划
   var wpKey=getWPLocalStorageKey();
   if(Object.keys(_wpData).length===0){
     var backup=localStorage.getItem(wpKey+'_backup');
     if(backup){
-      try{var backupData=JSON.parse(backup);if(Object.keys(backupData).length>0){_wpData=backupData;localStorage.setItem(wpKey,backup);console.warn('[WP] 从本地备份恢复了 '+Object.keys(backupData).length+' 周的数据');if(typeof showToast==='function')showToast('🔄 从本地备份恢复了周计划数据');}}catch(e){}
+      try{
+        var backupData=JSON.parse(backup);
+        var deletedPrefix='hwm_wp_deleted_'+_wpTargetUser()+'_';
+        Object.keys(backupData).forEach(function(wk){
+          if(localStorage.getItem(deletedPrefix+wk)==='1')delete backupData[wk];
+        });
+        if(Object.keys(backupData).length>0){
+          _wpData=backupData;localStorage.setItem(wpKey,JSON.stringify(backupData));
+          console.warn('[WP] 从本地备份恢复了 '+Object.keys(backupData).length+' 周的数据');
+          if(typeof showToast==='function')showToast('🔄 从本地备份恢复了周计划数据');
+        }
+      }catch(e){}
     }
   }
+  // 删除标记优先于任何本地缓存，防止已删除周计划被旧备份重新带回
+  try{
+    var deletedPrefix2='hwm_wp_deleted_'+_wpTargetUser()+'_';
+    Object.keys(_wpData).forEach(function(wk){
+      if(localStorage.getItem(deletedPrefix2+wk)==='1'||_wpIsForcedDeleted(_wpTargetUser(),wk))delete _wpData[wk];
+    });
+    localStorage.setItem(wpKey,JSON.stringify(_wpData));
+  }catch(e){}
   // ② 后台从 Supabase 拉取并合并（跨设备数据同步，失败不影响使用）
   var user=_wpViewingShared||_wpViewingSubordinate||_wpViewingDeptMember||(currentUser&&currentUser.name)||getCurrentEmployee().name;
   if(!user||typeof user!=='string'||user.trim()===''){
@@ -376,6 +420,7 @@ function loadWPData(){
       var localData=JSON.parse(localStorage.getItem(currentKey)||'{}');
       for(var i=0;i<allRows.length;i++){
         var row=allRows[i];
+        if(_wpIsForcedDeleted(user,row.week_id))continue;
         var cloudUpd=row.plan_data.updatedAt||'';
         var localUpd=(localData[row.week_id]&&localData[row.week_id].updatedAt)||'';
         // ★ V0.6.1ge: 判断云端/本地是否有真实工作内容
@@ -390,23 +435,24 @@ function loadWPData(){
       }
       // ★ V0.6.1ge: 云端已删除的周计划 → 本地同步删除（但有内容的本地数据绝不删除）
       var cloudIds={};
-      for(var i=0;i<allRows.length;i++){cloudIds[allRows[i].week_id]=true;}
+      for(var i=0;i<allRows.length;i++){
+        if(!_wpIsForcedDeleted(user,allRows[i].week_id))cloudIds[allRows[i].week_id]=true;
+      }
       for(var wk in localData){
         if(!cloudIds[wk]){
-          var localHasContent=!!(localData[wk].tasks||[]).some(function(t){return t.work&&t.work.trim();});
-          if(localHasContent){console.log('[V0.6.1ge] 云端无双有内容本地数据，保护不删:',wk);continue;}
+          // ★ V0.6.1.j52: 云端已删除记录必须从本地及备份移除，不能因“保护有内容”再次复活
           delete localData[wk];seenNewer=true;
-          console.log('[V0.3.117] Removed stale local cache for',wk);
+          try{localStorage.setItem('hwm_wp_deleted_'+user+'_'+wk,'1');}catch(e){}
+          console.log('[V0.6.1.j52] Removed stale local cache for',wk);
         }
       }
-      // ★ V0.6.1.gi: 多重备份自动恢复 — 防御云端覆盖导致数据丢失
+      // ★ V0.6.1.gi/j52: 多重备份自动恢复，但尊重明确删除标记
       try{
         for(var wk in localData){
           var hasContent=!!(localData[wk].tasks||[]).some(function(t){return t.work&&t.work.trim();});
-          if(!hasContent){
-            // 当前 localData 是空壳，尝试从 xxx_backup 恢复
+          if(!hasContent && localStorage.getItem('hwm_wp_deleted_'+_wpTargetUser()+'_'+wk)!=='1'){
             var bkKey=currentKey+'_backup';
-            var bkRaw=localStorage.getItem(bkKey);
+            var bkRaw=localStorage.getItem(bkKey)||localStorage.getItem('__hwm_backup__'+currentKey);
             if(bkRaw){
               try{
                 var bkData=JSON.parse(bkRaw);
@@ -450,6 +496,7 @@ function loadWPData(){
           var seenNewer=false;
           for(var i=0;i<resp.data.length;i++){
             var row=resp.data[i];
+            if(_wpIsForcedDeleted(user,row.week_id))continue;
             var cloudUpd=row.plan_data.updatedAt||'';
             var localUpd=(localData[row.week_id]&&localData[row.week_id].updatedAt)||'';
             var cloudHasWork=!!(row.plan_data.tasks||[]).some(function(t){return t.work&&t.work.trim();});
@@ -548,7 +595,35 @@ function makeWPId(y,m,w){
 
 function getWP(y,m,w){return _wpData[makeWPId(y,m,w)]||null;}
 function saveWP(y,m,w,plan){var id=makeWPId(y,m,w);console.log('[DEBUG saveWP] id='+id+' planName='+(plan&&plan.name));_wpData[id]=plan;saveWPData();}
-function deleteWP(y,m,w){delete _wpData[makeWPId(y,m,w)];saveWPData();}
+async function deleteWP(y,m,w,force){
+  var id=makeWPId(y,m,w), user=_wpTargetUser();
+  // 先删除云端；云端失败时保留本地，避免两端状态不一致
+  if(typeof supabase!=='undefined'&&supabase&&supabase.from){
+    try{await _wpDeleteCloudPlan(user,id);}
+    catch(e){console.error('[WP] 云端删除失败:',e.message);if(typeof showToast==='function')showToast('⚠️ 云端删除失败，请重试');return false;}
+  }
+  delete _wpData[id];
+  try{localStorage.setItem('hwm_wp_deleted_'+user+'_'+id,'1');}catch(e){}
+  try{localStorage.setItem(getWPLocalStorageKey(),JSON.stringify(_wpData));}catch(e){}
+  _wpRemoveBackups(getWPLocalStorageKey());
+  return true;
+}
+
+async function forceDeleteViewedWP(){
+  if(!_wpCanForceDelete()){_showAlert('只有管理员可以强制删除员工周计划','⚠️ 无权操作',true);return;}
+  var p=_wpCurrent&&_wpCurrent.plan;
+  if(!p){_showAlert('请先选择要删除的周计划');return;}
+  var user=_wpTargetUser(), y=p.year, m=p.month, w=p.week;
+  var ok=await _showConfirm('确定强制删除 '+user+' 的 '+y+'年'+m+'月第'+w+'周全部周计划吗？\\n\\n将同时删除云端、本地缓存和备份，删除后不可恢复。','管理员强制删除');
+  if(!ok)return;
+  var deleted=await deleteWP(y,m,w,true);
+  if(!deleted)return;
+  _wpCurrent={year:null,month:null,week:null,plan:null};
+  showWPEmpty();
+  renderWPPlanList(y,m);
+  renderWPUserInfo();
+  if(typeof showToast==='function')showToast('已强制删除 '+user+' 第'+w+'周全部周计划');
+}
 
 function _getPrevWeek(y,m,w){
   // 计算上一周的 (year, month, week)
@@ -2594,6 +2669,9 @@ function renderWPTable(plan){
     html+='<button class="wp-btn-export" onclick="exportCurrentWP()" style="margin-left:auto"><span>📥</span> 导出周行动项</button>';
   }else if(_wpViewingDeptMember){
     // 部门成员视图：审核锁定 + 上级评价（同直属下属）
+    // ★ V0.6.1j52: 管理员可对员工周计划执行真正的强制删除
+    // 强制删除会同步移除 Supabase、localStorage 与本地备份，不再写回空壳记录。
+    if(_wpCanForceDelete())html+='<button class="wp-btn-delete" onclick="forceDeleteViewedWP()"><span>🗑</span> 管理员强制删除</button>';
     // ★ V0.6.1af: 上级锁定按钮只反映上级自己锁定的状态，员工提交锁定不显示为已锁定
     var myName=(currentUser&&currentUser.name)||'';
     var isFrozen = _wpCurrent.plan && _wpCurrent.plan.frozen && _wpCurrent.plan.frozenBy===myName;
