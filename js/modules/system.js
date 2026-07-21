@@ -868,3 +868,43 @@ function getRosterDeptForName(name){
   var r=getRosterLookup();
   return r[name]?r[name].dept:'';
 }
+
+// ★ V0.6.1.kd: AI 邮箱配置 (SMTP) — 存储 SMTP 配置供 Edge Functions 发送邮件
+var _EMAIL_CONFIG_KEY='__hwm_email_config__';
+
+function sysGetEmailConfig(){
+  try{return JSON.parse(localStorage.getItem(_EMAIL_CONFIG_KEY)||'{}');}catch(e){return{};}
+}
+function sysSaveEmailConfig(){
+  var cfg={
+    smtpHost:(document.getElementById('ecSmtpHost').value||'').trim(),
+    smtpPort:parseInt(document.getElementById('ecSmtpPort').value)||465,
+    smtpSsl:document.getElementById('ecSmtpSsl').value==='true',
+    smtpUser:(document.getElementById('ecSmtpUser').value||'').trim(),
+    smtpPass:document.getElementById('ecSmtpPass').value||'',
+    senderName:(document.getElementById('ecSenderName').value||'').trim()||'MBO+AI 目标计划管理系统',
+    updatedAt:new Date().toISOString()
+  };
+  // 基础校验
+  if(!cfg.smtpHost){_showAlert('请填写 SMTP 服务器地址','📧 配置不完整');return;}
+  if(!cfg.smtpPort||cfg.smtpPort<1||cfg.smtpPort>65535){_showAlert('SMTP 端口必须在 1-65535 之间','📧 配置不合法');return;}
+  if(!cfg.smtpUser){_showAlert('请填写邮箱账号','📧 配置不完整');return;}
+  if(!cfg.smtpPass){_showAlert('请填写 SMTP 授权码','📧 配置不完整');return;}
+  try{localStorage.setItem(_EMAIL_CONFIG_KEY,JSON.stringify(cfg));}catch(e){_showAlert('保存失败:'+e.message,'错误');return;}
+  console.log('[EmailConfig] ✅ 已保存 SMTP 配置 →',cfg.smtpHost+':'+cfg.smtpPort+' user='+cfg.smtpUser);
+  _showAlert('AI 邮箱配置已保存!\\n\\n下次周一 8:30 周报推送和每日 8:00 到期预警将自动启用。','📧 保存成功');
+  sysCloseEmailConfigModal();
+}
+function sysOpenEmailConfig(){
+  var cfg=sysGetEmailConfig();
+  document.getElementById('ecSmtpHost').value=cfg.smtpHost||'smtp.mxhichina.com';
+  document.getElementById('ecSmtpPort').value=cfg.smtpPort||465;
+  document.getElementById('ecSmtpSsl').value=(cfg.smtpSsl===false)?'false':'true';
+  document.getElementById('ecSmtpUser').value=cfg.smtpUser||'';
+  document.getElementById('ecSmtpPass').value=cfg.smtpPass||'';
+  document.getElementById('ecSenderName').value=cfg.senderName||'MBO+AI 目标计划管理系统';
+  document.getElementById('sysEmailConfigModal').style.display='flex';
+}
+function sysCloseEmailConfigModal(){
+  document.getElementById('sysEmailConfigModal').style.display='none';
+}
