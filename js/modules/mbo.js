@@ -2740,7 +2740,7 @@ function renderWPTable(plan){
   if(plan.bossEvaluated){
       html+='<button onclick="viewBossEval()"><span style="color:#2A476A">📋</span> 查看上级评价</button>';
     }
-    html+='<button class="wp-btn-ai" onclick="aiAssessWP()" style="margin-left:auto" title="生成本周 AI 分析建议"><span style="font-size:14px;font-weight:700">AI</span><span>分析建议</span></button>';
+    html+='<button id="wpAiAssessBtn" class="wp-btn-ai" onclick="aiAssessWP()" style="margin-left:auto" title="生成本周 AI 的建议"><span style="font-size:14px;font-weight:700">AI</span><span>的建议</span></button>';
   }
   // 安全兜底：确保工具栏至少有一个可见按钮（防止所有分支都未命中导致空白）
   if(html.indexOf('<button', html.lastIndexOf('wpToolbar')) < 0){
@@ -2958,7 +2958,7 @@ function renderWPTable(plan){
   if(plan.aiAnalysis && plan.aiAnalysis.trim()){
     html+='<div class="wp-feedback-textarea" id="aiAnalysisContent" style="background:#F4F0FF;border:1px solid #d4c8f0;font-size:13px;line-height:1.8;white-space:pre-wrap;transition:max-height 0.6s cubic-bezier(.25,.1,.25,1),opacity 0.6s cubic-bezier(.25,.1,.25,1),padding 0.6s cubic-bezier(.25,.1,.25,1);overflow:hidden;max-height:0;opacity:0;padding:0;margin-top:0">'+_h(plan.aiAnalysis)+'</div>';
   }else{
-    html+='<div class="wp-feedback-empty" id="aiAnalysisContent" style="background:#F4F0FF;border:1px dashed #d4c8f0;transition:max-height 0.6s cubic-bezier(.25,.1,.25,1),opacity 0.6s cubic-bezier(.25,.1,.25,1),padding 0.6s cubic-bezier(.25,.1,.25,1);max-height:0;opacity:0;padding:0">点击上方「AI-分析建议」按钮，生成本周整体分析报告</div>';
+    html+='<div class="wp-feedback-empty" id="aiAnalysisContent" style="background:#F4F0FF;border:1px dashed #d4c8f0;transition:max-height 0.6s cubic-bezier(.25,.1,.25,1),opacity 0.6s cubic-bezier(.25,.1,.25,1),padding 0.6s cubic-bezier(.25,.1,.25,1);max-height:0;opacity:0;padding:0">点击上方「AI 的建议」按钮，生成本周整体分析报告</div>';
   }
   html+='</div>';
 
@@ -5030,11 +5030,11 @@ async function aiAssessWP() {
     saveWP(p.year, p.month, p.week, p);
     renderWPTable(p);
 
-    if (btn) { btn.disabled = false; btn.innerHTML = '<span style="line-height:1.5"><span style="font-size:16px;font-weight:700">AI</span><br>分析建议</span>'; }
+    if (btn) { btn.disabled = false; btn.innerHTML = '<span style="font-size:14px;font-weight:700">AI</span><span>的建议</span>'; }
     _showAlert('AI 综合分析已生成，请查看下方「🤖 AI 综合分析」区域。');
   } catch (e) {
     console.error('[AI] 分析失败:', e);
-    if (btn) { btn.disabled = false; btn.innerHTML = '<span style="line-height:1.5"><span style="font-size:16px;font-weight:700">AI</span><br>分析建议</span>'; }
+    if (btn) { btn.disabled = false; btn.innerHTML = '<span style="font-size:14px;font-weight:700">AI</span><span>的建议</span>'; }
     _showAlert('AI 分析失败：' + (e.message || '未知错误'));
   }
 }
