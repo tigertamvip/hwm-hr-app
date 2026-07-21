@@ -1775,9 +1775,19 @@ function _renderCollabTasksSection(plan){
   var collabTasks=[];
   if(plan&&plan.collab_tasks&&Array.isArray(plan.collab_tasks)){
     collabTasks=plan.collab_tasks;
-    // ★ V0.5.25: 过滤掉来自自己的协同任务
-    var myName=(currentUser&&currentUser.name)||'';
-    collabTasks=collabTasks.filter(function(ct){return ct&&ct.collab_from!==myName;});
+    // ★ V0.6.1.ka: 过滤掉来自自己的协同任务 — 同时匹配 name + _uid + case-insensitive
+    var myName=((currentUser&&currentUser.name)||'').toString().trim().toLowerCase();
+    var myUid=((currentUser&&currentUser._uid)||'').toString().trim().toLowerCase();
+    collabTasks=collabTasks.filter(function(ct){
+      if(!ct)return false;
+      var cfName=(ct.collab_from||'').toString().trim().toLowerCase();
+      var cfUid=(ct.collab_from_uid||'').toString().trim().toLowerCase();
+      // 排除: 协同人=自己(name 或 uid 任一匹配), 或没有 collab_from 字段(脏数据)
+      if(!cfName&&!cfUid)return false;
+      if(cfName&&cfName===myName)return false;
+      if(cfUid&&cfUid===myUid)return false;
+      return true;
+    });
     // ★ V0.1.34: 按 collab_from+work 内容去重
     var seen={};
     collabTasks=collabTasks.filter(function(ct){
