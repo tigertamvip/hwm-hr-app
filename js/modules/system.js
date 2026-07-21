@@ -900,10 +900,20 @@ async function sysToggleEmailNotifications(){
     var {data:row}=await supabase.from('hwm_settings').select('value').eq('key','email_notifications').single();
     var cur=(row&&row.value&&row.value.enabled!==false)?true:false;
     var nw=!cur;
-    var reason=cur?'春节假期休息':'';
-    if(nw===false){
-      reason=prompt('请填写关闭原因（例：春节假期）：','')||'手动关闭';
+    var reason='';
+
+    // 二次确认
+    var confirmMsg=nw?
+      '确认要开启邮件自动预警通知功能吗？':
+      '确认要关闭邮件自动预警通知功能吗？';
+    if(!confirm(confirmMsg)){
+      _updateEmailToggleBtn(cur);
+      showToast('已取消');
+      _EMAIL_TOGGLE_LOADING=false;
+      btn.disabled=false;
+      return;
     }
+    reason=cur?'临时关闭':'开启通知';
     
     // 写 Supabase
     var adminName=(currentUser&&currentUser.name)||'系统管理员';
@@ -914,7 +924,7 @@ async function sysToggleEmailNotifications(){
     });
     
     _updateEmailToggleBtn(nw);
-    showToast(nw?'🔔 邮件通知已开启 (原因: '+(reason||'无')+')':'🔕 邮件通知已关闭 (原因: '+reason+')');
+    showToast(nw?'🔔 邮件通知已开启':'🔕 邮件通知已关闭');
   }catch(e){
     console.error('[EmailToggle] 切换失败',e);
     showToast('⚠️ 切换失败: '+e.message);
