@@ -25,6 +25,12 @@ function dashboardInit() {
 
 function _h(v) { return String(v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
+// ★ V0.6.1.j50: 过滤历史脏数据产生的伪用户，避免“未知”进入排名
+function _dsIsValidPlanUserName(name) {
+  var n = String(name || '').trim();
+  return n !== '' && n !== '未知' && n !== '未设置' && n !== 'undefined' && n !== 'null' && n !== 'me';
+}
+
 function _dsBuildNav() {
   var nav = document.getElementById('dsNavItems');
   if (!nav) return;
@@ -99,8 +105,10 @@ function _dsRefreshData() {
       // ★ V0.6.1.ia: 跳过 _backup 备份 key（避免被当成另一用户）
       if (k.indexOf('_backup') > 0) continue;
       if (k.startsWith('hwm_workplans_')) {
+        var planUser = k.replace('hwm_workplans_', '').trim();
+        if (!_dsIsValidPlanUserName(planUser)) continue;
         var d = JSON.parse(localStorage.getItem(k) || '{}');
-        for (var wk in d) { if (!allPlans[wk]) allPlans[wk] = {}; allPlans[wk][k.replace('hwm_workplans_', '')] = d[wk]; }
+        for (var wk in d) { if (!allPlans[wk]) allPlans[wk] = {}; allPlans[wk][planUser] = d[wk]; }
       }
     }
     // ★ V0.6.1.hs: 智能合并 _wpData — 只覆盖较新的版本
@@ -127,6 +135,7 @@ function _dsRefreshData() {
   // (避免 USERS 没注册该员工时,心情/评级数据被忽略)
   for (var _wka in allPlans) {
     for (var _uka in allPlans[_wka]) {
+      if (!_dsIsValidPlanUserName(_uka)) continue;
       if (!users[_uka]) users[_uka] = { name: _uka, role: 'staff' };
     }
   }
@@ -209,6 +218,7 @@ function _dsRefreshData() {
 
   _dsRankData = [];
   for (var uname2 in users) {
+    if (!_dsIsValidPlanUserName(uname2)) continue;
     var u = users[uname2];
     var sc = _dsCalcUserScore(uname2, allPlans, _dsFilter.period);
     // ★ V0.6.1.iu: 排名表"积分"列固定显示年度累计(不受 _dsFilter.period 影响)
