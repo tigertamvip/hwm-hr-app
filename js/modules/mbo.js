@@ -431,6 +431,52 @@ function loadWPData(){
       }
     }catch(e){console.warn('HWM: WP Supabase sync error (non-critical)',e.message);}
   })();
+
+  // ★ V0.6.1.kb: 周计划页打开时启动云端轮询 — 解决发起方看不到接收方实时响应的问题
+  if(typeof _wpPollTimer==='undefined'||!_wpPollTimer){
+    _wpPollTimer=setInterval(function(){
+      if(typeof supabase==='undefined'||!supabase)return;
+      var curKey=getWPLocalStorageKey();
+      var user=curKey.replace(/^hwm_workplans_/,'');
+      if(!user)return;
+      (async function(){
+        try{
+          var resp=await supabase.from(SUPABASE_WP_TABLE)
+            .select('week_id,plan_data')
+            .eq('username',user);
+          if(resp.error||!resp.data||resp.data.length===0)return;
+          var currentKey=getWPLocalStorageKey();
+          var localData=JSON.parse(localStorage.getItem(currentKey)||'{}');
+          var seenNewer=false;
+          for(var i=0;i<resp.data.length;i++){
+            var row=resp.data[i];
+            var cloudUpd=row.plan_data.updatedAt||'';
+            var localUpd=(localData[row.week_id]&&localData[row.week_id].updatedAt)||'';
+            var cloudHasWork=!!(row.plan_data.tasks||[]).some(function(t){return t.work&&t.work.trim();});
+            var localHasWork=!!(localData[row.week_id]&&(localData[row.week_id].tasks||[]).some(function(t){return t.work&&t.work.trim();}));
+            if(localHasWork&&!cloudHasWork)continue;
+            if(!localData[row.week_id]||cloudUpd>localUpd){
+              localData[row.week_id]=row.plan_data;
+              seenNewer=true;
+            }
+          }
+          if(seenNewer){
+            localStorage.setItem(currentKey,JSON.stringify(localData));
+            if(getWPLocalStorageKey()===currentKey){
+              _wpData=localData;
+              try{if(_wpCurrent&&_wpCurrent.plan){
+                var refreshed=getWP(_wpCurrent.year,_wpCurrent.month,_wpCurrent.week);
+                if(refreshed)_wpCurrent.plan=refreshed;
+                renderWPTable(_wpCurrent.plan);
+                showToast('🔄 周计划已从云端同步最新状态');
+              }}catch(e){}
+            }
+          }
+        }catch(e){/* 静默,不影响用户使用 */}
+      })();
+    },30000);
+    console.log('[WP Poll] 启动 30s 周期云端轮询');
+  }
 }
 
 function saveWPData(){
