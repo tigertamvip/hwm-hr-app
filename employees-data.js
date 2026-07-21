@@ -1,5 +1,5 @@
 // 数据版本号：每次更新花名册需递增，触发浏览器重新下载并清空 IndexedDB 旧数据
-window.__DATA_VERSION__ = '2026-07-06-v16';
+window.__DATA_VERSION__ = '2026-07-21-v17';
 var __PRELOADED_EMPLOYEES__ = [
   {
     "seq": 1,
