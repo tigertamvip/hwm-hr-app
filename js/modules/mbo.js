@@ -2214,23 +2214,37 @@ async function _collabRespond(btn){
   if(parts.length<3)return;
   var fromUid=parts[0];
   var reqId=parts[1];
-  var taskIdx=parseInt(parts[2]);
   var newStatus=btn.getAttribute('data-status')||'pending';
 
-  if(!_wpCurrent||!_wpCurrent.plan||!_wpCurrent.plan.collab_tasks){
-    showToast('⚠️ 未找到协同任务数据');
+  if(!_wpCurrent||!_wpCurrent.plan){
+    showToast('⚠️ 未找到周计划数据,请稍后再试');
     return;
   }
-  var ct=_wpCurrent.plan.collab_tasks[taskIdx];
-  if(!ct||ct.collab_req_id!==reqId){
-    showToast('⚠️ 协同任务不匹配');
+  if(!_wpCurrent.plan.collab_tasks||!Array.isArray(_wpCurrent.plan.collab_tasks)){
+    // ★ 极端边界:collab_tasks 数组被破坏时尝试初始化
+    _wpCurrent.plan.collab_tasks=[];
+  }
+  // ★ V0.6.1.kc: 用 reqId 查找任务,不再依赖 index(防多设备同步后数组顺序变化导致点不到)
+  var ct=null;
+  var realIdx=-1;
+  for(var k=0;k<_wpCurrent.plan.collab_tasks.length;k++){
+    if(_wpCurrent.plan.collab_tasks[k]&&_wpCurrent.plan.collab_tasks[k].collab_req_id===reqId){
+      ct=_wpCurrent.plan.collab_tasks[k];
+      realIdx=k;
+      break;
+    }
+  }
+  if(!ct){
+    showToast('⚠️ 协同任务不匹配(reqId='+reqId+'),已尝试重新加载...');
+    // ★ 自愈:数据被外部清空,主动拉云端最新
+    setTimeout(function(){try{loadWPData();}catch(e){}},500);
     return;
   }
   // 更新本地状态
   ct.status=newStatus;
-  _wpCurrent.plan.collab_tasks[taskIdx]=ct;
+  _wpCurrent.plan.collab_tasks[realIdx]=ct;
   // 保存到 localStorage
-  saveWPData();
+  try{saveWPData();}catch(e){console.warn('[Collab] saveWPData failed',e);}
   // 刷新表格（协同区域会重新渲染）
   renderWPTable(_wpCurrent.plan);
   // 提示
