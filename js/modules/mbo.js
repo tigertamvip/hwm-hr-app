@@ -2627,11 +2627,14 @@ function renderWPTable(plan){
   if(!plan)return;
   var content=document.getElementById('wpContent');
   if(!content)return;
-  // ★ V0.5.190: 真正的滚动容器是 .wp-scroll-area（overflow:auto），不是 document.scrollingElement!
-  var _oldScroll=content.querySelector('.wp-scroll-area');
-  var _savedScrollTop=_oldScroll?_oldScroll.scrollTop:0;
-  var _savedScrollLeft=_oldScroll?_oldScroll.scrollLeft:0;
+  // 页面纵向滚动与表格横向滚动分离，避免用 JS transform 补偿造成顶部区域抖动。
+  var _oldPageScroll=content.querySelector('.wp-page-scroll');
+  var _oldTableScroll=content.querySelector('.wp-table-x-scroll');
+  var _savedScrollTop=_oldPageScroll?_oldPageScroll.scrollTop:0;
+  var _savedScrollLeft=_oldTableScroll?_oldTableScroll.scrollLeft:0;
   var dd=document.getElementById('wpDefault');
+  var oldPage=content.querySelector('.wp-page-scroll');
+  if(oldPage)oldPage.remove();
   var tb=content.querySelector('#wpToolbar');
   var ta=content.querySelector('.wp-table-area');
   var ib=content.querySelector('.wp-info-bar');
@@ -2648,7 +2651,7 @@ function renderWPTable(plan){
   if(!plan.year||!plan.month||!plan.week){console.warn('renderWPTable: plan missing year/month/week',plan);return;}
     var weekLabel=plan.year+'年'+plan.month+'月 第'+plan.week+'周';
   var html='';
-  html+='<div class="wp-scroll-area">';
+  html+='<div class="wp-page-scroll">';
 
   html+='<div class="wp-info-bar"><strong>当前员工：</strong><strong>'+_h(plan.name)+'</strong>&nbsp;'+_h(plan.dept)+' | '+_h(plan.position)+'<span class="sep">|</span>'+weekLabel;
   if(_wpViewingSubordinate)html+='<span style="color:#E8622A;font-weight:500;margin-left:8px">（查看直属下属周计划）</span>';
@@ -2662,7 +2665,7 @@ function renderWPTable(plan){
   if(plan.bossEvaluated)html+='<span style="color:#059669;margin-left:8px">✓ 上级已评价</span>';
   html+='</div>';
 
-  html+='<div class="wp-toolbar" id="wpToolbar" style="display:flex;flex-wrap:wrap;gap:16px;padding:10px 0;margin-bottom:7px;border-bottom:1px solid var(--border)">';
+  html+='<div class="wp-toolbar" id="wpToolbar" style="display:flex;flex-wrap:wrap;gap:8px;padding:8px 0;margin-bottom:4px;border-bottom:1px solid var(--border)">';
   if(_wpViewingShared){
     // ★ V0.5.79b: 只读模式 — 被授权查看他人周计划
     html+='<span style="color:#3B7DB4;font-weight:600">📖 只读模式 — 您正在查看 '+esc(_wpViewingShared)+' 分享的周计划</span>';
@@ -2733,11 +2736,11 @@ function renderWPTable(plan){
     }else{
       html+='<button class="wp-btn-delete" onclick="deleteCurrentWPPlan()"><span>🗑</span> 删除周行动项</button>';
     }
-    html+='<button class="wp-btn-export" onclick="exportCurrentWP()"><span>📥</span> 导出周行动项</button>';
-    if(plan.bossEvaluated){
+  html+='<button class="wp-btn-export" onclick="exportCurrentWP()" title="导出周行动项"><span>📥</span> 导出</button>';
+  if(plan.bossEvaluated){
       html+='<button onclick="viewBossEval()"><span style="color:#2A476A">📋</span> 查看上级评价</button>';
     }
-    html+='<button class="wp-btn-ai" onclick="aiAssessWP()" style="margin-left:auto"><span style="line-height:1.5"><span style="font-size:16px;font-weight:700">AI</span><br>分析建议</span></button>';
+    html+='<button class="wp-btn-ai" onclick="aiAssessWP()" style="margin-left:auto" title="生成本周 AI 分析建议"><span style="font-size:14px;font-weight:700">AI</span><span>分析建议</span></button>';
   }
   // 安全兜底：确保工具栏至少有一个可见按钮（防止所有分支都未命中导致空白）
   if(html.indexOf('<button', html.lastIndexOf('wpToolbar')) < 0){
@@ -2745,7 +2748,7 @@ function renderWPTable(plan){
   }
   html+='</div>';
 
-  // ★ V0.1.35: 时间管理规则面板
+  // 填写参考默认收纳，避免规则与统计信息抢占任务首屏。
   html+=_renderTimeManagementPanel(plan);
 
   var completed=0,progress=0,hasPlan=0,hasActual=0,overdue=0;
@@ -2798,7 +2801,7 @@ function renderWPTable(plan){
     else newTasks.push(j);
   }
 
-  html+='<div class="wp-table-area"><div class="wp-table-wrap"><table class="wp-table"><colgroup><col style="width:56px"><col style="width:180px"><col style="width:80px"><col style="width:115px"><col style="width:115px"><col style="width:80px"><col style="width:115px"><col style="width:56px"><col style="width:90px"><col style="width:48px"><col style="width:80px"><col style="width:150px"><col style="width:90px"><col style="width:56px"><col style="width:150px"><col style="width:150px"></colgroup><thead><tr>';
+  html+='<div class="wp-table-x-scroll"><div class="wp-table-area"><div class="wp-table-wrap"><table class="wp-table"><colgroup><col style="width:56px"><col style="width:180px"><col style="width:80px"><col style="width:115px"><col style="width:115px"><col style="width:80px"><col style="width:115px"><col style="width:56px"><col style="width:90px"><col style="width:48px"><col style="width:80px"><col style="width:150px"><col style="width:90px"><col style="width:56px"><col style="width:150px"><col style="width:150px"></colgroup><thead><tr>';
   var _sPri='',_sSd='',_sPd='',_sRd='',_sAd='',_sSt='';
   if(_wpSort && _wpSort.col && _wpSort.dir){
     var _arr=_wpSort.dir==='asc'?' ↑':' ↓';
@@ -2933,7 +2936,7 @@ function renderWPTable(plan){
   html+='<td class="wp-total-num" style="color:'+(overdue>0?'var(--danger)':'var(--success)')+'">'+overdue+' 项</td>'; // 问题类型
   html+='<td colspan="3" style="background:#FBF8F3"></td>'; // 需上级+备注+上级评价
   html+='</tr>';
-  html+='</tbody></table></div>';
+  html+='</tbody></table></div></div></div>';
 
   // ===== 协同任务区域（独立表格，来自其他同事的协同请求）=====
   html+=_renderCollabTasksSection(plan);
@@ -3053,27 +3056,18 @@ function renderWPTable(plan){
   
   html+='</div>';
 
-  html+='</div>'; /* close wp-scroll-area */
+  html+='</div>'; /* close wp-page-scroll */
 
   // ★ V0.6.1cd: 恢复排序前的原始plan.tasks
   if(_wpOrigTasks)plan.tasks=_wpOrigTasks;
 
   content.insertAdjacentHTML('beforeend',html);
 
-  // ★ V0.5.190: 恢复 .wp-scroll-area 的滚动位置（这才是真正的滚动容器！）
-  var _newScroll=content.querySelector('.wp-scroll-area');
-  if(_newScroll&&_savedScrollTop>0)_newScroll.scrollTop=_savedScrollTop;
-  if(_newScroll&&_savedScrollLeft>0)_newScroll.scrollLeft=_savedScrollLeft;
-
-  // V0.5.157: 水平滚动时反向移动工具栏等非表格元素
-  setTimeout(function(){
-    var sc=content.querySelector('.wp-scroll-area')||content;
-    sc.addEventListener('scroll',function(){
-      var sl=sc.scrollLeft;
-      var els=content.querySelectorAll('.wp-info-bar, .wp-toolbar, .wp-summary-bar, .wp-feedback-sections, #collabTaskArea, #wpTimeMgmtPanel');
-      for(var i=0;i<els.length;i++)els[i].style.transform='translateX('+sl+'px)';
-    });
-  },10);
+  // 恢复各自滚动位置：页面仅纵向滚动，表格仅横向滚动。
+  var _newPageScroll=content.querySelector('.wp-page-scroll');
+  var _newTableScroll=content.querySelector('.wp-table-x-scroll');
+  if(_newPageScroll&&_savedScrollTop>0)_newPageScroll.scrollTop=_savedScrollTop;
+  if(_newTableScroll&&_savedScrollLeft>0)_newTableScroll.scrollLeft=_savedScrollLeft;
 
   // ★ V0.5.67: 绑定拖拽事件
   setTimeout(function(){_bindWPDragEvents();},50);
@@ -4085,12 +4079,15 @@ function _renderTimeManagementPanel(plan){
   }
 
   var html='';
-  var _cs=function(id){return _wpCardExpanded[id]?'transition:max-height 0.6s cubic-bezier(.25,.1,.25,1),opacity 0.6s cubic-bezier(.25,.1,.25,1);overflow:hidden':'transition:max-height 0.6s cubic-bezier(.25,.1,.25,1),opacity 0.6s cubic-bezier(.25,.1,.25,1);overflow:hidden;max-height:0;opacity:0';};
-  html+='<div class="wp-cards-grid" id="wpTimeMgmtPanel">';
+  var _cs=function(id){return _wpCardExpanded[id]?'transition:max-height .25s ease,opacity .2s ease;overflow:hidden':'transition:max-height .25s ease,opacity .2s ease;overflow:hidden;max-height:0;opacity:0';};
+  html+='<section class="wp-overview" id="wpTimeMgmtPanel">';
+  html+='<button type="button" class="wp-overview-toggle" onclick="toggleWPOverview()" aria-expanded="'+(_wpOverviewExpanded?'true':'false')+'"><span class="wp-overview-title">本周概览</span><span class="wp-overview-hint">规则、积分与进度</span><span class="wp-overview-icon" id="wpOverviewIcon">'+(_wpOverviewExpanded?'收起 ▲':'展开 ▼')+'</span></button>';
+  html+='<div class="wp-overview-content" id="wpOverviewContent" style="'+(_wpOverviewExpanded?'max-height:1080px;opacity:1':'max-height:0;opacity:0')+'">';
+  html+='<div class="wp-cards-grid">';
 
   // ★ Card 1: 计分规则（V0.4.91 新规则）
   html+='<div class="wp-card">';
-  html+='<div class="wp-card-title">📋 计分规则</div>';
+  html+='<button type="button" class="wp-card-title" onclick="toggleWPCard(\'rules\')" aria-expanded="'+(_wpCardExpanded.rules?'true':'false')+'">计分规则 <span id="wpCardBtn_rules">'+(_wpCardExpanded.rules?'▲':'▼')+'</span></button>';
   html+='<div id="wpCardContent_rules" style="'+_cs('rules')+'">';
   html+='<table class="wp-card-table">';
   html+='<tr><td><span style="color:#059669;margin-right:6px">✓</span>周六12:00前提交上周小结</td><td class="td-val td-pos" style="color:#059669;font-weight:600">+0.5</td></tr>';
@@ -4106,7 +4103,7 @@ function _renderTimeManagementPanel(plan){
 
   // ★ Card 2: 评分标准（V0.4.91 新分值）
   html+='<div class="wp-card">';
-  html+='<div class="wp-card-title">📊 评分标准</div>';
+  html+='<button type="button" class="wp-card-title" onclick="toggleWPCard(\'scores\')" aria-expanded="'+(_wpCardExpanded.scores?'true':'false')+'">评分标准 <span id="wpCardBtn_scores">'+(_wpCardExpanded.scores?'▲':'▼')+'</span></button>';
   html+='<div id="wpCardContent_scores" style="'+_cs('scores')+'">';
   html+='<table class="wp-card-table">';
   html+='<tr><td></td><td class="td-val" style="color:#6b7280;font-weight:400;font-size:10px">按时</td><td class="td-val" style="color:#6b7280;font-weight:400;font-size:10px">逾期</td><td class="td-val" style="color:#6b7280;font-weight:400;font-size:10px">未做</td></tr>';
@@ -4121,7 +4118,7 @@ function _renderTimeManagementPanel(plan){
 
   // ★ Card 3: 完成状态
   html+='<div class="wp-card">';
-  html+='<div class="wp-card-title">⏰ 完成状态</div>';
+  html+='<button type="button" class="wp-card-title" onclick="toggleWPCard(\'status\')" aria-expanded="'+(_wpCardExpanded.status?'true':'false')+'">完成状态 <span id="wpCardBtn_status">'+(_wpCardExpanded.status?'▲':'▼')+'</span></button>';
   html+='<div id="wpCardContent_status" style="'+_cs('status')+'">';
   html+='<table class="wp-card-table">';
   html+='<tr><td style="color:#6b7280;width:32px">提交</td><td style="color:#0F2C4B">'+subTime+'</td></tr>';
@@ -4138,7 +4135,7 @@ function _renderTimeManagementPanel(plan){
   // ★ Card 4: 年度积分（明细版）
   var netVal=scores.net||0;
   html+='<div class="wp-card">';
-  html+='<div class="wp-card-title">📊 '+year+'年积分</div>';
+  html+='<button type="button" class="wp-card-title" onclick="toggleWPCard(\'points\')" aria-expanded="'+(_wpCardExpanded.points?'true':'false')+'">'+year+'年积分 <span id="wpCardBtn_points">'+(_wpCardExpanded.points?'▲':'▼')+'</span></button>';
   html+='<div id="wpCardContent_points" style="'+_cs('points')+'">';
   // 加分项
   var tos=scores.totalOnTime||0;
@@ -4182,6 +4179,8 @@ function _renderTimeManagementPanel(plan){
   html+=_renderAnnualProgress(year);
 
   html+='</div>';
+  html+='</div>';
+  html+='</section>';
   return html;
 }
 
@@ -4765,7 +4764,17 @@ function calcAverage(arr) {
 var _aiExpanded = false;
 var _progressExpanded = false;
 var _matrixExpanded = false;
+var _wpOverviewExpanded = false;
 var _wpCardExpanded = {rules:false,scores:false,status:false,points:false};
+function toggleWPOverview(){
+  _wpOverviewExpanded=!_wpOverviewExpanded;
+  var content=document.getElementById('wpOverviewContent');
+  var icon=document.getElementById('wpOverviewIcon');
+  if(!content)return;
+  content.style.maxHeight=_wpOverviewExpanded?'1080px':'0';
+  content.style.opacity=_wpOverviewExpanded?'1':'0';
+  if(icon)icon.textContent=_wpOverviewExpanded?'收起 ▲':'展开 ▼';
+}
 function toggleAIAnalysis(){
   _aiExpanded = !_aiExpanded;
   var el = document.getElementById('aiAnalysisContent');

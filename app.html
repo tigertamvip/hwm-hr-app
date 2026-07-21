@@ -6,8 +6,8 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.6.1.j52">
-<!-- cache-bust: 2026-07-21-23-10 -->
+<meta name="version" content="V0.6.1.j53">
+<!-- cache-bust: 2026-07-22-07-35 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json?v=bc">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2098,7 +2098,10 @@ body{
 .wp-sidebar-plan-item.active .wp-sidebar-plan-delete.locked{background:rgba(214,67,82,.5);opacity:1}
 
 .wp-content{flex:1;height:100%;overflow:hidden;padding:0;min-width:0;background:#FBF8F3;display:flex;flex-direction:column}
-/* V0.5.152: 独立滚动容器 — 让 left/top sticky 双向生效 */
+/* 周行动项：页面纵向滚动与表格横向滚动彻底分离，非表格区域不再跟随横滑。 */
+.wp-page-scroll{flex:1;min-width:0;overflow-y:auto;overflow-x:hidden;padding:0 24px 20px;background:#FBF8F3;scroll-behavior:smooth}
+.wp-table-x-scroll{min-width:0;overflow-x:auto;overflow-y:visible;background:#FBF8F3;border-top:1px solid var(--border);border-bottom:1px solid var(--border);scrollbar-gutter:stable both-edges}
+/* 兼容合并重急视图使用的历史容器。 */
 .wp-scroll-area{flex:1;overflow:auto;padding:0 24px 16px;display:block;min-width:0;background:#FBF8F3}
 /* ★ V0.6.1dl: 下属重急事项合并视图 — 标题/工具栏左让侧栏2字距离 */
 .wp-info-bar.merged-urgent{padding-left:24px;padding-top:0;padding-bottom:0;margin-top:24px}
@@ -2124,18 +2127,18 @@ body{
 .wp-empty-title{font-size:19px;font-weight:500;margin-bottom:8px;color:var(--text-secondary)}
 .wp-empty-desc{font-size:13px;text-align:center;line-height:1.6}
 
-.wp-toolbar{display:flex;flex-wrap:wrap;gap:16px;padding:14px 0;margin-bottom:7px;border-bottom:1px solid var(--border);flex-shrink:0}
-/* ★ V0.3.140: 全局按钮标准化 — 三类基准样式 + 8px圆角 */
-.wp-toolbar button{padding:8px 18px;border:1px solid #3B7DB4;border-radius:8px;background:#fff;color:#3B7DB4;font-size:13px;cursor:pointer;transition:all .15s ease;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:5px;font-weight:500;min-width:130px;box-shadow:none;line-height:1.4}
+.wp-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:8px 0;margin-bottom:4px;border-bottom:1px solid var(--border);flex-shrink:0}
+/* 操作层只保留明确的主次关系，避免同权按钮造成首屏噪声。 */
+.wp-toolbar button{box-sizing:border-box;min-width:138px;height:42px;padding:0 12px;border:1px solid #3B7DB4;border-radius:8px;background:#fff;color:#3B7DB4;font-size:12px;cursor:pointer;transition:background .15s ease,border-color .15s ease,color .15s ease,transform .15s ease;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:5px;font-weight:600;box-shadow:none;line-height:1.35}
 .wp-toolbar button:hover{background:#E8F4FE;border-color:#2A6A9A;color:#2A6A9A}
 .wp-toolbar button:active{background:#D0E8FD;border-color:#004A9E}
 /* ★ V0.6.1.hs: 统一操作按钮 — font-size 13px + padding 8px 18px + 配色去透明度 */
 .wp-toolbar button.wp-btn-primary{background:#6D9D39;color:#fff;border-color:#6D9D39}
-.wp-toolbar button.wp-btn-primary:hover{background:rgba(109,157,57,.2);border-color:rgba(109,157,57,.25);color:#5a8530}
-.wp-toolbar button.wp-btn-summary{background:#289FB7;color:#fff;border-color:#289FB7}
-.wp-toolbar button.wp-btn-summary:hover{background:rgba(40,159,183,.2);border-color:rgba(40,159,183,.25);color:#1f7a8f}
-.wp-toolbar button.wp-btn-delete{background:#F07167;color:#fff;border-color:#F07167}
-.wp-toolbar button.wp-btn-delete:hover{background:rgba(240,113,103,.2);border-color:rgba(240,113,103,.25);color:#d65a52}
+.wp-toolbar button.wp-btn-primary:hover{background:#5A8530;border-color:#5A8530;color:#fff;transform:translateY(-1px)}
+.wp-toolbar button.wp-btn-summary{background:#fff;color:#1B6EC4;border-color:#9BC4EC}
+.wp-toolbar button.wp-btn-summary:hover{background:#E8F4FE;border-color:#1B6EC4;color:#003472}
+.wp-toolbar button.wp-btn-delete{background:transparent;color:#D64352;border-color:transparent}
+.wp-toolbar button.wp-btn-delete:hover{background:#FFF1F2;border-color:#FECACA;color:#B42335}
 /* ★ V0.6.1.hs: 导出按钮改幽灵风格（辅助操作不抢视觉焦点） */
 .wp-toolbar button.wp-btn-export{background:#fff;color:#6B7280;border-color:#D1D5DB}
 .wp-toolbar button.wp-btn-export:hover{background:#F3F4F6;border-color:#9CA3AF;color:#374151}
@@ -2153,20 +2156,18 @@ body{
 /* ★ V0.6.1aa: Toggle 已提交但锁定（上级已评价/需先撤小结） */
 .wp-toolbar button.wp-btn-toggle-locked{background:#F1F5F9;color:#94A3B8;border:1px solid #CBD5E1;cursor:not-allowed;font-weight:500}
 .wp-toolbar button.wp-btn-toggle-locked:hover{background:#F1F5F9;color:#94A3B8;border-color:#CBD5E1}
-.wp-toolbar button.wp-btn-ai{background:linear-gradient(135deg,var(--brand-accent) 0%,#8B5CF6 40%,#A78BFA 70%,#EC4899 100%);background-size:200% 200%;color:#fff;border:none;border-radius:16px;padding:0;width:52px;height:52px;font-size:12px;font-weight:600;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 4px 14px rgba(139,92,246,.25),0 0 18px rgba(236,72,153,.08),inset 0 1px 0 rgba(255,255,255,.2);animation:aiGlow 5s ease-in-out 2;position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.5}
-.wp-toolbar button.wp-btn-ai::before{content:'';position:absolute;inset:0;border-radius:16px;background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.15) 50%,transparent 100%);background-size:200% 100%;animation:aiSlide 4s linear 2}
-@keyframes aiGlow{0%,100%{box-shadow:0 4px 14px rgba(139,92,246,.25),0 0 18px rgba(236,72,153,.08)}50%{box-shadow:0 5px 20px rgba(139,92,246,.40),0 0 28px rgba(168,85,247,.20),0 0 36px rgba(236,72,153,.10)}}
-@keyframes aiShimmer{0%{background-position:-100% 0}100%{background-position:200% 0}}
-@keyframes aiSlide{from{transform:translateX(-100%)}to{transform:translateX(200%)}}
-.wp-toolbar button.wp-btn-ai:hover{background-position:100% 100%;box-shadow:0 6px 22px rgba(139,92,246,.45),0 0 30px rgba(168,85,247,.25),0 0 45px rgba(236,72,153,.12);transform:translateY(-2px);filter:brightness(1.05)}
-.wp-toolbar button.wp-btn-ai span{position:relative;z-index:1;text-shadow:0 1px 4px rgba(99,102,241,.4)}
+.wp-toolbar button.wp-btn-ai{min-width:0;width:auto;height:42px;background:#E8F4FE;color:#003472;border:1px solid #9BC4EC;border-radius:8px;padding:5px 12px;font-size:11px;font-weight:700;box-shadow:none;animation:none;display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;line-height:1.1}
+.wp-toolbar button.wp-btn-ai::before{display:none}
+.wp-toolbar button.wp-btn-ai:hover{background:#D7ECFF;border-color:#1B6EC4;color:#003472;box-shadow:none;transform:translateY(-1px);filter:none}
+.wp-toolbar button.wp-btn-ai span{position:relative;z-index:1;text-shadow:none}
+@media (prefers-reduced-motion:reduce){.wp-toolbar button{transition:none!important}}
 .wp-toolbar button.wp-btn-freeze{background:#fff;color:#3B7DB4;border-color:#3B7DB4}
 .wp-toolbar button.wp-btn-freeze:hover{background:#E8F4FE;border-color:#2A6A9A;color:#2A6A9A}
 /* ★ V0.1.30: 锁定视觉提示 */
 .wp-table td.wp-cell-frozen{box-shadow:inset 3px 0 0 0 #3B7DB4;border-right:none!important;background:rgba(59,125,180,.04);cursor:not-allowed!important}
 .wp-toolbar-sep{width:1px;background:var(--border);margin:0 4px;display:inline-block}
 
-.wp-table-wrap{flex:1;background:#FBF8F3;border-radius:8px;border:none;border-right:1px solid var(--border)}
+.wp-table-wrap{min-width:max-content;background:#FBF8F3;border-radius:0;border:none;border-right:1px solid var(--border)}
 .wp-table{width:100%;border-collapse:separate;border-spacing:0;font-size:12px;min-width:1200px;table-layout:auto;background:#FBF8F3}
 .wp-table tbody tr{min-height:38px}
 .wp-table th{background:#E8EAED;color:#3B7DB4;font-weight:600;padding:8px 6px;border-top:1px solid var(--border);border-bottom:2px solid #C5C9CE;white-space:nowrap;position:sticky;top:0;z-index:5;font-size:11px;text-align:center;line-height:1}
@@ -2351,10 +2352,10 @@ table.collab-table tbody tr:hover{background:#fffdf5}
 .wp-rating-dot.rating-bronze{background:#D97706}
 .wp-rating-dot.rating-warn{background:#F59E0B}
 .wp-rating-dot.rating-danger{background:#EF4444}
-.wp-summary-bar{display:flex;gap:12px;padding:10px 12px;margin-top:7px;background:#FBF8F3;border:none;flex-shrink:0;flex-wrap:wrap}
-.wp-summary-item{display:flex;align-items:center;gap:6px;font-size:12px}
-.wp-summary-label{color:#AFAFAF}
-.wp-summary-value{font-weight:600;color:var(--primary)}
+.wp-summary-bar{display:flex;gap:14px;padding:8px 0;margin-top:4px;background:transparent;border:none;flex-shrink:0;flex-wrap:wrap}
+.wp-summary-item{display:flex;align-items:center;gap:4px;font-size:11px}
+.wp-summary-label{color:#718096}
+.wp-summary-value{font-weight:700;color:var(--primary);font-variant-numeric:tabular-nums}
 .wp-summary-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:500}
 
 /* ===== 数据中心 Dashboard ===== */
@@ -2437,9 +2438,16 @@ table.collab-table tbody tr:hover{background:#fffdf5}
 @media(max-width:768px){#dsNav{width:140px!important}.ds-cards-row{grid-template-columns:repeat(2,1fr)}.ds-hero-row{grid-template-columns:repeat(2,1fr)}.ds-filter-bar{flex-direction:column;align-items:flex-start}.ds-donuts{grid-template-columns:1fr}.ds-hero-num{font-size:36px}}
 
 /* ★ V0.3.74: 卡片仪表盘 */
-.wp-cards-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:6px 0 4px 0}
-.wp-card{background:#FBF8F3;border-radius:8px;padding:10px 12px;border:1px solid #e5e7eb;box-shadow:none}
-.wp-card-title{font-size:12px;font-weight:600;color:#616161;margin-bottom:6px;display:flex;align-items:center;gap:5px;padding-bottom:6px}
+/* 首屏概览：默认收起，仅在需要规则、积分或年度进度时展开。 */
+.wp-overview{margin:6px 0 4px;border:1px solid #E7E2DA;border-radius:8px;background:#FFFDF9}
+.wp-overview-toggle{width:100%;display:flex;align-items:center;gap:8px;padding:8px 12px;border:0;background:transparent;color:#2A476A;text-align:left;cursor:pointer;font:inherit}
+.wp-overview-title{font-size:12px;font-weight:700}
+.wp-overview-hint{font-size:11px;color:#8A9499}
+.wp-overview-icon{margin-left:auto;font-size:11px;color:#718096;font-weight:600}
+.wp-overview-content{overflow:hidden;transition:max-height .25s ease,opacity .2s ease;padding:0 12px}
+.wp-cards-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:0 0 10px}
+.wp-card{background:#FBF8F3;border-radius:6px;padding:0 10px 8px;border:1px solid #E8E4DE;box-shadow:none}
+.wp-card-title{width:100%;padding:8px 0 6px;margin:0;border:0;border-bottom:1px solid #E8E4DE;background:transparent;font:inherit;font-size:11px;font-weight:700;color:#4B5F73;display:flex;align-items:center;justify-content:space-between;gap:5px;cursor:pointer;text-align:left}
 .wp-card-table{width:100%;border-collapse:collapse;font-size:11px;line-height:1.7}
 .wp-card-table tr:nth-child(odd){background:#F3EDE2}
 .wp-card-table td{padding:2px 4px;color:#0F2C4B}
@@ -2475,8 +2483,8 @@ table.collab-table tbody tr:hover{background:#fffdf5}
 .wp-badge-progress{background:#FFF3E0;color:#E67E22}
 .wp-badge-paused{background:#F1F2F4;color:#8A9499}
 
-.wp-info-bar{display:flex;align-items:center;gap:16px;padding:8px 0;font-size:13px;color:var(--text-secondary);flex-shrink:0;margin-top:16px}
-.wp-info-bar strong{color:var(--primary);margin-right:8px}
+.wp-info-bar{display:flex;align-items:center;gap:12px;padding:10px 0 4px;font-size:12px;color:var(--text-secondary);flex-shrink:0;margin-top:8px}
+.wp-info-bar strong{color:var(--primary);margin-right:4px}
 .wp-info-bar .sep{color:var(--text-hint);margin:0 4px}
 
 /* 评价弹窗 */
@@ -2530,9 +2538,10 @@ table.collab-table tbody tr:hover{background:#fffdf5}
 @media(max-width:768px){
   .wp-layout{flex-direction:column}
   .wp-sidebar{width:100%;min-width:0;height:auto;max-height:160px;flex-shrink:0}
-  .wp-scroll-area{padding:12px}
+  .wp-scroll-area,.wp-page-scroll{padding:12px}
   .wp-toolbar{gap:4px;overflow-x:auto;flex-wrap:nowrap;padding-bottom:8px}
-  .wp-toolbar button{font-size:11px;padding:5px 10px;flex-shrink:0}
+  .wp-toolbar button{min-width:0;width:auto;height:auto;font-size:11px;padding:5px 10px;flex-shrink:0}
+  .wp-toolbar button.wp-btn-ai{width:auto;height:auto;padding:5px 10px;flex-direction:row}
   .wp-table{font-size:10px}
   .wp-table th{font-size:10px;padding:5px 3px}
   .wp-table td{padding:4px 3px}
