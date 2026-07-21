@@ -24,6 +24,8 @@ function sysInitModule(){
   var el=document.getElementById('sysHeaderUser');
   if(el&&currentUser)el.textContent='当前管理员：'+currentUser.name;
   sysRenderUserTable();
+  // ★ V0.6.1.j49: 初始化邮件通知开关按钮状态
+  _initEmailToggleStatus();
 }
 
 function sysRenderUserTable(){
@@ -867,6 +869,93 @@ function getRosterCenterForName(name){
 function getRosterDeptForName(name){
   var r=getRosterLookup();
   return r[name]?r[name].dept:'';
+}
+
+// ★ V0.6.1.j49: 邮件通知总开关 — 一键关闭/开启所有定时邮件
+var _EMAIL_TOGGLE_LOADING=false;
+async function sysToggleEmailNotifications(){
+  if(_EMAIL_TOGGLE_LOADING){return;}
+  var btn=document.getElementById('sysEmailToggle');
+  if(!btn)return;
+  
+  // 读当前状态
+  _EMAIL_TOGGLE_LOADING=true;
+  btn.disabled=true;
+  btn.textContent='⏳ 切换中…';
+  
+  try{
+    var supabase=getSupabase();
+    if(!supabase){
+      // fallback: 读 localStorage
+      var saved=localStorage.getItem('__hwm_email_toggle__');
+      var cur=saved==='false'?false:true;
+      var nw=!cur;
+      localStorage.setItem('__hwm_email_toggle__',String(nw));
+      _updateEmailToggleBtn(nw);
+      showToast(nw?'🔔 邮件通知已开启':'🔕 邮件通知已关闭');
+      return;
+    }
+    
+    // 读 Supabase 当前值
+    var {data:row}=await supabase.from('hwm_settings').select('value').eq('key','email_notifications').single();
+    var cur=(row&&row.value&&row.value.enabled!==false)?true:false;
+    var nw=!cur;
+    var reason=cur?'春节假期休息':'';
+    if(nw===false){
+      reason=prompt('请填写关闭原因（例：春节假期）：','')||'手动关闭';
+    }
+    
+    // 写 Supabase
+    var adminName=(currentUser&&currentUser.name)||'系统管理员';
+    await supabase.from('hwm_settings').upsert({
+      key:'email_notifications',
+      value:{enabled:nw,reason:reason,by:adminName,at:new Date().toISOString()},
+      updated_at:new Date().toISOString()
+    });
+    
+    _updateEmailToggleBtn(nw);
+    showToast(nw?'🔔 邮件通知已开启 (原因: '+(reason||'无')+')':'🔕 邮件通知已关闭 (原因: '+reason+')');
+  }catch(e){
+    console.error('[EmailToggle] 切换失败',e);
+    showToast('⚠️ 切换失败: '+e.message);
+  }
+  _EMAIL_TOGGLE_LOADING=false;
+  btn.disabled=false;
+}
+
+function _updateEmailToggleBtn(enabled){
+  var btn=document.getElementById('sysEmailToggle');
+  if(!btn)return;
+  if(enabled){
+    btn.textContent='🔔 邮件通知：已开启';
+    btn.style.borderColor='#059669';btn.style.color='#059669';
+  }else{
+    btn.textContent='🔕 邮件通知：已关闭';
+    btn.style.borderColor='#dc2626';btn.style.color='#dc2626';
+  }
+}
+
+// ★ V0.6.1.j49: 页面加载时同步按钮状态
+async function _initEmailToggleStatus(){
+  var btn=document.getElementById('sysEmailToggle');
+  if(!btn)return;
+  try{
+    var supabase=getSupabase();
+    if(supabase){
+      var {data:row}=await supabase.from('hwm_settings').select('value').eq('key','email_notifications').single();
+      if(row&&row.value&&row.value.enabled===false){
+        _updateEmailToggleBtn(false);
+      }else{
+        _updateEmailToggleBtn(true);
+      }
+    }else{
+      // fallback localStorage
+      var saved=localStorage.getItem('__hwm_email_toggle__');
+      _updateEmailToggleBtn(saved!=='false');
+    }
+  }catch(e){
+    _updateEmailToggleBtn(true); // 默认开启
+  }
 }
 
 // ★ V0.6.1.kd: AI 邮箱配置 (SMTP) — 存储 SMTP 配置供 Edge Functions 发送邮件

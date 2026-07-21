@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.6.1.j46">
+<meta name="version" content="V0.6.1.j47">
 <!-- cache-bust: 2026-07-19-18-58 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json?v=bc">
@@ -3262,6 +3262,8 @@ function togglePortalTips(){
       <button class="btn btn-outline" onclick="sysRosterSync()" style="margin-left:8px;border-color:#2563EB;color:#2563EB">📋 同步花名册</button>
       <button class="btn btn-outline" onclick="sysCleanUnauthorized()" style="margin-left:8px;border-color:#D64352;color:#D64352">🧹 清理未授权</button>
       <button class="btn btn-outline" onclick="sysOpenEmailConfig()" style="margin-left:8px;border-color:#7C3AED;color:#7C3AED">📧 AI邮箱配置</button>
+      <!-- ★ V0.6.1.j49: 邮件通知总开关 → Supabase hwm_settings 表 -->
+      <button id="sysEmailToggle" class="btn btn-outline" onclick="sysToggleEmailNotifications()" style="margin-left:8px;border-color:#059669;color:#059669;min-width:150px" title="一键关闭/开启所有邮件自动提醒">🔔 邮件通知：加载中…</button>
       <span style="display:flex;align-items:center;gap:8px;margin-left:auto">
         <div class="search-box" style="width:200px;margin:0">
           <span class="search-icon">🔍</span>
