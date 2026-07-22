@@ -325,6 +325,28 @@ async function _wpDeleteCloudPlan(user,weekId){
   return resp;
 }
 
+// 清除指定发起方在某周发出的全部协同请求。用于来源周计划删除，避免接收方保留孤儿协同任务。
+async function _clearCollabTasksFromSource(fromUid,weekId){
+  if(!fromUid||!weekId||typeof supabase==='undefined'||!supabase||!supabase.from)return 0;
+  var resp=await supabase.from(SUPABASE_WP_TABLE).select('username,plan_data').eq('week_id',weekId);
+  if(resp.error)throw resp.error;
+  var cleaned=0;
+  for(var i=0;i<(resp.data||[]).length;i++){
+    var row=resp.data[i], receiverPlan=row.plan_data;
+    if(!receiverPlan||!Array.isArray(receiverPlan.collab_tasks))continue;
+    var before=receiverPlan.collab_tasks.length;
+    receiverPlan.collab_tasks=receiverPlan.collab_tasks.filter(function(ct){
+      return !(ct&&ct.collab_from_uid===fromUid);
+    });
+    if(receiverPlan.collab_tasks.length===before)continue;
+    receiverPlan.updatedAt=new Date().toISOString();
+    var saved=await supabase.from(SUPABASE_WP_TABLE).upsert([{username:row.username,week_id:weekId,plan_data:receiverPlan,updated_at:receiverPlan.updatedAt}],{onConflict:'username,week_id'});
+    if(saved.error)throw saved.error;
+    cleaned+=before-receiverPlan.collab_tasks.length;
+  }
+  return cleaned;
+}
+
 // ★ V0.1.19: 批量修复当前用户所有周计划的脏数据
 // 修复场景：跨浏览器登录、UID迁移后 localStorage 中残留其他用户信息
 function fixAllPlanDirtyData(){
@@ -597,6 +619,12 @@ function getWP(y,m,w){return _wpData[makeWPId(y,m,w)]||null;}
 function saveWP(y,m,w,plan){var id=makeWPId(y,m,w);console.log('[DEBUG saveWP] id='+id+' planName='+(plan&&plan.name));_wpData[id]=plan;saveWPData();}
 async function deleteWP(y,m,w,force){
   var id=makeWPId(y,m,w), user=_wpTargetUser();
+  var sourceUid=(currentUser&&currentUser._uid)||user;
+  // 删除来源周计划前先撤回其协同请求；清理失败则中止删除，避免接收方遗留孤儿协同任务。
+  if(typeof supabase!=='undefined'&&supabase&&supabase.from){
+    try{await _clearCollabTasksFromSource(sourceUid,id);}
+    catch(e){console.error('[Collab] 删除周计划前清理协同任务失败:',e.message);if(typeof showToast==='function')showToast('⚠️ 协同任务清理失败，请重试');return false;}
+  }
   // 先删除云端；云端失败时保留本地，避免两端状态不一致
   if(typeof supabase!=='undefined'&&supabase&&supabase.from){
     try{await _wpDeleteCloudPlan(user,id);}
@@ -2195,42 +2223,27 @@ async function _syncCollabTasks(plan,fromName,year,month,week){
     }
   }
 
-  // ★ 清理已撤回的协同任务（发起方删除了协同人后，接收方对应的任务也要删除）
-  for(var i2=0;i2<plan.tasks.length;i2++){
-    var t2=plan.tasks[i2];
-    if(!t2.supporters)continue;
-    var sups2=_parseSupporters(t2.supporters);
-    for(var j2=0;j2<sups2.length;j2++){
-      var s2=sups2[j2];
-      if(!s2.uid||s2.uid===fromUid)continue;
-      try{
-        var resp2=await supabase.from(SUPABASE_WP_TABLE)
-          .select('username,plan_data')
-          .eq('username',s2.uid)
-          .eq('week_id',weekId)
-          .limit(1);
-        if(!resp2.data||resp2.data.length===0)continue;
-        // ★ 验证 username 匹配
-        if(resp2.data[0].username!==s2.uid)continue;
-        var rp=resp2.data[0].plan_data;
-        if(!rp||!rp.collab_tasks)continue;
-        var removed=false;
-        for(var k2=rp.collab_tasks.length-1;k2>=0;k2--){
-          var ct=rp.collab_tasks[k2];
-          // 只清理来自当前发起方的、且不在 activeReqIds 中的协同任务
-          if(ct.collab_from_uid===fromUid&&ct.collab_req_id&&!activeReqIds[ct.collab_req_id]){
-            rp.collab_tasks.splice(k2,1);
-            removed=true;
-            console.log('[Collab] 清理已撤回的协同任务: '+ct.collab_req_id);
-          }
-        }
-        if(removed){
-          rp.updatedAt=new Date().toISOString();
-          await supabase.from(SUPABASE_WP_TABLE)
-            .upsert([{username:s2.uid,week_id:weekId,plan_data:rp,updated_at:new Date().toISOString()}],{onConflict:'username,week_id'});
-        }
-      }catch(e){}
+  // 清理已撤回的协同任务：扫描本周所有接收计划，而非只扫描当前仍在 supporters 里的员工。
+  // 否则 A 删除 B 这个协同人后，B 不再出现在当前名单中，旧协同任务就永远无法被清理。
+  try{
+    var cleanupResp=await supabase.from(SUPABASE_WP_TABLE).select('username,plan_data').eq('week_id',weekId);
+    if(cleanupResp.error)throw cleanupResp.error;
+    for(var i2=0;i2<(cleanupResp.data||[]).length;i2++){
+      var cleanupRow=cleanupResp.data[i2], rp=cleanupRow.plan_data;
+      if(!rp||!Array.isArray(rp.collab_tasks))continue;
+      var beforeCount=rp.collab_tasks.length;
+      rp.collab_tasks=rp.collab_tasks.filter(function(ct){
+        return !(ct&&ct.collab_from_uid===fromUid&&ct.collab_req_id&&!activeReqIds[ct.collab_req_id]);
+      });
+      if(rp.collab_tasks.length===beforeCount)continue;
+      rp.updatedAt=new Date().toISOString();
+      var cleanupSave=await supabase.from(SUPABASE_WP_TABLE)
+        .upsert([{username:cleanupRow.username,week_id:weekId,plan_data:rp,updated_at:rp.updatedAt}],{onConflict:'username,week_id'});
+      if(cleanupSave.error)throw cleanupSave.error;
+      console.log('[Collab] 已清理 '+(beforeCount-rp.collab_tasks.length)+' 条撤回协同任务，接收方='+cleanupRow.username);
     }
+  }catch(e){
+    console.warn('[Collab] 清理撤回协同任务失败:',e.message);
   }
   // ★ 初始化发起方自己的 _collab_statuses（在 Supabase 中），供接收方响应时回写
   try{
@@ -2737,9 +2750,6 @@ function renderWPTable(plan){
     html+='<button class="wp-btn-export" onclick="exportCurrentWP()" style="margin-left:auto"><span>📥</span> 导出周行动项</button>';
   }else if(_wpViewingDeptMember){
     // 部门成员视图：审核锁定 + 上级评价（同直属下属）
-    // ★ V0.6.1j52: 管理员可对员工周计划执行真正的强制删除
-    // 强制删除会同步移除 Supabase、localStorage 与本地备份，不再写回空壳记录。
-    if(_wpCanForceDelete())html+='<button class="wp-btn-delete" onclick="forceDeleteViewedWP()"><span>🗑</span> 管理员强制删除</button>';
     // ★ V0.6.1af: 上级锁定按钮只反映上级自己锁定的状态，员工提交锁定不显示为已锁定
     var myName=(currentUser&&currentUser.name)||'';
     var isFrozen = _wpCurrent.plan && _wpCurrent.plan.frozen && _wpCurrent.plan.frozenBy===myName;
