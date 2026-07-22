@@ -156,6 +156,8 @@ function _dsRefreshData() {
 
   var planSub = 0, sumSub = 0, prevPlan = 0, prevSum = 0, ytdPlan = 0, ytdSum = 0, ytdWeeks = 0;
   var ratings = { gold: 0, silver: 0, bronze: 0, warn: 0, danger: 0 };
+  // 评价明细与统计保持同一口径：全年每一条有效周计划评级均保留为可下钻记录。
+  var ratingDetails = { gold: [], silver: [], bronze: [], warn: [], danger: [] };
   // ★ V0.6.1.iy: 心情相关计数（按"提交过心情的 plan 数"算人，而不是心情条目相加）
   var moodPlanCount = 0;
   // ★ V0.6.1.ip: 本周心情统计（不再依赖外部函数 isoWeekToMonthWeek）
@@ -212,7 +214,20 @@ function _dsRefreshData() {
       ytdWeeks++;
       // ★ V0.6.1.hn: 评级统计 - 累计全年所有周的评级
       var rr = pp.weeklyRating || '';
-      if (ratings[rr] !== undefined) ratings[rr]++;
+      if (ratings[rr] !== undefined) {
+        ratings[rr]++;
+        ratingDetails[rr].push({
+          name: pp.name || uname,
+          dept: pp.dept || (users[uname] && (users[uname].dept || users[uname].centerKeyword)) || '',
+          weekId: wkId2,
+          year: pp.year || parseInt(wkId2.split('-W')[0]),
+          month: pp.month || '',
+          week: pp.week || '',
+          evaluator: pp.bossEvaluatedBy || '',
+          evaluatedAt: pp.bossEvaluatedAt || '',
+          feedback: pp.bossOverallFeedback || ''
+        });
+      }
     }
   }
 
@@ -263,7 +278,7 @@ function _dsRefreshData() {
     ytdPlanSub: ytdPlan,
     ytdSumRate: ytdWeeks ? Math.round(ytdSum / ytdWeeks * 100) : 0,
     ytdSumSub: ytdSum,
-    ratings: ratings, totalRatings: ratings.gold + ratings.silver + ratings.bronze + ratings.warn + ratings.danger,
+    ratings: ratings, ratingDetails: ratingDetails, totalRatings: ratings.gold + ratings.silver + ratings.bronze + ratings.warn + ratings.danger,
     moods: moods, totalMoods: moodPlanCount,
     lastUpdate: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
   };
@@ -422,7 +437,7 @@ function _dsBuildRatingPanel() {
   var rhtml = '<div class="ds-rating-bars">';
   for (var i = 0; i < rItems.length; i++) {
     var ri = rItems[i], v = rt[ri.key] || 0, w = tr ? Math.round(v / tr * 100) : 0;
-    rhtml += '<div class="ds-rating-row"><span class="ds-r-label" style="width:28px;text-align:center;font-size:18px">' + ri.label.split(' ')[0] + '</span><span class="ds-r-label" style="width:48px;text-align:left;font-size:12px;margin-left:4px;white-space:nowrap">' + ri.label.split(' ')[1] + '</span><div class="ds-r-bar"><div style="width:' + w + '%;background:' + ri.color + '"></div></div><span class="ds-r-count" style="width:50px">' + v + ' 次</span></div>';
+    rhtml += '<button type="button" class="ds-rating-row ds-rating-row-action" onclick="_dsShowRatingDetails(\'' + ri.key + '\')" aria-label="查看' + ri.label.split(' ')[1] + '的 ' + v + ' 条评价记录" title="查看 ' + v + ' 条评价记录"><span class="ds-r-label" style="width:28px;text-align:center;font-size:18px">' + ri.label.split(' ')[0] + '</span><span class="ds-r-label" style="width:48px;text-align:left;font-size:12px;margin-left:4px;white-space:nowrap">' + ri.label.split(' ')[1] + '</span><span class="ds-r-bar"><span style="width:' + w + '%;background:' + ri.color + '"></span></span><span class="ds-r-count" style="width:76px">' + v + ' 次 <small>查看</small></span></button>';
   }
   rhtml += '</div>';
   return '<div class="ds-rating-panel' + collapsed + '">' +
@@ -444,6 +459,55 @@ function _dsToggleRatingPanel(head) {
   var toggle = head.querySelector('.ds-rating-panel-toggle');
   if (toggle) toggle.textContent = isCollapsed ? '▶ 展开' : '▼ 收起';
 }
+
+function _dsShowRatingDetails(ratingKey) {
+  var meta = {
+    gold: { icon: '🥇', label: '金牌', color: '#B7791F' },
+    silver: { icon: '🥈', label: '银牌', color: '#64748B' },
+    bronze: { icon: '🥉', label: '铜牌', color: '#9A5B24' },
+    warn: { icon: '⚠️', label: '待改进', color: '#B45309' },
+    danger: { icon: '⛔', label: '严重偏离', color: '#C2413B' }
+  };
+  var item = meta[ratingKey];
+  if (!item) return;
+  var details = ((_dsData && _dsData.ratingDetails && _dsData.ratingDetails[ratingKey]) || []).slice();
+  details.sort(function (a, b) {
+    return String(b.evaluatedAt || b.weekId || '').localeCompare(String(a.evaluatedAt || a.weekId || ''));
+  });
+
+  var html = '<div class="ds-rating-modal" id="dsRatingModal" role="dialog" aria-modal="true" aria-labelledby="dsRatingModalTitle" onclick="if(event.target===this)_dsCloseRatingDetails()">' +
+    '<div class="ds-rating-modal-card">' +
+    '<div class="ds-rating-modal-head"><div><div class="ds-rating-modal-eyebrow">年度累计 · 评价记录</div><h3 id="dsRatingModalTitle" style="color:' + item.color + '">' + item.icon + ' ' + item.label + ' <span>' + details.length + ' 条</span></h3></div><button type="button" class="ds-rating-modal-close" onclick="_dsCloseRatingDetails()" aria-label="关闭评价记录">×</button></div>';
+
+  if (!details.length) {
+    html += '<div class="ds-rating-modal-empty"><strong>暂无' + item.label + '评价记录</strong><span>后续产生评价后，会自动显示在这里。</span></div>';
+  } else {
+    html += '<div class="ds-rating-modal-note">每一行对应一条员工周计划评价，按最近评价优先排序。</div><div class="ds-rating-detail-list">';
+    for (var i = 0; i < details.length; i++) {
+      var detail = details[i];
+      var period = detail.year ? detail.year + '年' + (detail.month || '—') + '月第' + (detail.week || '—') + '周' : _h(detail.weekId || '—');
+      var evaluator = detail.evaluator ? '评价人：' + _h(detail.evaluator) : '评价人：未记录';
+      var date = detail.evaluatedAt ? String(detail.evaluatedAt).replace('T', ' ').slice(0, 16) : '评价时间未记录';
+      html += '<article class="ds-rating-detail"><div class="ds-rating-detail-main"><strong>' + _h(detail.name || '未设置') + '</strong><span>' + _h(detail.dept || '部门未记录') + '</span></div><div class="ds-rating-detail-meta"><span>' + _h(period) + '</span><span>' + evaluator + '</span><span>' + _h(date) + '</span></div>';
+      if (detail.feedback) html += '<p>' + _h(detail.feedback) + '</p>';
+      html += '</article>';
+    }
+    html += '</div>';
+  }
+  html += '<div class="ds-rating-modal-foot"><button type="button" class="ds-rating-modal-done" onclick="_dsCloseRatingDetails()">完成</button></div></div></div>';
+  document.body.insertAdjacentHTML('beforeend', html);
+  var closeButton = document.querySelector('#dsRatingModal .ds-rating-modal-close');
+  if (closeButton) closeButton.focus();
+}
+
+function _dsCloseRatingDetails() {
+  var modal = document.getElementById('dsRatingModal');
+  if (modal) modal.remove();
+}
+
+document.addEventListener('keydown', function (event) {
+  if (event.key === 'Escape' && document.getElementById('dsRatingModal')) _dsCloseRatingDetails();
+});
 
 // ★ V0.6.1.im: 员工本周状态统计（心情分布，镜像评价分布）
 function _dsBuildMoodPanel() {
