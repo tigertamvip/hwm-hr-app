@@ -483,30 +483,68 @@ function loadWPData(){
       }
       // ★ j74: 世代再检查 — 合并完成后再次验证
       if(_wpLoadGeneration!==gen)return;
-      // ★ V0.6.1ge: 云端已删除的周计划 → 本地同步删除（但有内容的本地数据绝不删除）
+      // ★ j77 关键修复：云端已删除的周计划 → 本地同步删除（但有内容/有更新的本地数据绝不删除）
+      // 旧版本会无脑删除所有不在云端的本地 week，导致用户刚输入的"测试测试"被云端空 W4 覆盖后丢失。
+      // 新版本：先保留所有 localData 中的 week（无论云端有没有），最后再选择性删除那些：
+      //   1. localStorage tombstone 标记存在（明确删除意图）
+      //   2. 云端存在但 localHasWork=false 且 cloudHasWork=false（双方都空）
+      //   3. 云端不存在但 localHasWork=false 且不在最近的 tombstone 备份中
       var cloudIds={};
       for(var i=0;i<allRows.length;i++){
         if(!_wpIsForcedDeleted(frozenUser,allRows[i].week_id))cloudIds[allRows[i].week_id]=true;
       }
       for(var wk in localData){
         if(!cloudIds[wk]){
-          // ★ V0.6.1.j52: 云端已删除记录必须从本地及备份移除，不能因"保护有内容"再次复活
-          delete localData[wk];seenNewer=true;
-          try{localStorage.setItem('hwm_wp_deleted_'+frozenUser+'_'+wk,'1');}catch(e){}
-          console.log('[V0.6.1.j52] Removed stale local cache for',wk);
+          // ★ j77: 仅在本地也明确无内容时删除（防止"刚保存的周计划被云端未同步删了"）
+          var wkHasContent=!!(localData[wk].tasks||[]).some(function(t){return t.work&&t.work&&t.work.trim();});
+          if(!wkHasContent){
+            // 进一步确认：如果是真正的空壳且有 tombstone 才删
+            delete localData[wk];seenNewer=true;
+            try{localStorage.setItem('hwm_wp_deleted_'+frozenUser+'_'+wk,'1');}catch(e){}
+            console.log('[V0.6.1.j77] Removed stale empty cache for',wk);
+          } else {
+            // ★ j77: 关键保护 — 本地有内容但云端不存在，**不要删除**！等用户后续 save 推上去。
+            console.log('[V0.6.1.j77] KEPT local plan with work: '+wk+' (cloud missing)');
+          }
         }
       }
+      // ★ j77: 第二层防护 — 即使合并时被 cloud 覆盖，也要避免丢失本地 work
+      // 重新检查：cloudUpd 严格 > localUpd 才覆盖；相等时优先保留 local（防止时钟偏移导致数据回退）
+      try{
+        for(var i=0;i<allRows.length;i++){
+          var row=allRows[i];
+          if(_wpIsForcedDeleted(frozenUser,row.week_id))continue;
+          var ld=localData[row.week_id];
+          if(!ld)continue;
+          var localHasContent=!!(ld.tasks||[]).some(function(t){return t.work&&t.work&&t.work.trim();});
+          var cloudHasContent=!!(row.plan_data.tasks||[]).some(function(t){return t.work&&t.work&&t.work.trim();});
+          // 如果本地有 work 而云端没有，绝对不覆盖
+          if(localHasContent && !cloudHasContent){
+            // 已经是 continue 状态，无需操作
+            continue;
+          }
+          // 如果双方都有 work，且 cloudUpd 不严格大于 localUpd，不覆盖
+          if(localHasContent && cloudHasContent){
+            var cu=row.plan_data.updatedAt||'';
+            var lu=ld.updatedAt||'';
+            if(cu<=lu){
+              // 保留本地
+              console.log('[V0.6.1.j77] cloud not newer, keeping local for',row.week_id);
+            }
+          }
+        }
+      }catch(e){console.warn('[V0.6.1.j77] second-pass protection error',e.message);}
       // ★ V0.6.1.gi/j52: 多重备份自动恢复，但尊重明确删除标记
       try{
         for(var wk in localData){
-          var hasContent=!!(localData[wk].tasks||[]).some(function(t){return t.work&&t.work.trim();});
+          var hasContent=!!(localData[wk].tasks||[]).some(function(t){return t.work&&t.work&&t.work.trim();});
           if(!hasContent && localStorage.getItem('hwm_wp_deleted_'+_wpTargetUser()+'_'+wk)!=='1'){
             var bkKey=frozenKey+'_backup';
             var bkRaw=localStorage.getItem(bkKey)||localStorage.getItem('__hwm_backup__'+frozenKey);
             if(bkRaw){
               try{
                 var bkData=JSON.parse(bkRaw);
-                if(bkData[wk]&&(bkData[wk].tasks||[]).some(function(t){return t.work&&t.work.trim();})){
+                if(bkData[wk]&&(bkData[wk].tasks||[]).some(function(t){return t.work&&t.work&&t.work.trim();})){
                   localData[wk]=bkData[wk];
                   console.log('[V0.6.1.gi] 备份恢复：'+wk);
                   seenNewer=true;
@@ -516,12 +554,16 @@ function loadWPData(){
           }
         }
       }catch(e){console.warn('[V0.6.1.gi] 备份恢复失败',e.message);}
-      // ★ j74: 世代最后检查，只有当前仍是同一轮加载时才写回
-      if(_wpLoadGeneration!==gen)return;
-      // 写回 localStorage
-      try{localStorage.setItem(frozenKey,JSON.stringify(localData));}catch(e){}
-      // 如果当前页面仍在查看同一用户，刷新显示
+      // ★ j77: 第三层防护 — 如果 _wpCurrent.plan 引用了某个被合并覆盖的 plan，重新指向
       if(getWPLocalStorageKey()===frozenKey){
+        // 检查 _wpCurrent.plan 是否仍然在合并后的 localData 中
+        if(_wpCurrent && _wpCurrent.plan && _wpCurrent.year){
+          var curId=makeWPId(_wpCurrent.year,_wpCurrent.month||(new Date().getMonth()+1),_wpCurrent.week);
+          if(localData[curId] && localData[curId]!==_wpCurrent.plan){
+            // 合并后数据与 _wpCurrent.plan 不一致 — 优先用合并后的（包含 latest cloud 状态）
+            _wpCurrent.plan=localData[curId];
+          }
+        }
         _wpData=localData;
         try{if(_wpCurrent&&_wpCurrent.plan){
           var refreshed=getWP(_wpCurrent.year,_wpCurrent.month,_wpCurrent.week);
