@@ -89,5 +89,7 @@ var SUPABASE_FAV_TABLE = 'hwm_favorites';
 // ★ V0.6.1.j52: 管理员强制删除的历史周计划 tombstone
 // 用于阻止旧浏览器 localStorage / 备份在云端删除后再次恢复该记录。
 var HWM_FORCED_DELETED_PLANS = [
-  {username:'刘星梦', weekId:'2026-07-W1'}
+  {username:'刘星梦', weekId:'2026-07-W1'},
+  // ★ V0.6.1.j59: 清除钟雅洁年度第28周测试计划，阻止旧浏览器缓存、备份或协同残留重新恢复。
+  {username:'钟雅洁', weekId:'2026-07-W2'}
 ];

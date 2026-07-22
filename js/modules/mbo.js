@@ -4272,24 +4272,15 @@ async function deleteCurrentWPPlan(){
   }
   var ok=await _showConfirm('你确定要清空 '+p.year+'年'+p.month+'月第'+p.week+'周行动项内容？\n\n如确定，将清除本周行动项中已填写的所有内容。'+'\n\n—\n\nAre you sure you want to clear Week '+p.week+' of '+p.month+'/'+p.year+'?\n\nIf confirmed, all filled content in this week to-do will be permanently removed.','注意 / Attention');
   if(!ok)return;
-  // ★ V0.1.59: 重置为1行空白表单（保留 name/dept/position）
+  // ★ V0.6.1.j59: 删除必须移除真实记录，不能将空壳计划再写回云端；否则备份和跨端同步会导致已删除内容复现。
   var y=p.year, m=p.month, w=p.week;
-  var tasks=[];
-  for(var i=0;i<1;i++)tasks.push({seq:i+1,work:'',goal:'',startDate:'',plannedDate:'',actualDate:'',estimatedHours:'',status:'',supporters:'',problems:'',problemType:'',needBoss:'',bossFeedback:'',aiSuggestion:''});
-  p.tasks=tasks;
-  p.weekSummary='';
-  p.bossEvaluated=false;
-  p.bossEvaluatedAt=null;
-  p.bossEvaluatedBy='';
-  p.bossOverallFeedback='';
-  p.firstSubmittedAt=null;
-  p.summarySubmittedAt=null;
-  p.bossReviewedAt=null;
-  p.updatedAt=new Date().toISOString();
-  saveWP(y,m,w,p);
-  _calcWeekScore(p);
-  renderWPTable(p);
-  showToast('🗑 周行动项已重置为空白表单');
+  var deleted=await deleteWP(y,m,w);
+  if(!deleted)return;
+  _wpCurrent={year:null,month:null,week:null,plan:null};
+  showWPEmpty();
+  renderWPPlanList(y,m);
+  renderWPUserInfo();
+  showToast('🗑 本周行动项已彻底删除');
 }
 
 function exportCurrentWP(){
