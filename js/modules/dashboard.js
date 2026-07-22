@@ -212,8 +212,8 @@ function _dsRefreshData() {
       if (pp.submittedAt || pp.firstSubmittedAt) ytdPlan++;
       if (pp.summarySubmittedAt) ytdSum++;
       ytdWeeks++;
-      // ★ V0.6.1.hn: 评级统计 - 仅统计已完成上级评价的有效评级
-      var rr = pp.bossEvaluated ? (pp.weeklyRating || '') : '';
+      // 奖牌选择即为有效评级；取消会同步清空 weeklyRating，因此仅统计仍保留评级的记录。
+      var rr = pp.weeklyRating || '';
       if (ratings[rr] !== undefined) {
         ratings[rr]++;
         ratingDetails[rr].push({
@@ -256,7 +256,7 @@ function _dsRefreshData() {
     for (var pname in pplans) {
       var pp2 = pplans[pname];
       if (!pp2) continue;
-      if (pp2.bossEvaluated && _validRatings.indexOf(pp2.weeklyRating) >= 0 && pp2.bossEvaluatedBy === myName) {
+      if (_validRatings.indexOf(pp2.weeklyRating) >= 0 && pp2.bossEvaluatedBy === myName) {
         myGivenTotal++;
         if (pp2.weeklyRating === 'gold') myGivenGold++;
       }
@@ -359,7 +359,7 @@ function _dsCalcUserScore(userName, allPlans, period) {
     var ws = 0;
     if (pp._taskScores) for (var ti = 0; ti < pp._taskScores.length; ti++) ws += pp._taskScores[ti] || 0;
     var rm = { gold: 2, silver: 1, bronze: 0, warn: -1, danger: -2 };
-    var effectiveRating = pp.bossEvaluated ? (pp.weeklyRating || '') : '';
+    var effectiveRating = pp.weeklyRating || '';
     if (effectiveRating && rm[effectiveRating] !== undefined) { ws += rm[effectiveRating]; if (effectiveRating === 'gold') gold++; }
     // ★ V0.6.1.hv: 用 plan 自身的 year/month/week 字段判断当前周/上周期（避免 wkId 格式不匹配）
     var isCurrentWeek = (pp.year === year && pp.month === cMonth && pp.week === cWeekInMonth);

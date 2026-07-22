@@ -3900,10 +3900,10 @@ function _calcWeekScore(plan){
   weekScore+=taskScore;
 
   // ★ V0.6.1.hh: 上级评级加分（金+2 银+1 铜0 待改-1 严重-2）
-  // 仅认可“已完成评价”的评级，撤销评价或误点后残留的 weeklyRating 一律不参与积分。
+  // 奖牌选择即为有效评级；撤销完整评价或再次点击同一奖牌都会清空 weeklyRating，因此空值不会参与积分。
   var ratingScore=0;
   var ratingMap={gold:2, silver:1, bronze:0, warn:-1, danger:-2};
-  var effectiveRating=plan.bossEvaluated ? (plan.weeklyRating||'') : '';
+  var effectiveRating=plan.weeklyRating||'';
   if(effectiveRating && ratingMap[effectiveRating]!==undefined){
     ratingScore=ratingMap[effectiveRating];
   }
