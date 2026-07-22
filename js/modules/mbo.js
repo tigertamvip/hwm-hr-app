@@ -3053,7 +3053,7 @@ function renderWPTable(plan){
     for(var mi=0;mi<moods.length;mi++){
       var m=moods[mi];
       var isSel=currentMoods.indexOf(m.key)>=0;
-      html+='<span class="wp-mood-emoji '+m.cls+(isSel?' mood-selected':'')+'" data-mood-key="'+m.key+'" data-tip="'+m.label+'" onclick="saveWPMood(\''+m.key+'\',this)" title="'+m.label+'">'+m.emoji+'</span>';
+      html+='<span class="wp-mood-emoji '+m.cls+(isSel?' mood-selected':'')+'" data-mood-key="'+m.key+'" data-tip="'+m.label+'" onmousedown="event.preventDefault()" onclick="saveWPMood(\''+m.key+'\',this)" title="'+m.label+'">'+m.emoji+'</span>';
     }
     html+='</div>';
   }else if(summaryContent){
@@ -4597,6 +4597,8 @@ function saveWPFeedback(field, value) {
 
 // ★ V0.6.1.hd / iq: 保存本周心情 — 最多选 2 种，点击同一表情可取消
 function saveWPMood(mood, el) {
+  // 表情点击会让正在编辑的任务单元格失焦；先落盘该编辑值，防止后续视图刷新覆盖输入内容。
+  if(_wpEditCell)commitEditCell();
   var p = _wpCurrent.plan;
   if (!p) return;
   // 读取当前心情列表（兼容旧版单值字段）
@@ -4629,8 +4631,8 @@ function saveWPMood(mood, el) {
       allEmojis[i].classList.toggle('mood-selected', moodList.indexOf(key) >= 0);
     }
   }
-  // 重新渲染表格底色以刷新数据
-  selectWP(p.year, p.month, p.week);
+  // 已在 DOM 中更新表情高亮；不调用 selectWP，避免重载本周计划并覆盖正在编辑的任务内容。
+  renderWPTable(p);
   showToast(moodList.length > 0 ? ('💬 已选 ' + moodList.length + ' 种心情') : '💬 心情已清除', 'info');
 }
 
