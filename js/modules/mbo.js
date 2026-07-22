@@ -111,6 +111,8 @@ var _wpViewingShared=null; // ★ V0.5.79b: 被分享查看的人
 var _wpViewingMergedUrgent=false; // ★ V0.6.1df: 下属重急事项合并视图
 var _wpViewingMergedIndirect=false; // ★ V0.6.1do: 间接下属标记
 var _wpEditCell=null;
+// 本地编辑保护：在云端确认写入前，后台加载/轮询不得用旧快照覆盖刚输入的内容。
+var _wpDirtyPlanVersions={};
 var _wpLastRenderKey='';
 var _wpRevisionMode=false;
 // ★ V0.6.1cd: 表头双击排序状态
@@ -456,6 +458,8 @@ function loadWPData(){
         if(_wpIsForcedDeleted(user,row.week_id))continue;
         var cloudUpd=row.plan_data.updatedAt||'';
         var localUpd=(localData[row.week_id]&&localData[row.week_id].updatedAt)||'';
+        // 本地输入已落盘、云端确认尚未返回时，绝不接受旧云端快照覆盖。
+        if(_wpDirtyPlanVersions[row.week_id])continue;
         // ★ V0.6.1ge: 判断云端/本地是否有真实工作内容
         var cloudHasWork=!!(row.plan_data.tasks||[]).some(function(t){return t.work&&t.work.trim();});
         var localHasWork=!!(localData[row.week_id]&&(localData[row.week_id].tasks||[]).some(function(t){return t.work&&t.work.trim();}));
@@ -539,6 +543,8 @@ function loadWPData(){
             if(_wpIsForcedDeleted(user,row.week_id))continue;
             var cloudUpd=row.plan_data.updatedAt||'';
             var localUpd=(localData[row.week_id]&&localData[row.week_id].updatedAt)||'';
+            // 输入后到云端确认前不允许轮询覆盖本地最新编辑。
+            if(_wpDirtyPlanVersions[row.week_id])continue;
             var cloudHasWork=!!(row.plan_data.tasks||[]).some(function(t){return t.work&&t.work.trim();});
             var localHasWork=!!(localData[row.week_id]&&(localData[row.week_id].tasks||[]).some(function(t){return t.work&&t.work.trim();}));
             if(localHasWork&&!cloudHasWork)continue;
@@ -595,6 +601,8 @@ function saveWPData(){
     return _wpCloudSaveQueue;
   }
   var plans=JSON.parse(JSON.stringify(_wpData)); // 深拷贝避免引用问题
+  var dirtyVersions={};
+  for(var dirtyId in plans)dirtyVersions[dirtyId]=_wpDirtyPlanVersions[dirtyId]||plans[dirtyId].updatedAt||'';
   _wpCloudSaveQueue=_wpCloudSaveQueue.catch(function(){}).then(async function(){
     try{
       // 使用 upsert 模式：只更新/插入当前保存的周计划，不影响其他周计划
@@ -603,6 +611,7 @@ function saveWPData(){
       for(var wpId in plans){
         rows.push({username:user,week_id:wpId,plan_data:plans[wpId],updated_at:now});
       }
+      var cloudSaveSucceeded=true;
       if(rows.length>0){
         var batchSize=50;
         for(var i=0;i<rows.length;i+=batchSize){
@@ -610,12 +619,19 @@ function saveWPData(){
           var r=await supabase.from(SUPABASE_WP_TABLE)
             .upsert(batch,{onConflict:'username,week_id'});
           if(r.error){
+            cloudSaveSucceeded=false;
             console.error('HWM: WP Supabase upsert batch',i,'failed',r.error.message);
             showToast('⚠️ 周计划云端同步失败: '+r.error.message);
           }
         }
       }
       console.log('HWM: WP pushed to cloud,',rows.length,'plans for',user);
+      // 仅在云端成功确认且版本未变化时清除保护标记；网络失败必须继续保护本地草稿。
+      if(cloudSaveSucceeded){
+        for(var savedId in dirtyVersions){
+          if(_wpDirtyPlanVersions[savedId]===dirtyVersions[savedId])delete _wpDirtyPlanVersions[savedId];
+        }
+      }
       // 显示成功提示
       if(rows.length>0)showToast('☁️ 周计划已同步到云端 ✓');
       // ★ 协同任务同步：发起方保存周计划时，自动同步协同任务到接收方
@@ -640,7 +656,40 @@ function makeWPId(y,m,w){
 }
 
 function getWP(y,m,w){return _wpData[makeWPId(y,m,w)]||null;}
-function saveWP(y,m,w,plan){var id=makeWPId(y,m,w);console.log('[DEBUG saveWP] id='+id+' planName='+(plan&&plan.name));_wpData[id]=plan;return saveWPData();}
+function saveWP(y,m,w,plan){var id=makeWPId(y,m,w);console.log('[DEBUG saveWP] id='+id+' planName='+(plan&&plan.name));_wpData[id]=plan;_wpDirtyPlanVersions[id]=(plan&&plan.updatedAt)||new Date().toISOString();return saveWPData();}
+
+// 任务编辑采用输入即持久化：不再依赖 blur 或顶部按钮。云端写入由 saveWPData 的串行队列保证顺序。
+function _wpPersistTaskInput(cell, value, syncCloud){
+  var p=_wpCurrent&&_wpCurrent.plan;
+  var field=cell&&cell.dataset&&cell.dataset.field;
+  if(!p||!field||field.indexOf('tasks.')!==0||_wpViewingShared)return;
+  var parts=field.split('.'), ti=parseInt(parts[1]), prop=parts[2];
+  if(isNaN(ti)||!prop||!p.tasks||!p.tasks[ti])return;
+  if(p.tasks[ti][prop]===value&&!syncCloud)return;
+  p.tasks[ti][prop]=value;
+  p.updatedAt=new Date().toISOString();
+  _calcWeekScore(p);
+  var id=makeWPId(p.year,p.month,p.week);
+  _wpData[id]=p;
+  _wpDirtyPlanVersions[id]=p.updatedAt;
+  // 每次输入立即写本地：关闭页面、点击表情或网络抖动都不会丢草稿。
+  try{localStorage.setItem(getWPLocalStorageKey(),JSON.stringify(_wpData));}catch(e){}
+  if(syncCloud)saveWP(p.year,p.month,p.week,p);
+}
+
+function _wpBindLiveTaskPersistence(cell, control){
+  if(!cell||!control||!cell.dataset||cell.dataset.field.indexOf('tasks.')!==0)return;
+  var timer=null;
+  control.addEventListener('input',function(){
+    _wpPersistTaskInput(cell,control.value,false);
+    clearTimeout(timer);
+    timer=setTimeout(function(){_wpPersistTaskInput(cell,control.value,true);},350);
+  });
+  control.addEventListener('change',function(){
+    clearTimeout(timer);
+    _wpPersistTaskInput(cell,control.value,true);
+  });
+}
 async function deleteWP(y,m,w,force){
   var id=makeWPId(y,m,w), user=_wpTargetUser();
   var sourceUid=(currentUser&&currentUser._uid)||user;
@@ -3397,10 +3446,10 @@ function startEditCell(cell){
     var selEl=cell.querySelector('select');if(selEl){selEl.focus();selEl.addEventListener('blur',function(){commitEditCell(this);});}
   }else if(type==='textarea'){
     cell.innerHTML='<textarea class="wp-cell-textarea" onblur="commitEditCell()">'+_h(cur)+'</textarea>';
-    var ta=cell.querySelector('textarea');if(ta)ta.focus();
+    var ta=cell.querySelector('textarea');if(ta){_wpBindLiveTaskPersistence(cell,ta);ta.focus();}
   }else if(type==='number'){
     cell.innerHTML='<input class="wp-cell-input" type="number" step="0.5" min="0" value="'+_h(cur)+'" onblur="commitEditCell()">';
-    var inp=cell.querySelector('input');if(inp)inp.focus();
+    var inp=cell.querySelector('input');if(inp){_wpBindLiveTaskPersistence(cell,inp);inp.focus();}
   }else if(type==='date'){
     // 计划完成日期：HTML5 原生日历选择器
     var dateVal=cur;
@@ -3413,7 +3462,7 @@ function startEditCell(cell){
       }
     }
     cell.innerHTML='<input class="wp-cell-input" type="date" value="'+_h(dateVal)+'" onblur="commitEditCell()" onchange="commitEditCell(this)">';
-    var dEl=cell.querySelector('input');if(dEl){dEl.focus();dEl.style.minWidth='120px';}
+    var dEl=cell.querySelector('input');if(dEl){_wpBindLiveTaskPersistence(cell,dEl);dEl.focus();dEl.style.minWidth='120px';}
   }else{
     // ★ V0.6.1.gv: 协同人列 — chip 标签 + 自定义 portal 下拉
     var isSupporters=field&&field.indexOf('.supporters')>=0;
@@ -3518,7 +3567,7 @@ function startEditCell(cell){
       setTimeout(function(){inp.focus();},30);
     }else{
       cell.innerHTML='<input class="wp-cell-input" type="text" value="'+_h(cur)+'" onblur="commitEditCell()">';
-      var inp2=cell.querySelector('input');if(inp2)inp2.focus();
+      var inp2=cell.querySelector('input');if(inp2){_wpBindLiveTaskPersistence(cell,inp2);inp2.focus();}
     }
   }
 }
