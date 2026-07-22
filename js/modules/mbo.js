@@ -2977,6 +2977,8 @@ function renderWPTable(plan){
     }else{
       html+='<button class="wp-btn-delete" onclick="deleteCurrentWPPlan()"><span>🗑</span> 删除周行动项</button>';
     }
+  // ★ j81: 工具操作前加分隔线 — 视觉分组（工作流 / 工具）
+  html+='<span class="wp-toolbar-divider" aria-hidden="true"></span>';
   html+='<button class="wp-btn-export" onclick="exportCurrentWP()" title="导出周行动项"><span>📥</span> 导出</button>';
   if(plan.bossEvaluated){
       html+='<button onclick="viewBossEval()"><span style="color:#2A476A">📋</span> 查看上级评价</button>';
