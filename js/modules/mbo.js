@@ -3793,19 +3793,47 @@ function _wpFlushVisibleEdits(){
 // 顶部“保存并返回首页”必须独立处理：心情操作会保留输入焦点，离开前由 DOM 级兜底提交所有可见编辑值。
 async function saveWPAndGoHome(){
   try{
-    // ★ j78: 简化版保存 — 直接扫描DOM + 保存当前计划（只保存当前周到云端）
-    // 不再需要复杂的 j76 三层防护：saveWPData 现在只保存当前周，不存在竞态
+    // ★ j79: 强制DOM扫描 — 不从 _wpCurrent.plan 读，直接从页面上所有 td[data-field] 读取
+    var p=_wpCurrent&&_wpCurrent.plan;
+    if(!p||!_wpCurrent.year||_wpViewingShared)return goHome();
+
+    // ★ 直接扫描DOM — 无论 textarea 是否已提交，强制读取可见值
+    var root=document.getElementById('wpContent');
+    var scannedAny=false;
+    if(root&&p.tasks){
+      var cells=root.querySelectorAll('td[data-field]');
+      for(var ci=0;ci<cells.length;ci++){
+        var cell=cells[ci], field=cell.dataset.field||'';
+        if(field.indexOf('tasks.')!==0)continue;
+        var parts=field.split('.'), ti=parseInt(parts[1]), prop=parts[2];
+        if(isNaN(ti)||!prop||!p.tasks[ti])continue;
+        // 优先从textarea/input直接读，兜底读textContent
+        var ctrl=cell.querySelector('input,textarea,select');
+        var value=ctrl?ctrl.value:cell.textContent.replace(/点击填写|选择|点击选择日期|备注|上级建议/g,'').trim();
+        if(prop==='supporters'){
+          var chips=cell.querySelectorAll('.supporter-chip span:first-child');
+          if(chips.length){var names=[];for(var cx=0;cx<chips.length;cx++){var n=chips[cx].textContent.trim();if(n)names.push(n);}value=names.join(',');}
+        }
+        if(value!==p.tasks[ti][prop]){
+          p.tasks[ti][prop]=value;
+          scannedAny=true;
+        }
+      }
+    }
+
+    // 也检查并提交当前编辑中的cell
     _wpFlushVisibleEdits();
     if(_wpEditCell)await commitEditCell();
-    var p=_wpCurrent&&_wpCurrent.plan;
-    if(!p||!_wpCurrent.year)return goHome();
-    // 防共享视图
-    if(_wpViewingShared)return goHome();
-    // 更新当前计划并保存
+
     p.updatedAt=new Date().toISOString();
     _calcWeekScore(p);
     var id=makeWPId(p.year,p.month,p.week);
     _wpData[id]=p;
+    
+    // ★ j79 diagnostic: 保存前打印内容
+    var workPreview=p.tasks&&p.tasks[0]?p.tasks[0].work:'';
+    console.log('[J79 SAVE] '+id+' task0work="'+workPreview.substr(0,40)+'" scanned='+scannedAny+' totalTasks='+(p.tasks?p.tasks.length:0));
+
     // 先写 localStorage，再写云端（只写当前周）
     localStorage.setItem(getWPLocalStorageKey(),JSON.stringify(_wpData));
     await saveWPData(id);
