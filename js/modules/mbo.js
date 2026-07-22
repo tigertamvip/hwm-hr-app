@@ -631,11 +631,15 @@ function loadWPData(){
 
 var _wpCloudSaveQueue=Promise.resolve();
 
-function saveWPData(){
+function saveWPData(onlyWeekId){
+  // ★ j78: onlyWeekId — 只保存指定的周计划到云端，不再批量保存全部100+条。
+  // 这消除了"保存时间窗口内 _wpData 被异步加载覆盖"的竞态条件。
+  // 例外：commitEditCell / saveWPAndGoHome 等关键路径不传 onlyWeekId 时会兜底全量保存
+
   // ★ j74: 如果当前正在查看分享视图，拒绝保存
   if(_wpViewingShared){console.log('[DEBUG saveWPData] SKIPPED - _wpViewingShared='+_wpViewingShared);return _wpCloudSaveQueue;}
   var key=getWPLocalStorageKey();
-  console.log('[DEBUG saveWPData] key='+key+' dataKeys='+Object.keys(_wpData).length);
+  console.log('[DEBUG saveWPData] key='+key+' dataKeys='+Object.keys(_wpData).length+' onlyWeekId='+(onlyWeekId||'(all)'));
   // ★ V0.6.1eh: 保存前先备份 — 防止数据丢失
   var oldData=localStorage.getItem(key);
   if(oldData){
@@ -659,7 +663,14 @@ function saveWPData(){
   }
   // ★ j74: 同时冻结当前计划引用 — 异步回调中的 _wpCurrent 可能已被 switchToMyWP() 置空
   var frozenCurrent=_wpCurrent&&_wpCurrent.plan&&_wpCurrent.year?{year:_wpCurrent.year,month:_wpCurrent.month||(new Date().getMonth()+1),week:_wpCurrent.week||1,plan:_wpCurrent.plan}:null;
-  var plans=JSON.parse(JSON.stringify(_wpData)); // 深拷贝避免引用问题
+  // ★ j78: 只深拷贝需要保存的周计划，而不是全部 _wpData
+  var plans={};
+  if(onlyWeekId && _wpData[onlyWeekId]){
+    plans[onlyWeekId]=JSON.parse(JSON.stringify(_wpData[onlyWeekId]));
+  } else if(!onlyWeekId){
+    // 兜底全量保存（来自 commitEditCell / submitWPPlan 等路径）
+    plans=JSON.parse(JSON.stringify(_wpData));
+  }
   var dirtyVersions={};
   for(var dirtyId in plans)dirtyVersions[dirtyId]=_wpDirtyPlanVersions[dirtyId]||plans[dirtyId].updatedAt||'';
   _wpCloudSaveQueue=_wpCloudSaveQueue.catch(function(){}).then(async function(){
@@ -712,7 +723,7 @@ function makeWPId(y,m,w){
 }
 
 function getWP(y,m,w){return _wpData[makeWPId(y,m,w)]||null;}
-function saveWP(y,m,w,plan){var id=makeWPId(y,m,w);console.log('[DEBUG saveWP] id='+id+' planName='+(plan&&plan.name));_wpData[id]=plan;_wpDirtyPlanVersions[id]=(plan&&plan.updatedAt)||new Date().toISOString();return saveWPData();}
+function saveWP(y,m,w,plan){var id=makeWPId(y,m,w);console.log('[DEBUG saveWP] id='+id+' planName='+(plan&&plan.name)+' task0work="'+(plan&&plan.tasks&&plan.tasks[0]?plan.tasks[0].work.substr(0,20):'')+'"');_wpData[id]=plan;_wpDirtyPlanVersions[id]=(plan&&plan.updatedAt)||new Date().toISOString();return saveWPData(id);}
 
 // 任务编辑采用输入即持久化：不再依赖 blur 或顶部按钮。云端写入由 saveWPData 的串行队列保证顺序。
 function _wpPersistTaskInput(cell, value, syncCloud){
@@ -3782,68 +3793,22 @@ function _wpFlushVisibleEdits(){
 // 顶部“保存并返回首页”必须独立处理：心情操作会保留输入焦点，离开前由 DOM 级兜底提交所有可见编辑值。
 async function saveWPAndGoHome(){
   try{
-    // ★ j75 diagnostic: snapshot _wpData state before save
-    var diagPlan=_wpData&&_wpData['2026-07-W3'];
-    var diagPlanW4=_wpData&&_wpData['2026-07-W4'];
-    var diagTasks=diagPlan&&diagPlan.tasks;
-    var diagWork0=diagTasks&&diagTasks[0]?diagTasks[0].work:'';
-    var diagTasksW4=diagPlanW4&&diagPlanW4.tasks;
-    var diagWork0W4=diagTasksW4&&diagTasksW4[0]?diagTasksW4[0].work:'';
-    console.log('[WP-DIAG] saveWPAndGoHome START: viewingShared='+_wpViewingShared+' viewingSub='+_wpViewingSubordinate+' viewingDept='+_wpViewingDeptMember+' curUser='+(currentUser&&currentUser.name)+' WP30work="'+diagWork0.substr(0,30)+'" WP30wpDataKeys='+Object.keys(_wpData||{}).length+' W4work="'+diagWork0W4.substr(0,30)+'"');
+    // ★ j78: 简化版保存 — 直接扫描DOM + 保存当前计划（只保存当前周到云端）
+    // 不再需要复杂的 j76 三层防护：saveWPData 现在只保存当前周，不存在竞态
     _wpFlushVisibleEdits();
     if(_wpEditCell)await commitEditCell();
-    // commitEditCell 可能发生重绘前后切换；再次扫描确保最后一个输入值不会遗漏。
-    _wpFlushVisibleEdits();
     var p=_wpCurrent&&_wpCurrent.plan;
-    if(p&&!_wpViewingShared){
-      // ★ j76: 防御性强制同步 — 如果 _wpCurrent.plan 和 _wpData 中对应记录不一致，优先信任 _wpData
-      // 这是修复 j74 失败的关键：确保最新用户输入不会因为 _wpCurrent 引用漂移而丢失
-      var id=makeWPId(p.year,p.month,p.week);
-      if(_wpData[id] && _wpData[id]!==p){
-        // 同步两个引用 - 优先用 _wpData 中的内容（含 _wpPersistTaskInput 写入的最新输入）
-        // 但要保留 _wpCurrent.plan 中的 updatedAt（更新为最新）
-        var localTs=_wpData[id].updatedAt;
-        var currentTs=p.updatedAt;
-        if(localTs && (!currentTs || localTs>currentTs)){
-          // _wpData 更新更晚，用它
-          _wpCurrent.plan=_wpData[id];
-          p=_wpData[id];
-          console.log('[WP-DIAG] j76 FORCED SYNC: _wpData had newer data for '+id);
-        } else {
-          // 反向同步
-          _wpData[id]=p;
-        }
-      } else if(!_wpData[id]){
-        _wpData[id]=p;
-      }
-      // 关键防御：如果 _wpData 中的 plan 是空的（tasks[0].work=""），但当前 plan 也是空的，
-      // 检查 localStorage 中是否有更老的版本（包含用户输入）
-      var currentWork=p.tasks&&p.tasks[0]?p.tasks[0].work:'';
-      if(!currentWork){
-        try{
-          var key=getWPLocalStorageKey();
-          var lsRaw=localStorage.getItem(key);
-          if(lsRaw){
-            var lsData=JSON.parse(lsRaw);
-            var lsPlan=lsData[id];
-            if(lsPlan && lsPlan.tasks && lsPlan.tasks[0] && lsPlan.tasks[0].work && lsPlan.tasks[0].work.trim()){
-              console.log('[WP-DIAG] j76 LOCALSTORAGE RECOVERY: '+id+' had work in localStorage: "'+lsPlan.tasks[0].work.substr(0,30)+'"');
-              // 恢复 localStorage 中的数据
-              p.tasks=lsPlan.tasks;
-              p.updatedAt=lsPlan.updatedAt||new Date().toISOString();
-              _wpData[id]=p;
-            }
-          }
-        }catch(e){console.warn('[WP-DIAG] j76 localStorage recovery failed',e.message);}
-      }
-      p.updatedAt=new Date().toISOString();
-      _calcWeekScore(p);
-      var saveStart=Date.now();
-      await saveWP(p.year,p.month,p.week,p);
-      console.log('[WP-DIAG] j76 saveWP FINISHED: '+id+' work="'+(p.tasks[0]&&p.tasks[0].work||'').substr(0,30)+'" took='+(Date.now()-saveStart)+'ms');
-      // 本地缓存同步写入作为退出前最后一道保障，不依赖异步云端完成。
-      localStorage.setItem(getWPLocalStorageKey(),JSON.stringify(_wpData));
-    }
+    if(!p||!_wpCurrent.year)return goHome();
+    // 防共享视图
+    if(_wpViewingShared)return goHome();
+    // 更新当前计划并保存
+    p.updatedAt=new Date().toISOString();
+    _calcWeekScore(p);
+    var id=makeWPId(p.year,p.month,p.week);
+    _wpData[id]=p;
+    // 先写 localStorage，再写云端（只写当前周）
+    localStorage.setItem(getWPLocalStorageKey(),JSON.stringify(_wpData));
+    await saveWPData(id);
   }catch(e){
     console.error('[WP] 保存并返回首页失败:',e);
     if(typeof showToast==='function')showToast('⚠️ 周计划保存失败，请重试','warning');
