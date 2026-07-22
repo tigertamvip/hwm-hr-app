@@ -301,7 +301,7 @@ function _dsSyncFromCloud() {
         var un = row.username;
         var pd = row.plan_data;
         if (!pd) continue;
-        // 同步评级状态本身（含撤销后的空评级），避免本地旧缓存把已撤销奖牌重新带回统计。
+        // 同步关键状态字段，避免本地旧缓存导致统计错位
         var localKey = 'hwm_workplans_' + un;
         try {
           var local = JSON.parse(localStorage.getItem(localKey) || '{}');
@@ -310,11 +310,18 @@ function _dsSyncFromCloud() {
           var cloudRating = pd.weeklyRating || '';
           var localEvaluated = !!localPlan.bossEvaluated;
           var cloudEvaluated = !!pd.bossEvaluated;
-          if (cloudRating !== localRating || cloudEvaluated !== localEvaluated) {
+          var needsSync = cloudRating !== localRating || cloudEvaluated !== localEvaluated;
+          // ★ V0.6.1.j85: 同步心情字段（解决"用户选了心情但数据中心不显示"）
+          var localMoods = JSON.stringify(localPlan.moods||[]);
+          var cloudMoods = JSON.stringify(pd.moods||[]);
+          if (localMoods !== cloudMoods) needsSync = true;
+          if (needsSync) {
             localPlan.weeklyRating = cloudRating;
             localPlan.bossEvaluated = cloudEvaluated;
             localPlan.bossEvaluatedBy = pd.bossEvaluatedBy || '';
             localPlan.bossEvaluatedAt = pd.bossEvaluatedAt || null;
+            localPlan.moods = Array.isArray(pd.moods) ? pd.moods.slice() : [];
+            localPlan.mood = (localPlan.moods || []).join(',');
             localPlan.updatedAt = pd.updatedAt || row.updated_at || '';
             local[wk] = localPlan;
             localStorage.setItem(localKey, JSON.stringify(local));
