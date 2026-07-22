@@ -418,11 +418,23 @@ function loadWPData(){
       }catch(e){}
     }
   }
-  // 删除标记优先于任何本地缓存，防止已删除周计划被旧备份重新带回
+  // ★ j79 BUGFIX: tombstone 删除只在本地无内容时才执行
+  // 旧代码无条件删除任何有 tombstone 的周，即使该周刚被用户输入了新内容
+  // 这会导致：一旦某周被标记为"已删除"tombstone，后续所有操作都有名无实
   try{
     var deletedPrefix2='hwm_wp_deleted_'+_wpTargetUser()+'_';
     Object.keys(_wpData).forEach(function(wk){
-      if(localStorage.getItem(deletedPrefix2+wk)==='1'||_wpIsForcedDeleted(_wpTargetUser(),wk))delete _wpData[wk];
+      if(localStorage.getItem(deletedPrefix2+wk)==='1'||_wpIsForcedDeleted(_wpTargetUser(),wk)){
+        // ★ j79: 只在本地没有任何内容时才允许 tombstone 生效
+        var hasWork=!!(_wpData[wk]&&_wpData[wk].tasks&&_wpData[wk].tasks.some(function(t){return t.work&&t.work.trim();}));
+        if(!hasWork){
+          delete _wpData[wk];
+        } else {
+          // ★ 有内容的周不能死 — 清除错误的 tombstone
+          try{localStorage.removeItem(deletedPrefix2+wk);}catch(e){}
+          console.log('[J79 TOMBSTONE FIX] 清除 '+wk+' 的删除标记 — 该周有工作内容');
+        }
+      }
     });
     localStorage.setItem(wpKey,JSON.stringify(_wpData));
   }catch(e){}
@@ -647,6 +659,16 @@ function saveWPData(onlyWeekId){
     try{localStorage.setItem('__hwm_backup__'+key,oldData);}catch(e){}
   }
   localStorage.setItem(key,JSON.stringify(_wpData));
+  // ★ j80: 保存成功后清除对应周的删除标记（防止之前错误设置的 tombstone 导致下次加载时删除）
+  try{
+    for(var wpId in _wpData){
+      var delKey='hwm_wp_deleted_'+_wpTargetUser()+'_'+wpId;
+      if(localStorage.getItem(delKey)==='1'){
+        var hasWork=_wpData[wpId]&&_wpData[wpId].tasks&&_wpData[wpId].tasks.some(function(t){return t.work&&t.work.trim();});
+        if(hasWork){localStorage.removeItem(delKey);console.log('[J80] 清除无效 tombstone: '+delKey);}
+      }
+    }
+  }catch(e){}
   // 异步推送到 Supabase（静默，失败不影响使用）
   // 检查 supabase 客户端是否已初始化
   if(typeof supabase==='undefined'||!supabase||!supabase.from){
