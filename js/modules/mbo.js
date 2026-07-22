@@ -3742,18 +3742,63 @@ async function saveWPAndGoHome(){
   try{
     // ★ j75 diagnostic: snapshot _wpData state before save
     var diagPlan=_wpData&&_wpData['2026-07-W3'];
+    var diagPlanW4=_wpData&&_wpData['2026-07-W4'];
     var diagTasks=diagPlan&&diagPlan.tasks;
     var diagWork0=diagTasks&&diagTasks[0]?diagTasks[0].work:'';
-    console.log('[WP-DIAG] saveWPAndGoHome START: viewingShared='+_wpViewingShared+' viewingSub='+_wpViewingSubordinate+' viewingDept='+_wpViewingDeptMember+' curUser='+(currentUser&&currentUser.name)+' WP30work="'+diagWork0.substr(0,30)+'" wpDataKeys='+Object.keys(_wpData||{}).length);
+    var diagTasksW4=diagPlanW4&&diagPlanW4.tasks;
+    var diagWork0W4=diagTasksW4&&diagTasksW4[0]?diagTasksW4[0].work:'';
+    console.log('[WP-DIAG] saveWPAndGoHome START: viewingShared='+_wpViewingShared+' viewingSub='+_wpViewingSubordinate+' viewingDept='+_wpViewingDeptMember+' curUser='+(currentUser&&currentUser.name)+' WP30work="'+diagWork0.substr(0,30)+'" WP30wpDataKeys='+Object.keys(_wpData||{}).length+' W4work="'+diagWork0W4.substr(0,30)+'"');
     _wpFlushVisibleEdits();
     if(_wpEditCell)await commitEditCell();
     // commitEditCell 可能发生重绘前后切换；再次扫描确保最后一个输入值不会遗漏。
     _wpFlushVisibleEdits();
     var p=_wpCurrent&&_wpCurrent.plan;
     if(p&&!_wpViewingShared){
+      // ★ j76: 防御性强制同步 — 如果 _wpCurrent.plan 和 _wpData 中对应记录不一致，优先信任 _wpData
+      // 这是修复 j74 失败的关键：确保最新用户输入不会因为 _wpCurrent 引用漂移而丢失
+      var id=makeWPId(p.year,p.month,p.week);
+      if(_wpData[id] && _wpData[id]!==p){
+        // 同步两个引用 - 优先用 _wpData 中的内容（含 _wpPersistTaskInput 写入的最新输入）
+        // 但要保留 _wpCurrent.plan 中的 updatedAt（更新为最新）
+        var localTs=_wpData[id].updatedAt;
+        var currentTs=p.updatedAt;
+        if(localTs && (!currentTs || localTs>currentTs)){
+          // _wpData 更新更晚，用它
+          _wpCurrent.plan=_wpData[id];
+          p=_wpData[id];
+          console.log('[WP-DIAG] j76 FORCED SYNC: _wpData had newer data for '+id);
+        } else {
+          // 反向同步
+          _wpData[id]=p;
+        }
+      } else if(!_wpData[id]){
+        _wpData[id]=p;
+      }
+      // 关键防御：如果 _wpData 中的 plan 是空的（tasks[0].work=""），但当前 plan 也是空的，
+      // 检查 localStorage 中是否有更老的版本（包含用户输入）
+      var currentWork=p.tasks&&p.tasks[0]?p.tasks[0].work:'';
+      if(!currentWork){
+        try{
+          var key=getWPLocalStorageKey();
+          var lsRaw=localStorage.getItem(key);
+          if(lsRaw){
+            var lsData=JSON.parse(lsRaw);
+            var lsPlan=lsData[id];
+            if(lsPlan && lsPlan.tasks && lsPlan.tasks[0] && lsPlan.tasks[0].work && lsPlan.tasks[0].work.trim()){
+              console.log('[WP-DIAG] j76 LOCALSTORAGE RECOVERY: '+id+' had work in localStorage: "'+lsPlan.tasks[0].work.substr(0,30)+'"');
+              // 恢复 localStorage 中的数据
+              p.tasks=lsPlan.tasks;
+              p.updatedAt=lsPlan.updatedAt||new Date().toISOString();
+              _wpData[id]=p;
+            }
+          }
+        }catch(e){console.warn('[WP-DIAG] j76 localStorage recovery failed',e.message);}
+      }
       p.updatedAt=new Date().toISOString();
       _calcWeekScore(p);
+      var saveStart=Date.now();
       await saveWP(p.year,p.month,p.week,p);
+      console.log('[WP-DIAG] j76 saveWP FINISHED: '+id+' work="'+(p.tasks[0]&&p.tasks[0].work||'').substr(0,30)+'" took='+(Date.now()-saveStart)+'ms');
       // 本地缓存同步写入作为退出前最后一道保障，不依赖异步云端完成。
       localStorage.setItem(getWPLocalStorageKey(),JSON.stringify(_wpData));
     }
