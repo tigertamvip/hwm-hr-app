@@ -252,9 +252,14 @@ function getSharedToMeList(){
 
 function initWPModule(){
   try{
+    // ★ j75: 每次进入模块均重置共享查看状态，防止上次浏览残留导致本周任务不持久化
+    _wpViewingShared=null;
+    _wpViewingDeptMember=null;
+    _wpViewingSubordinate=null;
+    _wpViewingMergedUrgent=false;
+    _wpViewingMergedIndirect=false;
     // 确保 _wpCurrent 始终已初始化（防止跨会话状态丢失）
     if(!_wpCurrent)_wpCurrent={year:null,month:null,week:null,plan:null};
-    if(!_wpViewingDeptMember)_wpViewingDeptMember=null;
     // ★ 每次进入模块都重新加载当前用户的数据（修复切换用户后数据不刷新的bug）
     loadWPData();
     if(!_wpInited){
@@ -671,10 +676,15 @@ function saveWP(y,m,w,plan){var id=makeWPId(y,m,w);console.log('[DEBUG saveWP] i
 function _wpPersistTaskInput(cell, value, syncCloud){
   var p=_wpCurrent&&_wpCurrent.plan;
   var field=cell&&cell.dataset&&cell.dataset.field;
-  if(!p||!field||field.indexOf('tasks.')!==0||_wpViewingShared)return;
+  if(!p||!field||field.indexOf('tasks.')!==0||_wpViewingShared){
+    // ★ j75 diagnostic: log early-exit reason
+    if(field&&field.indexOf('tasks.')===0) console.log('[WP-DIAG] _wpPersistTaskInput SKIP: p='+!!p+' field='+field+' viewingShared='+_wpViewingShared+' viewingSub='+_wpViewingSubordinate);
+    return;
+  }
   var parts=field.split('.'), ti=parseInt(parts[1]), prop=parts[2];
   if(isNaN(ti)||!prop||!p.tasks||!p.tasks[ti])return;
   if(p.tasks[ti][prop]===value&&!syncCloud)return;
+  console.log('[WP-DIAG] _wpPersistTaskInput WRITE: '+field+' = "'+value.substr(0,30)+'" syncCloud='+syncCloud+' weekId='+makeWPId(p.year,p.month,p.week));
   p.tasks[ti][prop]=value;
   p.updatedAt=new Date().toISOString();
   _calcWeekScore(p);
@@ -687,7 +697,11 @@ function _wpPersistTaskInput(cell, value, syncCloud){
 }
 
 function _wpBindLiveTaskPersistence(cell, control){
-  if(!cell||!control||!cell.dataset||cell.dataset.field.indexOf('tasks.')!==0)return;
+  if(!cell||!control||!cell.dataset||cell.dataset.field.indexOf('tasks.')!==0){
+    console.log('[WP-DIAG] _wpBindLiveTaskPersistence SKIP: cell='+!!cell+' dataset='+!!(cell&&cell.dataset)+' field='+(cell&&cell.dataset&&cell.dataset.field));
+    return;
+  }
+  console.log('[WP-DIAG] _wpBindLiveTaskPersistence BOUND: field='+cell.dataset.field+' currentUser='+(currentUser&&currentUser.name));
   var timer=null;
   control.addEventListener('input',function(){
     _wpPersistTaskInput(cell,control.value,false);
@@ -3726,6 +3740,11 @@ function _wpFlushVisibleEdits(){
 // 顶部“保存并返回首页”必须独立处理：心情操作会保留输入焦点，离开前由 DOM 级兜底提交所有可见编辑值。
 async function saveWPAndGoHome(){
   try{
+    // ★ j75 diagnostic: snapshot _wpData state before save
+    var diagPlan=_wpData&&_wpData['2026-07-W3'];
+    var diagTasks=diagPlan&&diagPlan.tasks;
+    var diagWork0=diagTasks&&diagTasks[0]?diagTasks[0].work:'';
+    console.log('[WP-DIAG] saveWPAndGoHome START: viewingShared='+_wpViewingShared+' viewingSub='+_wpViewingSubordinate+' viewingDept='+_wpViewingDeptMember+' curUser='+(currentUser&&currentUser.name)+' WP30work="'+diagWork0.substr(0,30)+'" wpDataKeys='+Object.keys(_wpData||{}).length);
     _wpFlushVisibleEdits();
     if(_wpEditCell)await commitEditCell();
     // commitEditCell 可能发生重绘前后切换；再次扫描确保最后一个输入值不会遗漏。
