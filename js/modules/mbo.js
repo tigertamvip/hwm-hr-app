@@ -2202,9 +2202,11 @@ function _renderSupportersCell(plan,taskIndex,rawSupporters){
   if(plan._revisions&&plan._revisions[fieldKey]&&plan._revisions[fieldKey].value){
     displayVal=plan._revisions[fieldKey].value;
   }
-  if(!displayVal)return '<span style="color:var(--text-hint)">填写</span>';
+  // ★ j82: 清理可能的占位符文字（历史脏数据中可能保存了"填写"等）
+  displayVal=displayVal?displayVal.replace(/填写|点击填写|请选择|选择/g,'').trim():'';
+  if(!displayVal)return '<span class="wp-placeholder">协同人</span>';
   var sups=_parseSupporters(displayVal);
-  if(sups.length===0)return '<span style="color:var(--text-hint)">填写</span>';
+  if(sups.length===0)return '<span class="wp-placeholder">协同人</span>';
   // 检查是否有协同状态信息
   var hasStatuses=plan._collab_statuses&&Object.keys(plan._collab_statuses).length>0;
   // ★ V0.6.1cf: 修订红色文字已取消
@@ -3060,18 +3062,18 @@ function renderWPTable(plan){
       html+='<tr style="background:#FFFDF5" data-task-idx="'+jj+'">';
       // ★ V0.1.59: 上周转入的不可删除，只显示序号
       html+='<td class="col-num" style="text-align:center;color:#8B6914">'+seq+'</td>';
-      html+='<td class="'+edCls+' col-work" data-field="tasks.'+jj+'.work" data-type="textarea"'+edClick+'>'+(tt.work?_hWork(tt.work):'<span style="color:var(--text-hint)">点击填写</span>')+cfTag+'</td>';
+      html+='<td class="'+edCls+' col-work" data-field="tasks.'+jj+'.work" data-type="textarea"'+edClick+'>'+(tt.work?_hWork(tt.work):'<span class="wp-placeholder">点击填写</span>')+cfTag+'</td>';
       var __goalRaw=tt.goal||'';
       var __goalVal=renderWPCellValue(plan,'tasks.'+jj+'.goal',tt.goal);
       var __goalPriClass=__goalRaw==='重要紧急'?'pri-urgent':__goalRaw==='重要不急'?'pri-important':__goalRaw==='日常紧急'?'pri-daily-urgent':__goalRaw==='日常事项'?'pri-daily-routine':'';
-      html+='<td class="'+edCls+' col-goal '+__goalPriClass+'" data-field="tasks.'+jj+'.goal" data-type="select" data-opts="'+WP_GOAL_OPTIONS.join(',')+'"'+edClick+'>'+(__goalVal||'<span style="color:var(--text-hint)">选择</span>')+'</td>';
+      html+='<td class="'+edCls+' col-goal '+__goalPriClass+'" data-field="tasks.'+jj+'.goal" data-type="select" data-opts="'+WP_GOAL_OPTIONS.join(',')+'"'+edClick+'>'+(__goalVal||'<span class="wp-placeholder">选择</span>')+'</td>';
       var _sd=renderWPCellValue(plan,'tasks.'+jj+'.startDate',tt.startDate||'');
-      html+='<td class="'+edCls+' col-hours" data-field="tasks.'+jj+'.startDate" data-type="date"'+edClick+'>'+(_sd?_sd:'<span style="color:var(--text-hint)">点击选择日期</span>')+'</td>';
+      html+='<td class="'+edCls+' col-hours" data-field="tasks.'+jj+'.startDate" data-type="date"'+edClick+'>'+(_sd?_sd:'<span class="wp-placeholder">点击选择日期</span>')+'</td>';
       var _pd=renderWPCellValue(plan,'tasks.'+jj+'.plannedDate',tt.plannedDate||'');
-      html+='<td class="'+edCls+' col-hours" data-field="tasks.'+jj+'.plannedDate" data-type="date"'+edClick+'>'+(_pd?_pd:'<span style="color:var(--text-hint)">点击选择日期</span>')+'</td>';
+      html+='<td class="'+edCls+' col-hours" data-field="tasks.'+jj+'.plannedDate" data-type="date"'+edClick+'>'+(_pd?_pd:'<span class="wp-placeholder">点击选择日期</span>')+'</td>';
       html+='<td class="col-remaining" style="text-align:center;font-size:12px">'+_calcRemainingDays(tt.plannedDate||'',tt.actualDate||'')+'</td>';
       var _ad=renderWPCellValue(plan,'tasks.'+jj+'.actualDate',tt.actualDate||'');
-      html+='<td class="'+edCls+' col-hours" data-field="tasks.'+jj+'.actualDate" data-type="date"'+edClick+'>'+(_ad?_ad:'<span style="color:var(--text-hint)">点击选择日期</span>')+'</td>';
+      html+='<td class="'+edCls+' col-hours" data-field="tasks.'+jj+'.actualDate" data-type="date"'+edClick+'>'+(_ad?_ad:'<span class="wp-placeholder">点击选择日期</span>')+'</td>';
       // ★ V0.4.91d/Q: 耗时列（自动计算，只读）+ 蓝色角标 + tooltip数据
       var _dur=_calcTaskDuration(tt);
       var _durTip='';
@@ -3083,16 +3085,16 @@ function renderWPTable(plan){
       }
       html+='<td class="col-duration' + (_dur?' has-duration':'') + '"' + (_durTip?' data-dur-tip="'+_durTip+'"':'') + ' style="text-align:center;font-variant-numeric:tabular-nums;color:#6b7280;font-size:12px">'+(_dur?_dur+'天':'—')+'</td>';
       // ★ V0.1.49: 每行任务得分 — 完成状态在前，积分在后(与表头一致)
-      html+='<td class="'+edCls+' col-status" data-field="tasks.'+jj+'.status" data-type="select" data-opts="'+WP_STATUS_OPTIONS.join(',')+'"'+edClick+'>'+(tt.status?_renderStatusDot(tt.status):'<span style="color:var(--text-hint)">选择</span>')+'</td>';
+      html+='<td class="'+edCls+' col-status" data-field="tasks.'+jj+'.status" data-type="select" data-opts="'+WP_STATUS_OPTIONS.join(',')+'"'+edClick+'>'+(tt.status?_renderStatusDot(tt.status):'<span class="wp-placeholder">选择</span>')+'</td>';
       html+=_renderTaskScoreCell(plan,jj);
       html+='<td class="'+edCls+' col-supporters" data-field="tasks.'+jj+'.supporters" data-type="text"'+edClick+'>'+_renderSupportersCell(plan,jj,tt.supporters)+'</td>';
-      html+='<td class="'+edCls+' col-wide" data-field="tasks.'+jj+'.problems" data-type="textarea"'+edClick+'>'+(tt.problems||plan._revisions&&plan._revisions['tasks.'+jj+'.problems']?renderWPCellValue(plan,'tasks.'+jj+'.problems',tt.problems):(tt.problems?_h(tt.problems):'<span style="color:var(--text-hint)">填写</span>'))+'</td>';
-      html+='<td class="'+edCls+' col-problemtype" data-field="tasks.'+jj+'.problemType" data-type="select" data-opts="'+WP_PROBLEM_OPTIONS.join(',')+'"'+edClick+'>'+(tt.problemType||plan._revisions&&plan._revisions['tasks.'+jj+'.problemType']?renderWPCellValue(plan,'tasks.'+jj+'.problemType',tt.problemType):(tt.problemType?_h(tt.problemType):'<span style="color:var(--text-hint)">选择</span>'))+'</td>';
+      html+='<td class="'+edCls+' col-wide" data-field="tasks.'+jj+'.problems" data-type="textarea"'+edClick+'>'+(tt.problems||plan._revisions&&plan._revisions['tasks.'+jj+'.problems']?renderWPCellValue(plan,'tasks.'+jj+'.problems',tt.problems):(tt.problems?_h(tt.problems):'<span class="wp-placeholder">填写</span>'))+'</td>';
+      html+='<td class="'+edCls+' col-problemtype" data-field="tasks.'+jj+'.problemType" data-type="select" data-opts="'+WP_PROBLEM_OPTIONS.join(',')+'"'+edClick+'>'+(tt.problemType||plan._revisions&&plan._revisions['tasks.'+jj+'.problemType']?renderWPCellValue(plan,'tasks.'+jj+'.problemType',tt.problemType):(tt.problemType?_h(tt.problemType):'<span class="wp-placeholder">选择</span>'))+'</td>';
       html+='<td class="'+edCls+' col-needboss" data-field="tasks.'+jj+'.needBoss" data-type="select" data-opts="'+WP_NEEDBOSS_OPTIONS.join(',')+'"'+edClick+'>'+renderWPCellValue(plan,'tasks.'+jj+'.needBoss',tt.needBoss||'')+'</td>';
       // ★ V0.3.36: 备注说明(员工自填，新列)
-      html+='<td class="'+edCls+' col-remarks" data-field="tasks.'+jj+'.remarks" data-type="textarea"'+edClick+'>'+(tt.remarks||plan._revisions&&plan._revisions['tasks.'+jj+'.remarks']?renderWPCellValue(plan,'tasks.'+jj+'.remarks',tt.remarks):(tt.remarks?_h(tt.remarks):'<span style="color:var(--text-hint)">备注</span>'))+'</td>';
+      html+='<td class="'+edCls+' col-remarks" data-field="tasks.'+jj+'.remarks" data-type="textarea"'+edClick+'>'+(tt.remarks||plan._revisions&&plan._revisions['tasks.'+jj+'.remarks']?renderWPCellValue(plan,'tasks.'+jj+'.remarks',tt.remarks):(tt.remarks?_h(tt.remarks):'<span class="wp-placeholder">备注</span>'))+'</td>';
       var bossCanEdit=isMySubordinate(plan.name) || !!_wpViewingDeptMember;
-      html+='<td class="col-boss'+(bossCanEdit?' editable':'')+'"'+(bossCanEdit?' data-field="tasks.'+jj+'.bossFeedback" data-type="textarea" onclick="startEditCell(this)"':'')+'>'+(tt.bossFeedback?_h(tt.bossFeedback):(plan._revisions&&plan._revisions['tasks.'+jj+'.bossFeedback']?renderWPCellValue(plan,'tasks.'+jj+'.bossFeedback',tt.bossFeedback):'<span style="color:var(--text-hint)">上级建议</span>'))+'</td>';
+      html+='<td class="col-boss'+(bossCanEdit?' editable':'')+'"'+(bossCanEdit?' data-field="tasks.'+jj+'.bossFeedback" data-type="textarea" onclick="startEditCell(this)"':'')+'>'+(tt.bossFeedback?_h(tt.bossFeedback):(plan._revisions&&plan._revisions['tasks.'+jj+'.bossFeedback']?renderWPCellValue(plan,'tasks.'+jj+'.bossFeedback',tt.bossFeedback):'<span class="wp-placeholder">上级建议</span>'))+'</td>';
       html+='</tr>';
     }
     html+='<tr class="wp-section-header" style="background:#F0F9FF"><td colspan="16" style="padding:6px 12px;font-size:12px;font-weight:600;color:#0369A1;border-bottom:2px solid #BAE6FD">📝 本周新增（'+newTasks.length+'项）</td></tr>';
@@ -3107,15 +3109,15 @@ function renderWPTable(plan){
     html+='<tr data-task-idx="'+j+'">';
     // ★ V0.1.59: # 列 — +/- 操作按钮
     html+=_renderTaskOpCell(j,seq,plan);
-    html+='<td class="editable col-work'+_frozenCls+'" data-field="tasks.'+j+'.work" data-type="textarea" onclick="startEditCell(this)">'+(t.work||plan._revisions&&plan._revisions['tasks.'+j+'.work']?renderWPCellValue(plan,'tasks.'+j+'.work',t.work):(t.work?_hWork(t.work):'<span style="color:var(--text-hint)">点击填写</span>'))+'</td>';
+    html+='<td class="editable col-work'+_frozenCls+'" data-field="tasks.'+j+'.work" data-type="textarea" onclick="startEditCell(this)">'+(t.work||plan._revisions&&plan._revisions['tasks.'+j+'.work']?renderWPCellValue(plan,'tasks.'+j+'.work',t.work):(t.work?_hWork(t.work):'<span class="wp-placeholder">点击填写</span>'))+'</td>';
     var _goalRaw=t.goal||'';
     var _goalVal=renderWPCellValue(plan,'tasks.'+j+'.goal',t.goal);
     var _goalPriClass=_goalRaw==='重要紧急'?'pri-urgent':_goalRaw==='重要不急'?'pri-important':_goalRaw==='日常紧急'?'pri-daily-urgent':_goalRaw==='日常事项'?'pri-daily-routine':'';
-    html+='<td class="editable col-goal '+_goalPriClass+_frozenCls+'" data-field="tasks.'+j+'.goal" data-type="select" data-opts="'+WP_GOAL_OPTIONS.join(',')+'" onclick="startEditCell(this)">'+(_goalVal||'<span style="color:var(--text-hint)">选择</span>')+'</td>';
+    html+='<td class="editable col-goal '+_goalPriClass+_frozenCls+'" data-field="tasks.'+j+'.goal" data-type="select" data-opts="'+WP_GOAL_OPTIONS.join(',')+'" onclick="startEditCell(this)">'+(_goalVal||'<span class="wp-placeholder">选择</span>')+'</td>';
     var startDateDisplay=renderWPCellValue(plan,'tasks.'+j+'.startDate',t.startDate||'');
-    html+='<td class="editable col-hours'+_frozenCls+'" data-field="tasks.'+j+'.startDate" data-type="date" onclick="startEditCell(this)">'+(startDateDisplay?startDateDisplay:'<span style="color:var(--text-hint)">点击选择日期</span>')+'</td>';
+    html+='<td class="editable col-hours'+_frozenCls+'" data-field="tasks.'+j+'.startDate" data-type="date" onclick="startEditCell(this)">'+(startDateDisplay?startDateDisplay:'<span class="wp-placeholder">点击选择日期</span>')+'</td>';
     var plannedDateDisplay=renderWPCellValue(plan,'tasks.'+j+'.plannedDate',t.plannedDate||'');
-    html+='<td class="editable col-hours'+_frozenCls+'" data-field="tasks.'+j+'.plannedDate" data-type="date" onclick="startEditCell(this)">'+(plannedDateDisplay?plannedDateDisplay:'<span style="color:var(--text-hint)">点击选择日期</span>')+'</td>';
+    html+='<td class="editable col-hours'+_frozenCls+'" data-field="tasks.'+j+'.plannedDate" data-type="date" onclick="startEditCell(this)">'+(plannedDateDisplay?plannedDateDisplay:'<span class="wp-placeholder">点击选择日期</span>')+'</td>';
     html+='<td class="col-remaining" style="text-align:center;font-size:12px">'+_calcRemainingDays(t.plannedDate||'',t.actualDate||'')+'</td>';
     var actualDateDisplay=renderWPCellValue(plan,'tasks.'+j+'.actualDate',t.actualDate||'');
     // ★ V0.4.91: 自动"未做"时锁定实际完成日期，显示"—"
@@ -3123,7 +3125,7 @@ function renderWPTable(plan){
     if(t.status==='未做'&&!t._manualNotDone){
       html+='<td class="col-hours'+_summaryFrozenCls+'" style="color:#9ca3af;cursor:not-allowed;text-align:center">—</td>';
     }else{
-      html+='<td class="editable col-hours'+_summaryFrozenCls+'" data-field="tasks.'+j+'.actualDate" data-type="date" onclick="startEditCell(this)">'+(actualDateDisplay?actualDateDisplay:'<span style="color:var(--text-hint)">点击选择日期</span>')+'</td>';
+      html+='<td class="editable col-hours'+_summaryFrozenCls+'" data-field="tasks.'+j+'.actualDate" data-type="date" onclick="startEditCell(this)">'+(actualDateDisplay?actualDateDisplay:'<span class="wp-placeholder">点击选择日期</span>')+'</td>';
     }
     // ★ V0.4.91d/Q: 耗时列（自动计算，只读）+ 蓝色角标 + tooltip数据
     var _durNew=_calcTaskDuration(t);
@@ -3136,16 +3138,16 @@ function renderWPTable(plan){
     }
     html+='<td class="col-duration' + (_durNew?' has-duration':'') + '"' + (_durTip?' data-dur-tip="'+_durTip+'"':'') + ' style="text-align:center;font-variant-numeric:tabular-nums;color:#6b7280;font-size:12px">'+(_durNew?_durNew+'天':'—')+'</td>';
     // ★ V0.1.49: 每行任务积分
-    html+='<td class="editable col-status" data-field="tasks.'+j+'.status" data-type="select" data-opts="'+WP_STATUS_OPTIONS.join(',')+'" onclick="startEditCell(this)">'+(t.status?_renderStatusDot(t.status):'<span style="color:var(--text-hint)">选择</span>')+'</td>';
+    html+='<td class="editable col-status" data-field="tasks.'+j+'.status" data-type="select" data-opts="'+WP_STATUS_OPTIONS.join(',')+'" onclick="startEditCell(this)">'+(t.status?_renderStatusDot(t.status):'<span class="wp-placeholder">选择</span>')+'</td>';
     html+=_renderTaskScoreCell(plan,j);
     html+='<td class="editable col-supporters" data-field="tasks.'+j+'.supporters" data-type="text" onclick="startEditCell(this)">'+_renderSupportersCell(plan,j,t.supporters)+'</td>';
-    html+='<td class="editable col-wide" data-field="tasks.'+j+'.problems" data-type="textarea" onclick="startEditCell(this)">'+(t.problems||plan._revisions&&plan._revisions['tasks.'+j+'.problems']?renderWPCellValue(plan,'tasks.'+j+'.problems',t.problems):(t.problems?_h(t.problems):'<span style="color:var(--text-hint)">填写</span>'))+'</td>';
-    html+='<td class="editable col-problemtype" data-field="tasks.'+j+'.problemType" data-type="select" data-opts="'+WP_PROBLEM_OPTIONS.join(',')+'" onclick="startEditCell(this)">'+(t.problemType||plan._revisions&&plan._revisions['tasks.'+j+'.problemType']?renderWPCellValue(plan,'tasks.'+j+'.problemType',t.problemType):(t.problemType?_h(t.problemType):'<span style="color:var(--text-hint)">选择</span>'))+'</td>';
+    html+='<td class="editable col-wide" data-field="tasks.'+j+'.problems" data-type="textarea" onclick="startEditCell(this)">'+(t.problems||plan._revisions&&plan._revisions['tasks.'+j+'.problems']?renderWPCellValue(plan,'tasks.'+j+'.problems',t.problems):(t.problems?_h(t.problems):'<span class="wp-placeholder">填写</span>'))+'</td>';
+    html+='<td class="editable col-problemtype" data-field="tasks.'+j+'.problemType" data-type="select" data-opts="'+WP_PROBLEM_OPTIONS.join(',')+'" onclick="startEditCell(this)">'+(t.problemType||plan._revisions&&plan._revisions['tasks.'+j+'.problemType']?renderWPCellValue(plan,'tasks.'+j+'.problemType',t.problemType):(t.problemType?_h(t.problemType):'<span class="wp-placeholder">选择</span>'))+'</td>';
     html+='<td class="editable col-needboss" data-field="tasks.'+j+'.needBoss" data-type="select" data-opts="'+WP_NEEDBOSS_OPTIONS.join(',')+'" onclick="startEditCell(this)">'+renderWPCellValue(plan,'tasks.'+j+'.needBoss',t.needBoss||'')+'</td>';
     // ★ V0.3.36: 备注说明(员工自填，新列)
-    html+='<td class="editable col-remarks" data-field="tasks.'+j+'.remarks" data-type="textarea" onclick="startEditCell(this)">'+(t.remarks||plan._revisions&&plan._revisions['tasks.'+j+'.remarks']?renderWPCellValue(plan,'tasks.'+j+'.remarks',t.remarks):(t.remarks?_h(t.remarks):'<span style="color:var(--text-hint)">备注</span>'))+'</td>';
+    html+='<td class="editable col-remarks" data-field="tasks.'+j+'.remarks" data-type="textarea" onclick="startEditCell(this)">'+(t.remarks||plan._revisions&&plan._revisions['tasks.'+j+'.remarks']?renderWPCellValue(plan,'tasks.'+j+'.remarks',t.remarks):(t.remarks?_h(t.remarks):'<span class="wp-placeholder">备注</span>'))+'</td>';
     var bossCanEdit=isMySubordinate(plan.name) || !!_wpViewingDeptMember;
-    html+='<td class="col-boss'+(bossCanEdit?' editable':'')+'"'+(bossCanEdit?' data-field="tasks.'+j+'.bossFeedback" data-type="textarea" onclick="startEditCell(this)"':'')+'>'+(t.bossFeedback?_h(t.bossFeedback):(plan._revisions&&plan._revisions['tasks.'+j+'.bossFeedback']?renderWPCellValue(plan,'tasks.'+j+'.bossFeedback',t.bossFeedback):'<span style="color:var(--text-hint)">上级建议</span>'))+'</td>';
+    html+='<td class="col-boss'+(bossCanEdit?' editable':'')+'"'+(bossCanEdit?' data-field="tasks.'+j+'.bossFeedback" data-type="textarea" onclick="startEditCell(this)"':'')+'>'+(t.bossFeedback?_h(t.bossFeedback):(plan._revisions&&plan._revisions['tasks.'+j+'.bossFeedback']?renderWPCellValue(plan,'tasks.'+j+'.bossFeedback',t.bossFeedback):'<span class="wp-placeholder">上级建议</span>'))+'</td>';
     html+='</tr>';
   }
 
@@ -4734,7 +4736,7 @@ function viewBossEval(){
   for(var i=0;i<p.tasks.length;i++){
     var t=p.tasks[i];if(!t.work)continue;
     html+='<div style="margin-bottom:10px"><div style="font-weight:500;margin-bottom:3px;line-height:1.4">'+(i+1)+'. '+_h(t.work)+'</div>';
-    html+='<div style="padding:8px 12px;background:var(--bg);border-radius:6px;min-height:36px;white-space:pre-wrap;font-size:13px;line-height:1.6">'+(t.bossFeedback?_h(t.bossFeedback):'<span style="color:var(--text-hint)">（无）</span>')+'</div></div>';
+    html+='<div style="padding:8px 12px;background:var(--bg);border-radius:6px;min-height:36px;white-space:pre-wrap;font-size:13px;line-height:1.6">'+(t.bossFeedback?_h(t.bossFeedback):'<span class="wp-placeholder">（无）</span>')+'</div></div>';
   }
   html+='</div>';
   html+='<div class="wp-eval-actions"><button class="wp-eval-submit" onclick="closeBossEval()">关闭</button></div>';
