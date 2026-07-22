@@ -113,6 +113,8 @@ var _wpViewingMergedIndirect=false; // ★ V0.6.1do: 间接下属标记
 var _wpEditCell=null;
 // 本地编辑保护：在云端确认写入前，后台加载/轮询不得用旧快照覆盖刚输入的内容。
 var _wpDirtyPlanVersions={};
+// 当前云端加载代次：管理员频繁切换本人/下属/授权视图时，旧请求返回不得覆盖后一次视图的数据。
+var _wpLoadGeneration=0;
 var _wpLastRenderKey='';
 var _wpRevisionMode=false;
 // ★ V0.6.1cd: 表头双击排序状态
@@ -388,6 +390,8 @@ function _wpMergeCloudCollabStatuses(localPlan,cloudPlan){
 }
 
 function loadWPData(){
+  // ★ V0.6.1.j74: 每次调用递增代次，异步回调只在代次匹配时生效
+  var gen=++_wpLoadGeneration;
   // ① 先读 localStorage（秒出，不卡）
   try{_wpData=JSON.parse(localStorage.getItem(getWPLocalStorageKey())||'{}');}catch(e){_wpData={};}
   // ★ V0.6.1eh/j52: 备份恢复 — 仅恢复未被明确删除的周计划
@@ -418,13 +422,16 @@ function loadWPData(){
     localStorage.setItem(wpKey,JSON.stringify(_wpData));
   }catch(e){}
   // ② 后台从 Supabase 拉取并合并（跨设备数据同步，失败不影响使用）
-  var user=_wpViewingShared||_wpViewingSubordinate||_wpViewingDeptMember||(currentUser&&currentUser.name)||getCurrentEmployee().name;
-  if(!user||typeof user!=='string'||user.trim()===''){
+  // ★ j74: 冻结 user/key 在调用瞬间，防止异步回调时视图状态已变更
+  var frozenUser=_wpViewingShared||_wpViewingSubordinate||_wpViewingDeptMember||(currentUser&&currentUser.name)||getCurrentEmployee().name;
+  if(!frozenUser||typeof frozenUser!=='string'||frozenUser.trim()===''){
     console.warn('HWM: loadWPData aborted - user is empty');
     return;
   }
-  var currentKey=getWPLocalStorageKey();
+  var frozenKey=getWPLocalStorageKey();
   (async function(){
+    // ★ j74: 世代守卫 — 如果之后又触发了新的 loadWPData()，旧请求直接丢弃
+    if(_wpLoadGeneration!==gen)return;
     try{
       var seenNewer=false;
       // 分页拉取所有记录（最多200条/人）
@@ -432,30 +439,26 @@ function loadWPData(){
       while(!done){
         var resp=await supabase.from(SUPABASE_WP_TABLE)
           .select('week_id,plan_data',{count:'exact'})
-          .eq('username',user)
+          .eq('username',frozenUser)
           .range(from,to);
         if(resp.error){console.warn('HWM: WP Supabase load failed',resp.error.message);return;}
         if(resp.data)allRows=allRows.concat(resp.data);
         if(!resp.data||resp.data.length<1000)done=true;
         else from+=1000;to+=1000;
       }
-      // ★ V0.3.117: 云端数据为空 → 清空本地所有缓存（防止已删数据残留）
+      // ★ j74: 世代再检查 — Supabase 网络请求期间可能触发了新加载
+      if(_wpLoadGeneration!==gen)return;
+      // ★ j74: 云端返回空 → 不主动清空本地数据（可能是网络/RLS/用户名差异等临时问题）
+      // 原有 V0.3.117 逻辑过于激进：任何一次空返回都清空全部本地缓存，对人力资源负责人等高权限账号风险极大。
       if(allRows.length===0){
-        var localData=JSON.parse(localStorage.getItem(currentKey)||'{}');
-        if(Object.keys(localData).length>0){
-          localStorage.setItem(currentKey,'{}');
-          _wpData={};
-          try{if(_wpCurrent&&_wpCurrent.plan){_wpCurrent.plan=null;showWPEmpty();}}catch(e){}
-          try{var _y=_wpCurrent.year||new Date().getFullYear();var _m=_wpCurrent.month||(new Date().getMonth()+1);renderWPPlanList(_y,_m);}catch(e){}
-          console.log('[V0.3.117] Cloud empty — cleared all local cache for',user);
-        }
+        console.log('[V0.6.1.j74] Cloud returned 0 rows for '+frozenUser+' — keeping local data intact');
         return;
       }
       // 合并：云端最新版本覆盖本地旧版本
-      var localData=JSON.parse(localStorage.getItem(currentKey)||'{}');
+      var localData=JSON.parse(localStorage.getItem(frozenKey)||'{}');
       for(var i=0;i<allRows.length;i++){
         var row=allRows[i];
-        if(_wpIsForcedDeleted(user,row.week_id))continue;
+        if(_wpIsForcedDeleted(frozenUser,row.week_id))continue;
         var cloudUpd=row.plan_data.updatedAt||'';
         var localUpd=(localData[row.week_id]&&localData[row.week_id].updatedAt)||'';
         // 本地输入已落盘、云端确认尚未返回时，绝不接受旧云端快照覆盖。
@@ -473,16 +476,18 @@ function loadWPData(){
           seenNewer=true;
         }
       }
+      // ★ j74: 世代再检查 — 合并完成后再次验证
+      if(_wpLoadGeneration!==gen)return;
       // ★ V0.6.1ge: 云端已删除的周计划 → 本地同步删除（但有内容的本地数据绝不删除）
       var cloudIds={};
       for(var i=0;i<allRows.length;i++){
-        if(!_wpIsForcedDeleted(user,allRows[i].week_id))cloudIds[allRows[i].week_id]=true;
+        if(!_wpIsForcedDeleted(frozenUser,allRows[i].week_id))cloudIds[allRows[i].week_id]=true;
       }
       for(var wk in localData){
         if(!cloudIds[wk]){
-          // ★ V0.6.1.j52: 云端已删除记录必须从本地及备份移除，不能因“保护有内容”再次复活
+          // ★ V0.6.1.j52: 云端已删除记录必须从本地及备份移除，不能因"保护有内容"再次复活
           delete localData[wk];seenNewer=true;
-          try{localStorage.setItem('hwm_wp_deleted_'+user+'_'+wk,'1');}catch(e){}
+          try{localStorage.setItem('hwm_wp_deleted_'+frozenUser+'_'+wk,'1');}catch(e){}
           console.log('[V0.6.1.j52] Removed stale local cache for',wk);
         }
       }
@@ -491,8 +496,8 @@ function loadWPData(){
         for(var wk in localData){
           var hasContent=!!(localData[wk].tasks||[]).some(function(t){return t.work&&t.work.trim();});
           if(!hasContent && localStorage.getItem('hwm_wp_deleted_'+_wpTargetUser()+'_'+wk)!=='1'){
-            var bkKey=currentKey+'_backup';
-            var bkRaw=localStorage.getItem(bkKey)||localStorage.getItem('__hwm_backup__'+currentKey);
+            var bkKey=frozenKey+'_backup';
+            var bkRaw=localStorage.getItem(bkKey)||localStorage.getItem('__hwm_backup__'+frozenKey);
             if(bkRaw){
               try{
                 var bkData=JSON.parse(bkRaw);
@@ -506,10 +511,12 @@ function loadWPData(){
           }
         }
       }catch(e){console.warn('[V0.6.1.gi] 备份恢复失败',e.message);}
+      // ★ j74: 世代最后检查，只有当前仍是同一轮加载时才写回
+      if(_wpLoadGeneration!==gen)return;
       // 写回 localStorage
-      try{localStorage.setItem(currentKey,JSON.stringify(localData));}catch(e){}
+      try{localStorage.setItem(frozenKey,JSON.stringify(localData));}catch(e){}
       // 如果当前页面仍在查看同一用户，刷新显示
-      if(getWPLocalStorageKey()===currentKey){
+      if(getWPLocalStorageKey()===frozenKey){
         _wpData=localData;
         try{if(_wpCurrent&&_wpCurrent.plan){
           var refreshed=getWP(_wpCurrent.year,_wpCurrent.month,_wpCurrent.week);
@@ -578,6 +585,7 @@ function loadWPData(){
 var _wpCloudSaveQueue=Promise.resolve();
 
 function saveWPData(){
+  // ★ j74: 如果当前正在查看分享视图，拒绝保存
   if(_wpViewingShared){console.log('[DEBUG saveWPData] SKIPPED - _wpViewingShared='+_wpViewingShared);return _wpCloudSaveQueue;}
   var key=getWPLocalStorageKey();
   console.log('[DEBUG saveWPData] key='+key+' dataKeys='+Object.keys(_wpData).length);
@@ -594,12 +602,16 @@ function saveWPData(){
     console.warn('HWM: WP Supabase not ready, skip cloud push');
     return _wpCloudSaveQueue;
   }
-  var user=_wpViewingSubordinate||_wpViewingDeptMember||(currentUser&&currentUser.name)||getCurrentEmployee().name;
+  // ★ j74: 冻结云端写入用户名在调用瞬间，而非在异步回调中重新读取全局状态
+  // 人力资源负责人经常切换下属视图，全局状态可能在异步执行前被 switchToMyWP() 清空
+  var frozenUser=_wpViewingSubordinate||_wpViewingDeptMember||(currentUser&&currentUser.name)||getCurrentEmployee().name;
   // 防御：user 为空时绝不能保存
-  if(!user||typeof user!=='string'||user.trim()===''){
+  if(!frozenUser||typeof frozenUser!=='string'||frozenUser.trim()===''){
     console.warn('HWM: saveWPData aborted - user is empty');
     return _wpCloudSaveQueue;
   }
+  // ★ j74: 同时冻结当前计划引用 — 异步回调中的 _wpCurrent 可能已被 switchToMyWP() 置空
+  var frozenCurrent=_wpCurrent&&_wpCurrent.plan&&_wpCurrent.year?{year:_wpCurrent.year,month:_wpCurrent.month||(new Date().getMonth()+1),week:_wpCurrent.week||1,plan:_wpCurrent.plan}:null;
   var plans=JSON.parse(JSON.stringify(_wpData)); // 深拷贝避免引用问题
   var dirtyVersions={};
   for(var dirtyId in plans)dirtyVersions[dirtyId]=_wpDirtyPlanVersions[dirtyId]||plans[dirtyId].updatedAt||'';
@@ -609,7 +621,7 @@ function saveWPData(){
       // 这样即使本地缓存不完整，也不会误删云端其他周的数据
       var rows=[], now=new Date().toISOString();
       for(var wpId in plans){
-        rows.push({username:user,week_id:wpId,plan_data:plans[wpId],updated_at:now});
+        rows.push({username:frozenUser,week_id:wpId,plan_data:plans[wpId],updated_at:now});
       }
       var cloudSaveSucceeded=true;
       if(rows.length>0){
@@ -625,7 +637,7 @@ function saveWPData(){
           }
         }
       }
-      console.log('HWM: WP pushed to cloud,',rows.length,'plans for',user);
+      console.log('HWM: WP pushed to cloud,',rows.length,'plans for',frozenUser);
       // 仅在云端成功确认且版本未变化时清除保护标记；网络失败必须继续保护本地草稿。
       if(cloudSaveSucceeded){
         for(var savedId in dirtyVersions){
@@ -634,12 +646,9 @@ function saveWPData(){
       }
       // 显示成功提示
       if(rows.length>0)showToast('☁️ 周计划已同步到云端 ✓');
-      // ★ 协同任务同步：发起方保存周计划时，自动同步协同任务到接收方
-      if(_wpCurrent&&_wpCurrent.plan&&_wpCurrent.year){
-        var cy=_wpCurrent.year;
-        var cm=_wpCurrent.month||(new Date().getMonth()+1);
-        var cw=_wpCurrent.week||1;
-        _syncCollabTasks(_wpCurrent.plan,user,cy,cm,cw).catch(function(e){
+      // ★ 协同任务同步：发起方保存周计划时，自动同步协同任务到接收方（使用冻结的计划引用）
+      if(frozenCurrent&&frozenCurrent.plan&&frozenCurrent.year){
+        _syncCollabTasks(frozenCurrent.plan,frozenUser,frozenCurrent.year,frozenCurrent.month,frozenCurrent.week).catch(function(e){
           console.warn('[Collab] syncCollabTasks failed',e.message);
         });
       }
