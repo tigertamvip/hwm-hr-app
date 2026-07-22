@@ -569,8 +569,10 @@ function loadWPData(){
   }
 }
 
+var _wpCloudSaveQueue=Promise.resolve();
+
 function saveWPData(){
-  if(_wpViewingShared){console.log('[DEBUG saveWPData] SKIPPED - _wpViewingShared='+_wpViewingShared);return;}
+  if(_wpViewingShared){console.log('[DEBUG saveWPData] SKIPPED - _wpViewingShared='+_wpViewingShared);return _wpCloudSaveQueue;}
   var key=getWPLocalStorageKey();
   console.log('[DEBUG saveWPData] key='+key+' dataKeys='+Object.keys(_wpData).length);
   // ★ V0.6.1eh: 保存前先备份 — 防止数据丢失
@@ -584,16 +586,16 @@ function saveWPData(){
   // 检查 supabase 客户端是否已初始化
   if(typeof supabase==='undefined'||!supabase||!supabase.from){
     console.warn('HWM: WP Supabase not ready, skip cloud push');
-    return;
+    return _wpCloudSaveQueue;
   }
   var user=_wpViewingSubordinate||_wpViewingDeptMember||(currentUser&&currentUser.name)||getCurrentEmployee().name;
   // 防御：user 为空时绝不能保存
   if(!user||typeof user!=='string'||user.trim()===''){
     console.warn('HWM: saveWPData aborted - user is empty');
-    return;
+    return _wpCloudSaveQueue;
   }
   var plans=JSON.parse(JSON.stringify(_wpData)); // 深拷贝避免引用问题
-  (async function(){
+  _wpCloudSaveQueue=_wpCloudSaveQueue.catch(function(){}).then(async function(){
     try{
       // 使用 upsert 模式：只更新/插入当前保存的周计划，不影响其他周计划
       // 这样即使本地缓存不完整，也不会误删云端其他周的数据
@@ -629,7 +631,8 @@ function saveWPData(){
       console.error('HWM: WP Supabase save failed',e.message);
       showToast('⚠️ 云端同步失败: '+e.message,'warning');
     }
-  })();
+  });
+  return _wpCloudSaveQueue;
 }
 
 function makeWPId(y,m,w){
@@ -637,7 +640,7 @@ function makeWPId(y,m,w){
 }
 
 function getWP(y,m,w){return _wpData[makeWPId(y,m,w)]||null;}
-function saveWP(y,m,w,plan){var id=makeWPId(y,m,w);console.log('[DEBUG saveWP] id='+id+' planName='+(plan&&plan.name));_wpData[id]=plan;saveWPData();}
+function saveWP(y,m,w,plan){var id=makeWPId(y,m,w);console.log('[DEBUG saveWP] id='+id+' planName='+(plan&&plan.name));_wpData[id]=plan;return saveWPData();}
 async function deleteWP(y,m,w,force){
   var id=makeWPId(y,m,w), user=_wpTargetUser();
   var sourceUid=(currentUser&&currentUser._uid)||user;
@@ -3627,6 +3630,24 @@ async function commitEditCell(el){
 }
 
 // ========== 工具栏操作 ==========
+// 顶部“保存并返回首页”必须独立处理：心情表情会保留当前输入框焦点，不能依赖浏览器 blur 自动保存。
+async function saveWPAndGoHome(){
+  try{
+    if(_wpEditCell)await commitEditCell();
+    var p=_wpCurrent&&_wpCurrent.plan;
+    if(p&&!_wpViewingShared){
+      p.updatedAt=new Date().toISOString();
+      _calcWeekScore(p);
+      await saveWP(p.year,p.month,p.week,p);
+    }
+  }catch(e){
+    console.error('[WP] 保存并返回首页失败:',e);
+    if(typeof showToast==='function')showToast('⚠️ 周计划保存失败，请重试','warning');
+    return;
+  }
+  goHome();
+}
+
 // ★ V0.1.35: 「完成提交」按钮 — 记录首次提交时间并保存
 async function submitWPPlan(){
   var p=_wpCurrent.plan;if(!p){_showAlert('请先选择一个周计划');return;}
