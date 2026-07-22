@@ -1672,13 +1672,8 @@ function renderWPPlanList(year,month){
     var plan=getWP(year,month,w);
     var active=(_wpCurrent&&_wpCurrent.year===year&&_wpCurrent.month===month&&_wpCurrent.week===w);
     var taskCount=plan?plan.tasks.filter(function(t){return t.work;}).length:0;
-    var delBtn='';
-    if(plan){
-      var myName2=(currentUser&&currentUser.name)||'';
-      var isLocked2=plan.firstSubmittedAt||plan.summarySubmittedAt||(plan.frozen&&plan.frozenBy&&plan.frozenBy!==myName2)||plan.bossEvaluated;
-      delBtn='<span class="wp-sidebar-plan-delete'+(isLocked2?' locked':'')+'"'+(isLocked2?' title="如要删除本周行动项请先解除上级锁定或撤回提交周小结及周计划"':'')+' onclick="event.stopPropagation();delWPFromSidebar('+year+','+month+','+w+')">×</span>';
-    }
-    html+='<div class="wp-sidebar-plan-item'+(active?' active':'')+'" onclick="selectWP('+year+','+month+','+w+')">'+delBtn+'<div class="week-label">'+weekLabels[w-1]+'</div><div class="task-count">('+taskCount+')</div></div>';
+    // 删除入口统一收敛至周行动项页面工具栏，导航仅负责周次切换。
+    html+='<div class="wp-sidebar-plan-item'+(active?' active':'')+'" onclick="selectWP('+year+','+month+','+w+')"><div class="week-label">'+weekLabels[w-1]+'</div><div class="task-count">('+taskCount+')</div></div>';
   }
   list.innerHTML=html;
   // ★ V0.4.91s: 同步渲染全年周度导航网格
