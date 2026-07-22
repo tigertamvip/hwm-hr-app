@@ -2177,8 +2177,9 @@ function _renderCollabTasksSection(plan){
 
 // ===== 协同任务系统（第2步：发起方写入 + 接收方读取）=====
 
-// ★ V0.6.1.j83: 通用占位符文字清洗 — 历史脏数据里可能存了"填写"/"选择"等作为实际值
-var WP_PLACEHOLDER_TEXT = /填写|点击填写|请选择|选择|协同人|问题|备注|上级建议|无/gi;
+// ★ V0.6.1.j84: 通用占位符文字清洗 — 仅清洗"协同人"chip 编辑器污染的 UI 文字
+// 之前 j83 包含"无"导致误伤真实数据（如"无资源"→"资源"），已撤掉
+var WP_PLACEHOLDER_TEXT = /协同人|⏳|待响应|已接受|已拒绝|✅|❌/gi;
 function _cleanPlaceholderText(val){
   if(!val)return '';
   return String(val).replace(WP_PLACEHOLDER_TEXT,'').replace(/^[,，;；、\s]+|[,，;；、\s]+$/g,'').trim();
