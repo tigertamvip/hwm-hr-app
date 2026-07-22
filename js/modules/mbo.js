@@ -3630,15 +3630,55 @@ async function commitEditCell(el){
 }
 
 // ========== 工具栏操作 ==========
-// 顶部“保存并返回首页”必须独立处理：心情表情会保留当前输入框焦点，不能依赖浏览器 blur 自动保存。
+// 将当前页面仍存在的编辑控件强制写回 plan。不能只依赖 blur/_wpEditCell：点击顶部按钮时，浏览器事件顺序可能已清空编辑标记。
+function _wpFlushVisibleEdits(){
+  var p=_wpCurrent&&_wpCurrent.plan;
+  var root=document.getElementById('wpContent');
+  if(!p||!p.tasks||!root)return false;
+  var changed=false;
+  var cells=root.querySelectorAll('td[data-field]');
+  for(var i=0;i<cells.length;i++){
+    var cell=cells[i], field=cell.dataset.field||'';
+    var control=cell.querySelector('input,textarea,select');
+    if(!control||field.indexOf('tasks.')!==0)continue;
+    var parts=field.split('.'), ti=parseInt(parts[1]), prop=parts[2];
+    if(isNaN(ti)||!prop||!p.tasks[ti])continue;
+    var value=control.value;
+    if(prop==='supporters'){
+      var chips=cell.querySelectorAll('.supporter-chip span:first-child');
+      if(chips.length){
+        var names=[];
+        for(var c=0;c<chips.length;c++){var name=chips[c].textContent.trim();if(name)names.push(name);}
+        value=names.join(',');
+      }
+    }
+    if(p.tasks[ti][prop]!==value){
+      p.tasks[ti][prop]=value;
+      changed=true;
+    }
+  }
+  if(changed){
+    p.updatedAt=new Date().toISOString();
+    _calcWeekScore(p);
+    _wpData[makeWPId(p.year,p.month,p.week)]=p;
+  }
+  return changed;
+}
+
+// 顶部“保存并返回首页”必须独立处理：心情操作会保留输入焦点，离开前由 DOM 级兜底提交所有可见编辑值。
 async function saveWPAndGoHome(){
   try{
+    _wpFlushVisibleEdits();
     if(_wpEditCell)await commitEditCell();
+    // commitEditCell 可能发生重绘前后切换；再次扫描确保最后一个输入值不会遗漏。
+    _wpFlushVisibleEdits();
     var p=_wpCurrent&&_wpCurrent.plan;
     if(p&&!_wpViewingShared){
       p.updatedAt=new Date().toISOString();
       _calcWeekScore(p);
       await saveWP(p.year,p.month,p.week,p);
+      // 本地缓存同步写入作为退出前最后一道保障，不依赖异步云端完成。
+      localStorage.setItem(getWPLocalStorageKey(),JSON.stringify(_wpData));
     }
   }catch(e){
     console.error('[WP] 保存并返回首页失败:',e);
