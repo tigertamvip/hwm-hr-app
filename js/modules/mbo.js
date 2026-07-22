@@ -2842,6 +2842,25 @@ function renderWPTable(plan){
   // 填写参考默认收纳，避免规则与统计信息抢占任务首屏。
   html+=_renderTimeManagementPanel(plan);
 
+  // 任务表合计行仍需使用这些统计值；不再渲染独立状态摘要栏。
+  var hasPlan=0,hasActual=0,overdue=0;
+  var todayStr=_getTodayStr();
+  for(var i=0;i<plan.tasks.length;i++){
+    var summaryTask=plan.tasks[i]||{};
+    var plannedDate=summaryTask.plannedDate||'';
+    if(plannedDate){
+      hasPlan++;
+      if(plannedDate<todayStr&&summaryTask.status!=='✓完成'&&summaryTask.status!=='按时完成')overdue++;
+    }
+    if(summaryTask.actualDate)hasActual++;
+  }
+  var _taskTotal=0;
+  if(plan._taskScores){
+    for(var tsi=0;tsi<plan._taskScores.length;tsi++)_taskTotal+=plan._taskScores[tsi]||0;
+  }
+  var taskScoreDisplay='';
+  if(_taskTotal!==0||plan.bossEvaluated)taskScoreDisplay=(_taskTotal>0?'+':'')+_taskTotal;
+
   // ★ V0.6.1cd: 表头双击排序 — 临时替换plan.tasks为排序副本
   var _wpOrigTasks=null;
   if(_wpSort && _wpSort.col && _wpSort.dir){
