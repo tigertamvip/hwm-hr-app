@@ -3900,10 +3900,12 @@ function _calcWeekScore(plan){
   weekScore+=taskScore;
 
   // ★ V0.6.1.hh: 上级评级加分（金+2 银+1 铜0 待改-1 严重-2）
+  // 仅认可“已完成评价”的评级，撤销评价或误点后残留的 weeklyRating 一律不参与积分。
   var ratingScore=0;
   var ratingMap={gold:2, silver:1, bronze:0, warn:-1, danger:-2};
-  if(plan.weeklyRating && ratingMap[plan.weeklyRating]!==undefined){
-    ratingScore=ratingMap[plan.weeklyRating];
+  var effectiveRating=plan.bossEvaluated ? (plan.weeklyRating||'') : '';
+  if(effectiveRating && ratingMap[effectiveRating]!==undefined){
+    ratingScore=ratingMap[effectiveRating];
   }
   weekScore+=ratingScore;
 
@@ -3918,7 +3920,7 @@ function _calcWeekScore(plan){
     onTimeScore:onTimeScore, overdueScore:overdueScore,
     notDoneScore:notDoneScore, lateSubmitScore:lateSubmitScore,
     reviewScore:reviewScore, onTimeSubmitScore:onTimeSubmitScore,
-    ratingScore:ratingScore, weeklyRating:plan.weeklyRating||''
+    ratingScore:ratingScore, weeklyRating:effectiveRating
   };
 
   // 重新汇总（含明细 + 兼容旧数据）
@@ -4551,6 +4553,8 @@ async function revokeBossEval(){
   p.bossEvaluated=false;
   p.bossEvaluatedAt=null;
   p.bossEvaluatedBy='';
+  // 撤销评价即撤销其整体评级：历史测试/误点奖牌不应进入积分、数据中心或评价明细。
+  p.weeklyRating='';
   p.updatedAt=new Date().toISOString();
   saveWP(p.year,p.month,p.week,p);
   renderWPTable(p);
@@ -4625,14 +4629,20 @@ function saveWPMood(mood, el) {
 function saveWPRating(rating, el) {
   var p = _wpCurrent.plan;
   if (!p) return;
-  if (p.weeklyRating === rating) { p.weeklyRating = ''; }
-  else { p.weeklyRating = rating; }
-  p.updatedAt = new Date().toISOString();
-  // ★ V0.6.1.ht: 记录评分人 + 评分时间（用于数据中心「我评出的奖牌」统计）
-  if (currentUser && currentUser.name) {
-    p.bossEvaluatedBy = currentUser.name;
-    p.bossEvaluatedAt = new Date().toISOString();
+  if (p.weeklyRating === rating) {
+    p.weeklyRating = '';
+    // 取消奖牌时同步清空评级元数据，避免旧时间戳让后续统计误判为有效评价。
+    p.bossEvaluatedBy = '';
+    p.bossEvaluatedAt = null;
+  } else {
+    p.weeklyRating = rating;
+    // ★ V0.6.1.ht: 记录评分人 + 评分时间（用于数据中心「我评出的奖牌」统计）
+    if (currentUser && currentUser.name) {
+      p.bossEvaluatedBy = currentUser.name;
+      p.bossEvaluatedAt = new Date().toISOString();
+    }
   }
+  p.updatedAt = new Date().toISOString();
   saveWP(p.year, p.month, p.week, p);
   // 触发积分重算
   setTimeout(function(){ _calcWeekScore(p); selectWP(p.year, p.month, p.week); }, 100);

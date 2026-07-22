@@ -212,8 +212,8 @@ function _dsRefreshData() {
       if (pp.submittedAt || pp.firstSubmittedAt) ytdPlan++;
       if (pp.summarySubmittedAt) ytdSum++;
       ytdWeeks++;
-      // ★ V0.6.1.hn: 评级统计 - 累计全年所有周的评级
-      var rr = pp.weeklyRating || '';
+      // ★ V0.6.1.hn: 评级统计 - 仅统计已完成上级评价的有效评级
+      var rr = pp.bossEvaluated ? (pp.weeklyRating || '') : '';
       if (ratings[rr] !== undefined) {
         ratings[rr]++;
         ratingDetails[rr].push({
@@ -256,7 +256,7 @@ function _dsRefreshData() {
     for (var pname in pplans) {
       var pp2 = pplans[pname];
       if (!pp2) continue;
-      if (_validRatings.indexOf(pp2.weeklyRating) >= 0 && pp2.bossEvaluatedBy === myName) {
+      if (pp2.bossEvaluated && _validRatings.indexOf(pp2.weeklyRating) >= 0 && pp2.bossEvaluatedBy === myName) {
         myGivenTotal++;
         if (pp2.weeklyRating === 'gold') myGivenGold++;
       }
@@ -300,17 +300,21 @@ function _dsSyncFromCloud() {
         var wk = row.week_id;
         var un = row.username;
         var pd = row.plan_data;
-        if (!pd || !pd.weeklyRating) continue;
-        // 只同步有评级变化的数据
+        if (!pd) continue;
+        // 同步评级状态本身（含撤销后的空评级），避免本地旧缓存把已撤销奖牌重新带回统计。
         var localKey = 'hwm_workplans_' + un;
         try {
           var local = JSON.parse(localStorage.getItem(localKey) || '{}');
           var localPlan = local[wk] || {};
           var localRating = localPlan.weeklyRating || '';
           var cloudRating = pd.weeklyRating || '';
-          if (cloudRating && cloudRating !== localRating) {
-            // 云端有本地没有的评级：更新本地
+          var localEvaluated = !!localPlan.bossEvaluated;
+          var cloudEvaluated = !!pd.bossEvaluated;
+          if (cloudRating !== localRating || cloudEvaluated !== localEvaluated) {
             localPlan.weeklyRating = cloudRating;
+            localPlan.bossEvaluated = cloudEvaluated;
+            localPlan.bossEvaluatedBy = pd.bossEvaluatedBy || '';
+            localPlan.bossEvaluatedAt = pd.bossEvaluatedAt || null;
             localPlan.updatedAt = pd.updatedAt || row.updated_at || '';
             local[wk] = localPlan;
             localStorage.setItem(localKey, JSON.stringify(local));
@@ -355,11 +359,12 @@ function _dsCalcUserScore(userName, allPlans, period) {
     var ws = 0;
     if (pp._taskScores) for (var ti = 0; ti < pp._taskScores.length; ti++) ws += pp._taskScores[ti] || 0;
     var rm = { gold: 2, silver: 1, bronze: 0, warn: -1, danger: -2 };
-    if (pp.weeklyRating && rm[pp.weeklyRating] !== undefined) { ws += rm[pp.weeklyRating]; if (pp.weeklyRating === 'gold') gold++; }
+    var effectiveRating = pp.bossEvaluated ? (pp.weeklyRating || '') : '';
+    if (effectiveRating && rm[effectiveRating] !== undefined) { ws += rm[effectiveRating]; if (effectiveRating === 'gold') gold++; }
     // ★ V0.6.1.hv: 用 plan 自身的 year/month/week 字段判断当前周/上周期（避免 wkId 格式不匹配）
     var isCurrentWeek = (pp.year === year && pp.month === cMonth && pp.week === cWeekInMonth);
     var isPrevWeek = (pp.year === year && pp.month === pMonth && pp.week === pWeekInMonth);
-    if (isCurrentWeek) { cr = pp.weeklyRating || ''; cw = ws; }
+    if (isCurrentWeek) { cr = effectiveRating; cw = ws; }
     if (isPrevWeek) pw = ws;
     var include = false;
     if (period === 'week') include = isCurrentWeek;
