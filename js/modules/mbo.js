@@ -374,6 +374,17 @@ function fixAllPlanDirtyData(){
   }
 }
 
+// 协同响应状态由接收方回写云端，是独立于任务编辑时间的权威字段。
+// 即使发起方本地计划的 updatedAt 更晚，也必须合并该字段，避免“已接受”长期停留在灰色待响应。
+function _wpMergeCloudCollabStatuses(localPlan,cloudPlan){
+  if(!localPlan||!cloudPlan||!cloudPlan._collab_statuses)return false;
+  var cloudStatuses=cloudPlan._collab_statuses;
+  var localStatuses=localPlan._collab_statuses||{};
+  if(JSON.stringify(localStatuses)===JSON.stringify(cloudStatuses))return false;
+  localPlan._collab_statuses=JSON.parse(JSON.stringify(cloudStatuses));
+  return true;
+}
+
 function loadWPData(){
   // ① 先读 localStorage（秒出，不卡）
   try{_wpData=JSON.parse(localStorage.getItem(getWPLocalStorageKey())||'{}');}catch(e){_wpData={};}
@@ -453,6 +464,9 @@ function loadWPData(){
         if(!localData[row.week_id]||cloudUpd>localUpd){
           localData[row.week_id]=row.plan_data;
           seenNewer=true;
+        }else if(_wpMergeCloudCollabStatuses(localData[row.week_id],row.plan_data)){
+          // 协同响应状态独立云端优先：不覆盖本地任务编辑，只刷新已接受/已拒绝徽章。
+          seenNewer=true;
         }
       }
       // ★ V0.6.1ge: 云端已删除的周计划 → 本地同步删除（但有内容的本地数据绝不删除）
@@ -493,7 +507,11 @@ function loadWPData(){
       // 如果当前页面仍在查看同一用户，刷新显示
       if(getWPLocalStorageKey()===currentKey){
         _wpData=localData;
-        try{if(_wpCurrent&&_wpCurrent.plan){renderWPTable(_wpCurrent.plan);}}catch(e){}
+        try{if(_wpCurrent&&_wpCurrent.plan){
+          var refreshed=getWP(_wpCurrent.year,_wpCurrent.month,_wpCurrent.week);
+          if(refreshed)_wpCurrent.plan=refreshed;
+          renderWPTable(_wpCurrent.plan);
+        }}catch(e){}
         try{var y=_wpCurrent.year||new Date().getFullYear();var m=_wpCurrent.month||(new Date().getMonth()+1);renderWPPlanList(y,m);}catch(e){}
         try{renderWPUserInfo();}catch(e){}
       }
@@ -526,6 +544,9 @@ function loadWPData(){
             if(localHasWork&&!cloudHasWork)continue;
             if(!localData[row.week_id]||cloudUpd>localUpd){
               localData[row.week_id]=row.plan_data;
+              seenNewer=true;
+            }else if(_wpMergeCloudCollabStatuses(localData[row.week_id],row.plan_data)){
+              // 接收方响应只影响协同状态，强制以云端为准，不覆盖发起方尚未保存的任务编辑。
               seenNewer=true;
             }
           }
