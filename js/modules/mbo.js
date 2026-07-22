@@ -4914,9 +4914,30 @@ function saveWPRating(rating, el) {
     }
   }
   p.updatedAt = new Date().toISOString();
+  // ★ V0.6.1.j88: 修复奖牌点击导致页面上下滚动 — 改为就地更新 DOM，不再重渲染整表
+  // j70 之前已为心情表情做过类似修复；这里奖牌的 setTimeout → selectWP() 仍会触发 renderWPTable()
+  // 重建整张表格，导致浏览器重新计算滚动锚点，视觉上"页面上下抖一次"。
+  _calcWeekScore(p);
   saveWP(p.year, p.month, p.week, p);
-  // 触发积分重算
-  setTimeout(function(){ _calcWeekScore(p); selectWP(p.year, p.month, p.week); }, 100);
+  // 就地更新奖牌的 selected 状态
+  try {
+    var container = el && el.parentNode;
+    if (container) {
+      var allEmojis = container.querySelectorAll('.wp-rating-emoji');
+      for (var i = 0; i < allEmojis.length; i++) {
+        var emojiKey = allEmojis[i].getAttribute('data-tip') || '';
+        // 通过 onclick 的 rating 参数对比更安全：直接用 _wpCurrent.plan.weeklyRating
+        var selected = (_wpCurrent.plan.weeklyRating && (
+          (allEmojis[i].classList.contains('rating-gold') && _wpCurrent.plan.weeklyRating === 'gold') ||
+          (allEmojis[i].classList.contains('rating-silver') && _wpCurrent.plan.weeklyRating === 'silver') ||
+          (allEmojis[i].classList.contains('rating-bronze') && _wpCurrent.plan.weeklyRating === 'bronze') ||
+          (allEmojis[i].classList.contains('rating-warn') && _wpCurrent.plan.weeklyRating === 'warn') ||
+          (allEmojis[i].classList.contains('rating-danger') && _wpCurrent.plan.weeklyRating === 'danger')
+        ));
+        allEmojis[i].classList.toggle('rating-selected', !!selected);
+      }
+    }
+  } catch (e) {}
   showToast(p.weeklyRating ? '🏅 评级已记录' : '🏅 评级已清除', 'info');
 }
 
