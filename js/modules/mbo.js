@@ -2623,6 +2623,71 @@ async function clearTaskRow(idx){
   showToast('✨ 已清空第 '+(idx+1)+' 行所有内容');
 }
 
+// 在任务表原表头离开可视区后显示克隆表头，避免纵向浏览时丢失字段语义。
+function _bindWPStickyTableHeader(content){
+  if(!content)return;
+  if(content._wpStickyHeaderCleanup)content._wpStickyHeaderCleanup();
+  var old=document.getElementById('wpStickyTableHeader');
+  if(old)old.remove();
+  var pageScroll=content.querySelector('.wp-page-scroll');
+  var tableScroll=content.querySelector('.wp-table-x-scroll');
+  var sourceTable=tableScroll&&tableScroll.querySelector('.wp-table');
+  var sourceHead=sourceTable&&sourceTable.querySelector('thead');
+  if(!pageScroll||!tableScroll||!sourceTable||!sourceHead)return;
+
+  var sticky=document.createElement('div');
+  sticky.id='wpStickyTableHeader';
+  sticky.className='wp-sticky-table-header';
+  sticky.setAttribute('aria-hidden','true');
+  sticky.innerHTML='<div class="wp-table-wrap"><table class="wp-table">'+(sourceTable.querySelector('colgroup')?sourceTable.querySelector('colgroup').outerHTML:'')+'<thead>'+sourceHead.innerHTML+'</thead></table></div>';
+  content.appendChild(sticky);
+
+  var sourceCells=sourceHead.querySelectorAll('th');
+  var stickyCells=sticky.querySelectorAll('th');
+  for(var i=0;i<sourceCells.length&&i<stickyCells.length;i++){
+    var w=Math.ceil(sourceCells[i].getBoundingClientRect().width);
+    stickyCells[i].style.width=w+'px';
+    stickyCells[i].style.minWidth=w+'px';
+    stickyCells[i].style.maxWidth=w+'px';
+  }
+
+  var ticking=false;
+  function sync(){
+    ticking=false;
+    var topbar=document.querySelector('.wp-topbar');
+    var topbarRect=topbar?topbar.getBoundingClientRect():null;
+    var fixedTop=topbarRect?Math.round(topbarRect.bottom):0;
+    var tableRect=tableScroll.getBoundingClientRect();
+    var headRect=sourceHead.getBoundingClientRect();
+    var canStick=headRect.top<=fixedTop && tableRect.bottom>fixedTop+headRect.height;
+    if(canStick){
+      sticky.style.left=Math.round(tableRect.left)+'px';
+      sticky.style.top=fixedTop+'px';
+      sticky.style.width=Math.round(tableRect.width)+'px';
+      sticky.style.height=Math.ceil(headRect.height)+'px';
+      sticky.classList.add('is-visible');
+      if(Math.abs(sticky.scrollLeft-tableScroll.scrollLeft)>1)sticky.scrollLeft=tableScroll.scrollLeft;
+    }else{
+      sticky.classList.remove('is-visible');
+    }
+  }
+  function requestSync(){if(!ticking){ticking=true;requestAnimationFrame(sync);}}
+  function onTableScroll(){
+    if(sticky.scrollLeft!==tableScroll.scrollLeft)sticky.scrollLeft=tableScroll.scrollLeft;
+    requestSync();
+  }
+  pageScroll.addEventListener('scroll',requestSync,{passive:true});
+  tableScroll.addEventListener('scroll',onTableScroll,{passive:true});
+  window.addEventListener('resize',requestSync,{passive:true});
+  content._wpStickyHeaderCleanup=function(){
+    pageScroll.removeEventListener('scroll',requestSync);
+    tableScroll.removeEventListener('scroll',onTableScroll);
+    window.removeEventListener('resize',requestSync);
+    content._wpStickyHeaderCleanup=null;
+  };
+  requestSync();
+}
+
 function renderWPTable(plan){
   if(!plan)return;
   var content=document.getElementById('wpContent');
@@ -3068,6 +3133,9 @@ function renderWPTable(plan){
   var _newTableScroll=content.querySelector('.wp-table-x-scroll');
   if(_newPageScroll&&_savedScrollTop>0)_newPageScroll.scrollTop=_savedScrollTop;
   if(_newTableScroll&&_savedScrollLeft>0)_newTableScroll.scrollLeft=_savedScrollLeft;
+
+  // 周计划表头吸顶：克隆表头，随页面纵滚显示并与任务表横滚同步。
+  _bindWPStickyTableHeader(content);
 
   // ★ V0.5.67: 绑定拖拽事件
   setTimeout(function(){_bindWPDragEvents();},50);

@@ -6,8 +6,8 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.6.1.j56">
-<!-- cache-bust: 2026-07-22-07-53 -->
+<meta name="version" content="V0.6.1.j57">
+<!-- cache-bust: 2026-07-22-08-26 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json?v=bc">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2101,6 +2101,15 @@ body{
 /* 周行动项：页面纵向滚动与表格横向滚动彻底分离，非表格区域不再跟随横滑。 */
 .wp-page-scroll{flex:1;min-width:0;overflow-y:auto;overflow-x:hidden;padding:0 24px 20px;background:#FBF8F3;scroll-behavior:smooth}
 .wp-table-x-scroll{min-width:0;overflow-x:auto;overflow-y:visible;background:#FBF8F3;border-top:1px solid var(--border);border-bottom:1px solid var(--border);scrollbar-gutter:stable both-edges}
+/* 周计划表头吸顶：纵向浏览时在模块页眉下持续显示，横向位置与原表同步。 */
+.wp-sticky-table-header{position:fixed;z-index:40;display:none;overflow-x:auto;overflow-y:hidden;background:#E8EAED;border-top:1px solid var(--border);border-bottom:2px solid #C5C9CE;box-shadow:0 3px 8px rgba(15,44,75,.12);pointer-events:none;scrollbar-width:none;-ms-overflow-style:none}
+.wp-sticky-table-header::-webkit-scrollbar{display:none}
+.wp-sticky-table-header.is-visible{display:block}
+.wp-sticky-table-header .wp-table-wrap{min-width:max-content;border:0;background:#E8EAED}
+.wp-sticky-table-header .wp-table{margin:0;background:#E8EAED}
+.wp-sticky-table-header .wp-table th{top:0;box-sizing:border-box}
+.wp-sticky-table-header .wp-table th:nth-child(-n+6){z-index:46}
+@media(max-width:768px){.wp-sticky-table-header{display:none!important}}
 /* 兼容合并重急视图使用的历史容器。 */
 .wp-scroll-area{flex:1;overflow:auto;padding:0 24px 16px;display:block;min-width:0;background:#FBF8F3}
 /* ★ V0.6.1dl: 下属重急事项合并视图 — 标题/工具栏左让侧栏2字距离 */
