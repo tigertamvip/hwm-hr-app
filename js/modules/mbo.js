@@ -4597,8 +4597,7 @@ function saveWPFeedback(field, value) {
 
 // ★ V0.6.1.hd / iq: 保存本周心情 — 最多选 2 种，点击同一表情可取消
 function saveWPMood(mood, el) {
-  // 表情点击会让正在编辑的任务单元格失焦；先落盘该编辑值，防止后续视图刷新覆盖输入内容。
-  if(_wpEditCell)commitEditCell();
+  // 表情按下时已阻止焦点转移，保留正在编辑的任务单元格，避免触发其重绘流程。
   var p = _wpCurrent.plan;
   if (!p) return;
   // 读取当前心情列表（兼容旧版单值字段）
@@ -4631,8 +4630,7 @@ function saveWPMood(mood, el) {
       allEmojis[i].classList.toggle('mood-selected', moodList.indexOf(key) >= 0);
     }
   }
-  // 已在 DOM 中更新表情高亮；不调用 selectWP，避免重载本周计划并覆盖正在编辑的任务内容。
-  renderWPTable(p);
+  // 选中态已在 DOM 中更新；此处不重绘周计划，避免重建滚动容器造成页面跳动。
   showToast(moodList.length > 0 ? ('💬 已选 ' + moodList.length + ' 种心情') : '💬 心情已清除', 'info');
 }
 
