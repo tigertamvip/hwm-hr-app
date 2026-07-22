@@ -2842,42 +2842,6 @@ function renderWPTable(plan){
   // 填写参考默认收纳，避免规则与统计信息抢占任务首屏。
   html+=_renderTimeManagementPanel(plan);
 
-  var completed=0,progress=0,hasPlan=0,hasActual=0,overdue=0;
-  var todayStr=_getTodayStr();
-  for(var i=0;i<plan.tasks.length;i++){
-    var t=plan.tasks[i];
-    if(t.status==='✓完成'||t.status==='按时完成')completed++;
-    else if(t.status==='⚙推进中'||t.status==='进行中')progress++;
-    var pd=t.plannedDate||'';
-    if(pd){ hasPlan++; if(pd<todayStr&&t.status!=='✓完成'&&t.status!=='按时完成')overdue++; }
-    var ad=t.actualDate||'';
-    if(ad)hasActual++;
-  }
-  // ★ V0.1.49: 任务得分合计
-  var _taskTotal=0;if(plan._taskScores){for(var tsi=0;tsi<plan._taskScores.length;tsi++)_taskTotal+=plan._taskScores[tsi]||0;}
-  var taskScoreDisplay='';if(_taskTotal!==0||plan.bossEvaluated){taskScoreDisplay=(_taskTotal>0?'+':'')+_taskTotal;}
-
-  html+='<div class="wp-summary-bar">';
-  html+='<div class="wp-summary-item"><span class="wp-summary-label">✅ 完成：</span><span class="wp-summary-value">'+completed+'</span></div>';
-  html+='<div class="wp-summary-item"><span class="wp-summary-label">⚙ 推进：</span><span class="wp-summary-value">'+progress+'</span></div>';
-  html+='<div class="wp-summary-item"><span class="wp-summary-label">📅 已排期：</span><span class="wp-summary-value">'+hasPlan+'</span></div>';
-  html+='<div class="wp-summary-item"><span class="wp-summary-label">🏁 已完成：</span><span class="wp-summary-value">'+hasActual+'</span></div>';
-  html+='<div class="wp-summary-item"><span class="wp-summary-label">⚠️ 逾期：</span><span class="wp-summary-value" style="color:'+(overdue>0?'var(--danger)':'var(--success)')+'">'+overdue+'</span></div>';
-  // ★ V0.1.49: 任务完成积分
-  if(_taskTotal!==0||plan.bossEvaluated){
-    var tsColor='#2A476A';
-    var tsSign=_taskTotal>0?'+':'';
-    html+='<div class="wp-summary-item"><span class="wp-summary-label">📊 任务积分：</span><span class="wp-summary-value" style="color:'+tsColor+'">'+tsSign+_taskTotal+'</span></div>';
-  }
-  // ★ V0.6.1.hh: 上级评级显示
-  var ratingRead=plan.weeklyRating||'';
-  if(ratingRead){
-    var ratingMap={gold:{emoji:'🥇',label:'金牌',val:'+2'},silver:{emoji:'🥈',label:'银牌',val:'+1'},bronze:{emoji:'🥉',label:'铜牌',val:'0'},warn:{emoji:'⚠️',label:'待改',val:'-1'},danger:{emoji:'⛔',label:'严重',val:'-2'}};
-    var rd=ratingMap[ratingRead];
-    if(rd) html+='<div class="wp-summary-item"><span class="wp-summary-label">🏅 评级：</span><span class="wp-summary-value">'+rd.emoji+' '+rd.label+' '+rd.val+'</span></div>';
-  }
-  html+='</div>';
-
   // ★ V0.6.1cd: 表头双击排序 — 临时替换plan.tasks为排序副本
   var _wpOrigTasks=null;
   if(_wpSort && _wpSort.col && _wpSort.dir){
