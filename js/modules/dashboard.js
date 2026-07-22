@@ -96,12 +96,8 @@ var _dsData = {};
 function _dsRefreshData() {
   var now = new Date();
   var year = now.getFullYear();
-  var isoWeekNow = _getISOWeek(now);
-  // ★ V0.6.1.j86: 区分两个参考周
-  // - evalWeek = ISO 周 - 1：用于"上周周计划及时提交率"（评估完整周，避免本周未结束的全 0）
-  // - realWeek = ISO 周：用于"员工本周状态统计 (近 2 周)"，要包含用户今天保存的本周心情
-  var evalWeek = Math.max(1, isoWeekNow - 1);
-  var realWeek = isoWeekNow;
+  // ★ V0.6.1.iv: 评估周 = ISO 周 -1（不显示本周还没填的数据,改用上周数据）
+  var week = Math.max(1, _getISOWeek(now) - 1);
   var allPlans = {};
   try {
     // Step 1: 从 localStorage 读取所有 hwm_workplans_* 数据
@@ -144,27 +140,18 @@ function _dsRefreshData() {
     }
   }
   var totalUsers = Object.keys(users).length;
-  // ★ V0.6.1.ip: 月内周统计表（4-4-5 月历）
+  // ★ V0.6.1.ip: 本周统计（不再依赖外部函数，直接用 WEEKS 表）
   var MOOD_WEEKS = [4,4,5,4,4,5,4,4,5,4,4,5];
-  // ★ V0.6.1.j86: 评估周（上周，W3）→ 映射月-周
-  var evalMonthIdx = 1, evalWeekInMonth = evalWeek;
+  var curMonthIdx = 1, curWeekInMonth = week;
   for (var mi = 0; mi < 12; mi++) {
-    if (evalWeekInMonth <= MOOD_WEEKS[mi]) { evalMonthIdx = mi + 1; break; }
-    evalWeekInMonth -= MOOD_WEEKS[mi];
+    if (curWeekInMonth <= MOOD_WEEKS[mi]) { curMonthIdx = mi + 1; break; }
+    curWeekInMonth -= MOOD_WEEKS[mi];
   }
-  if (evalMonthIdx > 12) evalMonthIdx = 12;
-  if (evalWeekInMonth < 1) evalWeekInMonth = 1;
-  // ★ V0.6.1.j86: 本周（W4，realWeek）→ 映射月-周
-  var realMonthIdx = 1, realWeekInMonth = realWeek;
-  for (var mi2 = 0; mi2 < 12; mi2++) {
-    if (realWeekInMonth <= MOOD_WEEKS[mi2]) { realMonthIdx = mi2 + 1; break; }
-    realWeekInMonth -= MOOD_WEEKS[mi2];
-  }
-  if (realMonthIdx > 12) realMonthIdx = 12;
-  if (realWeekInMonth < 1) realWeekInMonth = 1;
-  // ★ V0.6.1.j86: 上周（评估周 - 1）
-  var prevMonthIdx = evalMonthIdx, prevWeekInMonth = evalWeekInMonth - 1;
-  if (prevWeekInMonth < 1) { prevMonthIdx = evalMonthIdx - 1; prevWeekInMonth = 4; }
+  if (curMonthIdx > 12) curMonthIdx = 12;
+  if (curWeekInMonth < 1) curWeekInMonth = 1;
+  // 上一周回退
+  var prevMonthIdx = curMonthIdx, prevWeekInMonth = curWeekInMonth - 1;
+  if (prevWeekInMonth < 1) { prevMonthIdx = curMonthIdx - 1; prevWeekInMonth = 4; }
   if (prevMonthIdx < 1) prevMonthIdx = 12;
 
   var planSub = 0, sumSub = 0, prevPlan = 0, prevSum = 0, ytdPlan = 0, ytdSum = 0, ytdWeeks = 0;
@@ -184,14 +171,14 @@ function _dsRefreshData() {
       var ppK = allPlans[wkId][uname];
       if (!ppK) continue;
       var planMonth = ppK.month, planWeek = ppK.week;
-      // ★ V0.6.1.j86: 计划提交率仍按"评估周"算（上周），心情状态按"近 2 周 = realWeek + evalWeek"
-      var isEvalWeek = (planYear === year && planMonth === evalMonthIdx && planWeek === evalWeekInMonth);
-      var isRealWeek = (planYear === year && planMonth === realMonthIdx && planWeek === realWeekInMonth);
-      if (isEvalWeek) {
+      // ★ V0.6.1.is: 心情统计改查"本周+上周"（避免周次边界错位导致全 0）
+      var isCurrentWeek = (planYear === year && planMonth === curMonthIdx && planWeek === curWeekInMonth);
+      var isPrevWeek = (planYear === year && planMonth === prevMonthIdx && planWeek === prevWeekInMonth);
+      if (isCurrentWeek) {
         if (ppK.submittedAt || ppK.firstSubmittedAt) planSub++;
         if (ppK.summarySubmittedAt) sumSub++;
       }
-      if (isEvalWeek || isRealWeek) {
+      if (isCurrentWeek || isPrevWeek) {
         // 心情统计 - 兼容单值和多值（多种字段名都查）
         var pMoods = [];
         if (ppK.moods && Array.isArray(ppK.moods)) pMoods = ppK.moods;
@@ -282,7 +269,7 @@ function _dsRefreshData() {
   _dsData = {
     totalUsers: totalUsers, myScore: myScore, myRank: myRank, myGold: myGold,
     myGivenGold: myGivenGold, myGivenTotal: myGivenTotal,
-    cMonth: evalMonthIdx, cWeekInMonth: evalWeekInMonth, week: evalWeek,
+    cMonth: curMonthIdx, cWeekInMonth: curWeekInMonth, week: week,
     planRate: totalUsers ? Math.round(planSub / totalUsers * 100) : 0, planSub: planSub,
     sumRate: totalUsers ? Math.round(sumSub / totalUsers * 100) : 0, sumSub: sumSub,
     prevPlanRate: totalUsers ? Math.round(prevPlan / totalUsers * 100) : 0, prevPlanSub: prevPlan,
