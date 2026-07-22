@@ -2177,6 +2177,13 @@ function _renderCollabTasksSection(plan){
 
 // ===== 协同任务系统（第2步：发起方写入 + 接收方读取）=====
 
+// ★ V0.6.1.j83: 通用占位符文字清洗 — 历史脏数据里可能存了"填写"/"选择"等作为实际值
+var WP_PLACEHOLDER_TEXT = /填写|点击填写|请选择|选择|协同人|问题|备注|上级建议|无/gi;
+function _cleanPlaceholderText(val){
+  if(!val)return '';
+  return String(val).replace(WP_PLACEHOLDER_TEXT,'').replace(/^[,，;；、\s]+|[,，;；、\s]+$/g,'').trim();
+}
+
 // 解析 supporters 字符串为结构化数组 [{uid,name,dept,status}]
 function _parseSupporters(s){
   if(!s)return [];
@@ -2202,8 +2209,8 @@ function _renderSupportersCell(plan,taskIndex,rawSupporters){
   if(plan._revisions&&plan._revisions[fieldKey]&&plan._revisions[fieldKey].value){
     displayVal=plan._revisions[fieldKey].value;
   }
-  // ★ j82: 清理可能的占位符文字（历史脏数据中可能保存了"填写"等）
-  displayVal=displayVal?displayVal.replace(/填写|点击填写|请选择|选择/g,'').trim():'';
+  // ★ j83: 使用通用清洗函数，去除历史脏数据中保存的占位符文字
+  displayVal=_cleanPlaceholderText(displayVal);
   if(!displayVal)return '<span class="wp-placeholder">协同人</span>';
   var sups=_parseSupporters(displayVal);
   if(sups.length===0)return '<span class="wp-placeholder">协同人</span>';
@@ -3088,13 +3095,18 @@ function renderWPTable(plan){
       html+='<td class="'+edCls+' col-status" data-field="tasks.'+jj+'.status" data-type="select" data-opts="'+WP_STATUS_OPTIONS.join(',')+'"'+edClick+'>'+(tt.status?_renderStatusDot(tt.status):'<span class="wp-placeholder">选择</span>')+'</td>';
       html+=_renderTaskScoreCell(plan,jj);
       html+='<td class="'+edCls+' col-supporters" data-field="tasks.'+jj+'.supporters" data-type="text"'+edClick+'>'+_renderSupportersCell(plan,jj,tt.supporters)+'</td>';
-      html+='<td class="'+edCls+' col-wide" data-field="tasks.'+jj+'.problems" data-type="textarea"'+edClick+'>'+(tt.problems||plan._revisions&&plan._revisions['tasks.'+jj+'.problems']?renderWPCellValue(plan,'tasks.'+jj+'.problems',tt.problems):(tt.problems?_h(tt.problems):'<span class="wp-placeholder">填写</span>'))+'</td>';
+      // ★ j83: 清洗 col-problems 脏数据 — 历史数据可能有"填写"作为实际值
+      var _cleanProblems=_cleanPlaceholderText(tt.problems);
+      html+='<td class="'+edCls+' col-wide" data-field="tasks.'+jj+'.problems" data-type="textarea"'+edClick+'>'+(_cleanProblems?(plan._revisions&&plan._revisions['tasks.'+jj+'.problems']?renderWPCellValue(plan,'tasks.'+jj+'.problems',_cleanProblems):_h(_cleanProblems)):'<span class="wp-placeholder">填写</span>')+'</td>';
       html+='<td class="'+edCls+' col-problemtype" data-field="tasks.'+jj+'.problemType" data-type="select" data-opts="'+WP_PROBLEM_OPTIONS.join(',')+'"'+edClick+'>'+(tt.problemType||plan._revisions&&plan._revisions['tasks.'+jj+'.problemType']?renderWPCellValue(plan,'tasks.'+jj+'.problemType',tt.problemType):(tt.problemType?_h(tt.problemType):'<span class="wp-placeholder">选择</span>'))+'</td>';
       html+='<td class="'+edCls+' col-needboss" data-field="tasks.'+jj+'.needBoss" data-type="select" data-opts="'+WP_NEEDBOSS_OPTIONS.join(',')+'"'+edClick+'>'+renderWPCellValue(plan,'tasks.'+jj+'.needBoss',tt.needBoss||'')+'</td>';
-      // ★ V0.3.36: 备注说明(员工自填，新列)
-      html+='<td class="'+edCls+' col-remarks" data-field="tasks.'+jj+'.remarks" data-type="textarea"'+edClick+'>'+(tt.remarks||plan._revisions&&plan._revisions['tasks.'+jj+'.remarks']?renderWPCellValue(plan,'tasks.'+jj+'.remarks',tt.remarks):(tt.remarks?_h(tt.remarks):'<span class="wp-placeholder">备注</span>'))+'</td>';
+      // ★ j83: 清洗 col-remarks 脏数据
+      var _cleanRemarks=_cleanPlaceholderText(tt.remarks);
+      html+='<td class="'+edCls+' col-remarks" data-field="tasks.'+jj+'.remarks" data-type="textarea"'+edClick+'>'+(_cleanRemarks?(plan._revisions&&plan._revisions['tasks.'+jj+'.remarks']?renderWPCellValue(plan,'tasks.'+jj+'.remarks',_cleanRemarks):_h(_cleanRemarks)):'<span class="wp-placeholder">备注</span>')+'</td>';
       var bossCanEdit=isMySubordinate(plan.name) || !!_wpViewingDeptMember;
-      html+='<td class="col-boss'+(bossCanEdit?' editable':'')+'"'+(bossCanEdit?' data-field="tasks.'+jj+'.bossFeedback" data-type="textarea" onclick="startEditCell(this)"':'')+'>'+(tt.bossFeedback?_h(tt.bossFeedback):(plan._revisions&&plan._revisions['tasks.'+jj+'.bossFeedback']?renderWPCellValue(plan,'tasks.'+jj+'.bossFeedback',tt.bossFeedback):'<span class="wp-placeholder">上级建议</span>'))+'</td>';
+      // ★ j83: 清洗 col-bossFeedback 脏数据
+      var _cleanBossFb=_cleanPlaceholderText(tt.bossFeedback);
+      html+='<td class="col-boss'+(bossCanEdit?' editable':'')+'"'+(bossCanEdit?' data-field="tasks.'+jj+'.bossFeedback" data-type="textarea" onclick="startEditCell(this)"':'')+'>'+(_cleanBossFb?_h(_cleanBossFb):(plan._revisions&&plan._revisions['tasks.'+jj+'.bossFeedback']?renderWPCellValue(plan,'tasks.'+jj+'.bossFeedback',tt.bossFeedback):'<span class="wp-placeholder">上级建议</span>'))+'</td>';
       html+='</tr>';
     }
     html+='<tr class="wp-section-header" style="background:#F0F9FF"><td colspan="16" style="padding:6px 12px;font-size:12px;font-weight:600;color:#0369A1;border-bottom:2px solid #BAE6FD">📝 本周新增（'+newTasks.length+'项）</td></tr>';
@@ -3141,13 +3153,18 @@ function renderWPTable(plan){
     html+='<td class="editable col-status" data-field="tasks.'+j+'.status" data-type="select" data-opts="'+WP_STATUS_OPTIONS.join(',')+'" onclick="startEditCell(this)">'+(t.status?_renderStatusDot(t.status):'<span class="wp-placeholder">选择</span>')+'</td>';
     html+=_renderTaskScoreCell(plan,j);
     html+='<td class="editable col-supporters" data-field="tasks.'+j+'.supporters" data-type="text" onclick="startEditCell(this)">'+_renderSupportersCell(plan,j,t.supporters)+'</td>';
-    html+='<td class="editable col-wide" data-field="tasks.'+j+'.problems" data-type="textarea" onclick="startEditCell(this)">'+(t.problems||plan._revisions&&plan._revisions['tasks.'+j+'.problems']?renderWPCellValue(plan,'tasks.'+j+'.problems',t.problems):(t.problems?_h(t.problems):'<span class="wp-placeholder">填写</span>'))+'</td>';
+    // ★ j83: 清洗脏数据
+    var _cleanNewProblems=_cleanPlaceholderText(t.problems);
+    html+='<td class="editable col-wide" data-field="tasks.'+j+'.problems" data-type="textarea" onclick="startEditCell(this)">'+(_cleanNewProblems?(plan._revisions&&plan._revisions['tasks.'+j+'.problems']?renderWPCellValue(plan,'tasks.'+j+'.problems',_cleanNewProblems):_h(_cleanNewProblems)):'<span class="wp-placeholder">填写</span>')+'</td>';
     html+='<td class="editable col-problemtype" data-field="tasks.'+j+'.problemType" data-type="select" data-opts="'+WP_PROBLEM_OPTIONS.join(',')+'" onclick="startEditCell(this)">'+(t.problemType||plan._revisions&&plan._revisions['tasks.'+j+'.problemType']?renderWPCellValue(plan,'tasks.'+j+'.problemType',t.problemType):(t.problemType?_h(t.problemType):'<span class="wp-placeholder">选择</span>'))+'</td>';
     html+='<td class="editable col-needboss" data-field="tasks.'+j+'.needBoss" data-type="select" data-opts="'+WP_NEEDBOSS_OPTIONS.join(',')+'" onclick="startEditCell(this)">'+renderWPCellValue(plan,'tasks.'+j+'.needBoss',t.needBoss||'')+'</td>';
     // ★ V0.3.36: 备注说明(员工自填，新列)
-    html+='<td class="editable col-remarks" data-field="tasks.'+j+'.remarks" data-type="textarea" onclick="startEditCell(this)">'+(t.remarks||plan._revisions&&plan._revisions['tasks.'+j+'.remarks']?renderWPCellValue(plan,'tasks.'+j+'.remarks',t.remarks):(t.remarks?_h(t.remarks):'<span class="wp-placeholder">备注</span>'))+'</td>';
+    // ★ j83: 清洗脏数据
+    var _cleanNewRemarks=_cleanPlaceholderText(t.remarks);
+    html+='<td class="editable col-remarks" data-field="tasks.'+j+'.remarks" data-type="textarea" onclick="startEditCell(this)">'+(_cleanNewRemarks?(plan._revisions&&plan._revisions['tasks.'+j+'.remarks']?renderWPCellValue(plan,'tasks.'+j+'.remarks',_cleanNewRemarks):_h(_cleanNewRemarks)):'<span class="wp-placeholder">备注</span>')+'</td>';
     var bossCanEdit=isMySubordinate(plan.name) || !!_wpViewingDeptMember;
-    html+='<td class="col-boss'+(bossCanEdit?' editable':'')+'"'+(bossCanEdit?' data-field="tasks.'+j+'.bossFeedback" data-type="textarea" onclick="startEditCell(this)"':'')+'>'+(t.bossFeedback?_h(t.bossFeedback):(plan._revisions&&plan._revisions['tasks.'+j+'.bossFeedback']?renderWPCellValue(plan,'tasks.'+j+'.bossFeedback',t.bossFeedback):'<span class="wp-placeholder">上级建议</span>'))+'</td>';
+    var _cleanNewBossFb=_cleanPlaceholderText(t.bossFeedback);
+    html+='<td class="col-boss'+(bossCanEdit?' editable':'')+'"'+(bossCanEdit?' data-field="tasks.'+j+'.bossFeedback" data-type="textarea" onclick="startEditCell(this)"':'')+'>'+(_cleanNewBossFb?_h(_cleanNewBossFb):(plan._revisions&&plan._revisions['tasks.'+j+'.bossFeedback']?renderWPCellValue(plan,'tasks.'+j+'.bossFeedback',t.bossFeedback):'<span class="wp-placeholder">上级建议</span>'))+'</td>';
     html+='</tr>';
   }
 
