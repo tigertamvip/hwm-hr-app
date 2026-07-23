@@ -1,5 +1,5 @@
 // 周一 8:00 已逾期
-import { isEmailEnabled, isExcluded, isPersonallyEmailEnabled, sendEmail } from "../_shared/smtp.ts";
+import { isEmailEnabled, isExcluded, isPersonallyEmailEnabled, sendEmail, SUPABASE_ANON_KEY, SUPABASE_URL } from "../_shared/smtp.ts";
 
 Deno.serve(async (_req) => {
   const enabled = await isEmailEnabled();
@@ -7,7 +7,7 @@ Deno.serve(async (_req) => {
 
   const url = "https://xgysfujnhwgevmojzkbf.supabase.co/rest/v1/hwm_employees?select=name,email";
   const res = await fetch(url, {
-    headers: { apikey: "sb_publishable_dPt0sB5D8ZQ6ZdHt6wuvyA_MkjOeknx", Authorization: "Bearer sb_publishable_dPt0sB5D8ZQ6ZdHt6wuvyA_MkjOeknx" },
+    headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` },
   });
   const employees = await res.json();
 
@@ -23,7 +23,7 @@ Deno.serve(async (_req) => {
 
     const wpRes = await fetch(
       `https://xgysfujnhwgevmojzkbf.supabase.co/rest/v1/hwm_workplans?select=plan_submitted,summary_submitted&username=eq.${encodeURIComponent(emp.name)}&week_id=eq.${weekId}`,
-      { headers: { apikey: "sb_publishable_dPt0sB5D8ZQ6ZdHt6wuvyA_MkjOeknx", Authorization: "Bearer sb_publishable_dPt0sB5D8ZQ6ZdHt6wuvyA_MkjOeknx" } }
+      { headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` } }
     );
     const plans = await wpRes.json();
     const planSubmitted = plans?.[0]?.plan_submitted;

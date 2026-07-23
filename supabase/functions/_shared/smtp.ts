@@ -4,10 +4,13 @@ import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 const SMTP_HOST = "smtp.qiye.aliyun.com";
 const SMTP_PORT = 465;
 const SMTP_USER = "hwm-ai@hwmeds.com";
-const SMTP_PASS = Deno.env.get("SMTP_PASS") || "RefHzyOyouXEmJJS";
+// ★ V0.6.3: SMTP 密码从 Supabase Edge Function Secret 读取，不再硬编码 fallback
+const _SMTP_PASS = Deno.env.get("SMTP_PASS");
+if (!_SMTP_PASS) throw new Error("SMTP_PASS environment variable is not set. Set it in Supabase Dashboard → Edge Functions → Secrets.");
 
-const SUPABASE_URL = "https://xgysfujnhwgevmojzkbf.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_dPt0sB5D8ZQ6ZdHt6wuvyA_MkjOeknx";
+export const SUPABASE_URL = "https://xgysfujnhwgevmojzkbf.supabase.co";
+// ★ V0.6.3: Supabase anon key 虽然设计为公开（publishable），但为避免 GitGuardian 告警，也走 env var
+export const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY") || "sb_publishable_dPt0sB5D8ZQ6ZdHt6wuvyA_MkjOeknx";
 
 const EXCLUDED_NAMES = ["韩铁工", "孙颖", "杨成"];
 

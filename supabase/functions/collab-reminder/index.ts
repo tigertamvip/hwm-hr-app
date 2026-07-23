@@ -1,5 +1,5 @@
 // 每日 8:00 协同超 24h 未响应提醒
-import { isEmailEnabled, isPersonallyEmailEnabled, sendEmail } from "../_shared/smtp.ts";
+import { isEmailEnabled, isPersonallyEmailEnabled, sendEmail, SUPABASE_ANON_KEY, SUPABASE_URL } from "../_shared/smtp.ts";
 
 Deno.serve(async (_req) => {
   const enabled = await isEmailEnabled();
@@ -12,7 +12,7 @@ Deno.serve(async (_req) => {
 
   // 查所有员工
   const res = await fetch("https://xgysfujnhwgevmojzkbf.supabase.co/rest/v1/hwm_employees?select=name,email", {
-    headers: { apikey: "sb_publishable_dPt0sB5D8ZQ6ZdHt6wuvyA_MkjOeknx", Authorization: "Bearer sb_publishable_dPt0sB5D8ZQ6ZdHt6wuvyA_MkjOeknx" },
+    headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` },
   });
   const employees = await res.json();
   const emailMap: Record<string, string> = {};
@@ -26,7 +26,7 @@ Deno.serve(async (_req) => {
 
     const wpRes = await fetch(
       `https://xgysfujnhwgevmojzkbf.supabase.co/rest/v1/hwm_workplans?select=collab_tasks&username=eq.${encodeURIComponent(emp.name)}&week_id=eq.${weekId}`,
-      { headers: { apikey: "sb_publishable_dPt0sB5D8ZQ6ZdHt6wuvyA_MkjOeknx", Authorization: "Bearer sb_publishable_dPt0sB5D8ZQ6ZdHt6wuvyA_MkjOeknx" } }
+      { headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` } }
     );
     const plans = await wpRes.json();
     if (!plans?.length) continue;
