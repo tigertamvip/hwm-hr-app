@@ -3365,28 +3365,8 @@ function renderWPTable(plan){
     th.style.cursor='default';
   },10);
 
-  // ★ V0.4.91q: 绑定耗时单元格蓝色角标的自定义 tooltip
-  setTimeout(function(){
-    var cells=content.querySelectorAll('.col-duration.has-duration[data-dur-tip]');
-    cells.forEach(function(cell){
-      var cellTip=null;
-      cell.addEventListener('mouseenter',function(e){
-        var tipText=cell.getAttribute('data-dur-tip')||'';
-        if(!tipText)return;
-        cellTip=document.createElement('div');
-        cellTip.className='wp-tooltip';
-        cellTip.style.whiteSpace='pre-line';
-        cellTip.textContent=tipText.replace(/&#10;/g,'\n');
-        document.body.appendChild(cellTip);
-        var r=cell.getBoundingClientRect();
-        cellTip.style.left=Math.max(8, r.left+r.width/2-cellTip.offsetWidth/2)+'px';
-        cellTip.style.top=(r.top-cellTip.offsetHeight-8)+'px';
-      });
-      cell.addEventListener('mouseleave',function(){
-        if(cellTip){cellTip.remove();cellTip=null;}
-      });
-    });
-  },10);
+  // ★ V0.6.2d: 取消耗时单元格悬停弹窗（用户反馈无实际意义）
+  // （保留 wp-grace-tip 计分规则宽限期 tooltip）
 
   // ★ V0.5.68: 绑定计分规则宽限期 tooltip
   setTimeout(function(){
