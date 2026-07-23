@@ -6,8 +6,8 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.6.1.j92">
-<!-- cache-bust: 2026-07-23-08-25 -->
+<meta name="version" content="V0.6.2a">
+<!-- cache-bust: 2026-07-23-22-16 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json?v=bc">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2616,8 +2616,8 @@ table.collab-table tbody tr:hover{background:#fffdf5}
 .sys-user-table tbody tr:hover{background:#f0f7ff}
 .sys-user-table tbody tr:last-child td{border-bottom:none}
 /* ★ V0.6.1.hs: 前7列固定（中心→下属），从"团队"开始可横向滚动 */
-.sys-user-table .sys-col-center,.sys-user-table .sys-col-dept,.sys-user-table .sys-col-name,.sys-user-table .sys-col-position,.sys-user-table .sys-col-uid,.sys-user-table .sys-col-action,.sys-user-table .sys-col-sub{position:sticky;background:var(--card);z-index:1;border-right:1px solid var(--border)}
-.sys-user-table thead .sys-col-center,.sys-user-table thead .sys-col-dept,.sys-user-table thead .sys-col-name,.sys-user-table thead .sys-col-position,.sys-user-table thead .sys-col-uid,.sys-user-table thead .sys-col-action,.sys-user-table thead .sys-col-sub{background:#3B7DB4;z-index:4}
+.sys-user-table .sys-col-center,.sys-user-table .sys-col-dept,.sys-user-table .sys-col-name,.sys-user-table .sys-col-position,.sys-user-table .sys-col-uid,.sys-user-table .sys-col-action,.sys-user-table .sys-col-sub,.sys-user-table .sys-col-email{position:sticky;background:var(--card);z-index:1;border-right:1px solid var(--border)}
+.sys-user-table thead .sys-col-center,.sys-user-table thead .sys-col-dept,.sys-user-table thead .sys-col-name,.sys-user-table thead .sys-col-position,.sys-user-table thead .sys-col-uid,.sys-user-table thead .sys-col-action,.sys-user-table thead .sys-col-sub,.sys-user-table thead .sys-col-email{background:#3B7DB4;z-index:4}
 .sys-user-table .sys-col-center{left:0px;min-width:90px}
 .sys-user-table .sys-col-dept{left:90px;min-width:100px}
 .sys-user-table .sys-col-name{left:190px;min-width:90px}
@@ -2625,7 +2625,8 @@ table.collab-table tbody tr:hover{background:#fffdf5}
 .sys-user-table .sys-col-uid{left:410px;min-width:80px}
 .sys-user-table .sys-col-action:first-of-type{left:490px;min-width:60px}
 .sys-user-table .sys-col-sub{left:560px;min-width:70px;box-shadow:2px 0 4px rgba(0,0,0,.08)}
-.sys-user-table tbody tr:hover .sys-col-center,.sys-user-table tbody tr:hover .sys-col-dept,.sys-user-table tbody tr:hover .sys-col-name,.sys-user-table tbody tr:hover .sys-col-position,.sys-user-table tbody tr:hover .sys-col-uid,.sys-user-table tbody tr:hover .sys-col-action:first-of-type,.sys-user-table tbody tr:hover .sys-col-sub{background:#f0f7ff}
+.sys-user-table .sys-col-email{min-width:100px;text-align:center}
+.sys-user-table tbody tr:hover .sys-col-center,.sys-user-table tbody tr:hover .sys-col-dept,.sys-user-table tbody tr:hover .sys-col-name,.sys-user-table tbody tr:hover .sys-col-position,.sys-user-table tbody tr:hover .sys-col-uid,.sys-user-table tbody tr:hover .sys-col-action:first-of-type,.sys-user-table tbody tr:hover .sys-col-sub,.sys-user-table tbody tr:hover .sys-col-email{background:#f0f7ff}
 .sys-col-name{min-width:80px}
 .sys-col-position{min-width:120px}
 .sys-col-uid{min-width:70px;font-family:monospace;font-size:11px}
@@ -3329,6 +3330,11 @@ function togglePortalTips(){
       <button class="btn btn-outline" onclick="sysOpenEmailConfig()" style="margin-left:8px;border-color:#7C3AED;color:#7C3AED">📧 AI邮箱配置</button>
       <!-- ★ V0.6.1.j49: 邮件通知总开关 → Supabase hwm_settings 表 -->
       <button id="sysEmailToggle" class="btn btn-outline" onclick="sysToggleEmailNotifications()" style="margin-left:8px;border-color:#059669;color:#059669;min-width:150px" title="一键关闭/开启所有邮件自动提醒">🔔 邮件通知：加载中…</button>
+      <span id="sysBulkEmailBtns" style="display:none;margin-left:8px;display:inline-flex;gap:4px;align-items:center">
+        <span style="font-size:11px;color:var(--text-hint);margin-right:2px">批量Email：</span>
+        <button class="btn btn-outline" id="sysBulkEmailOnBtn" onclick="sysBulkEmailEnable()" style="padding:4px 10px;font-size:11px;border-color:#059669;color:#059669">全部开启</button>
+        <button class="btn btn-outline" id="sysBulkEmailOffBtn" onclick="sysBulkEmailDisable()" style="padding:4px 10px;font-size:11px;border-color:#D64352;color:#D64352">全部关闭</button>
+      </span>
       <span style="display:flex;align-items:center;gap:8px;margin-left:auto">
         <div class="search-box" style="width:200px;margin:0">
           <span class="search-icon">🔍</span>
@@ -3349,6 +3355,7 @@ function togglePortalTips(){
             <th class="sys-col-uid">用户名</th>
             <th class="sys-col-action" style="width:70px">编辑</th>
             <th class="sys-col-sub">下属</th>
+            <th class="sys-col-email">📧 Email</th>
             <th class="sys-col-module">团队</th>
             <th class="sys-col-module" style="color:rgba(255,255,255,.7)">编辑档案</th>
             <th class="sys-col-module">本周任务</th>
@@ -3672,7 +3679,7 @@ var _DEFAULT_USERS={
   '张向利':{pwd:'123',name:'张向利',role:'center_head',centerKeyword:'供应链',dept:'供应链',position:'总监',permissions:_defaultPerms('center_head'),reports:_defaultReports()},
   '徐亮':{pwd:'123',name:'徐亮',role:'center_head',centerKeyword:'财务',dept:'财务部',position:'负责人',permissions:_defaultPerms('center_head'),reports:_defaultReports()},
   '孙颖':{pwd:'110088',name:'孙颖',role:'staff',dept:'人力资源部',position:'人事专员',permissions:_defaultPerms('staff'),reports:_defaultReports()},
-  '管理员':{pwd:'123',name:'管理员',role:'admin',dept:'系统',position:'管理员',permissions:_defaultPerms('admin'),reports:_defaultReports()}
+  '管理员':{pwd:'123',name:'管理员',role:'admin',dept:'系统',position:'管理员',permissions:_defaultPerms('admin'),reports:_defaultReports(),emailEnabled:false}
 };
 
 // USERS 从 localStorage 加载，回退到默认值
@@ -3786,6 +3793,12 @@ function loadUserSettings(){
         var defSubs=_DEFAULT_USERS[curUid].subordinates;
         if(!merged[curUid].subordinates||Object.keys(merged[curUid].subordinates).length===0){
           merged[curUid].subordinates=JSON.parse(JSON.stringify(defSubs));
+        }
+      }
+      // ★ V0.6.2: 为旧用户补全 emailEnabled 字段（默认 false）
+      for(var mk in merged){
+        if(merged.hasOwnProperty(mk)&&merged[mk].emailEnabled===undefined){
+          merged[mk].emailEnabled=false;
         }
       }
       syncUsersFromCloud();
@@ -6907,9 +6920,9 @@ if('serviceWorker' in navigator){
 <script src="js/modules/policies.js"></script>
 <script>
 </script>
-<script src="js/modules/mbo.js?v=j92"></script>
+<script src="js/modules/mbo.js?v=2a"></script>
 <script src="js/modules/pm.js?v=4"></script>
-<script src="js/modules/system.js?v=j44"></script>
+<script src="js/modules/system.js?v=2a"></script>
 <script src="js/modules/dashboard.js?v=j63"></script>
 <script>
 // PWA Service Worker Registration — V0.1.52 永久根治缓存

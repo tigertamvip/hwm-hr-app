@@ -41,7 +41,7 @@ function sysRenderUserTable(){
   if(filterCountEl)filterCountEl.textContent=uids.length;
   // ★ 空数据兜底显示
   if(uids.length===0){
-    tbody.innerHTML='<tr><td colspan="21" style="padding:40px 20px;color:var(--text-hint);font-size:13px;text-align:center">没有匹配的用户</td></tr>';
+    tbody.innerHTML='<tr><td colspan="22" style="padding:40px 20px;color:var(--text-hint);font-size:13px;text-align:center">没有匹配的用户</td></tr>';
     return;
   }
   var html='';
@@ -68,6 +68,8 @@ function sysRenderUserTable(){
       subLabel='<span style="font-size:11px">'+dC+'直/'+iC+'间</span>';
     }
     html+='<td class="sys-col-sub" style="text-align:center">'+subLabel+'</td>';
+    // ★ Email 开启列
+    html+='<td class="sys-col-email" style="text-align:center">'+_renderEmailCell(uid,u)+'</td>';
     for(var j=0;j<HWM_MODULES.length;j++){
       var mod=HWM_MODULES[j],on=!!perms[mod];
       var cellCls=(typeof HWM_LIVE_MODULES!=='undefined'&&!HWM_LIVE_MODULES[mod])?'sys-perm-offline':'';
@@ -87,10 +89,9 @@ function _recalcSysFixedColumns(){
   if(!table)return;
   var ths=table.querySelectorAll('thead th');
   if(ths.length<7)return;
-  var fixedClasses=['sys-col-center','sys-col-dept','sys-col-name','sys-col-position','sys-col-uid','sys-col-action','sys-col-sub'];
-  // ★ V0.6.1.gi: 用 th 的 offsetWidth（th 不会被内容撑大）作为 left 计算基准
+  var fixedClasses=['sys-col-center','sys-col-dept','sys-col-name','sys-col-position','sys-col-uid','sys-col-action','sys-col-sub','sys-col-email'];
   var cumulative=0;
-  for(var i=0;i<7;i++){
+  for(var i=0;i<fixedClasses.length;i++){
     var cls=fixedClasses[i];
     var w=80;
     for(var h=0;h<ths.length;h++){
@@ -855,7 +856,7 @@ function getRosterLookup(){
       if(e&&e.name){
         var c='',d=e.dept||'';
         if(d){var m=String(d).match(/^([^/]+)/);if(m)c=m[1];}
-        map[e.name]={center:c,dept:d};
+        map[e.name]={center:c,dept:d,email:e.email||''};
       }
     }
   }
@@ -869,6 +870,67 @@ function getRosterCenterForName(name){
 function getRosterDeptForName(name){
   var r=getRosterLookup();
   return r[name]?r[name].dept:'';
+}
+
+// ★ V0.6.2: 获取员工邮箱
+function getRosterEmailForName(name){
+  var r=getRosterLookup();
+  return r[name]?r[name].email||'':'';
+}
+
+// ★ V0.6.2: 读取全局邮件开关（优先 Supabase，回退 localStorage）
+function _getEmailGlobalEnabled(){
+  var saved=localStorage.getItem('__hwm_email_toggle__');
+  return saved!=='false';
+}
+
+// ★ V0.6.2: 渲染 Email 列单元格
+function _renderEmailCell(uid,u){
+  if(!_getEmailGlobalEnabled()){
+    return '<span style="font-size:11px;color:var(--text-hint);font-style:italic;opacity:.6">⏸ 全局已关闭</span>';
+  }
+  var email=getRosterEmailForName(u.name);
+  var checked=u.emailEnabled? 'checked':'';
+  var hint=email?'<span style="font-size:10px;color:var(--text-success)">'+_h(email)+'</span>':'<span style="font-size:10px;color:var(--text-hint)">无邮箱</span>';
+  return '<label style="display:inline-flex;align-items:center;gap:4px;cursor:pointer" onclick="event.stopPropagation()"><input type="checkbox" '+checked+' onchange="sysToggleEmailUser(\''+uid+'\')">'+hint+'</label>';
+}
+
+// ★ V0.6.2: 切换单个用户的邮件通知
+function sysToggleEmailUser(uid){
+  var u=USERS[uid];
+  if(!u)return;
+  if(!currentUser||currentUser.role!=='admin'){_showAlert('仅管理员可操作');return;}
+  u.emailEnabled=!u.emailEnabled;
+  saveUserSettings();
+  sysRenderUserTable();
+}
+
+// ★ V0.6.2: 批量开启所有用户邮件通知
+function sysBulkEmailEnable(){
+  if(!currentUser||currentUser.role!=='admin')return;
+  if(!confirm('确认要为所有授权用户开启邮件通知吗？'))return;
+  var cnt=0;
+  for(var k in USERS){if(USERS.hasOwnProperty(k)){USERS[k].emailEnabled=true;cnt++;}}
+  saveUserSettings();
+  sysRenderUserTable();
+  showToast('已为 '+cnt+' 位用户开启邮件通知');
+}
+
+// ★ V0.6.2: 批量关闭所有用户邮件通知
+function sysBulkEmailDisable(){
+  if(!currentUser||currentUser.role!=='admin')return;
+  if(!confirm('确认要关闭所有授权用户的邮件通知吗？'))return;
+  var cnt=0;
+  for(var k in USERS){if(USERS.hasOwnProperty(k)){USERS[k].emailEnabled=false;cnt++;}}
+  saveUserSettings();
+  sysRenderUserTable();
+  showToast('已关闭 '+cnt+' 位用户的邮件通知');
+}
+
+// ★ V0.6.2: 控制批量按钮的显示隐藏
+function _refreshBulkEmailBtns(enabled){
+  var wrap=document.getElementById('sysBulkEmailBtns');
+  if(wrap)wrap.style.display=enabled?'inline-flex':'none';
 }
 
 // ★ V0.6.1.j49: 邮件通知总开关 — 一键关闭/开启所有定时邮件
@@ -943,6 +1005,7 @@ function _updateEmailToggleBtn(enabled){
     btn.textContent='🔕 邮件通知：已关闭';
     btn.style.borderColor='#dc2626';btn.style.color='#dc2626';
   }
+  _refreshBulkEmailBtns(enabled);
 }
 
 // ★ V0.6.1.j49: 页面加载时同步按钮状态
