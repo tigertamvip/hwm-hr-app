@@ -69,7 +69,7 @@ function sysRenderUserTable(){
     }
     html+='<td class="sys-col-sub" style="text-align:center">'+subLabel+'</td>';
     // ★ Email 开启列
-    html+='<td class="sys-col-email" style="text-align:center">'+_renderEmailCell(uid,u)+'</td>';
+    html+='<td class="sys-col-email" style="text-align:left;padding-left:10px">'+_renderEmailCell(uid,u)+'</td>';
     for(var j=0;j<HWM_MODULES.length;j++){
       var mod=HWM_MODULES[j],on=!!perms[mod];
       var cellCls=(typeof HWM_LIVE_MODULES!=='undefined'&&!HWM_LIVE_MODULES[mod])?'sys-perm-offline':'';
@@ -895,11 +895,18 @@ function _renderEmailCell(uid,u){
   return '<label style="display:inline-flex;align-items:center;gap:4px;cursor:pointer" onclick="event.stopPropagation()"><input type="checkbox" '+checked+' onchange="sysToggleEmailUser(\''+uid+'\')">'+hint+'</label>';
 }
 
+// ★ V0.6.2: Email 操作权限检查（有 maintenance 模块权限即可操作）
+function _canManageEmail(){
+  if(!currentUser||!currentUser.name)return false;
+  var u=USERS[currentUser.name];
+  return u&&u.permissions&&u.permissions.maintenance===true;
+}
+
 // ★ V0.6.2: 切换单个用户的邮件通知
 function sysToggleEmailUser(uid){
   var u=USERS[uid];
   if(!u)return;
-  if(!currentUser||currentUser.role!=='admin'){_showAlert('仅管理员可操作');return;}
+  if(!_canManageEmail()){_showAlert('需要系统维护权限才能操作');return;}
   u.emailEnabled=!u.emailEnabled;
   saveUserSettings();
   sysRenderUserTable();
@@ -907,7 +914,7 @@ function sysToggleEmailUser(uid){
 
 // ★ V0.6.2: 批量开启所有用户邮件通知
 function sysBulkEmailEnable(){
-  if(!currentUser||currentUser.role!=='admin')return;
+  if(!_canManageEmail()){_showAlert('需要系统维护权限才能操作');return;}
   if(!confirm('确认要为所有授权用户开启邮件通知吗？'))return;
   var cnt=0;
   for(var k in USERS){if(USERS.hasOwnProperty(k)){USERS[k].emailEnabled=true;cnt++;}}
@@ -918,7 +925,7 @@ function sysBulkEmailEnable(){
 
 // ★ V0.6.2: 批量关闭所有用户邮件通知
 function sysBulkEmailDisable(){
-  if(!currentUser||currentUser.role!=='admin')return;
+  if(!_canManageEmail()){_showAlert('需要系统维护权限才能操作');return;}
   if(!confirm('确认要关闭所有授权用户的邮件通知吗？'))return;
   var cnt=0;
   for(var k in USERS){if(USERS.hasOwnProperty(k)){USERS[k].emailEnabled=false;cnt++;}}
