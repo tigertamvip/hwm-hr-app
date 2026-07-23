@@ -1971,6 +1971,7 @@ function selectWP(y,m,w){
     if(correctName && plan.name !== correctName){ plan.name = correctName; dirty=true; }
     if(correctDept && plan.dept !== correctDept){ plan.dept = correctDept; dirty=true; }
     if(correctPos && plan.position !== correctPos){ plan.position = correctPos; dirty=true; }
+    if(_clearProblemPlaceholderData(plan))dirty=true;
     // ★ V0.1.59: 确保至少1行（旧数据可能只有0行）
     while(plan.tasks.length<1){
       plan.tasks.push({seq:plan.tasks.length+1,work:'',goal:'',startDate:'',plannedDate:'',actualDate:'',estimatedHours:'',status:'',supporters:'',problems:'',problemType:'',needBoss:'',bossFeedback:'',aiSuggestion:''});
@@ -2183,6 +2184,28 @@ var WP_PLACEHOLDER_TEXT = /协同人|⏳|待响应|已接受|已拒绝|✅|❌/g
 function _cleanPlaceholderText(val){
   if(!val)return '';
   return String(val).replace(WP_PLACEHOLDER_TEXT,'').replace(/^[,，;；、\s]+|[,，;；、\s]+$/g,'').trim();
+}
+
+// “填写”是问题列的默认提示，不是用户输入。仅精确匹配时才清空，避免误伤真实内容。
+function _normalizeProblemPlaceholder(val){
+  return typeof val==='string'&&val.trim()==='填写'?'':val;
+}
+function _clearProblemPlaceholderData(plan){
+  if(!plan||!Array.isArray(plan.tasks))return false;
+  var changed=false;
+  for(var i=0;i<plan.tasks.length;i++){
+    var task=plan.tasks[i];
+    if(task&&typeof task.problems==='string'&&task.problems.trim()==='填写'){
+      task.problems='';
+      changed=true;
+    }
+    var fieldKey='tasks.'+i+'.problems';
+    if(plan._revisions&&plan._revisions[fieldKey]&&typeof plan._revisions[fieldKey].value==='string'&&plan._revisions[fieldKey].value.trim()==='填写'){
+      delete plan._revisions[fieldKey];
+      changed=true;
+    }
+  }
+  return changed;
 }
 
 // 解析 supporters 字符串为结构化数组 [{uid,name,dept,status}]
@@ -3154,9 +3177,10 @@ function renderWPTable(plan){
     html+='<td class="editable col-status" data-field="tasks.'+j+'.status" data-type="select" data-opts="'+WP_STATUS_OPTIONS.join(',')+'" onclick="startEditCell(this)">'+(t.status?_renderStatusDot(t.status):'<span style="color:#C0C0C0;font-style:italic;pointer-events:none;user-select:none">选择</span>')+'</td>';
     html+=_renderTaskScoreCell(plan,j);
     html+='<td class="editable col-supporters" data-field="tasks.'+j+'.supporters" data-type="text" onclick="startEditCell(this)">'+_renderSupportersCell(plan,j,t.supporters)+'</td>';
-    // ★ j83: 清洗脏数据
-    var _cleanNewProblems=_cleanPlaceholderText(t.problems);
-    html+='<td class="editable col-wide" data-field="tasks.'+j+'.problems" data-type="textarea" onclick="startEditCell(this)">'+(_cleanNewProblems?(plan._revisions&&plan._revisions['tasks.'+j+'.problems']?renderWPCellValue(plan,'tasks.'+j+'.problems',_cleanNewProblems):_h(_cleanNewProblems)):'<span style="color:#C0C0C0;font-style:italic;pointer-events:none;user-select:none">填写</span>')+'</td>';
+    var _problemKey='tasks.'+j+'.problems';
+    var _problemRevision=plan._revisions&&plan._revisions[_problemKey];
+    var _problemDisplay=_normalizeProblemPlaceholder(_problemRevision?_problemRevision.value:t.problems);
+    html+='<td class="editable col-wide" data-field="'+_problemKey+'" data-type="textarea" onclick="startEditCell(this)">'+(_problemDisplay?_h(_problemDisplay):'<span style="color:#C0C0C0;font-style:italic;pointer-events:none;user-select:none">填写</span>')+'</td>';
     html+='<td class="editable col-problemtype" data-field="tasks.'+j+'.problemType" data-type="select" data-opts="'+WP_PROBLEM_OPTIONS.join(',')+'" onclick="startEditCell(this)">'+(t.problemType||plan._revisions&&plan._revisions['tasks.'+j+'.problemType']?renderWPCellValue(plan,'tasks.'+j+'.problemType',t.problemType):(t.problemType?_h(t.problemType):'<span style="color:#C0C0C0;font-style:italic;pointer-events:none;user-select:none">选择</span>'))+'</td>';
     html+='<td class="editable col-needboss" data-field="tasks.'+j+'.needBoss" data-type="select" data-opts="'+WP_NEEDBOSS_OPTIONS.join(',')+'" onclick="startEditCell(this)">'+renderWPCellValue(plan,'tasks.'+j+'.needBoss',t.needBoss||'')+'</td>';
     // ★ V0.3.36: 备注说明(员工自填，新列)
@@ -4269,11 +4293,8 @@ var _EM_POS_MAP={'重要紧急':{x:'right',y:'top'},'重要不急':{x:'left',y:'
 function _renderEisenhowerMatrix(year){
   var tasks=_collectYearTasks(year);
   var html='<div class="wp-card">';
-  var toggleIcon=_matrixExpanded?'▲':'▼';
-  var toggleText=_matrixExpanded?'收起':'展开';
-  var contentStyle=_matrixExpanded?'transition:max-height 0.6s cubic-bezier(.25,.1,.25,1),opacity 0.6s cubic-bezier(.25,.1,.25,1);overflow:hidden':'transition:max-height 0.6s cubic-bezier(.25,.1,.25,1),opacity 0.6s cubic-bezier(.25,.1,.25,1);overflow:hidden;max-height:0;opacity:0';
-  html+='<div class="wp-card-title">🎯 艾森豪威尔矩阵<button type="button" onclick="toggleEisenhowerMatrix()" id="matrixToggleBtn" style="margin-left:auto;padding:2px;border:none;border-radius:6px;background:transparent;color:#D9D9D9;font-size:13px;font-weight:400;cursor:pointer;display:inline-flex;align-items:center;gap:3px;transition:all .25s ease;white-space:nowrap"><span id="matrixToggleIcon" style="color:#D9D9D9">'+toggleIcon+'</span><span id="matrixToggleText">'+toggleText+'</span></button></div>';
-  html+='<div id="matrixContent" style="'+contentStyle+'">';
+  html+='<div class="wp-card-title">🎯 艾森豪威尔矩阵</div>';
+  html+='<div>';
   if(tasks.length===0){
     html+='<div style="text-align:center;color:#9ca3af;font-size:11px;padding:40px 0">暂无年度计划数据</div>';
     html+='</div></div>'; return html;
@@ -4359,11 +4380,8 @@ function _renderAnnualProgress(year){
   }
   var allQuads=['重要紧急','重要不急','日常紧急','日常事项'];
   var totalCount=0,totalDone=0;
-  var toggleIcon = _progressExpanded ? '▲' : '▼';
-  var toggleText = _progressExpanded ? '收起' : '展开';
-  var contentStyle = _progressExpanded ? 'transition:max-height 0.6s cubic-bezier(.25,.1,.25,1),opacity 0.6s cubic-bezier(.25,.1,.25,1);overflow:hidden' : 'transition:max-height 0.6s cubic-bezier(.25,.1,.25,1),opacity 0.6s cubic-bezier(.25,.1,.25,1);overflow:hidden;max-height:0;opacity:0';
-  var html='<div class="wp-card wp-progress-card"><div class="wp-card-title">⏰ '+year+'年年度计划完成率<button type="button" onclick="toggleAnnualProgress()" id="progressToggleBtn" style="margin-left:auto;padding:2px;border:none;border-radius:6px;background:transparent;color:#D9D9D9;font-size:13px;font-weight:400;cursor:pointer;display:inline-flex;align-items:center;gap:3px;transition:all .25s ease;white-space:nowrap"><span id="progressToggleIcon" style="color:#D9D9D9">'+toggleIcon+'</span><span id="progressToggleText">'+toggleText+'</span></button></div>';
-  html+='<div id="progressContent" style="'+contentStyle+'">';
+  var html='<div class="wp-card wp-progress-card"><div class="wp-card-title">⏰ '+year+'年年度计划完成率</div>';
+  html+='<div>';
   for(var qi=0;qi<allQuads.length;qi++){
     var q=allQuads[qi];
     var total=quads[q].length;
@@ -4420,16 +4438,15 @@ function _renderTimeManagementPanel(plan){
   }
 
   var html='';
-  var _cs=function(id){return _wpCardExpanded[id]?'transition:max-height .25s ease,opacity .2s ease;overflow:hidden':'transition:max-height .25s ease,opacity .2s ease;overflow:hidden;max-height:0;opacity:0';};
-  html+='<section class="wp-overview" id="wpTimeMgmtPanel">';
+  html+='<section class="wp-overview" id="wpTimeMgmtPanel" onmouseenter="_cancelWPOverviewAutoCollapse()" onmouseleave="_scheduleWPOverviewAutoCollapse()" onfocusin="_cancelWPOverviewAutoCollapse()" onfocusout="_scheduleWPOverviewAutoCollapse()">';
   html+='<button type="button" class="wp-overview-toggle" onclick="toggleWPOverview()" aria-expanded="'+(_wpOverviewExpanded?'true':'false')+'"><span class="wp-overview-title">本周概览</span><span class="wp-overview-hint">规则、积分与进度</span><span class="wp-overview-icon" id="wpOverviewIcon">'+(_wpOverviewExpanded?'收起 ▲':'展开 ▼')+'</span></button>';
-  html+='<div class="wp-overview-content" id="wpOverviewContent" style="'+(_wpOverviewExpanded?'max-height:1080px;opacity:1':'max-height:0;opacity:0')+'">';
+  html+='<div class="wp-overview-content" id="wpOverviewContent" style="'+(_wpOverviewExpanded?'max-height:1600px;opacity:1':'max-height:0;opacity:0')+'">';
   html+='<div class="wp-cards-grid">';
 
   // ★ Card 1: 计分规则（V0.4.91 新规则）
   html+='<div class="wp-card">';
-  html+='<button type="button" class="wp-card-title" onclick="toggleWPCard(\'rules\')" aria-expanded="'+(_wpCardExpanded.rules?'true':'false')+'">计分规则 <span id="wpCardBtn_rules">'+(_wpCardExpanded.rules?'▲':'▼')+'</span></button>';
-  html+='<div id="wpCardContent_rules" style="'+_cs('rules')+'">';
+  html+='<div class="wp-card-title">计分规则</div>';
+  html+='<div>';
   html+='<table class="wp-card-table">';
   html+='<tr><td><span style="color:#059669;margin-right:6px">✓</span>周六12:00前提交上周小结</td><td class="td-val td-pos" style="color:#059669;font-weight:600">+0.5</td></tr>';
   html+='<tr><td><span style="color:#059669;margin-right:6px">✓</span>周六12:00前提交下周计划</td><td class="td-val td-pos" style="color:#059669;font-weight:600">+0.5</td></tr>';
@@ -4444,8 +4461,8 @@ function _renderTimeManagementPanel(plan){
 
   // ★ Card 2: 评分标准（V0.4.91 新分值）
   html+='<div class="wp-card">';
-  html+='<button type="button" class="wp-card-title" onclick="toggleWPCard(\'scores\')" aria-expanded="'+(_wpCardExpanded.scores?'true':'false')+'">评分标准 <span id="wpCardBtn_scores">'+(_wpCardExpanded.scores?'▲':'▼')+'</span></button>';
-  html+='<div id="wpCardContent_scores" style="'+_cs('scores')+'">';
+  html+='<div class="wp-card-title">评分标准</div>';
+  html+='<div>';
   html+='<table class="wp-card-table">';
   html+='<tr><td></td><td class="td-val" style="color:#6b7280;font-weight:400;font-size:10px">按时</td><td class="td-val" style="color:#6b7280;font-weight:400;font-size:10px">逾期</td><td class="td-val" style="color:#6b7280;font-weight:400;font-size:10px">未做</td></tr>';
   html+='<tr><td>重要紧急</td><td class="td-val td-pos">+3</td><td class="td-val td-neg">−1.5</td><td class="td-val td-neg">−5</td></tr>';
@@ -4459,8 +4476,8 @@ function _renderTimeManagementPanel(plan){
 
   // ★ Card 3: 完成状态
   html+='<div class="wp-card">';
-  html+='<button type="button" class="wp-card-title" onclick="toggleWPCard(\'status\')" aria-expanded="'+(_wpCardExpanded.status?'true':'false')+'">完成状态 <span id="wpCardBtn_status">'+(_wpCardExpanded.status?'▲':'▼')+'</span></button>';
-  html+='<div id="wpCardContent_status" style="'+_cs('status')+'">';
+  html+='<div class="wp-card-title">完成状态</div>';
+  html+='<div>';
   html+='<table class="wp-card-table">';
   html+='<tr><td style="color:#6b7280;width:32px">提交</td><td style="color:#0F2C4B">'+subTime+'</td></tr>';
   html+='</table>';
@@ -4476,8 +4493,8 @@ function _renderTimeManagementPanel(plan){
   // ★ Card 4: 年度积分（明细版）
   var netVal=scores.net||0;
   html+='<div class="wp-card">';
-  html+='<button type="button" class="wp-card-title" onclick="toggleWPCard(\'points\')" aria-expanded="'+(_wpCardExpanded.points?'true':'false')+'">'+year+'年积分 <span id="wpCardBtn_points">'+(_wpCardExpanded.points?'▲':'▼')+'</span></button>';
-  html+='<div id="wpCardContent_points" style="'+_cs('points')+'">';
+  html+='<div class="wp-card-title">'+year+'年积分</div>';
+  html+='<div>';
   // 加分项
   var tos=scores.totalOnTime||0;
   if(tos>0)html+='<div class="wp-card-score-row"><span class="wp-card-score-label">按时完成</span><span class="wp-card-score-val" style="color:#059669">+'+tos+'</span></div>';
@@ -5123,18 +5140,36 @@ function calcAverage(arr) {
 // 增强版 AI 评估（异步，加载历史数据）
 // ★ V0.3.36: AI 综合分析折叠/展开
 var _aiExpanded = false;
-var _progressExpanded = false;
-var _matrixExpanded = false;
 var _wpOverviewExpanded = false;
-var _wpCardExpanded = {rules:false,scores:false,status:false,points:false};
-function toggleWPOverview(){
-  _wpOverviewExpanded=!_wpOverviewExpanded;
+var _wpOverviewAutoCollapseTimer = null;
+function toggleWPOverview(forceState){
+  _wpOverviewExpanded=typeof forceState==='boolean'?forceState:!_wpOverviewExpanded;
   var content=document.getElementById('wpOverviewContent');
   var icon=document.getElementById('wpOverviewIcon');
+  var toggle=document.querySelector('#wpTimeMgmtPanel .wp-overview-toggle');
   if(!content)return;
-  content.style.maxHeight=_wpOverviewExpanded?'1080px':'0';
-  content.style.opacity=_wpOverviewExpanded?'1':'0';
+  if(_wpOverviewExpanded){
+    content.style.maxHeight=content.scrollHeight+'px';
+    content.style.opacity='1';
+  }else{
+    content.style.maxHeight=content.scrollHeight+'px';
+    requestAnimationFrame(function(){content.style.maxHeight='0';content.style.opacity='0';});
+  }
   if(icon)icon.textContent=_wpOverviewExpanded?'收起 ▲':'展开 ▼';
+  if(toggle)toggle.setAttribute('aria-expanded',_wpOverviewExpanded?'true':'false');
+  if(!_wpOverviewExpanded)_cancelWPOverviewAutoCollapse();
+}
+function _cancelWPOverviewAutoCollapse(){
+  if(_wpOverviewAutoCollapseTimer){clearTimeout(_wpOverviewAutoCollapseTimer);_wpOverviewAutoCollapseTimer=null;}
+}
+function _scheduleWPOverviewAutoCollapse(){
+  _cancelWPOverviewAutoCollapse();
+  if(!_wpOverviewExpanded||!window.matchMedia||!window.matchMedia('(hover:hover)').matches)return;
+  _wpOverviewAutoCollapseTimer=setTimeout(function(){
+    var panel=document.getElementById('wpTimeMgmtPanel');
+    if(!panel||panel.matches(':hover')||panel.contains(document.activeElement))return;
+    toggleWPOverview(false);
+  },5000);
 }
 function toggleAIAnalysis(){
   _aiExpanded = !_aiExpanded;
@@ -5161,97 +5196,6 @@ function toggleAIAnalysis(){
     el.style.marginTop = '-8px';
     icon.textContent = '▼';
     text.textContent = '展开';
-  }
-}
-// ★ V0.5.26: 年度达成率折叠/展开
-function toggleAnnualProgress(){
-  _progressExpanded = !_progressExpanded;
-  var el = document.getElementById('progressContent');
-  var icon = document.getElementById('progressToggleIcon');
-  var text = document.getElementById('progressToggleText');
-  if(!el) return;
-  if(_progressExpanded){
-    el.style.maxHeight = '200px'; // annual progress
-    el.style.opacity = '1';
-    icon.textContent = '▲';
-    text.textContent = '收起';
-  }else{
-    el.style.maxHeight = '0';
-    el.style.opacity = '0';
-    icon.textContent = '▼';
-    text.textContent = '展开';
-  }
-  _updateAutoCollapseForWPCards(); // ★ V0.5.175b
-}
-// ★ V0.5.27: 艾森豪威尔矩阵折叠/展开（联动4张计分卡）
-function toggleEisenhowerMatrix(){
-  _matrixExpanded = !_matrixExpanded;
-  var el = document.getElementById('matrixContent');
-  var icon = document.getElementById('matrixToggleIcon');
-  var text = document.getElementById('matrixToggleText');
-  if(!el) return;
-  if(_matrixExpanded){
-    el.style.maxHeight = '400px';
-    el.style.opacity = '1';
-    icon.textContent = '▲';
-    text.textContent = '收起';
-    // ★ V0.6.1dr: 同步展开4张计分卡
-    ['rules','scores','status','points'].forEach(function(id){
-      _wpCardExpanded[id]=true;
-      var cel=document.getElementById('wpCardContent_'+id);
-      var cbtn=document.getElementById('wpCardBtn_'+id);
-      if(cel){cel.style.maxHeight='300px';cel.style.opacity='1';}
-      if(cbtn)cbtn.textContent='▲';
-    });
-  }else{
-    el.style.maxHeight = '0';
-    el.style.opacity = '0';
-    icon.textContent = '▼';
-    text.textContent = '展开';
-    // ★ V0.6.1dr: 同步收起4张计分卡
-    ['rules','scores','status','points'].forEach(function(id){
-      _wpCardExpanded[id]=false;
-      var cel=document.getElementById('wpCardContent_'+id);
-      var cbtn=document.getElementById('wpCardBtn_'+id);
-      if(cel){cel.style.maxHeight='0';cel.style.opacity='0';}
-      if(cbtn)cbtn.textContent='▼';
-    });
-  }
-  _updateAutoCollapseForWPCards(); // ★ V0.5.175b
-}
-// ★ V0.5.28: 通用卡片折叠/展开
-function toggleWPCard(cardId){
-  _wpCardExpanded[cardId] = !_wpCardExpanded[cardId];
-  var el = document.getElementById('wpCardContent_'+cardId);
-  var btn = document.getElementById('wpCardBtn_'+cardId);
-  if(!el) return;
-  if(_wpCardExpanded[cardId]){
-    el.style.maxHeight = '300px';
-    el.style.opacity = '1';
-    if(btn) btn.textContent = '▲';
-  }else{
-    el.style.maxHeight = '0';
-    el.style.opacity = '0';
-    if(btn) btn.textContent = '▼';
-  }
-  // ★ V0.5.175: 更新自动收起监听
-  _updateAutoCollapseForWPCards();
-}
-// ★ V0.5.175: 时间管理卡片自动收起监听（修正：纳入所有展开状态）
-function _updateAutoCollapseForWPCards(){
-  var panel=document.getElementById('wpTimeMgmtPanel');
-  if(!panel)return;
-  var anyExpanded=false;
-  for(var k in _wpCardExpanded){if(_wpCardExpanded[k]){anyExpanded=true;break;}}
-  if(!anyExpanded)anyExpanded=!!_matrixExpanded;  // 艾森豪威尔矩阵
-  if(!anyExpanded)anyExpanded=!!_progressExpanded;  // 年度计划完成率
-  if(anyExpanded){
-    panel.onmouseenter=function(){if(typeof _stopAutoCollapse==='function')_stopAutoCollapse();};
-    panel.onmouseleave=function(){if(typeof _startAutoCollapse==='function')_startAutoCollapse();};
-  }else{
-    panel.onmouseenter=null;
-    panel.onmouseleave=null;
-    if(typeof _stopAutoCollapse==='function')_stopAutoCollapse();
   }
 }
 var _yearGridExpanded = true;
