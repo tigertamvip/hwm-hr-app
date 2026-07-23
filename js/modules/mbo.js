@@ -5305,12 +5305,16 @@ async function aiAssessWP() {
       }
 
       // 📈 历史对比
-      if (history.length > 0) {
+      // ★ V0.6.2c: 排序取最近 8 周 + 仅保留有效字段的项，避免脏数据造成「过去 N 千周」误显示
+      var validHistory = history.filter(function(hw){return hw && hw.year && hw.week;})
+        .sort(function(a,b){return (b.year*100+(+b.week||0)) - (a.year*100+(+a.week||0));})
+        .slice(0,8);
+      if (validHistory.length > 0) {
         analysis.push('');
         analysis.push('【📈 历史对比】');
         var histComp = 0, histTotal = 0;
-        for (var i = 0; i < history.length; i++) {
-          var hw = history[i];
+        for (var i = 0; i < validHistory.length; i++) {
+          var hw = validHistory[i];
           if (hw && hw.tasks) {
             for (var j = 0; j < hw.tasks.length; j++) {
               if (hw.tasks[j].work && hw.tasks[j].work.trim()) { histTotal++; if (hw.tasks[j].status === '按时完成' || hw.tasks[j].status === '逾期完成') histComp++; }
@@ -5319,7 +5323,7 @@ async function aiAssessWP() {
         }
         if (histTotal > 0) {
           var histRate = Math.round(histComp / histTotal * 100);
-          analysis.push('过去 ' + history.length + ' 周平均完成率：' + histRate + '%（' + histComp + '/' + histTotal + '项）');
+          analysis.push('过去 ' + validHistory.length + ' 周平均完成率：' + histRate + '%（' + histComp + '/' + histTotal + '项）');
           if (compRate < histRate - 20) analysis.push('⚠️ 本周完成率明显低于历史平均，需关注。');
         }
       }
