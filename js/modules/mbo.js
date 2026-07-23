@@ -4066,6 +4066,11 @@ function _saveAnnualScores(uid,year,scores){
 }
 
 // ★ V0.1.35: 计算本周得分
+// ★ V0.6.2f: 试用期豁免 — 2026-08-01 12:00 前不计提交评分（不奖不扣）
+// 必须声明在函数外（模块作用域），_calcWeekScore 与 _renderTimeManagementPanel 都要用
+var _SCORE_TRIAL_CUTOFF=new Date('2026-08-01T12:00:00').getTime();
+function _isScoreTrialPeriod(){return Date.now()<_SCORE_TRIAL_CUTOFF;}
+
 function _calcWeekScore(plan){
   if(!plan||!plan.year)return;
   var uid=getViewedUserEmp().name||(currentUser&&currentUser.name);
@@ -4092,15 +4097,13 @@ function _calcWeekScore(plan){
     if(ews.summaryStatus==='late')existingLateCount++;
   }
 
-  // ★ V0.6.2e: 试用期豁免 — 2026-08-01 12:00 前不计提交评分（不奖不扣）
-  var _SCORE_TRIAL_CUTOFF=new Date('2026-08-01T12:00:00').getTime();
-  var _isScoreTrialPeriod=Date.now()<_SCORE_TRIAL_CUTOFF;
+  // ★ V0.6.2e: 试用期豁免（_isScoreTrialPeriod 已声明为模块级函数）
 
   // ★ V0.6.1.iy: 法定节假日豁免 — 周六截止日恰逢法定节假日，免除扣分
   if(_isDeadlineHoliday(plan.year,plan.month,plan.week))plan.exempted=true;
 
   // ★ V0.6.1.iy: 提交评分（对齐制度 — 按时+0.5，未按时-1，第4次起-2）
-  if(subStatus==='exempted'||_isScoreTrialPeriod){
+  if(subStatus==='exempted'||_isScoreTrialPeriod()){
     // 试用期 / 法定节假日豁免，不加分也不扣分
   }else if(subStatus==='on_time'){weekScore+=0.5;onTimeSubmitScore=0.5;}
   else if(subStatus==='late'&&plan.firstSubmittedAt){
@@ -4110,7 +4113,7 @@ function _calcWeekScore(plan){
   }
 
   // ★ V0.6.1.iy: 小结提交评分（按时+0.5，未按时同规则）
-  if(sumStatus==='exempted'||_isScoreTrialPeriod){
+  if(sumStatus==='exempted'||_isScoreTrialPeriod()){
     // 试用期 / 法定节假日豁免
   }else if(sumStatus==='on_time'){weekScore+=0.5;/* 小结按时得分已在制度统一合并为+0.5 */}
   else if(sumStatus==='late'&&plan.summarySubmittedAt){
@@ -4479,7 +4482,7 @@ function _renderTimeManagementPanel(plan){
   html+='<div class="wp-card">';
   html+='<div class="wp-card-title">'+year+'年积分</div>';
   // ★ V0.6.2e: 试用期提示（8/1 12:00 前不计算提交评分）
-  if(_isScoreTrialPeriod){
+  if(_isScoreTrialPeriod()){
     html+='<div style="font-size:10px;color:#92400e;background:#FEF3C7;padding:6px 8px;border-radius:6px;margin-bottom:6px;line-height:1.4">⏳ 试用期（至 2026-08-01 12:00），提交评分暂停</div>';
   }
   html+='<div>';
