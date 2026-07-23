@@ -3376,7 +3376,7 @@ function renderWPTable(plan){
     graceEl.addEventListener('mouseenter',function(){
       graceTip=document.createElement('div');
       graceTip.className='wp-tooltip';
-      graceTip.textContent='当工作逾期未完成，逾期未到5个工作日时 → 系统状态标注为「逾期完成」，超过5个工作日 → 系统自动判定为「未做」并扣较高分值。具体分值参见右侧「评分标准」。';
+      graceTip.textContent='当工作逾期未完成，逾期未到5个工作日时 → 系统状态标注为「逾期完成」，超过5个工作日 → 系统自动判定为「未做」并扣较高分值。具体分值参见右侧「评分标准」。\n\n【试用期提示】2026-08-01 12:00 前为员工试用期，提交评分（按时奖/延迟扣分）暂停计算；任务完成评分不受影响。';
       document.body.appendChild(graceTip);
       var r=graceEl.getBoundingClientRect();
       graceTip.style.left=Math.max(8, r.left+r.width/2-graceTip.offsetWidth/2)+'px';
@@ -4092,12 +4092,16 @@ function _calcWeekScore(plan){
     if(ews.summaryStatus==='late')existingLateCount++;
   }
 
+  // ★ V0.6.2e: 试用期豁免 — 2026-08-01 12:00 前不计提交评分（不奖不扣）
+  var _SCORE_TRIAL_CUTOFF=new Date('2026-08-01T12:00:00').getTime();
+  var _isScoreTrialPeriod=Date.now()<_SCORE_TRIAL_CUTOFF;
+
   // ★ V0.6.1.iy: 法定节假日豁免 — 周六截止日恰逢法定节假日，免除扣分
   if(_isDeadlineHoliday(plan.year,plan.month,plan.week))plan.exempted=true;
 
   // ★ V0.6.1.iy: 提交评分（对齐制度 — 按时+0.5，未按时-1，第4次起-2）
-  if(subStatus==='exempted'){
-    // 法定节假日豁免，不加分也不扣分
+  if(subStatus==='exempted'||_isScoreTrialPeriod){
+    // 试用期 / 法定节假日豁免，不加分也不扣分
   }else if(subStatus==='on_time'){weekScore+=0.5;onTimeSubmitScore=0.5;}
   else if(subStatus==='late'&&plan.firstSubmittedAt){
     existingLateCount++;
@@ -4106,8 +4110,8 @@ function _calcWeekScore(plan){
   }
 
   // ★ V0.6.1.iy: 小结提交评分（按时+0.5，未按时同规则）
-  if(sumStatus==='exempted'){
-    // 法定节假日豁免
+  if(sumStatus==='exempted'||_isScoreTrialPeriod){
+    // 试用期 / 法定节假日豁免
   }else if(sumStatus==='on_time'){weekScore+=0.5;/* 小结按时得分已在制度统一合并为+0.5 */}
   else if(sumStatus==='late'&&plan.summarySubmittedAt){
     existingLateCount++;
@@ -4474,6 +4478,10 @@ function _renderTimeManagementPanel(plan){
   var netVal=scores.net||0;
   html+='<div class="wp-card">';
   html+='<div class="wp-card-title">'+year+'年积分</div>';
+  // ★ V0.6.2e: 试用期提示（8/1 12:00 前不计算提交评分）
+  if(_isScoreTrialPeriod){
+    html+='<div style="font-size:10px;color:#92400e;background:#FEF3C7;padding:6px 8px;border-radius:6px;margin-bottom:6px;line-height:1.4">⏳ 试用期（至 2026-08-01 12:00），提交评分暂停</div>';
+  }
   html+='<div>';
   // 加分项
   var tos=scores.totalOnTime||0;
