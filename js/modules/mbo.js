@@ -2005,7 +2005,7 @@ function selectWP(y,m,w){
 }
 
 // ★ V0.6.3b: 「转入上周未结项」— 仅当用户正在下周时可用
-function carryForwardLastWeek(){
+async function carryForwardLastWeek(){
   var today=new Date();
   var todayY=today.getFullYear(), todayM=today.getMonth()+1;
   var todayW=Math.min(4,Math.ceil(today.getDate()/7));
@@ -2020,7 +2020,7 @@ function carryForwardLastWeek(){
 
   // ★ 边界保护：仅允许「自然下周」
   if(selAW!==nextAW){
-    _showAlert('该功能仅支持合并新建日历周的下周行动计划表。\n\n请先切换到下周（'+(nextMW.month)+'月第'+nextMW.week+'周）后再使用此功能。\n（您当前在第'+selM+'月第'+selW+'周）','⚠️ 功能仅限下周使用',true);
+    await _showAlert('该功能仅支持日历周下一周的周计划转入，不支持下一周之后的周计划转入。\n\n请先切换到下周（'+nextMW.month+'月第'+nextMW.week+'周）后再使用此功能。\n（您当前在第'+selM+'月第'+selW+'周）','⚠️ 功能仅限日历周下一周',true);
     return;
   }
 
@@ -2033,7 +2033,7 @@ function carryForwardLastWeek(){
     _wpCurrent={year:selY,month:selM,week:selW,plan:plan};
     // 如果计划已存在且有内容，追加而非覆盖
     if(plan.tasks&&plan.tasks.length>0){
-      var ok=confirm('本周已有 '+plan.tasks.length+' 项行动项，是否仍然转入上周未结项？\n\n转入的事项将追加到现有列表末尾。');
+      var ok=await _showConfirm('本周已有 '+plan.tasks.length+' 项行动项，是否仍然转入上周未结项？\n\n转入的事项将追加到现有列表末尾。','提示');
       if(!ok)return;
     }
   }else{
