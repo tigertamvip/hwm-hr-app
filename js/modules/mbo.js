@@ -3333,11 +3333,19 @@ function renderWPTable(plan){
 
   content.insertAdjacentHTML('beforeend',html);
 
-  // 恢复各自滚动位置：页面仅纵向滚动，表格仅横向滚动。
+  // V0.6.3a: 编辑单元格会重绘周计划表。连续两帧锁定滚动位置，避免旧容器移除后浏览器
+  // 滚动锚点与 smooth scroll 介入，造成页面上下跳动或横向回弹。
   var _newPageScroll=content.querySelector('.wp-page-scroll');
   var _newTableScroll=content.querySelector('.wp-table-x-scroll');
-  if(_newPageScroll&&_savedScrollTop>0)_newPageScroll.scrollTop=_savedScrollTop;
-  if(_newTableScroll&&_savedScrollLeft>0)_newTableScroll.scrollLeft=_savedScrollLeft;
+  function _restoreWPScrollPosition(){
+    if(_newPageScroll)_newPageScroll.scrollTop=_savedScrollTop;
+    if(_newTableScroll)_newTableScroll.scrollLeft=_savedScrollLeft;
+  }
+  _restoreWPScrollPosition();
+  requestAnimationFrame(function(){
+    _restoreWPScrollPosition();
+    requestAnimationFrame(_restoreWPScrollPosition);
+  });
 
   // 周计划表头吸顶：克隆表头，随页面纵滚显示并与任务表横滚同步。
   _bindWPStickyTableHeader(content);
