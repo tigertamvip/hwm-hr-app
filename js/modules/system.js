@@ -913,9 +913,9 @@ function sysToggleEmailUser(uid){
 }
 
 // ★ V0.6.2: 批量开启所有用户邮件通知
-function sysBulkEmailEnable(){
-  if(!_canManageEmail()){_showAlert('需要系统维护权限才能操作');return;}
-  if(!confirm('确认要为所有授权用户开启邮件通知吗？'))return;
+async function sysBulkEmailEnable(){
+  if(!_canManageEmail()){await _showAlert('需要系统维护权限才能操作','',true);return;}
+  if(!await _showConfirm('确认要为所有授权用户开启邮件通知吗？','批量开启邮件通知'))return;
   var cnt=0;
   for(var k in USERS){if(USERS.hasOwnProperty(k)){USERS[k].emailEnabled=true;cnt++;}}
   saveUserSettings();
@@ -924,9 +924,9 @@ function sysBulkEmailEnable(){
 }
 
 // ★ V0.6.2: 批量关闭所有用户邮件通知
-function sysBulkEmailDisable(){
-  if(!_canManageEmail()){_showAlert('需要系统维护权限才能操作');return;}
-  if(!confirm('确认要关闭所有授权用户的邮件通知吗？'))return;
+async function sysBulkEmailDisable(){
+  if(!_canManageEmail()){await _showAlert('需要系统维护权限才能操作','',true);return;}
+  if(!await _showConfirm('确认要关闭所有授权用户的邮件通知吗？','批量关闭邮件通知'))return;
   var cnt=0;
   for(var k in USERS){if(USERS.hasOwnProperty(k)){USERS[k].emailEnabled=false;cnt++;}}
   saveUserSettings();
@@ -975,7 +975,7 @@ async function sysToggleEmailNotifications(){
     var confirmMsg=nw?
       '确认要开启邮件自动预警通知功能吗？':
       '确认要关闭邮件自动预警通知功能吗？';
-    if(!confirm(confirmMsg)){
+    if(!await _showConfirm(confirmMsg,nw?'开启邮件通知':'关闭邮件通知')){
       _updateEmailToggleBtn(cur);
       showToast('已取消');
       _EMAIL_TOGGLE_LOADING=false;
