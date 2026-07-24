@@ -2004,50 +2004,54 @@ function selectWP(y,m,w){
   renderWPYearGrid(y);
 }
 
-function createNewWP(){
-  // ★ V0.6.1fj: 直接 y/m/w +1，年末特殊处理 52→53→下年W1
-  var y = (_wpCurrent && _wpCurrent.year) || parseInt(document.getElementById('wpYear').value)||new Date().getFullYear();
-  var m = (_wpCurrent && _wpCurrent.month) || parseInt(document.getElementById('wpMonth').value)||(new Date().getMonth()+1);
-  var w = (_wpCurrent && _wpCurrent.week) || 1;
-  var newYear=y, newM, newW;
-  if(m===12 && w===5){
-    // 年末52周 → 虚拟53周（同年12月第6周）
-    newYear=y; newM=12; newW=6;
-  }else if(m===12 && w===6){
-    // 虚拟53周 → 下年第1周
-    newYear=y+1; newM=1; newW=1;
+// ★ V0.6.3b: 「转入上周未结项」— 仅当用户正在下周时可用
+function carryForwardLastWeek(){
+  var today=new Date();
+  var todayY=today.getFullYear(), todayM=today.getMonth()+1;
+  var todayW=Math.min(4,Math.ceil(today.getDate()/7));
+  var nextAW=_absWeek(todayY,todayM,todayW)+1;
+  var nextMW=_fromAbsWeek(nextAW);
+
+  var yEl=document.getElementById('wpYear'), mEl=document.getElementById('wpMonth');
+  var selY=(_wpCurrent&&_wpCurrent.year)||(yEl?parseInt(yEl.value):todayY);
+  var selM=(_wpCurrent&&_wpCurrent.month)||(mEl?parseInt(mEl.value):todayM);
+  var selW=(_wpCurrent&&_wpCurrent.week)||1;
+  var selAW=_absWeek(selY,selM,selW);
+
+  // ★ 边界保护：仅允许「自然下周」
+  if(selAW!==nextAW){
+    _showAlert('该功能仅支持合并新建日历周的下周行动计划表。\n\n请先切换到下周（'+(nextMW.month)+'月第'+nextMW.week+'周）后再使用此功能。\n（您当前在第'+selM+'月第'+selW+'周）','⚠️ 功能仅限下周使用',true);
+    return;
+  }
+
+  // ★ 同步下拉框
+  if(yEl)yEl.value=String(selY);syncYearLabel();
+  if(mEl)mEl.value=String(selM);syncMonthLabel();
+
+  var plan=getWP(selY,selM,selW);
+  if(plan){
+    _wpCurrent={year:selY,month:selM,week:selW,plan:plan};
+    // 如果计划已存在且有内容，追加而非覆盖
+    if(plan.tasks&&plan.tasks.length>0){
+      var ok=confirm('本周已有 '+plan.tasks.length+' 项行动项，是否仍然转入上周未结项？\n\n转入的事项将追加到现有列表末尾。');
+      if(!ok)return;
+    }
   }else{
-    // 正常情况：ISO周+1
-    var mw=_fromAbsWeek(_absWeek(y,m,w)+1);
-    newM=mw.month; newW=mw.week; newYear=y;
+    plan=createEmptyPlan(selY,selM,selW);
+    saveWP(selY,selM,selW,plan);
+    _wpCurrent={year:selY,month:selM,week:selW,plan:plan};
   }
-  // 跨年时自动添加年份 option
-  var yEl = document.getElementById('wpYear');
-  if (yEl && !Array.from(yEl.options).find(function(o){return parseInt(o.value)===newYear;})) {
-    var newOpt = document.createElement('option');
-    newOpt.value = String(newYear); newOpt.textContent = newYear + '年';
-    yEl.appendChild(newOpt);
-  }
-  // 同步下拉框和标签
-  if (yEl) yEl.value = String(newYear);
-  var mEl = document.getElementById('wpMonth'); if (mEl) mEl.value = String(newM);
-  var yLbl = document.getElementById('wpYearLabel'); if (yLbl) yLbl.textContent = newYear + '年';
-  var mLbl = document.getElementById('wpMonthLabel'); if (mLbl) mLbl.textContent = newM + '月';
-  // 找或建计划
-  var plan = getWP(newYear, newM, newW);
-  if (plan) {
-    _wpCurrent = {year:newYear, month:newM, week:newW, plan:plan};
-  } else {
-    plan = createEmptyPlan(newYear, newM, newW);
-    saveWP(newYear, newM, newW, plan);
-    _autoCarryTasks(plan, newYear, newM, newW);
-    _wpCurrent = {year:newYear, month:newM, week:newW, plan:plan};
-  }
-  renderWPPlanList(newYear, newM);
+  _autoCarryTasks(plan,selY,selM,selW);
+  saveWP(selY,selM,selW,plan);
+  renderWPPlanList(selY,selM);
   renderWPTable(plan);
   renderWPUserInfo();
-  if (typeof renderWPYearGrid === 'function') renderWPYearGrid(newYear);
+  if(typeof renderWPYearGrid==='function')renderWPYearGrid(selY);
+  showToast('✅ 上周未结项已转入本周');
 }
+
+// ★ V0.6.3b 保留原函数名作为 alias（向后兼容）
+function createNewWP(){carryForwardLastWeek();}
 
 function showWPEmpty(){
   var content=document.getElementById('wpContent');
@@ -3006,9 +3010,9 @@ function renderWPTable(plan){
     }
     var isDeleteLocked=plan.firstSubmittedAt||plan.summarySubmittedAt||isLockedByBoss||plan.bossEvaluated;
     if(isDeleteLocked){
-      html+='<button class="wp-btn-delete wp-btn-disabled" title="如要删除本周行动项请先解除上级锁定或撤回提交周小结及周计划" onclick="deleteCurrentWPPlan()"><span>🗑</span> 删除周行动项</button>';
+      html+='<button class="wp-btn-delete wp-btn-disabled" title="如要清空本周行动项请先解除上级锁定或撤回提交周小结及周计划" onclick="deleteCurrentWPPlan()"><span>🗑</span> 清空本周行动</button>';
     }else{
-      html+='<button class="wp-btn-delete" onclick="deleteCurrentWPPlan()"><span>🗑</span> 删除周行动项</button>';
+      html+='<button class="wp-btn-delete" onclick="deleteCurrentWPPlan()"><span>🗑</span> 清空本周行动</button>';
     }
   // ★ j81: 工具操作前加分隔线 — 视觉分组（工作流 / 工具）
   html+='<span class="wp-toolbar-divider" aria-hidden="true"></span>';
@@ -3016,13 +3020,15 @@ function renderWPTable(plan){
   if(plan.bossEvaluated){
       html+='<button onclick="viewBossEval()"><span style="color:#2A476A">📋</span> 查看上级评价</button>';
     }
-    html+='<button id="wpAiAssessBtn" class="wp-btn-ai" onclick="aiAssessWP()" style="margin-left:auto" title="生成本周 AI 建议"><span style="font-size:14px;font-weight:700">AI</span><span>建议</span></button>';
+    html+='<button id="wpAiAssessBtn" class="wp-btn-ai" onclick="aiAssessWP()" style="margin-left:auto" title="点击生成本周 AI 综合分析"><span style="font-size:14px;font-weight:700">AI</span><span>建议</span></button>';
   }
-  // 安全兜底：确保工具栏至少有一个可见按钮（防止所有分支都未命中导致空白）
+  // 安全兜底
   if(html.indexOf('<button', html.lastIndexOf('wpToolbar')) < 0){
     html+='<button class="wp-btn-export" onclick="exportCurrentWP()"><span>📥</span> 导出周行动项</button>';
   }
   html+='</div>';
+  // ★ V0.6.3b: AI 分析进度指示器（初始隐藏）
+  html+='<div class="wp-ai-progress" id="wpAiProgress"><div class="wp-ai-progress-step" id="wpAiStep1"><span class="wp-ai-step-dot"></span> 拉取历史</div><span style="color:#A5B4FC">→</span><div class="wp-ai-progress-step" id="wpAiStep2"><span class="wp-ai-step-dot"></span> 匹配计算</div><span style="color:#A5B4FC">→</span><div class="wp-ai-progress-step" id="wpAiStep3"><span class="wp-ai-step-dot"></span> 生成建议</div></div>';
 
   // 填写参考默认收纳，避免规则与统计信息抢占任务首屏。
   html+=_renderTimeManagementPanel(plan);
@@ -4569,7 +4575,7 @@ async function deleteCurrentWPPlan(){
   showWPEmpty();
   renderWPPlanList(y,m);
   renderWPUserInfo();
-  showToast('🗑 本周行动项已彻底删除');
+  showToast('🗑 本周行动项已清空');
 }
 
 function exportCurrentWP(){
@@ -5219,10 +5225,19 @@ async function aiAssessWP() {
   if (!p) { _showAlert('请先选择一个周计划'); return; }
 
   var btn = document.getElementById('wpAiAssessBtn');
-  if (btn) { btn.disabled = true; btn.textContent = 'AI 分析中...'; }
+  var prog = document.getElementById('wpAiProgress');
+  var s1=document.getElementById('wpAiStep1'), s2=document.getElementById('wpAiStep2'), s3=document.getElementById('wpAiStep3');
+
+  // ★ V0.6.3b: 优雅动效 — 按钮变深蓝 + 三步进度条
+  if (btn) { btn.classList.add('wp-btn-ai--running'); btn.innerHTML = '<span style="font-size:14px;font-weight:700">AI</span><span>分析</span>'; }
+  if (prog) prog.classList.add('wp-ai-progress--visible');
+  if (s1) s1.classList.add('wp-ai-progress-step--active');
 
   try {
     var history = await loadWPHistory(p.name);
+    if (s1) { s1.classList.remove('wp-ai-progress-step--active'); s1.querySelector('.wp-ai-step-dot').style.animation='none'; }
+    if (s2) s2.classList.add('wp-ai-progress-step--active');
+
     var analysis = [];
     var todayStr = new Date().toISOString().slice(0, 10);
 
@@ -5304,6 +5319,9 @@ async function aiAssessWP() {
       }
 
       // 📈 历史对比
+      // ★ V0.6.3b: 进入第3步 — 生成建议
+      if (s2) s2.classList.remove('wp-ai-progress-step--active');
+      if (s3) s3.classList.add('wp-ai-progress-step--active');
       // ★ V0.6.2c: 排序取最近 8 周 + 仅保留有效字段的项，避免脏数据造成「过去 N 千周」误显示
       var validHistory = history.filter(function(hw){return hw && hw.year && hw.week;})
         .sort(function(a,b){return (b.year*100+(+b.week||0)) - (a.year*100+(+a.week||0));})
@@ -5336,13 +5354,26 @@ async function aiAssessWP() {
     }).join('\n');
     p.updatedAt = new Date().toISOString();
     saveWP(p.year, p.month, p.week, p);
-    renderWPTable(p);
 
-    if (btn) { btn.disabled = false; btn.innerHTML = '<span style="font-size:14px;font-weight:700">AI</span><span>建议</span>'; }
+    // ★ V0.6.3b: 隐藏进度条，恢复按钮状态，结果淡入
+    if (s3) { s2 && s2.classList.remove('wp-ai-progress-step--active'); s3.classList.add('wp-ai-progress-step--active'); }
+    setTimeout(function(){
+      if (prog) prog.classList.remove('wp-ai-progress--visible');
+      if (btn) { btn.classList.remove('wp-btn-ai--running'); btn.innerHTML = '<span style="font-size:14px;font-weight:700">AI</span><span>建议</span>'; }
+    }, 400);
+
+    renderWPTable(p);
+    // 给 AI 结果区域加 fade-in 类
+    setTimeout(function(){
+      var fb=document.querySelector('.wp-feedback-box');
+      if(fb) fb.classList.add('wp-feedback-box--ai-fadein');
+    }, 100);
+
     _showAlert('AI 综合分析已生成，请查看下方「🤖 AI 综合分析」区域。');
   } catch (e) {
     console.error('[AI] 分析失败:', e);
-    if (btn) { btn.disabled = false; btn.innerHTML = '<span style="font-size:14px;font-weight:700">AI</span><span>建议</span>'; }
+    if (prog) prog.classList.remove('wp-ai-progress--visible');
+    if (btn) { btn.classList.remove('wp-btn-ai--running'); btn.innerHTML = '<span style="font-size:14px;font-weight:700">AI</span><span>建议</span>'; }
     _showAlert('AI 分析失败：' + (e.message || '未知错误'));
   }
 }
