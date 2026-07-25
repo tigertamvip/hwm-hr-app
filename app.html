@@ -6,8 +6,8 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.6.3e">
-<!-- cache-bust: 2026-07-25-07-50 -->
+<meta name="version" content="V0.6.3f">
+<!-- cache-bust: 2026-07-26-06-55 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json?v=bc">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -121,12 +121,13 @@ body{
   white-space:nowrap;
   transition:opacity .15s;
 }
-.btn:active{opacity:.8}
+/* ★ V0.6.3f: Apple 风格 — 按钮 :active 用 scale(0.97) 替代 opacity */
+.btn:active{transform:scale(.97);transition:transform .1s cubic-bezier(.23,1,.32,1)}
 .btn-primary{background:var(--gold);color:var(--primary)}
 .btn-outline{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.3)}
 .modal-body .btn-outline{background:#fff;color:var(--text-secondary);border:1px solid var(--border)}
 .modal-body .btn-outline:hover{background:var(--secondary);color:var(--primary)}
-.btn-return-mbo{background:#fff;color:#3B7DB4;border:none;border-radius:8px;padding:5px 18px;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s ease;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+.btn-return-mbo{background:#fff;color:#3B7DB4;border:none;border-radius:8px;padding:5px 18px;font-size:13px;font-weight:700;cursor:pointer;transition:transform .15s cubic-bezier(.23,1,.32,1),box-shadow .15s ease,opacity .15s ease;box-shadow:0 2px 8px rgba(0,0,0,.12)}
 .btn-return-mbo:hover{background:#E8F4FE;transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.18)}
 .btn-sm{padding:5px 12px;font-size:14px}
 /* ★ V0.6.1.hs: 危险操作幽灵按钮（橙红色，导出按钮右侧，清空数据） */
@@ -344,7 +345,7 @@ body{
   max-height:80vh;
   border-radius:20px 20px 0 0;
   overflow-y:auto;
-  animation:slideUp .25s ease;
+  animation:slideUp .25s cubic-bezier(.23,1,.32,1);
 }
 .filter-panel-header{
   padding:16px 20px 12px;
@@ -673,9 +674,9 @@ body{
   overflow-y:auto;
   padding:0 0 24px;
   box-shadow:0 20px 60px rgba(0,0,0,.18);
-  animation:modalFadeIn .25s ease;
+  animation:modalFadeIn .25s cubic-bezier(.23,1,.32,1);
 }
-@keyframes modalFadeIn{from{opacity:0;transform:translateY(16px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes modalFadeIn{from{opacity:0;transform:translateY(16px) scale(.95)}to{opacity:1;transform:translateY(0) scale(1)}}
 .modal-handle{width:36px;height:5px;background:var(--border);border-radius:3px;margin:12px auto 0}
 .modal-header{padding:16px 20px 16px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:rgba(255,255,255,.82);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);z-index:1;min-height:76px;box-sizing:border-box}
 .modal-header h2{font-size:17px;font-weight:600}
@@ -788,7 +789,7 @@ body{
   border-radius:20px;
   font-size:13px;
   z-index:300;
-  animation:fadeIn .2s;
+  animation:fadeIn .2s cubic-bezier(.23,1,.32,1);
   box-shadow:0 4px 12px rgba(0,0,0,.2);
 }
 @keyframes fadeIn{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
@@ -1272,11 +1273,11 @@ body{
 .portal-info-panel .tip-en{
   opacity:0;
   transform:translateY(-6px);
-  transition:opacity 300ms ease,transform 300ms cubic-bezier(0.16,1,0.3,1);
+  transition:opacity 250ms cubic-bezier(.23,1,.32,1),transform 250ms cubic-bezier(.16,1,.3,1);
 }
-.portal-info-panel.is-open .tip-head{opacity:1;transform:translateY(0);transition-delay:140ms}
-.portal-info-panel.is-open .tip-cn{opacity:1;transform:translateY(0);transition-delay:220ms}
-.portal-info-panel.is-open .tip-en{opacity:1;transform:translateY(0);transition-delay:300ms}
+.portal-info-panel.is-open .tip-head{opacity:1;transform:translateY(0);transition-delay:100ms}
+.portal-info-panel.is-open .tip-cn{opacity:1;transform:translateY(0);transition-delay:160ms}
+.portal-info-panel.is-open .tip-en{opacity:1;transform:translateY(0);transition-delay:220ms}
 .portal-info-panel .tip-head{
   font-size:14px;
   font-weight:600;
@@ -2045,7 +2046,7 @@ body{
 .wp-back-btn{padding:10px 20px;border:none;border-radius:8px;background:rgba(109,157,57,.9);color:#fff;font-size:13px;font-weight:700;cursor:pointer;transition:all .25s cubic-bezier(.4,0,.2,1);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 2px 6px rgba(109,157,57,.25)}
 .wp-back-btn:hover{background:rgba(76,123,30,.95);color:#fff;transform:translateY(-1px);box-shadow:0 6px 16px rgba(109,157,57,.4),0 0 0 3px rgba(109,157,57,.15)}
 .wp-back-btn:active{transform:translateY(0);box-shadow:0 2px 6px rgba(109,157,57,.25)}
-.wp-btn-visibility{padding:8px 16px 8px 14px;border-radius:8px;border:1px solid #3B7DB4;background:#fff;color:#3B7DB4;font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:4px;user-select:none;transition:all .15s;width:160px}
+.wp-btn-visibility{padding:8px 16px 8px 14px;border-radius:8px;border:1px solid #3B7DB4;background:#fff;color:#3B7DB4;font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:4px;user-select:none;transition:transform .15s cubic-bezier(.23,1,.32,1),box-shadow .15s ease,background-color .15s ease,border-color .15s ease;width:160px}
 .wp-btn-visibility:hover{background:#E8F4FE;border-color:#2A6A9A;color:#2A6A9A}
 
 .wp-layout{display:flex;height:calc(100vh - 48px);overflow:hidden}
@@ -2142,7 +2143,7 @@ body{
 /* ★ V0.6.1.j90: 工具栏按钮精致化 — 统一圆角/间距/层次 */
 .wp-toolbar button{box-sizing:border-box;min-width:138px;height:38px;padding:0 14px;border:1px solid transparent;border-radius:8px;background:transparent;color:#374151;font-size:12px;cursor:pointer;transition:all .18s cubic-bezier(.4,0,.2,1);white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:6px;font-weight:600;line-height:1.2;box-shadow:0 1px 2px rgba(15,44,75,.04)}
 .wp-toolbar button:hover{transform:translateY(-1px);box-shadow:0 4px 10px rgba(15,44,75,.1)}
-.wp-toolbar button:active{transform:translateY(0);box-shadow:0 1px 2px rgba(15,44,75,.06)}
+.wp-toolbar button:active{transform:translateY(0) scale(.97);box-shadow:0 1px 2px rgba(15,44,75,.06)}
 /* 主操作：实心绿 — 提交周行动项 */
 .wp-toolbar button.wp-btn-primary{background:linear-gradient(135deg,#6D9D39 0%,#5A8530 100%);color:#fff;border-color:#5A8530;box-shadow:0 1px 3px rgba(109,157,57,.25)}
 .wp-toolbar button.wp-btn-primary:hover{background:linear-gradient(135deg,#7DAE45 0%,#6D9D39 100%);color:#fff;border-color:#4A7028;box-shadow:0 4px 12px rgba(109,157,57,.35)}
@@ -2177,19 +2178,19 @@ body{
 .wp-toolbar button.wp-btn-ai{position:relative;isolation:isolate;min-width:0;width:101px;height:42px;overflow:hidden;background:linear-gradient(135deg,#E8F4FE 0%,#D7E8FA 50%,#E8F4FE 100%);background-size:200% 100%;color:#003472;border:1px solid #9BC4EC;border-radius:8px;padding:5px 12px;font-size:11px;font-weight:700;box-shadow:0 0 0 0 rgba(27,110,196,0);animation:wpAiBreathe 4s ease-in-out infinite;display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;line-height:1.1;transition:transform .25s cubic-bezier(.16,1,.3,1),background .3s ease,border-color .3s ease,box-shadow .3s ease}
 @keyframes wpAiBreathe{0%,100%{box-shadow:0 0 0 0 rgba(27,110,196,.12);background-position:0 50%}50%{box-shadow:0 0 12px 2px rgba(27,110,196,.18);background-position:100% 50%}}
 .wp-toolbar button.wp-btn-ai::before{content:"";position:absolute;z-index:0;inset:-1px;opacity:0;background:linear-gradient(110deg,transparent 28%,rgba(255,255,255,.72) 48%,transparent 68%);transform:translateX(-115%);transition:transform .38s cubic-bezier(.16,1,.3,1),opacity .18s ease;pointer-events:none}
-.wp-toolbar button.wp-btn-ai:hover{background:linear-gradient(135deg,#D7ECFF 0%,#C5DEF8 50%,#D7ECFF 100%);background-size:200% 100%;border-color:#1B6EC4;color:#003472;box-shadow:0 5px 16px rgba(27,110,196,.22);transform:translateY(-2px) scale(1.025);animation:none}
+.wp-toolbar button.wp-btn-ai:hover{background:linear-gradient(135deg,#D7ECFF 0%,#C5DEF8 50%,#D7ECFF 100%);background-size:200% 100%;border-color:#1B6EC4;color:#003472;box-shadow:0 5px 16px rgba(27,110,196,.22);transform:translateY(-2px) scale(1.03);animation:none}
 .wp-toolbar button.wp-btn-ai:hover::before{opacity:1;transform:translateX(115%)}
 .wp-toolbar button.wp-btn-ai:focus-visible{outline:2px solid #0F7BE1;outline-offset:2px}
 .wp-toolbar button.wp-btn-ai span{position:relative;z-index:1;text-shadow:none}
 /* ★ V0.6.3b: AI 建议进度条与动效 */
-.wp-ai-progress{display:none;align-items:center;gap:8px;padding:6px 12px;margin:0 0 8px;background:linear-gradient(90deg,#EEF2FF,#E0E7FF);border:1px solid #C7D2FE;border-radius:8px;font-size:11px;color:#4338CA;animation:wpAiProgressIn .35s ease}
+.wp-ai-progress{display:none;align-items:center;gap:8px;padding:6px 12px;margin:0 0 8px;background:linear-gradient(90deg,#EEF2FF,#E0E7FF);border:1px solid #C7D2FE;border-radius:8px;font-size:11px;color:#4338CA;animation:wpAiProgressIn .3s cubic-bezier(.23,1,.32,1)}
 .wp-ai-progress.wp-ai-progress--visible{display:flex}
 @keyframes wpAiProgressIn{0%{opacity:0;transform:translateY(-4px)}100%{opacity:1;transform:translateY(0)}}
 .wp-ai-progress-step{display:flex;align-items:center;gap:4px;opacity:.4;transition:opacity .4s ease}
 .wp-ai-progress-step.wp-ai-progress-step--active{opacity:1}
 .wp-ai-progress-step .wp-ai-step-dot{width:7px;height:7px;border-radius:50%;background:#818CF8;animation:wpAiDotPulse .8s ease-in-out infinite}
 @keyframes wpAiDotPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.6)}}
-.wp-feedback-box.wp-feedback-box--ai-fadein{animation:wpAiFadeIn .5s cubic-bezier(.16,1,.3,1)}
+.wp-feedback-box.wp-feedback-box--ai-fadein{animation:wpAiFadeIn .35s cubic-bezier(.23,1,.32,1)}
 @keyframes wpAiFadeIn{0%{opacity:0;transform:translateY(12px)}100%{opacity:1;transform:translateY(0)}}
 @media (prefers-reduced-motion:reduce){.wp-toolbar button{transition:none!important}}
 .wp-toolbar button.wp-btn-freeze{background:#fff;color:#3B7DB4;border-color:#3B7DB4}
@@ -2589,7 +2590,7 @@ table.collab-table tbody tr:hover{background:#fffdf5}
 .wp-sub-select>.wp-btn-visibility{flex:0 0 auto}
 .wp-sub-select>.wp-btn-myplan{flex:0 0 auto}
 .wp-custom-select{/* position:relative removed — breaks position:fixed in child dropdown */}
-.wp-custom-trigger{padding:8px 16px 8px 14px;border-radius:8px;border:1px solid #3B7DB4;background:#fff;color:#3B7DB4;font-size:13px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;justify-content:space-between;user-select:none;transition:all .15s;width:160px}
+.wp-custom-trigger{padding:8px 16px 8px 14px;border-radius:8px;border:1px solid #3B7DB4;background:#fff;color:#3B7DB4;font-size:13px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;justify-content:space-between;user-select:none;transition:transform .15s cubic-bezier(.23,1,.32,1),box-shadow .15s ease,background-color .15s ease,border-color .15s ease;width:160px}
 .wp-custom-trigger:hover{background:#E8F4FE;border-color:#2A6A9A;color:#2A6A9A}
 .wp-custom-dropdown{position:fixed;background:rgba(252,252,253,.55);border:1px solid rgba(200,205,212,.4);border-radius:8px;box-shadow:0 4px 6px rgba(0,0,0,.04),0 10px 24px rgba(0,0,0,.08),0 24px 64px rgba(0,0,0,.06);overflow-y:auto;z-index:9999;padding:12px 16px;backdrop-filter:blur(20px) saturate(1.4);-webkit-backdrop-filter:blur(20px) saturate(1.4)}
 .wp-dropdown-scroll-hint{display:flex;align-items:center;justify-content:center;gap:4px;padding:6px 0 4px;color:#9ca3af;font-size:11px;pointer-events:none;animation:scrollHintPulse 1.5s ease-in-out infinite}
@@ -2597,7 +2598,7 @@ table.collab-table tbody tr:hover{background:#fffdf5}
 .wp-custom-option{display:flex;align-items:center;height:24px;padding:0;font-size:13px;color:#0F2C4B;cursor:pointer;white-space:nowrap;border-radius:6px;margin:0 -8px;padding:0 8px}
 .wp-custom-option:hover{background:rgba(0,0,0,.04)}
 .wp-custom-option.active{background:rgba(59,130,246,.08);font-weight:500;color:#1d4ed8}
-.wp-btn-myplan{padding:8px 16px 8px 14px;margin-left:0;border:none;border-radius:8px;background:#3B7DB4;color:#fff;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .15s;width:160px;display:inline-flex;align-items:center;justify-content:center}
+.wp-btn-myplan{padding:8px 16px 8px 14px;margin-left:0;border:none;border-radius:8px;background:#3B7DB4;color:#fff;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;transition:transform .15s cubic-bezier(.23,1,.32,1),box-shadow .15s ease,background-color .15s ease;width:160px;display:inline-flex;align-items:center;justify-content:center}
 .wp-btn-myplan:hover{background:#2A6A9A}
 
 @media(max-width:768px){
