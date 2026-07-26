@@ -124,6 +124,39 @@ var _wpCollabRequests=[];
 var _wpCollabLoadGeneration=0;
 var _wpCollabCacheKey='';
 var _wpCollabRealtimeChannel=null;
+// 后台同步可能在用户输入停顿时返回。此时绝不能整表重绘，否则会销毁正在编辑的控件。
+var _wpDeferredRenderPlan=null;
+var _wpDeferredRenderFlushInstalled=false;
+
+function _wpHasActiveEditor(){
+  var root=document.getElementById('wpContent');
+  var active=document.activeElement;
+  if(!root||!active||!root.contains(active))return false;
+  return /^(INPUT|TEXTAREA|SELECT)$/.test(active.tagName)||active.isContentEditable;
+}
+
+function _renderWPTableSafely(plan){
+  if(!plan)return false;
+  if(_wpHasActiveEditor()){
+    _wpDeferredRenderPlan=plan;
+    return false;
+  }
+  _wpDeferredRenderPlan=null;
+  renderWPTable(plan);
+  return true;
+}
+
+function _installWPDeferredRenderFlush(){
+  if(_wpDeferredRenderFlushInstalled)return;
+  _wpDeferredRenderFlushInstalled=true;
+  document.addEventListener('focusout',function(e){
+    var root=document.getElementById('wpContent');
+    if(!root||!root.contains(e.target))return;
+    setTimeout(function(){
+      if(_wpDeferredRenderPlan&&!_wpHasActiveEditor())_renderWPTableSafely(_wpDeferredRenderPlan);
+    },0);
+  },true);
+}
 
 // 下拉选项
 var WP_GOAL_OPTIONS=['重要紧急','重要不急','日常紧急','日常事项'];
@@ -257,6 +290,7 @@ function getSharedToMeList(){
 
 function initWPModule(){
   try{
+    _installWPDeferredRenderFlush();
     // ★ j75: 每次进入模块均重置共享查看状态，防止上次浏览残留导致本周任务不持久化
     _wpViewingShared=null;
     _wpViewingDeptMember=null;
@@ -586,7 +620,7 @@ function loadWPData(){
         try{if(_wpCurrent&&_wpCurrent.plan){
           var refreshed=getWP(_wpCurrent.year,_wpCurrent.month,_wpCurrent.week);
           if(refreshed)_wpCurrent.plan=refreshed;
-          renderWPTable(_wpCurrent.plan);
+          _renderWPTableSafely(_wpCurrent.plan);
         }}catch(e){}
         try{var y=_wpCurrent.year||new Date().getFullYear();var m=_wpCurrent.month||(new Date().getMonth()+1);renderWPPlanList(y,m);}catch(e){}
         try{renderWPUserInfo();}catch(e){}
@@ -635,8 +669,8 @@ function loadWPData(){
               try{if(_wpCurrent&&_wpCurrent.plan){
                 var refreshed=getWP(_wpCurrent.year,_wpCurrent.month,_wpCurrent.week);
                 if(refreshed)_wpCurrent.plan=refreshed;
-                renderWPTable(_wpCurrent.plan);
-                showToast('🔄 周计划已从云端同步最新状态');
+                _renderWPTableSafely(_wpCurrent.plan);
+                if(!_wpHasActiveEditor())showToast('🔄 周计划已从云端同步最新状态');
               }}catch(e){}
             }
           }
@@ -735,8 +769,7 @@ function saveWPData(onlyWeekId){
           if(_wpDirtyPlanVersions[savedId]===dirtyVersions[savedId])delete _wpDirtyPlanVersions[savedId];
         }
       }
-      // 显示成功提示
-      if(rows.length>0)showToast('☁️ 周计划已同步到云端 ✓');
+      // 自动保存成功保持静默，避免输入期间出现遮挡提示或抢占用户注意力。
       // ★ 协同任务同步：发起方保存周计划时，自动同步协同任务到接收方（使用冻结的计划引用）
       // 仅本人编辑自己的周计划时同步协同请求。查看/修订下属计划不能以当前登录人身份改写下属的协同关系。
       if(!_wpViewingShared&&!_wpViewingSubordinate&&!_wpViewingDeptMember&&frozenCurrent&&frozenCurrent.plan&&frozenCurrent.year){
@@ -2615,7 +2648,7 @@ async function _loadCollabRequests(){
     if(gen!==_wpCollabLoadGeneration)return;
     _wpCollabRequests=(resp.data||[]).filter(function(r){return r.owner_uid===myUid||r.receiver_uid===myUid;});
     _wpCollabCacheKey=myUid+'|'+weekId;
-    if(_wpCurrent&&_wpCurrent.plan===plan)renderWPTable(plan);
+    if(_wpCurrent&&_wpCurrent.plan===plan)_renderWPTableSafely(plan);
   }catch(e){
     // SQL 尚未执行时不回退到旧副本，避免历史孤儿任务重新可见。
     console.warn('[Collab V0.6.4] 独立请求表读取失败:',e.message);
