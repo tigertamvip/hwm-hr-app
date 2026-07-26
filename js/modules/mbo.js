@@ -127,6 +127,27 @@ var _wpCollabRealtimeChannel=null;
 // 后台同步可能在用户输入停顿时返回。此时绝不能整表重绘，否则会销毁正在编辑的控件。
 var _wpDeferredRenderPlan=null;
 var _wpDeferredRenderFlushInstalled=false;
+// 动态提示挂载在 document.body，必须脱离表格 DOM 单独回收，避免重绘后残留在屏幕上。
+var _wpActiveTooltip=null;
+
+function _clearWPTooltips(){
+  if(_wpActiveTooltip&&_wpActiveTooltip.parentNode)_wpActiveTooltip.parentNode.removeChild(_wpActiveTooltip);
+  _wpActiveTooltip=null;
+  document.querySelectorAll('.wp-tooltip').forEach(function(t){t.remove();});
+}
+
+function _showWPTooltip(anchor,text){
+  if(!anchor)return;
+  _clearWPTooltips();
+  var tip=document.createElement('div');
+  tip.className='wp-tooltip';
+  tip.textContent=text;
+  document.body.appendChild(tip);
+  _wpActiveTooltip=tip;
+  var r=anchor.getBoundingClientRect();
+  tip.style.left=Math.max(8,Math.min(window.innerWidth-tip.offsetWidth-8,r.left+r.width/2-tip.offsetWidth/2))+'px';
+  tip.style.top=Math.max(8,r.top-tip.offsetHeight-8)+'px';
+}
 
 function _wpHasActiveEditor(){
   var root=document.getElementById('wpContent');
@@ -290,6 +311,7 @@ function getSharedToMeList(){
 
 function initWPModule(){
   try{
+    _clearWPTooltips();
     _installWPDeferredRenderFlush();
     // ★ j75: 每次进入模块均重置共享查看状态，防止上次浏览残留导致本周任务不持久化
     _wpViewingShared=null;
@@ -2013,6 +2035,7 @@ async function delWPFromSidebar(y,m,w){
 }
 
 function selectWP(y,m,w){
+  _clearWPTooltips();
   // ★ V0.6.1dn: 退出合并视图时清理残留 DOM
   _wpViewingMergedUrgent=false;
   _wpViewingMergedIndirect=false;
@@ -3070,6 +3093,7 @@ function renderWPTable(plan){
   if(!plan)return;
   var content=document.getElementById('wpContent');
   if(!content)return;
+  _clearWPTooltips();
   // 页面纵向滚动与表格横向滚动分离，避免用 JS transform 补偿造成顶部区域抖动。
   var _oldPageScroll=content.querySelector('.wp-page-scroll');
   var _oldTableScroll=content.querySelector('.wp-table-x-scroll');
@@ -3521,47 +3545,29 @@ function renderWPTable(plan){
   // ★ V0.5.67: 绑定拖拽事件
   setTimeout(function(){_bindWPDragEvents();},50);
 
-  // ★ V0.4.91n: 绑定耗时表头的自定义 tooltip
+  // ★ V0.6.4e: 动态提示统一由模块级单例管理，表格重绘或视图切换时不会残留在 document.body。
   setTimeout(function(){
     var th=content.querySelector('.dur-tooltip');
     if(!th)return;
-    var tip=null;
-    th.addEventListener('mouseenter',function(e){
-      tip=document.createElement('div');
-      tip.className='wp-tooltip';
-      tip.textContent='注意：耗时统计系统已自动剔除周末及法定节假日。\n员工个人事假、病假等因素，由上级通过调整「计划完成时间」平衡。';
-      document.body.appendChild(tip);
-      var r=th.getBoundingClientRect();
-      tip.style.left=Math.max(8, r.left+r.width/2-tip.offsetWidth/2)+'px';
-      tip.style.top=(r.top-tip.offsetHeight-8)+'px';
+    th.addEventListener('mouseenter',function(){
+      _showWPTooltip(th,'注意：耗时统计系统已自动剔除周末及法定节假日。\n员工个人事假、病假等因素，由上级通过调整「计划完成时间」平衡。');
     });
-    th.addEventListener('mouseleave',function(){
-      if(tip){tip.remove();tip=null;}
-    });
+    th.addEventListener('mouseleave',_clearWPTooltips);
     th.style.cursor='default';
   },10);
 
   // ★ V0.6.2d: 取消耗时单元格悬停弹窗（用户反馈无实际意义）
   // （保留 wp-grace-tip 计分规则宽限期 tooltip）
 
-  // ★ V0.5.68: 绑定计分规则宽限期 tooltip
+  // 计分规则提示复用同一生命周期，避免两类动态提示互相叠加或在重绘后残留。
   setTimeout(function(){
     var graceEl=content.querySelector('.wp-grace-tip');
     if(!graceEl)return;
-    var graceTip=null;
     graceEl.addEventListener('mouseenter',function(){
-      graceTip=document.createElement('div');
-      graceTip.className='wp-tooltip';
-      graceTip.textContent='当工作逾期未完成，逾期未到5个工作日时 → 系统状态标注为「逾期完成」，超过5个工作日 → 系统自动判定为「未做」并扣较高分值。具体分值参见右侧「评分标准」。\n\n【试用期提示】2026-08-01 12:00 前为员工试用期，提交评分（按时奖/延迟扣分）暂停计算；任务完成评分不受影响。';
-      document.body.appendChild(graceTip);
-      var r=graceEl.getBoundingClientRect();
-      graceTip.style.left=Math.max(8, r.left+r.width/2-graceTip.offsetWidth/2)+'px';
-      graceTip.style.top=(r.top-graceTip.offsetHeight-8)+'px';
-      graceEl.style.cursor='help';
+      _showWPTooltip(graceEl,'当工作逾期未完成，逾期未到5个工作日时 → 系统状态标注为「逾期完成」，超过5个工作日 → 系统自动判定为「未做」并扣较高分值。具体分值参见右侧「评分标准」。\n\n【试用期提示】2026-08-01 12:00 前为员工试用期，提交评分（按时奖/延迟扣分）暂停计算；任务完成评分不受影响。');
     });
-    graceEl.addEventListener('mouseleave',function(){
-      if(graceTip){graceTip.remove();graceTip=null;}
-    });
+    graceEl.addEventListener('mouseleave',_clearWPTooltips);
+    graceEl.style.cursor='help';
   },10);
 
   // ★ V0.5.0: 艾森豪威尔矩阵圆点点击跳转
