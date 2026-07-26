@@ -869,6 +869,24 @@ async function forceDeleteViewedWP(){
   if(typeof showToast==='function')showToast('已强制删除 '+user+' 第'+w+'周全部周计划');
 }
 
+// 任务来源标签是渲染提示，不能写回工作正文。旧版 DOM 扫描曾把该标签一并保存，导致每次重进页面重复叠加。
+function _stripCarriedFromLabels(value){
+  return String(value||'')
+    .replace(/\s*源[：:]\d{4}年\d{1,2}月第[1-5]周(?:来)?\s*/g,' ')
+    .replace(/\n[ \t]*\n+/g,'\n')
+    .trim();
+}
+function _sanitizeCarriedTaskText(plan){
+  if(!plan||!Array.isArray(plan.tasks))return false;
+  var changed=false;
+  for(var i=0;i<plan.tasks.length;i++){
+    var task=plan.tasks[i];
+    if(!task||!task.carriedFrom||typeof task.work!=='string')continue;
+    var clean=_stripCarriedFromLabels(task.work);
+    if(clean!==task.work){task.work=clean;changed=true;}
+  }
+  return changed;
+}
 function _getPrevWeek(y,m,w){
   // 以年度周度网格为准计算紧邻上一周，不能把存在第5周的月份误判为第4周结束。
   if(w>1)return {year:y,month:m,week:w-1};
@@ -2021,6 +2039,8 @@ function selectWP(y,m,w){
     if(correctDept && plan.dept !== correctDept){ plan.dept = correctDept; dirty=true; }
     if(correctPos && plan.position !== correctPos){ plan.position = correctPos; dirty=true; }
     if(_clearProblemPlaceholderData(plan))dirty=true;
+    // 清理旧版保存流程误写进工作正文的来源标签，保留 carriedFrom 作为唯一来源元数据。
+    if(_sanitizeCarriedTaskText(plan))dirty=true;
     // ★ V0.1.59: 确保至少1行（旧数据可能只有0行）
     while(plan.tasks.length<1){
       plan.tasks.push({seq:plan.tasks.length+1,work:'',goal:'',startDate:'',plannedDate:'',actualDate:'',estimatedHours:'',status:'',supporters:'',problems:'',problemType:'',needBoss:'',bossFeedback:'',aiSuggestion:''});
@@ -3973,6 +3993,7 @@ function _wpFlushVisibleEdits(){
     var parts=field.split('.'), ti=parseInt(parts[1]), prop=parts[2];
     if(isNaN(ti)||!prop||!p.tasks[ti])continue;
     var value=control.value;
+    if(prop==='work')value=_stripCarriedFromLabels(value);
     if(prop==='supporters'){
       var chips=cell.querySelectorAll('.supporter-chip span:first-child');
       if(chips.length){
@@ -4016,6 +4037,8 @@ async function saveWPAndGoHome(){
         // 优先从textarea/input直接读，兜底读textContent
         var ctrl=cell.querySelector('input,textarea,select');
         var value=ctrl?ctrl.value:cell.textContent.replace(/点击填写|选择|点击选择日期|备注|上级建议/g,'').trim();
+        // 普通展示状态的工作单元格含来源徽章；该徽章只用于显示，绝不能被 DOM 扫描保存进 work。
+        if(prop==='work')value=_stripCarriedFromLabels(value);
         if(prop==='supporters'){
           var chips=cell.querySelectorAll('.supporter-chip span:first-child');
           if(chips.length){var names=[];for(var cx=0;cx<chips.length;cx++){var n=chips[cx].textContent.trim();if(n)names.push(n);}value=names.join(',');}
