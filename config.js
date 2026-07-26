@@ -82,6 +82,8 @@ var ACTIVE_STATUS = ['已转正','在职','正式','试用','试用期','active'
 // Supabase 数据表名（一般不需要改，除非客户有用到多项目共享表的需求）
 var SUPABASE_TABLE = 'hwm_employees';
 var SUPABASE_WP_TABLE = 'hwm_workplans';
+// 协同请求独立存储，避免周计划整份 JSON 回写导致已撤回任务复活。
+var SUPABASE_COLLAB_TABLE = 'hwm_collab_requests';
 var SUPABASE_USERS_TABLE = 'hwm_users';
 var SUPABASE_JD_TABLE = 'hwm_jobdesc';
 var SUPABASE_FAV_TABLE = 'hwm_favorites';

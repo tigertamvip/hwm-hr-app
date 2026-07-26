@@ -119,6 +119,11 @@ var _wpLastRenderKey='';
 var _wpRevisionMode=false;
 // ★ V0.6.1cd: 表头双击排序状态
 var _wpSort=null; // {col:'priority'|'startDate'|'plannedDate'|'actualDate'|'status',dir:'asc'|'desc'|null}
+// 协同请求不再嵌入周计划 JSON。该缓存仅用于当前视图渲染，云端请求记录始终为权威来源。
+var _wpCollabRequests=[];
+var _wpCollabLoadGeneration=0;
+var _wpCollabCacheKey='';
+var _wpCollabRealtimeChannel=null;
 
 // 下拉选项
 var WP_GOAL_OPTIONS=['重要紧急','重要不急','日常紧急','日常事项'];
@@ -262,6 +267,7 @@ function initWPModule(){
     if(!_wpCurrent)_wpCurrent={year:null,month:null,week:null,plan:null};
     // ★ 每次进入模块都重新加载当前用户的数据（修复切换用户后数据不刷新的bug）
     loadWPData();
+    _startCollabRealtime();
     if(!_wpInited){
       _wpInited=true;
       _wpViewingSubordinate=null;
@@ -658,6 +664,11 @@ function saveWPData(onlyWeekId){
     // ★ V0.6.1.ia: 备份 key 用 `__hwm_backup_` 前缀，避免被当作用户名
     try{localStorage.setItem('__hwm_backup__'+key,oldData);}catch(e){}
   }
+  // 新模型运行后，旧协同副本不得再随整份周计划写回云端或本地缓存。
+  for(var cleanId in _wpData){
+    _ensureCollabTaskIds(_wpData[cleanId]);
+    _stripLegacyCollabFields(_wpData[cleanId]);
+  }
   localStorage.setItem(key,JSON.stringify(_wpData));
   // ★ j80: 保存成功后清除对应周的删除标记（防止之前错误设置的 tombstone 导致下次加载时删除）
   try{
@@ -727,7 +738,8 @@ function saveWPData(onlyWeekId){
       // 显示成功提示
       if(rows.length>0)showToast('☁️ 周计划已同步到云端 ✓');
       // ★ 协同任务同步：发起方保存周计划时，自动同步协同任务到接收方（使用冻结的计划引用）
-      if(frozenCurrent&&frozenCurrent.plan&&frozenCurrent.year){
+      // 仅本人编辑自己的周计划时同步协同请求。查看/修订下属计划不能以当前登录人身份改写下属的协同关系。
+      if(!_wpViewingShared&&!_wpViewingSubordinate&&!_wpViewingDeptMember&&frozenCurrent&&frozenCurrent.plan&&frozenCurrent.year){
         _syncCollabTasks(frozenCurrent.plan,frozenUser,frozenCurrent.year,frozenCurrent.month,frozenCurrent.week).catch(function(e){
           console.warn('[Collab] syncCollabTasks failed',e.message);
         });
@@ -793,8 +805,8 @@ async function deleteWP(y,m,w,force){
   var sourceUid=(currentUser&&currentUser._uid)||user;
   // 删除来源周计划前先撤回其协同请求；清理失败则中止删除，避免接收方遗留孤儿协同任务。
   if(typeof supabase!=='undefined'&&supabase&&supabase.from){
-    try{await _clearCollabTasksFromSource(sourceUid,id);}
-    catch(e){console.error('[Collab] 删除周计划前清理协同任务失败:',e.message);if(typeof showToast==='function')showToast('⚠️ 协同任务清理失败，请重试');return false;}
+    try{await _revokeCollabRequestsFromSource(sourceUid,id);}
+    catch(e){console.error('[Collab] 删除周计划前撤回协同请求失败:',e.message);if(typeof showToast==='function')showToast('⚠️ 协同任务撤回失败，请重试');return false;}
   }
   // 先删除云端；云端失败时保留本地，避免两端状态不一致
   if(typeof supabase!=='undefined'&&supabase&&supabase.from){
@@ -1978,7 +1990,11 @@ function selectWP(y,m,w){
       dirty=true;
     }
     if(dirty) saveWP(y,m,w,plan);
+    var collabPlanChanged=_ensureCollabTaskIds(plan);
+    if(_stripLegacyCollabFields(plan))collabPlanChanged=true;
+    if(collabPlanChanged){plan.updatedAt=new Date().toISOString();saveWP(y,m,w,plan);}
     _wpCurrent.plan=plan;
+    _loadCollabRequests();
     // ★ V0.5.55: 自动清理旧数据中错误设置的 bossEvaluated（有值但无 bossEvaluatedAt）
     if(plan.bossEvaluated && !plan.bossEvaluatedAt){
       plan.bossEvaluated=false;
@@ -1996,6 +2012,8 @@ function selectWP(y,m,w){
     saveWP(y,m,w,newPlan);
     _autoCarryTasks(newPlan,y,m,w); // ★ V0.1.87: 从上周自动顺延未完成任务
     _wpCurrent.plan=newPlan;
+    // 接收方首次打开目标周会生成本地空白计划；仍须立即读取独立请求表，不能等待其先创建个人任务。
+    _loadCollabRequests();
     renderWPTable(newPlan);
   }
   renderWPPlanList(y,m);
@@ -2092,92 +2110,33 @@ function renderWPCellValue(plan, fieldKey, originalValue){
 
 // ===== 渲染协同任务独立区域 =====
 function _renderCollabTasksSection(plan){
-  var collabTasks=[];
-  if(plan&&plan.collab_tasks&&Array.isArray(plan.collab_tasks)){
-    collabTasks=plan.collab_tasks;
-    // ★ V0.6.1.ka: 过滤掉来自自己的协同任务 — 同时匹配 name + _uid + case-insensitive
-    var myName=((currentUser&&currentUser.name)||'').toString().trim().toLowerCase();
-    var myUid=((currentUser&&currentUser._uid)||'').toString().trim().toLowerCase();
-    collabTasks=collabTasks.filter(function(ct){
-      if(!ct)return false;
-      var cfName=(ct.collab_from||'').toString().trim().toLowerCase();
-      var cfUid=(ct.collab_from_uid||'').toString().trim().toLowerCase();
-      // 排除: 协同人=自己(name 或 uid 任一匹配), 或没有 collab_from 字段(脏数据)
-      if(!cfName&&!cfUid)return false;
-      if(cfName&&cfName===myName)return false;
-      if(cfUid&&cfUid===myUid)return false;
-      return true;
-    });
-    // ★ V0.1.34: 按 collab_from+work 内容去重
-    var seen={};
-    collabTasks=collabTasks.filter(function(ct){
-      if(!ct||!ct.work)return false;
-      var key=(ct.collab_from||'')+'|'+ct.work;
-      if(seen[key])return false;
-      seen[key]=true;
-      return true;
-    });
-  }
-
+  var weekId=_collabWeekId(plan.year,plan.month,plan.week);
+  var myUid=(currentUser&&currentUser._uid)||'';
+  // revoked 永不展示。即使浏览器还保留旧周计划缓存，展示层也只认独立请求表。
+  var collabTasks=_wpCollabRequests.filter(function(r){
+    return r&&r.receiver_uid===myUid&&r.week_id===weekId&&!r.revoked_at&&r.status!=='revoked';
+  });
   var html='';
-  // ★ 用 table 作为最外层 — table 默认 display:table 不会被 flex 压缩成0高度
   html+='<table id="collabTaskArea" cellspacing="0" cellpadding="0" style="width:100%;margin:20px 0 0 0;border:2px solid #f59e0b;border-radius:8px;background:#fffbeb;border-spacing:0">';
-  // header 行
-  html+='<tr><td style="padding:12px 16px;background:#fef3c7;border-bottom:2px solid #f59e0b">';
-  html+='<div style="display:flex;align-items:center;justify-content:space-between">';
-  html+='<span style="font-size:14px;color:#0F2C4B;font-weight:600">🤝 协同任务</span>';
-  if(collabTasks.length>0){
-    html+='<span style="font-size:12px;color:#b45309;background:#fde68a;padding:2px 8px;border-radius:10px;font-weight:600">'+collabTasks.length+' 项</span>';
-  }
-  html+='</div></td></tr>';
-
-  // 内容行
-  html+='<tr><td style="padding:0">';
-  if(collabTasks.length===0){
+  html+='<tr><td style="padding:12px 16px;background:#fef3c7;border-bottom:2px solid #f59e0b"><div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:14px;color:#0F2C4B;font-weight:600">🤝 协同任务</span>';
+  if(collabTasks.length)html+='<span style="font-size:12px;color:#b45309;background:#fde68a;padding:2px 8px;border-radius:10px;font-weight:600">'+collabTasks.length+' 项</span>';
+  html+='</div></td></tr><tr><td style="padding:0">';
+  if(!collabTasks.length){
     html+='<div style="padding:28px;text-align:center;color:#9ca3af;font-size:14px;font-weight:500">📭 本周暂无协同任务</div>';
   }else{
-    html+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr style="background:#fff">';
-    html+='<th style="padding:10px 8px;text-align:left;color:#92400e;font-weight:600;font-size:11px;white-space:nowrap;border-bottom:1px solid #f59e0b">序号</th>';
-    html+='<th style="padding:10px 8px;text-align:left;color:#92400e;font-weight:600;font-size:11px;white-space:nowrap;border-bottom:1px solid #f59e0b">来自</th>';
-    html+='<th style="padding:10px 8px;text-align:left;color:#92400e;font-weight:600;font-size:11px;border-bottom:1px solid #f59e0b">协同工作内容</th>';
-    html+='<th style="padding:10px 8px;text-align:left;color:#92400e;font-weight:600;font-size:11px;white-space:nowrap;border-bottom:1px solid #f59e0b">优先级</th>';
-    html+='<th style="padding:10px 8px;text-align:left;color:#92400e;font-weight:600;font-size:11px;white-space:nowrap;border-bottom:1px solid #f59e0b">计划完成日期</th>';
-    html+='<th style="padding:10px 8px;text-align:left;color:#92400e;font-weight:600;font-size:11px;white-space:nowrap;border-bottom:1px solid #f59e0b">实际完成日期</th>';
-    html+='<th style="padding:10px 8px;text-align:left;color:#92400e;font-weight:600;font-size:11px;white-space:nowrap;border-bottom:1px solid #f59e0b">协同状态</th>';
-    html+='<th style="padding:10px 8px;text-align:left;color:#92400e;font-weight:600;font-size:11px;white-space:nowrap;border-bottom:1px solid #f59e0b">操作</th>';
-    html+='</tr></thead><tbody>';
+    html+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr style="background:#fff"><th style="padding:10px 8px;text-align:left;color:#92400e;border-bottom:1px solid #f59e0b">序号</th><th style="padding:10px 8px;text-align:left;color:#92400e;border-bottom:1px solid #f59e0b">来自</th><th style="padding:10px 8px;text-align:left;color:#92400e;border-bottom:1px solid #f59e0b">协同工作内容</th><th style="padding:10px 8px;text-align:left;color:#92400e;border-bottom:1px solid #f59e0b">优先级</th><th style="padding:10px 8px;text-align:left;color:#92400e;border-bottom:1px solid #f59e0b">计划完成日期</th><th style="padding:10px 8px;text-align:left;color:#92400e;border-bottom:1px solid #f59e0b">协同状态</th><th style="padding:10px 8px;text-align:left;color:#92400e;border-bottom:1px solid #f59e0b">操作</th></tr></thead><tbody>';
     for(var i=0;i<collabTasks.length;i++){
-      var ct=collabTasks[i];
-      var pri=ct.goal||'';
-      var priStyle=pri==='重要紧急'?'background:#FF3B30;color:#fff':pri==='重要不急'?'background:#007AFF;color:#fff':pri==='日常紧急'?'background:#FF9500;color:#fff':pri==='日常事项'?'background:#5E7080;color:#fff':'background:#9ca3af;color:#fff';
-      var st=ct.status||'pending';
-      var stText=st==='accepted'?'已接受':st==='rejected'?'已拒绝':'待响应';
-      var stColor=st==='accepted'?'#16a34a':st==='rejected'?'#dc2626':'#9ca3af';
-      html+='<tr>';
-      html+='<td style="padding:10px 8px;border-bottom:1px solid #fef3c7;vertical-align:middle">'+(i+1)+'</td>';
-      html+='<td style="padding:10px 8px;border-bottom:1px solid #fef3c7;vertical-align:middle"><span style="display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;color:#fff;background:#6366f1">'+_h(ct.collab_from||'')+'</span></td>';
-      html+='<td style="padding:10px 8px;border-bottom:1px solid #fef3c7;vertical-align:middle">'+_h(ct.work||'(无任务描述)')+'</td>';
-      html+='<td style="padding:10px 8px;border-bottom:1px solid #fef3c7;vertical-align:middle">'+(pri?'<span style="'+priStyle+';padding:2px 8px;border-radius:3px;font-size:10px;font-weight:600">'+_h(pri)+'</span>':'')+'</td>';
-      html+='<td style="padding:10px 8px;border-bottom:1px solid #fef3c7;vertical-align:middle;white-space:nowrap">'+_h(ct.plannedDate||'')+'</td>';
-      html+='<td style="padding:10px 8px;border-bottom:1px solid #fef3c7;vertical-align:middle;white-space:nowrap">'+_h(ct.actualDate||'')+'</td>';
-      html+='<td style="padding:10px 8px;border-bottom:1px solid #fef3c7;vertical-align:middle"><span style="color:'+stColor+';font-weight:600;font-size:11px">'+stText+'</span></td>';
-      html+='<td style="padding:10px 8px;border-bottom:1px solid #fef3c7;vertical-align:middle"><div style="display:flex;gap:4px;flex-wrap:wrap">';
-      if(st==='accepted'){
-        html+='<button onclick="_collabRespond(this)" data-args="'+_h(ct.collab_from_uid||'')+'|'+_h(ct.collab_req_id||'')+'|'+i+'" data-status="pending" style="padding:3px 8px;border:none;border-radius:4px;font-size:11px;font-weight:600;cursor:pointer;background:#f5f5f5;color:#666;border:1px solid #ddd">撤销接受</button>';
-      }else if(st==='rejected'){
-        html+='<button onclick="_collabRespond(this)" data-args="'+_h(ct.collab_from_uid||'')+'|'+_h(ct.collab_req_id||'')+'|'+i+'" data-status="pending" style="padding:3px 8px;border:none;border-radius:4px;font-size:11px;font-weight:600;cursor:pointer;background:#f5f5f5;color:#666;border:1px solid #ddd">重新考虑</button>';
-      }else{
-        html+='<button onclick="_collabRespond(this)" data-args="'+_h(ct.collab_from_uid||'')+'|'+_h(ct.collab_req_id||'')+'|'+i+'" data-status="accepted" style="padding:3px 8px;border:none;border-radius:4px;font-size:11px;font-weight:600;cursor:pointer;background:#16a34a;color:#fff">✅ 接受</button>';
-        html+='<button onclick="_collabRespond(this)" data-args="'+_h(ct.collab_from_uid||'')+'|'+_h(ct.collab_req_id||'')+'|'+i+'" data-status="rejected" style="padding:3px 8px;border:none;border-radius:4px;font-size:11px;font-weight:600;cursor:pointer;background:#dc2626;color:#fff">❌ 拒绝</button>';
-        html+='<button onclick="_collabRespond(this)" data-args="'+_h(ct.collab_from_uid||'')+'|'+_h(ct.collab_req_id||'')+'|'+i+'" data-status="pending" style="padding:3px 8px;border:none;border-radius:4px;font-size:11px;font-weight:600;cursor:pointer;background:#f5f5f5;color:#666;border:1px solid #ddd">⏸ 待定</button>';
-      }
-      html+='</div></td>';
-      html+='</tr>';
+      var ct=collabTasks[i], snapshot=ct.task_snapshot||{}, pri=snapshot.goal||'';
+      var priStyle=pri==='重要紧急'?'#FF3B30':pri==='重要不急'?'#007AFF':pri==='日常紧急'?'#FF9500':'#5E7080';
+      var st=ct.status||'pending', stText=st==='accepted'?'已接受':st==='rejected'?'已拒绝':'待响应', stColor=st==='accepted'?'#16a34a':st==='rejected'?'#dc2626':'#6b7280';
+      html+='<tr><td style="padding:10px 8px;border-bottom:1px solid #fef3c7">'+(i+1)+'</td><td style="padding:10px 8px;border-bottom:1px solid #fef3c7"><span style="padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;color:#fff;background:#6366f1">'+_h(ct.owner_name||'')+'</span></td><td style="padding:10px 8px;border-bottom:1px solid #fef3c7">'+_h(snapshot.work||'(无任务描述)')+'</td><td style="padding:10px 8px;border-bottom:1px solid #fef3c7">'+(pri?'<span style="background:'+priStyle+';color:#fff;padding:2px 8px;border-radius:3px;font-size:10px;font-weight:600">'+_h(pri)+'</span>':'')+'</td><td style="padding:10px 8px;border-bottom:1px solid #fef3c7;white-space:nowrap">'+_h(snapshot.plannedDate||'')+'</td><td style="padding:10px 8px;border-bottom:1px solid #fef3c7"><span style="color:'+stColor+';font-weight:600">'+stText+'</span></td><td style="padding:10px 8px;border-bottom:1px solid #fef3c7"><div style="display:flex;gap:4px;flex-wrap:wrap">';
+      if(st==='accepted'||st==='rejected')html+='<button onclick="_collabRespond(this)" data-request-id="'+_h(ct.request_id)+'" data-status="pending" style="padding:3px 8px;border:1px solid #ddd;border-radius:4px;font-size:11px;cursor:pointer;background:#fff;color:#555">'+(st==='accepted'?'撤销接受':'重新考虑')+'</button>';
+      else html+='<button onclick="_collabRespond(this)" data-request-id="'+_h(ct.request_id)+'" data-status="accepted" style="padding:3px 8px;border:0;border-radius:4px;font-size:11px;cursor:pointer;background:#16a34a;color:#fff">接受</button><button onclick="_collabRespond(this)" data-request-id="'+_h(ct.request_id)+'" data-status="rejected" style="padding:3px 8px;border:0;border-radius:4px;font-size:11px;cursor:pointer;background:#dc2626;color:#fff">拒绝</button>';
+      html+='</div></td></tr>';
     }
     html+='</tbody></table></div>';
   }
-  html+='</td></tr></table>';
-  return html;
+  return html+'</td></tr></table>';
 }
 
 // ===== 协同任务系统（第2步：发起方写入 + 接收方读取）=====
@@ -2229,8 +2188,8 @@ function _parseSupporters(s){
   return result;
 }
 
-// ★ 渲染协同人单元格（含响应状态徽章）— 发起方视角
-function _renderSupportersCell(plan,taskIndex,rawSupporters){
+// 旧嵌套状态渲染，仅保留用于历史代码比对；运行时使用后面的独立请求表实现。
+function _legacyRenderSupportersCell(plan,taskIndex,rawSupporters){
   // ★ V0.3.71: 优先使用上级修订值（如有）
   var fieldKey='tasks.'+taskIndex+'.supporters';
   var displayVal=rawSupporters;
@@ -2310,7 +2269,7 @@ function _collabWeekId(year,month,week){return year+'-'+('0'+month).slice(-2)+'-
 
 // ★ 核心函数：发起方保存周计划后，只把含协同人的那一条任务同步到接收方的 collab_tasks[]
 // 关键修复：绝不复制整个周计划，只追加一条协同任务到 collab_tasks[]
-async function _syncCollabTasks(plan,fromName,year,month,week){
+async function _legacySyncCollabTasks(plan,fromName,year,month,week){
   if(!plan||!plan.tasks||typeof supabase==='undefined'||!supabase)return;
   var weekId=_collabWeekId(year,month,week);
   var fromUid=(currentUser&&currentUser._uid)||fromName;
@@ -2500,7 +2459,7 @@ async function _syncCollabTasks(plan,fromName,year,month,week){
 }
 
 // 协同响应 wrapper（第2步：更新本地 + 第3步：回写发起方 Supabase）
-async function _collabRespond(btn){
+async function _legacyCollabRespond(btn){
   var parts=(btn.getAttribute('data-args')||'').split('|');
   if(parts.length<3)return;
   var fromUid=parts[0];
@@ -2545,13 +2504,13 @@ async function _collabRespond(btn){
   console.log('[Collab] 响应协同任务 reqId='+reqId+' status='+newStatus);
 
   // ★ 第3步：同步响应状态到 Supabase（发起方加载时自动读取）
-  _collabRespondSyncToCloud(ct,newStatus,fromUid,reqId).catch(function(e){
+  _legacyCollabRespondSyncToCloud(ct,newStatus,fromUid,reqId).catch(function(e){
     console.warn('[Collab] 云端响应同步失败',e.message);
   });
 }
 
 // ★ 第3步实现：接收方响应 → 保存到 Supabase → 回写发起方 plan 的 _collab_statuses
-async function _collabRespondSyncToCloud(ct,newStatus,fromUid,reqId){
+async function _legacyCollabRespondSyncToCloud(ct,newStatus,fromUid,reqId){
   if(typeof supabase==='undefined'||!supabase)return;
   var now=new Date().toISOString();
   var myUid=(currentUser&&currentUser._uid)||getCurrentEmployee().name;
@@ -2611,6 +2570,137 @@ async function _collabRespondSyncToCloud(ct,newStatus,fromUid,reqId){
   }catch(e){
     console.warn('[Collab] 回写发起方异常:',e.message);
   }
+}
+
+// ===== V0.6.4: 独立协同请求模型 =====
+// 运行时只以 hwm_collab_requests 为准；旧 collab_tasks/_collab_statuses 仅由 SQL 迁移和保存清理。
+function _collabTable(){return window.SUPABASE_COLLAB_TABLE||'hwm_collab_requests';}
+function _collabNow(){return new Date().toISOString();}
+function _collabNewTaskId(){return 'task_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8);}
+function _ensureCollabTaskIds(plan){
+  if(!plan||!Array.isArray(plan.tasks))return false;
+  var changed=false;
+  for(var i=0;i<plan.tasks.length;i++){
+    var task=plan.tasks[i];
+    if(!task||task.collab_from)continue;
+    if(!task.task_id){task.task_id=_collabNewTaskId();changed=true;}
+  }
+  return changed;
+}
+function _collabRequestId(ownerUid,weekId,taskId,receiverUid){return ownerUid+'|'+weekId+'|'+taskId+'|'+receiverUid;}
+function _collabSnapshot(task){return {work:task.work||'',goal:task.goal||'',startDate:task.startDate||'',plannedDate:task.plannedDate||''};}
+function _collabStatusFor(ownerUid,weekId,taskId,receiverUid){
+  for(var i=0;i<_wpCollabRequests.length;i++){
+    var r=_wpCollabRequests[i];
+    if(r&&r.owner_uid===ownerUid&&r.week_id===weekId&&r.owner_task_id===taskId&&r.receiver_uid===receiverUid&&!r.revoked_at&&r.status!=='revoked')return r.status||'pending';
+  }
+  return 'pending';
+}
+function _stripLegacyCollabFields(plan){
+  if(!plan)return false;
+  var changed=false;
+  if(Object.prototype.hasOwnProperty.call(plan,'collab_tasks')){delete plan.collab_tasks;changed=true;}
+  if(Object.prototype.hasOwnProperty.call(plan,'_collab_statuses')){delete plan._collab_statuses;changed=true;}
+  return changed;
+}
+async function _loadCollabRequests(){
+  var plan=_wpCurrent&&_wpCurrent.plan;
+  var myUid=(currentUser&&currentUser._uid)||'';
+  if(!plan||!myUid||typeof supabase==='undefined'||!supabase||!supabase.from)return;
+  var weekId=_collabWeekId(plan.year,plan.month,plan.week), gen=++_wpCollabLoadGeneration;
+  try{
+    // username 可能包含中文或特殊字符，避免把它拼入 PostgREST 的 or 过滤表达式。
+    var resp=await supabase.from(_collabTable()).select('*').eq('week_id',weekId).order('updated_at',{ascending:false});
+    if(resp.error)throw resp.error;
+    if(gen!==_wpCollabLoadGeneration)return;
+    _wpCollabRequests=(resp.data||[]).filter(function(r){return r.owner_uid===myUid||r.receiver_uid===myUid;});
+    _wpCollabCacheKey=myUid+'|'+weekId;
+    if(_wpCurrent&&_wpCurrent.plan===plan)renderWPTable(plan);
+  }catch(e){
+    // SQL 尚未执行时不回退到旧副本，避免历史孤儿任务重新可见。
+    console.warn('[Collab V0.6.4] 独立请求表读取失败:',e.message);
+  }
+}
+function _startCollabRealtime(){
+  if(typeof supabase==='undefined'||!supabase||!supabase.channel||_wpCollabRealtimeChannel)return;
+  try{
+    _wpCollabRealtimeChannel=supabase.channel('hwm-collab-requests-live')
+      .on('postgres_changes',{event:'*',schema:'public',table:_collabTable()},function(){_loadCollabRequests();})
+      .subscribe();
+  }catch(e){console.warn('[Collab V0.6.4] Realtime 启动失败:',e.message);}
+}
+async function _revokeCollabRequestsFromSource(fromUid,weekId){
+  if(!fromUid||!weekId||typeof supabase==='undefined'||!supabase||!supabase.from)return;
+  var now=_collabNow();
+  var r=await supabase.from(_collabTable()).update({status:'revoked',revoked_at:now,updated_at:now}).eq('owner_uid',fromUid).eq('week_id',weekId).is('revoked_at',null);
+  if(r.error)throw r.error;
+}
+// 发起方对账：稳定 task_id 不受插行、删行、拖拽排序影响。只有发起方可撤回请求。
+async function _syncCollabTasks(plan,fromName,year,month,week){
+  if(!plan||!Array.isArray(plan.tasks)||typeof supabase==='undefined'||!supabase||!supabase.from)return;
+  var ownerUid=(currentUser&&currentUser._uid)||fromName;
+  if(!ownerUid)return;
+  var weekId=_collabWeekId(year,month,week), now=_collabNow(), ownerDept=(currentUser&&currentUser._dept)||'';
+  var idsChanged=_ensureCollabTaskIds(plan);
+  if(idsChanged){plan.updatedAt=now;}
+  var existingResp=await supabase.from(_collabTable()).select('*').eq('owner_uid',ownerUid).eq('week_id',weekId);
+  if(existingResp.error)throw existingResp.error;
+  var existing={};
+  for(var e=0;e<(existingResp.data||[]).length;e++)existing[existingResp.data[e].request_id]=existingResp.data[e];
+  var desired={}, rows=[];
+  for(var i=0;i<plan.tasks.length;i++){
+    var task=plan.tasks[i];
+    if(!task||task.collab_from||!task.supporters)continue;
+    var supporters=_parseSupporters(task.supporters);
+    for(var j=0;j<supporters.length;j++){
+      var receiver=supporters[j];
+      if(!receiver.uid||receiver.uid===ownerUid)continue;
+      var requestId=_collabRequestId(ownerUid,weekId,task.task_id,receiver.uid), old=existing[requestId];
+      desired[requestId]=true;
+      rows.push({request_id:requestId,owner_uid:ownerUid,owner_name:fromName,owner_dept:ownerDept,receiver_uid:receiver.uid,receiver_name:receiver.name||'',week_id:weekId,owner_task_id:task.task_id,task_snapshot:_collabSnapshot(task),status:old&&old.status&&old.status!=='revoked'?old.status:'pending',responded_at:old&&old.responded_at||null,revoked_at:null,created_at:old&&old.created_at||now,updated_at:now});
+    }
+  }
+  if(rows.length){
+    var upsert=await supabase.from(_collabTable()).upsert(rows,{onConflict:'request_id'});
+    if(upsert.error)throw upsert.error;
+  }
+  var revokeIds=[];
+  for(var key in existing){if(!desired[key]&&!existing[key].revoked_at)revokeIds.push(key);}
+  if(revokeIds.length){
+    var revoked=await supabase.from(_collabTable()).update({status:'revoked',revoked_at:now,updated_at:now}).in('request_id',revokeIds);
+    if(revoked.error)throw revoked.error;
+  }
+  _loadCollabRequests();
+}
+// 接收方只修改自己的一条独立请求。请求已被 A 撤回时，更新条件会拒绝写入并立即刷新。
+async function _collabRespond(btn){
+  var requestId=btn&&btn.getAttribute('data-request-id'), status=btn&&btn.getAttribute('data-status');
+  var myUid=(currentUser&&currentUser._uid)||'';
+  if(!requestId||!myUid||['pending','accepted','rejected'].indexOf(status)<0)return;
+  btn.disabled=true;
+  try{
+    var now=_collabNow();
+    var resp=await supabase.from(_collabTable()).update({status:status,responded_at:now,updated_at:now}).eq('request_id',requestId).eq('receiver_uid',myUid).is('revoked_at',null).select('request_id');
+    if(resp.error)throw resp.error;
+    if(!resp.data||!resp.data.length){showToast('该协同任务已被发起人撤回');}
+    else showToast(status==='accepted'?'已接受协同任务':status==='rejected'?'已拒绝协同任务':'已恢复待响应');
+  }catch(e){showToast('协同状态同步失败，请重试');console.warn('[Collab V0.6.4] 响应失败:',e.message);}
+  finally{btn.disabled=false;_loadCollabRequests();}
+}
+function _renderSupportersCell(plan,taskIndex,rawSupporters){
+  var fieldKey='tasks.'+taskIndex+'.supporters', displayVal=rawSupporters;
+  if(plan._revisions&&plan._revisions[fieldKey]&&plan._revisions[fieldKey].value)displayVal=plan._revisions[fieldKey].value;
+  displayVal=_cleanPlaceholderText(displayVal);
+  if(!displayVal)return '<span style="color:#C0C0C0;font-style:italic;pointer-events:none;user-select:none">协同人</span>';
+  var supporters=_parseSupporters(displayVal), weekId=_collabWeekId(plan.year,plan.month,plan.week), ownerUid=(currentUser&&currentUser._uid)||'', task=plan.tasks&&plan.tasks[taskIndex], taskId=task&&task.task_id;
+  var html='<div style="display:flex;flex-direction:column;gap:2px;width:100%">';
+  for(var i=0;i<supporters.length;i++){
+    var s=supporters[i], st=taskId?_collabStatusFor(ownerUid,weekId,taskId,s.uid):'pending';
+    var color=st==='accepted'?'#16a34a':st==='rejected'?'#dc2626':'#9ca3af';
+    var text=st==='accepted'?'已接受':st==='rejected'?'已拒绝':'待响应';
+    html+='<div style="display:flex;align-items:center;justify-content:space-between;gap:4px"><span style="font-weight:500;text-align:left">'+_h(s.name)+'</span><span style="font-size:9px;padding:1px 5px;border-radius:3px;background:'+color+';color:#fff;font-weight:600;line-height:1.4;white-space:nowrap">'+text+'</span></div>';
+  }
+  return html+'</div>';
 }
 
 // ★ V0.1.49: 渲染任务积分单元格
