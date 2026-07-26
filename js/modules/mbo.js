@@ -870,21 +870,24 @@ async function forceDeleteViewedWP(){
 }
 
 function _getPrevWeek(y,m,w){
-  // 计算上一周的 (year, month, week)
+  // 以年度周度网格为准计算紧邻上一周，不能把存在第5周的月份误判为第4周结束。
   if(w>1)return {year:y,month:m,week:w-1};
-  if(m>1)return {year:y,month:m-1,week:4};
-  return {year:y-1,month:12,week:4};
+  if(m>1){
+    var prev=_fromAbsWeek(_absWeek(y,m,1)-1);
+    return {year:y,month:m-1,week:prev.week};
+  }
+  return {year:y-1,month:12,week:_fromAbsWeek(52).week};
 }
-function _autoCarryTasks(plan,y,m,w){
+function _autoCarryTasks(plan,y,m,w,manualCarry){
   // 仅对自有计划执行自动顺延（上级查看下属 or 分享查看时不触发）
-  if(_wpViewingShared||_wpViewingSubordinate||_wpViewingDeptMember)return;
+  if(_wpViewingShared||_wpViewingSubordinate||_wpViewingDeptMember)return 0;
   // 防重复：如果已有 carriedFrom 标记的任务，说明已执行过
-  if(plan.tasks.some(function(t){return t.carriedFrom;}))return;
+  if(plan.tasks.some(function(t){return t.carriedFrom;}))return 0;
   var pwk=_getPrevWeek(y,m,w);
   var prevPlan=getWP(pwk.year,pwk.month,pwk.week);
-  if(!prevPlan||!prevPlan.tasks)return;
-  // ★ V0.1.87: 仅当上周已完成「工作小结」时才自动顺延
-  if(!prevPlan.summarySubmittedAt)return;
+  if(!prevPlan||!prevPlan.tasks)return 0;
+  // 自动顺延只在上周已提交小结后执行；用户主动点击“转入上周未结项”时，允许立即复制所选周的紧邻上周任务。
+  if(!manualCarry&&!prevPlan.summarySubmittedAt)return 0;
   var carried=[];
   for(var i=0;i<prevPlan.tasks.length;i++){
     var t=prevPlan.tasks[i];
@@ -902,13 +905,13 @@ function _autoCarryTasks(plan,y,m,w){
       carriedFrom:{year:pwk.year,month:pwk.month,week:pwk.week}
     });
   }
-  if(!carried.length)return;
+  if(!carried.length)return 0;
   // 去重：避免与本周已有任务重复
   for(var ci=carried.length-1;ci>=0;ci--){
     var dup2=plan.tasks.some(function(t2){return t2.work===carried[ci].work;});
     if(dup2)carried.splice(ci,1);
   }
-  if(!carried.length)return;
+  if(!carried.length)return 0;
   // 清除末尾的空行，给转入任务腾位置（保留max(2, plan.tasks中已有实际内容数)个空行）
   var keep=2,hasContent=0;
   for(var k=0;k<plan.tasks.length;k++){if(plan.tasks[k].work&&plan.tasks[k].work.trim())hasContent++;}
@@ -920,6 +923,7 @@ function _autoCarryTasks(plan,y,m,w){
   }
   plan.updatedAt=new Date().toISOString();
   saveWP(y,m,w,plan);
+  return carried.length;
 }
 
 // ★ V0.1.45: 仅上级完成评价后，将未完成任务顺延到下周
@@ -2055,25 +2059,15 @@ function selectWP(y,m,w){
   renderWPYearGrid(y);
 }
 
-// ★ V0.6.3b: 「转入上周未结项」— 仅当用户正在下周时可用
+// 「转入上周未结项」：以用户当前选定的目标周为准，复制其紧邻上一周的未完成任务。
+// 该操作是用户主动发起的快捷录入，不能因当前日期或日历导航状态阻断新建、导入或编辑。
 async function carryForwardLastWeek(){
   var today=new Date();
   var todayY=today.getFullYear(), todayM=today.getMonth()+1;
-  var todayW=Math.min(4,Math.ceil(today.getDate()/7));
-  var nextAW=_absWeek(todayY,todayM,todayW)+1;
-  var nextMW=_fromAbsWeek(nextAW);
-
   var yEl=document.getElementById('wpYear'), mEl=document.getElementById('wpMonth');
   var selY=(_wpCurrent&&_wpCurrent.year)||(yEl?parseInt(yEl.value):todayY);
   var selM=(_wpCurrent&&_wpCurrent.month)||(mEl?parseInt(mEl.value):todayM);
   var selW=(_wpCurrent&&_wpCurrent.week)||1;
-  var selAW=_absWeek(selY,selM,selW);
-
-  // ★ 边界保护：仅允许「自然下周」
-  if(selAW!==nextAW){
-    await _showAlert('该功能仅支持日历周下一周的周计划转入，不支持下一周之后的周计划转入。\n\n请先切换到下周（'+nextMW.month+'月第'+nextMW.week+'周）后再使用此功能。\n（您当前在第'+selM+'月第'+selW+'周）','⚠️ 功能仅限日历周下一周',true);
-    return;
-  }
 
   // ★ 同步下拉框
   if(yEl)yEl.value=String(selY);syncYearLabel();
@@ -2082,9 +2076,10 @@ async function carryForwardLastWeek(){
   var plan=getWP(selY,selM,selW);
   if(plan){
     _wpCurrent={year:selY,month:selM,week:selW,plan:plan};
-    // 如果计划已存在且有内容，追加而非覆盖
-    if(plan.tasks&&plan.tasks.length>0){
-      var ok=await _showConfirm('本周已有 '+plan.tasks.length+' 项行动项，是否仍然转入上周未结项？\n\n转入的事项将追加到现有列表末尾。','提示');
+    // 仅当本周确有已填写事项时才确认；默认空白行不应阻断新建周计划或一键转入。
+    var existingTaskCount=(plan.tasks||[]).filter(function(task){return task&&task.work&&task.work.trim();}).length;
+    if(existingTaskCount>0){
+      var ok=await _showConfirm('本周已有 '+existingTaskCount+' 项行动项，是否仍然转入上周未结项？\n\n转入的事项将追加到现有列表末尾。','提示');
       if(!ok)return;
     }
   }else{
@@ -2092,13 +2087,17 @@ async function carryForwardLastWeek(){
     saveWP(selY,selM,selW,plan);
     _wpCurrent={year:selY,month:selM,week:selW,plan:plan};
   }
-  _autoCarryTasks(plan,selY,selM,selW);
+  var carriedCount=_autoCarryTasks(plan,selY,selM,selW,true);
   saveWP(selY,selM,selW,plan);
   renderWPPlanList(selY,selM);
   renderWPTable(plan);
   renderWPUserInfo();
   if(typeof renderWPYearGrid==='function')renderWPYearGrid(selY);
-  showToast('✅ 上周未结项已转入本周');
+  if(carriedCount>0){
+    showToast('✅ 已转入上周 '+carriedCount+' 项未结事项');
+  }else{
+    showToast('本周计划已就绪；上周没有可转入的未完成事项');
+  }
 }
 
 // ★ V0.6.3b 保留原函数名作为 alias（向后兼容）
