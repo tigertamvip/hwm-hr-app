@@ -124,6 +124,19 @@ var _wpCollabRequests=[];
 var _wpCollabLoadGeneration=0;
 var _wpCollabCacheKey='';
 var _wpCollabRealtimeChannel=null;
+
+// 当前显示的周计划可能属于本人、直属/间接下属或授权同事。协同请求必须按计划归属人取数，不能按当前登录人取数。
+function _getWPPlanOwnerUid(plan){
+  var name=(plan&&plan.name)||_wpViewingShared||_wpViewingSubordinate||_wpViewingDeptMember||(currentUser&&currentUser.name)||'';
+  if(currentUser&&currentUser._uid&&currentUser.name===name)return currentUser._uid;
+  if(typeof USERS!=='undefined'){
+    for(var uid in USERS){
+      if(USERS[uid]&&USERS[uid].name===name)return uid;
+    }
+  }
+  return '';
+}
+
 // 后台同步可能在用户输入停顿时返回。此时绝不能整表重绘，否则会销毁正在编辑的控件。
 var _wpDeferredRenderPlan=null;
 var _wpDeferredRenderFlushInstalled=false;
@@ -2186,10 +2199,11 @@ function renderWPCellValue(plan, fieldKey, originalValue){
 // ===== 渲染协同任务独立区域 =====
 function _renderCollabTasksSection(plan){
   var weekId=_collabWeekId(plan.year,plan.month,plan.week);
-  var myUid=(currentUser&&currentUser._uid)||'';
-  // revoked 永不展示。即使浏览器还保留旧周计划缓存，展示层也只认独立请求表。
+  var planOwnerUid=_getWPPlanOwnerUid(plan);
+  var isPlanOwner=!!(currentUser&&currentUser._uid&&currentUser._uid===planOwnerUid);
+  // revoked 永不展示。审阅下属或授权同事时，展示其作为接收方的协同请求，但不开放响应操作。
   var collabTasks=_wpCollabRequests.filter(function(r){
-    return r&&r.receiver_uid===myUid&&r.week_id===weekId&&!r.revoked_at&&r.status!=='revoked';
+    return r&&r.receiver_uid===planOwnerUid&&r.week_id===weekId&&!r.revoked_at&&r.status!=='revoked';
   });
   var html='';
   html+='<table id="collabTaskArea" cellspacing="0" cellpadding="0" style="width:100%;margin:20px 0 0 0;border:2px solid #f59e0b;border-radius:8px;background:#fffbeb;border-spacing:0">';
@@ -2205,8 +2219,12 @@ function _renderCollabTasksSection(plan){
       var priStyle=pri==='重要紧急'?'#FF3B30':pri==='重要不急'?'#007AFF':pri==='日常紧急'?'#FF9500':'#5E7080';
       var st=ct.status||'pending', stText=st==='accepted'?'已接受':st==='rejected'?'已拒绝':'待响应', stColor=st==='accepted'?'#16a34a':st==='rejected'?'#dc2626':'#6b7280';
       html+='<tr><td style="padding:10px 8px;border-bottom:1px solid #fef3c7">'+(i+1)+'</td><td style="padding:10px 8px;border-bottom:1px solid #fef3c7"><span style="padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;color:#fff;background:#6366f1">'+_h(ct.owner_name||'')+'</span></td><td style="padding:10px 8px;border-bottom:1px solid #fef3c7">'+_h(snapshot.work||'(无任务描述)')+'</td><td style="padding:10px 8px;border-bottom:1px solid #fef3c7">'+(pri?'<span style="background:'+priStyle+';color:#fff;padding:2px 8px;border-radius:3px;font-size:10px;font-weight:600">'+_h(pri)+'</span>':'')+'</td><td style="padding:10px 8px;border-bottom:1px solid #fef3c7;white-space:nowrap">'+_h(snapshot.plannedDate||'')+'</td><td style="padding:10px 8px;border-bottom:1px solid #fef3c7"><span style="color:'+stColor+';font-weight:600">'+stText+'</span></td><td style="padding:10px 8px;border-bottom:1px solid #fef3c7"><div style="display:flex;gap:4px;flex-wrap:wrap">';
-      if(st==='accepted'||st==='rejected')html+='<button onclick="_collabRespond(this)" data-request-id="'+_h(ct.request_id)+'" data-status="pending" style="padding:3px 8px;border:1px solid #ddd;border-radius:4px;font-size:11px;cursor:pointer;background:#fff;color:#555">'+(st==='accepted'?'撤销接受':'重新考虑')+'</button>';
-      else html+='<button onclick="_collabRespond(this)" data-request-id="'+_h(ct.request_id)+'" data-status="accepted" style="padding:3px 8px;border:0;border-radius:4px;font-size:11px;cursor:pointer;background:#16a34a;color:#fff">接受</button><button onclick="_collabRespond(this)" data-request-id="'+_h(ct.request_id)+'" data-status="rejected" style="padding:3px 8px;border:0;border-radius:4px;font-size:11px;cursor:pointer;background:#dc2626;color:#fff">拒绝</button>';
+      if(isPlanOwner){
+        if(st==='accepted'||st==='rejected')html+='<button onclick="_collabRespond(this)" data-request-id="'+_h(ct.request_id)+'" data-status="pending" style="padding:3px 8px;border:1px solid #ddd;border-radius:4px;font-size:11px;cursor:pointer;background:#fff;color:#555">'+(st==='accepted'?'撤销接受':'重新考虑')+'</button>';
+        else html+='<button onclick="_collabRespond(this)" data-request-id="'+_h(ct.request_id)+'" data-status="accepted" style="padding:3px 8px;border:0;border-radius:4px;font-size:11px;cursor:pointer;background:#16a34a;color:#fff">接受</button><button onclick="_collabRespond(this)" data-request-id="'+_h(ct.request_id)+'" data-status="rejected" style="padding:3px 8px;border:0;border-radius:4px;font-size:11px;cursor:pointer;background:#dc2626;color:#fff">拒绝</button>';
+      }else{
+        html+='<span style="font-size:11px;color:#92400e">审阅中</span>';
+      }
       html+='</div></td></tr>';
     }
     html+='</tbody></table></div>';
@@ -2700,16 +2718,19 @@ function _stripLegacyCollabFields(plan){
 }
 async function _loadCollabRequests(){
   var plan=_wpCurrent&&_wpCurrent.plan;
-  var myUid=(currentUser&&currentUser._uid)||'';
-  if(!plan||!myUid||typeof supabase==='undefined'||!supabase||!supabase.from)return;
+  var planOwnerUid=_getWPPlanOwnerUid(plan);
+  if(!plan||!planOwnerUid||typeof supabase==='undefined'||!supabase||!supabase.from)return;
   var weekId=_collabWeekId(plan.year,plan.month,plan.week), gen=++_wpCollabLoadGeneration;
   try{
     // username 可能包含中文或特殊字符，避免把它拼入 PostgREST 的 or 过滤表达式。
     var resp=await supabase.from(_collabTable()).select('*').eq('week_id',weekId).order('updated_at',{ascending:false});
     if(resp.error)throw resp.error;
     if(gen!==_wpCollabLoadGeneration)return;
-    _wpCollabRequests=(resp.data||[]).filter(function(r){return r.owner_uid===myUid||r.receiver_uid===myUid;});
-    _wpCollabCacheKey=myUid+'|'+weekId;
+    // 本人查看自己的计划时同时保留发起/接收两种记录，用于协同状态徽章；审阅他人时只读取该计划归属人的接收记录。
+    _wpCollabRequests=(resp.data||[]).filter(function(r){
+      return r.receiver_uid===planOwnerUid||((currentUser&&currentUser._uid===planOwnerUid)&&r.owner_uid===planOwnerUid);
+    });
+    _wpCollabCacheKey=planOwnerUid+'|'+weekId;
     if(_wpCurrent&&_wpCurrent.plan===plan)_renderWPTableSafely(plan);
   }catch(e){
     // SQL 尚未执行时不回退到旧副本，避免历史孤儿任务重新可见。
@@ -2787,7 +2808,7 @@ function _renderSupportersCell(plan,taskIndex,rawSupporters){
   if(plan._revisions&&plan._revisions[fieldKey]&&plan._revisions[fieldKey].value)displayVal=plan._revisions[fieldKey].value;
   displayVal=_cleanPlaceholderText(displayVal);
   if(!displayVal)return '<span style="color:#C0C0C0;font-style:italic;pointer-events:none;user-select:none">协同人</span>';
-  var supporters=_parseSupporters(displayVal), weekId=_collabWeekId(plan.year,plan.month,plan.week), ownerUid=(currentUser&&currentUser._uid)||'', task=plan.tasks&&plan.tasks[taskIndex], taskId=task&&task.task_id;
+  var supporters=_parseSupporters(displayVal), weekId=_collabWeekId(plan.year,plan.month,plan.week), ownerUid=_getWPPlanOwnerUid(plan), task=plan.tasks&&plan.tasks[taskIndex], taskId=task&&task.task_id;
   var html='<div style="display:flex;flex-direction:column;gap:2px;width:100%">';
   for(var i=0;i<supporters.length;i++){
     var s=supporters[i], st=taskId?_collabStatusFor(ownerUid,weekId,taskId,s.uid):'pending';
