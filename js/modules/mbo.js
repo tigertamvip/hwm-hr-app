@@ -2203,11 +2203,28 @@ function _clearProblemPlaceholderData(plan){
   return changed;
 }
 
+// 协同人字段只能保存姓名列表，绝不能混入 UI 状态徽章文字（如“尤亚君待响应”）。
+// 该类污染会使姓名无法匹配账号，继而把仍有效的协同请求错误撤回。
+function _normalizeSupporterName(value){
+  var name=String(value||'').trim();
+  // 仅移除末尾的协同状态，避免误伤姓名或真实工作内容。
+  name=name.replace(/\s*(?:⏳|✅|❌)?\s*(?:待响应|已接受|已拒绝)\s*$/g,'').trim();
+  return name;
+}
+function _normalizeSupportersValue(value){
+  if(!value)return '';
+  var parts=String(value).split(/[,，;；、]+/).map(function(part){return _normalizeSupporterName(part);}).filter(Boolean);
+  var seen={}, result=[];
+  for(var i=0;i<parts.length;i++){
+    if(!seen[parts[i]]){seen[parts[i]]=true;result.push(parts[i]);}
+  }
+  return result.join(',');
+}
 // 解析 supporters 字符串为结构化数组 [{uid,name,dept,status}]
 function _parseSupporters(s){
   if(!s)return [];
   if(Array.isArray(s))return s;
-  var parts=String(s).split(/[,，;；、\s]+/).map(function(p){return p.trim();}).filter(Boolean);
+  var parts=_normalizeSupportersValue(s).split(',').map(function(p){return p.trim();}).filter(Boolean);
   var result=[];
   for(var i=0;i<parts.length;i++){
     var p=parts[i];
@@ -2616,6 +2633,9 @@ function _ensureCollabTaskIds(plan){
     var task=plan.tasks[i];
     if(!task||task.collab_from)continue;
     if(!task.task_id){task.task_id=_collabNewTaskId();changed=true;}
+    // 兼容并修复旧渲染回写造成的“姓名+状态”脏值，保证同步器始终能映射到真实账号。
+    var normalizedSupporters=_normalizeSupportersValue(task.supporters);
+    if((task.supporters||'')!==normalizedSupporters){task.supporters=normalizedSupporters;changed=true;}
   }
   return changed;
 }
@@ -3960,6 +3980,8 @@ function _wpFlushVisibleEdits(){
         for(var c=0;c<chips.length;c++){var name=chips[c].textContent.trim();if(name)names.push(name);}
         value=names.join(',');
       }
+      // 非编辑状态下 td 的 textContent 会包含“待响应”等渲染徽章，不能把它保存回数据层。
+      value=_normalizeSupportersValue(value);
     }
     if(p.tasks[ti][prop]!==value){
       p.tasks[ti][prop]=value;
@@ -3997,6 +4019,8 @@ async function saveWPAndGoHome(){
         if(prop==='supporters'){
           var chips=cell.querySelectorAll('.supporter-chip span:first-child');
           if(chips.length){var names=[];for(var cx=0;cx<chips.length;cx++){var n=chips[cx].textContent.trim();if(n)names.push(n);}value=names.join(',');}
+          // 扫描普通展示单元格时，必须过滤状态徽章，保留纯姓名列表。
+          value=_normalizeSupportersValue(value);
         }
         if(value!==p.tasks[ti][prop]){
           p.tasks[ti][prop]=value;
