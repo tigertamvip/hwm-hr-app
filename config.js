@@ -84,6 +84,10 @@ var SUPABASE_TABLE = 'hwm_employees';
 var SUPABASE_WP_TABLE = 'hwm_workplans';
 // 协同请求独立存储，避免周计划整份 JSON 回写导致已撤回任务复活。
 var SUPABASE_COLLAB_TABLE = 'hwm_collab_requests';
+// 研发项目管理（Stage-Gate）：仅 type='研发' 的项目使用
+var SUPABASE_RD_STAGES_TABLE = 'rd_stages';
+var SUPABASE_RD_DELIVERABLES_TABLE = 'rd_deliverables';
+var SUPABASE_RD_GATES_TABLE = 'rd_gates';
 var SUPABASE_USERS_TABLE = 'hwm_users';
 var SUPABASE_JD_TABLE = 'hwm_jobdesc';
 var SUPABASE_FAV_TABLE = 'hwm_favorites';

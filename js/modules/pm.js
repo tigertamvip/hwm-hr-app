@@ -79,6 +79,8 @@ async function deleteProject(id){
   if(!ok) return;
   try{
     await supabase.from(SUPABASE_TASK_TABLE).delete().eq('project_id',id);
+    // ★ V1.0 RDPM: 清理研发阶段门数据（无数据时为空操作）
+    if(typeof rdCleanupProject==='function') await rdCleanupProject(id);
     await supabase.from(SUPABASE_PM_TABLE).delete().eq('id',id);
     var all = loadAllProjects().filter(function(x){return x.id!==id;});
     saveAllProjects(all); _pmProjects = all;
@@ -195,6 +197,12 @@ function renderPMList(){
   }
 
   el.innerHTML = html;
+
+  // ★ V1.0 RDPM: 预取研发项目阶段数据（驱动卡片阶段条）
+  if(typeof rdPrefetchStages==='function'){
+    var rdPids = projects.filter(function(p){return p.type==='研发';}).map(function(p){return p.id;});
+    if(rdPids.length) rdPrefetchStages(rdPids);
+  }
 }
 
 function renderProjectCard(p){
@@ -227,6 +235,8 @@ function renderProjectCard(p){
   h += '</div></div>';
   h += '<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:11px;color:#6B7280;margin-bottom:3px"><span>进度</span><span style="font-weight:600">'+(p.progress||0)+'%</span></div>';
   h += '<div style="height:5px;background:#F3F4F6;border-radius:3px;overflow:hidden"><div style="height:100%;width:'+(p.progress||0)+'%;background:'+lc+';border-radius:3px"></div></div></div>';
+  // ★ V1.0 RDPM: 研发项目卡片显示 7 段阶段条（数据来自 rdpm.js 缓存，不影响其他类型）
+  if(p.type==='研发' && typeof rdStageBarHtml==='function') h += rdStageBarHtml(p.id);
   var teamCount = (p.team&&Array.isArray(p.team))?p.team.length:0;
   h += '<div style="display:flex;align-items:center;gap:16px;font-size:11px;color:#9CA3AF">';
   h += '<span>'+esc(p.owner||'')+'</span>';
@@ -317,6 +327,18 @@ async function openPMDetail(pid){
   var all = loadAllProjects();
   var p = all.find(function(x){return x.id===pid;});
   if(!p){ _showAlert('项目不存在'); return; }
+  // ★ V1.0 RDPM: 研发项目详情由阶段门引擎接管（rdpm.js）
+  if(p.type==='研发' && typeof openRdProjectDetail==='function'){
+    var rdListEl = document.getElementById('pmListView');
+    var rdDetailEl = document.getElementById('pmDetailView');
+    var rdPmv = document.getElementById('pmView');
+    if(rdListEl) rdListEl.style.display='none';
+    if(rdDetailEl) rdDetailEl.style.display='block';
+    if(rdPmv) rdPmv.classList.add('pm-detail-mode');
+    _pmCurrent = {project:p, tasks:[]};
+    await openRdProjectDetail(p);
+    return;
+  }
   var tasks = await syncTasksFromCloud(pid) || loadProjectTasks(pid);
   p.progress = calcProjectProgress(pid);
   _pmCurrent = {project:p, tasks:tasks};
@@ -554,7 +576,7 @@ async function showNewProjectForm(){
   h += '<div style="display:flex;gap:12px;margin-bottom:12px">';
   h += '<div style="flex:1">';
   h += '<label style="display:block;font-size:12px;color:#6B7280;margin-bottom:4px">项目类型</label>';
-  h += '<select id="np-type" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:13px">';
+  h += '<select id="np-type" onchange="var w=document.getElementById(\'np-rdstart-wrap\');if(w)w.style.display=(this.value===\'研发\'?\'block\':\'none\')" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:13px">';
   PM_TYPE_DEFS.forEach(function(td){ if(td.key!=='全部') h += '<option value="'+td.key+'">'+td.label+'</option>'; });
   h += '</select></div>';
   h += '<div style="flex:1">';
@@ -566,6 +588,18 @@ async function showNewProjectForm(){
   h += '<label style="display:block;font-size:12px;color:#6B7280;margin-bottom:4px">项目负责人</label>';
   h += '<input id="np-owner" value="'+esc(currentName)+'" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:13px;box-sizing:border-box">';
   h += '</div>';
+  // ★ V1.0 RDPM: 研发项目可选起始阶段（在研项目中间切入）
+  h += '<div id="np-rdstart-wrap" style="display:none;margin-bottom:12px">';
+  h += '<label style="display:block;font-size:12px;color:#6B7280;margin-bottom:4px">起始阶段（研发项目：之前阶段将补录为已通过）</label>';
+  h += '<select id="np-rdstart" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:13px">';
+  h += '<option value="preresearch">预研（从头开始）</option>';
+  h += '<option value="initiation">立项</option>';
+  h += '<option value="input">设计输入</option>';
+  h += '<option value="output">设计输出</option>';
+  h += '<option value="verification">设计验证</option>';
+  h += '<option value="validation">设计确认</option>';
+  h += '<option value="transfer">设计转化</option>';
+  h += '</select></div>';
   h += '<div style="display:flex;gap:12px;margin-bottom:12px">';
   h += '<div style="flex:1">';
   h += '<label style="display:block;font-size:12px;color:#6B7280;margin-bottom:4px">开始日期</label>';
@@ -601,6 +635,11 @@ async function showNewProjectForm(){
       budget_pool: budget?parseFloat(budget):null,
       description: desc
     });
+    // ★ V1.0 RDPM: 研发项目实例化阶段门流程（含中间切入）
+    if(p && p.type==='研发' && typeof instantiateRdProject==='function'){
+      var rdStartEl = document.getElementById('np-rdstart');
+      await instantiateRdProject(p.id, rdStartEl?rdStartEl.value:'preresearch');
+    }
     if(p) { _pmFilter.type = '全部'; _pmProjects = loadAllProjects(); renderPMList(); renderPMSidebar(); close(); }
   });
 }
