@@ -786,4 +786,27 @@ function initRdPm(container){
 }
 
 console.log('[RDPM] Module loaded - V1.0 (Stage-Gate Engine P1)');
+
+// ===== Global Exports =====
+// ★ 关键：async 函数在块级作用域中不会提升到全局（Annex B 仅覆盖普通函数声明）。
+// 跨模块调用（pm.js 分流/实例化/清理/预取）与 onclick 内联绑定都在全局作用域求值，
+// 必须显式导出（与 pm.js 末尾的 window.* 导出同一约定）。
+window.openRdProjectDetail = openRdProjectDetail;
+window.instantiateRdProject = instantiateRdProject;
+window.ensureRdProject = ensureRdProject;
+window.rdCleanupProject = rdCleanupProject;
+window.rdPrefetchStages = rdPrefetchStages;
+window.rdStageBarHtml = rdStageBarHtml;
+window.renderRdDetail = renderRdDetail;
+window.rdSwitchStage = rdSwitchStage;
+window.rdEditDeliverable = rdEditDeliverable;
+window.rdMarkNA = rdMarkNA;
+window.rdOpenReviewForm = rdOpenReviewForm;
+window.rdConfirmConditionalDone = rdConfirmConditionalDone;
+window.rdAddIteration = rdAddIteration;
+window.rdAddAdhocGate = rdAddAdhocGate;
+window.rdRegisterSubmit = rdRegisterSubmit;
+window.calcRdProgress = calcRdProgress;
+window.syncRdFromCloud = syncRdFromCloud;
+window.initRdPm = initRdPm;
 }
