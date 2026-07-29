@@ -553,11 +553,19 @@ function loadWPData(){
         if(_wpIsForcedDeleted(frozenUser,row.week_id))continue;
         var cloudUpd=row.plan_data.updatedAt||'';
         var localUpd=(localData[row.week_id]&&localData[row.week_id].updatedAt)||'';
-        // 本地输入已落盘、云端确认尚未返回时，绝不接受旧云端快照覆盖。
-        if(_wpDirtyPlanVersions[row.week_id])continue;
         // ★ V0.6.1ge: 判断云端/本地是否有真实工作内容
         var cloudHasWork=!!(row.plan_data.tasks||[]).some(function(t){return t.work&&t.work.trim();});
         var localHasWork=!!(localData[row.week_id]&&(localData[row.week_id].tasks||[]).some(function(t){return t.work&&t.work.trim();}));
+        // ★ V0.6.4j: 对称保护 — 本地空壳时云端真内容无条件赢（时间戳/dirty 均不得拦截）。
+        // 根因：查看他人计划时 selectWP 会自动生成 updatedAt 较新的空白壳并打 dirty 标记，
+        // 旧规则据此永久遮蔽云端真实数据（2026-07-29 钟雅洁 W4 空白事故）。
+        if(cloudHasWork&&!localHasWork){
+          localData[row.week_id]=row.plan_data;
+          seenNewer=true;
+          continue;
+        }
+        // 本地输入已落盘、云端确认尚未返回时，绝不接受旧云端快照覆盖。
+        if(_wpDirtyPlanVersions[row.week_id])continue;
         // ★ V0.6.1ge: 云端空壳绝不能覆盖本地有内容的计划
         if(localHasWork&&!cloudHasWork){continue;}
         if(!localData[row.week_id]||cloudUpd>localUpd){
@@ -684,10 +692,16 @@ function loadWPData(){
             if(_wpIsForcedDeleted(user,row.week_id))continue;
             var cloudUpd=row.plan_data.updatedAt||'';
             var localUpd=(localData[row.week_id]&&localData[row.week_id].updatedAt)||'';
-            // 输入后到云端确认前不允许轮询覆盖本地最新编辑。
-            if(_wpDirtyPlanVersions[row.week_id])continue;
             var cloudHasWork=!!(row.plan_data.tasks||[]).some(function(t){return t.work&&t.work.trim();});
             var localHasWork=!!(localData[row.week_id]&&(localData[row.week_id].tasks||[]).some(function(t){return t.work&&t.work.trim();}));
+            // ★ V0.6.4j: 对称保护 — 本地空壳时云端真内容无条件赢（同主合并逻辑）。
+            if(cloudHasWork&&!localHasWork){
+              localData[row.week_id]=row.plan_data;
+              seenNewer=true;
+              continue;
+            }
+            // 输入后到云端确认前不允许轮询覆盖本地最新编辑。
+            if(_wpDirtyPlanVersions[row.week_id])continue;
             if(localHasWork&&!cloudHasWork)continue;
             if(!localData[row.week_id]||cloudUpd>localUpd){
               localData[row.week_id]=row.plan_data;
@@ -2102,8 +2116,13 @@ function selectWP(y,m,w){
     if(correctName) newPlan.name = correctName;
     if(correctDept) newPlan.dept = correctDept;
     if(correctPos) newPlan.position = correctPos;
-    saveWP(y,m,w,newPlan);
-    _autoCarryTasks(newPlan,y,m,w); // ★ V0.1.87: 从上周自动顺延未完成任务
+    // ★ V0.6.4j: 审阅下属/分享/部门查看时，空白占位计划仅用于渲染——
+    // 禁止写本地缓存、打 dirty 标记、推送云端，防止空壳遮蔽甚至覆盖对方真实计划。
+    var _readOnlyView=!!(_wpViewingShared||_wpViewingSubordinate||_wpViewingDeptMember);
+    if(!_readOnlyView){
+      saveWP(y,m,w,newPlan);
+      _autoCarryTasks(newPlan,y,m,w); // ★ V0.1.87: 从上周自动顺延未完成任务
+    }
     _wpCurrent.plan=newPlan;
     // 接收方首次打开目标周会生成本地空白计划；仍须立即读取独立请求表，不能等待其先创建个人任务。
     _loadCollabRequests();
