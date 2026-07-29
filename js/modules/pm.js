@@ -89,6 +89,9 @@ async function deleteProject(id){
     var all = loadAllProjects().filter(function(x){return x.id!==id;});
     saveAllProjects(all); _pmProjects = all;
     if(_pmCurrent&&_pmCurrent.project&&_pmCurrent.project.id===id){ _pmCurrent = null; _pmView = 'list'; }
+    // ★ V0.6.4L: 详情页删除后切回列表视图（含研发阶段门详情）
+    if(typeof _rdCurrent!=='undefined'&&_rdCurrent&&_rdCurrent.project&&_rdCurrent.project.id===id)_rdCurrent=null;
+    backToPMList();
     renderPMList();
     showToast('项目已删除');
   }catch(e){ _showAlert('删除异常: '+e.message); }
@@ -169,34 +172,43 @@ function renderPMList(){
   var el = document.getElementById('pmContent');
   if(!el) return;
 
+  // ★ V0.6.4L: 统一筛选维度（侧边栏为唯一筛选入口，删除顶部重复下拉）
   var projects = _pmProjects||[];
   if(_pmFilter.type && _pmFilter.type!=='全部'){
     projects = projects.filter(function(p){return p.type===_pmFilter.type;});
+  }
+  if(_pmFilter.owner){
+    projects = projects.filter(function(p){return p.owner===_pmFilter.owner;});
+  }
+  if(_pmFilter._active){
+    projects = projects.filter(function(p){return p.status==='实施中';});
+  }
+  if(_pmFilter.level){
+    projects = projects.filter(function(p){return String(p.level)===String(_pmFilter.level);});
   }
   if(_pmFilter.search){
     var s = _pmFilter.search.toLowerCase();
     projects = projects.filter(function(p){return (p.name||'').toLowerCase().indexOf(s)>=0;});
   }
-  if(_pmFilter.owner){
-    projects = projects.filter(function(p){return p.owner===_pmFilter.owner;});
-  }
+
+  // 当前筛选条件描述
+  var crumbs = [];
+  if(_pmFilter.owner) crumbs.push('我的项目');
+  else if(_pmFilter._active) crumbs.push('进行中');
+  else crumbs.push(pmTypeLabel(_pmFilter.type));
+  if(_pmFilter.level) crumbs.push(['','一级','二级','三级'][_pmFilter.level]||'');
 
   var html = '';
-  html += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">';
-  html += '<div style="display:flex;align-items:center;gap:10px">';
-  html += '<select onchange="_pmFilter.type=this.value;renderPMList()" style="padding:5px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:12px;background:#fff">';
-  PM_TYPE_DEFS.forEach(function(t){ html += '<option value="'+t.key+'"'+(t.key===_pmFilter.type?' selected':'')+'>'+t.label+'</option>'; });
-  html += '</select>';
-  html += '<span style="font-size:12px;color:#9CA3AF">共 '+projects.length+' 个项目</span>';
-  html += '</div>';
-  html += '<input placeholder="搜索项目..." value="'+esc(_pmFilter.search)+'" oninput="_pmFilter.search=this.value;renderPMList()" style="padding:5px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:12px;width:180px">';
+  html += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">';
+  html += '<div style="font-size:12px;color:#6E6A63">'+esc(crumbs.join(' · '))+' <span style="color:#A8A29A">· '+projects.length+' 个项目</span></div>';
+  html += '<input placeholder="搜索项目…" value="'+esc(_pmFilter.search)+'" oninput="_pmFilter.search=this.value;renderPMList()" style="padding:6px 12px;border:1px solid #D8D3C8;border-radius:8px;font-size:12px;width:180px;background:#fff;outline:none">';
   html += '</div>';
 
   if(!projects.length){
-    html += '<div style="text-align:center;padding:60px 20px;color:#9CA3AF">暂无项目，点击右上角"+ 新建项目"开始</div>';
+    html += '<div style="text-align:center;padding:70px 20px;color:#A8A29A;font-size:13px">暂无符合条件的项目</div>';
   }else{
-    html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px">';
-    projects.forEach(function(p){ html += renderProjectCard(p); });
+    html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px">';
+    projects.forEach(function(p,i){ html += renderProjectCard(p,i); });
     html += '</div>';
   }
 
@@ -209,47 +221,41 @@ function renderPMList(){
   }
 }
 
-function renderProjectCard(p){
-  var lvlColors = {'1':'#EF4444','2':'#F59E0B','3':'#10B981'};
-  var lvlBg = {'1':'#FEF2F2','2':'#FFFBEB','3':'#ECFDF5'};
-  var lvlText = {'1':'#DC2626','2':'#D97706','3':'#059669'};
-  var lvlLabels = {'1':'一级','2':'二级','3':'三级'};
-  var typeColors = {'研发':'#3B82F6','通用':'#6B7280','战略':'#8B5CF6','协同':'#14B8A6'};
-  var typeBg = {'研发':'#EFF6FF','通用':'#F3F4F6','战略':'#F5F3FF','协同':'#F0FDFA'};
-  var statusBg = {'草稿中':'#F3F4F6','审批中':'#FFFBEB','实施中':'#EFF6FF','已完成':'#ECFDF5','已逾期':'#FEF2F2','待复审':'#FFF7ED','已中止':'#F3F4F6'};
-  var statusColor = {'草稿中':'#9CA3AF','审批中':'#D97706','实施中':'#3B82F6','已完成':'#059669','已逾期':'#DC2626','待复审':'#EA580C','已中止':'#6B7280'};
-
-  var lc = lvlColors[p.level]||'#10B981';
-  var lb = lvlBg[p.level]||'#ECFDF5';
-  var lt = lvlText[p.level]||'#059669';
-  var sc = statusColor[p.status]||'#9CA3AF';
-  var sb = statusBg[p.status]||'#F3F4F6';
-  var tc = typeColors[p.type]||'#6B7280';
-  var tbg = typeBg[p.type]||'#F3F4F6';
+function renderProjectCard(p, idx){
+  // ★ V0.6.4L 水墨屏体系：发丝线、墨黑/朱砂/黛绿、无阴影
+  var lvlMeta = {'1':{label:'一级',ink:'#B3382C'},'2':{label:'二级',ink:'#6E6A63'},'3':{label:'三级',ink:'#C9C4BA'}};
+  var lm = lvlMeta[p.level]||lvlMeta['3'];
+  var statusMeta = {
+    '草稿中':{c:'#A8A29A',fill:false},'审批中':{c:'#6E6A63',fill:false},
+    '实施中':{c:'#1F1F1F',fill:true},'已完成':{c:'#2F5D50',fill:false},
+    '已逾期':{c:'#B3382C',fill:false},'待复审':{c:'#6E6A63',fill:false},'已中止':{c:'#A8A29A',fill:false}
+  };
+  var sm = statusMeta[p.status]||statusMeta['草稿中'];
 
   var h = '';
-  h += '<div onclick="openPMDetail('+p.id+')" class="pm-card" style="display:flex;background:#fff;border-radius:12px;border:1px solid #E5E7EB;overflow:hidden;cursor:pointer;transition:all .2s">';
-  h += '<div style="width:4px;min-width:4px;background:'+lc+'"></div>';
+  h += '<div onclick="openPMDetail('+p.id+')" class="pm-card" style="animation-delay:'+((idx||0)*40)+'ms;position:relative;display:flex;background:#fff;border-radius:10px;border:1px solid #E3E0D9;overflow:hidden;cursor:pointer">';
+  h += '<div style="width:2px;min-width:2px;background:'+lm.ink+'"></div>';
   h += '<div style="flex:1;padding:14px 16px">';
   h += '<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px">';
-  h += '<div style="font-weight:600;font-size:15px;color:#111827;line-height:1.3">'+esc(p.name||'未命名')+'</div>';
-  h += '<div style="display:flex;gap:4px;flex-shrink:0">';
-  h += '<span style="font-size:10px;padding:2px 8px;border-radius:10px;background:'+lb+';color:'+lt+'">'+lvlLabels[p.level]+'</span>';
-  h += '<span style="font-size:10px;padding:2px 8px;border-radius:10px;background:'+tbg+';color:'+tc+'">'+esc(pmTypeLabel(p.type))+'</span>';
+  h += '<div style="font-weight:600;font-size:15px;color:#1F1F1F;line-height:1.35">'+esc(p.name||'未命名')+'</div>';
+  h += '<div style="display:flex;gap:4px;flex-shrink:0;align-items:center">';
+  h += '<span style="font-size:10px;padding:2px 8px;border-radius:9px;border:1px solid '+lm.ink+';color:'+lm.ink+'">'+lm.label+'</span>';
+  h += '<span style="font-size:10px;padding:2px 8px;border-radius:9px;border:1px solid #C9C4BA;color:#6E6A63">'+esc(pmTypeLabel(p.type))+'</span>';
+  h += '<button class="pm-del-btn" onclick="event.stopPropagation();deleteProject('+p.id+')" title="删除项目" style="padding:2px 8px;border:0;background:transparent;font-size:11px;color:#A8A29A;cursor:pointer">删除</button>';
   h += '</div></div>';
-  h += '<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:11px;color:#6B7280;margin-bottom:3px"><span>进度</span><span style="font-weight:600">'+(p.progress||0)+'%</span></div>';
-  h += '<div style="height:5px;background:#F3F4F6;border-radius:3px;overflow:hidden"><div style="height:100%;width:'+(p.progress||0)+'%;background:'+lc+';border-radius:3px"></div></div></div>';
+  h += '<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:11px;color:#6E6A63;margin-bottom:4px"><span>进度</span><span style="font-weight:600;color:#1F1F1F">'+(p.progress||0)+'%</span></div>';
+  h += '<div style="height:4px;background:#EFEDE8;border-radius:2px;overflow:hidden"><div style="height:100%;width:'+(p.progress||0)+'%;background:#1F1F1F;border-radius:2px"></div></div></div>';
   // ★ V1.0 RDPM: 研发项目卡片显示 7 段阶段条（数据来自 rdpm.js 缓存，不影响其他类型）
   if(p.type==='研发' && typeof rdStageBarHtml==='function') h += rdStageBarHtml(p.id);
   var teamCount = (p.team&&Array.isArray(p.team))?p.team.length:0;
-  h += '<div style="display:flex;align-items:center;gap:16px;font-size:11px;color:#9CA3AF">';
+  h += '<div style="display:flex;align-items:center;gap:14px;font-size:11px;color:#A8A29A">';
   h += '<span>'+esc(p.owner||'')+'</span>';
   h += '<span>团队 '+teamCount+' 人</span>';
-  h += '<span>'+(p.start_date||'')+'-'+(p.end_date||'')+'</span>';
+  h += '<span>'+(p.start_date||'')+' ~ '+(p.end_date||'')+'</span>';
   h += '</div>';
-  h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid #F3F4F6">';
-  h += '<span style="font-size:10px;padding:2px 8px;border-radius:8px;background:'+sb+';color:'+sc+'">'+esc(p.status||'')+'</span>';
-  h += '<span style="font-size:10px;color:#D1D5DB">'+(p.updated_at?formatDate(p.updated_at):'')+'</span>';
+  h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid #EFEDE8">';
+  h += '<span style="font-size:10px;padding:2px 8px;border-radius:8px;'+(sm.fill?('background:'+sm.c+';color:#F7F5F0'):('border:1px solid '+sm.c+';color:'+sm.c))+'">'+esc(p.status||'')+'</span>';
+  h += '<span style="font-size:10px;color:#C9C4BA">'+(p.updated_at?formatDate(p.updated_at):'')+'</span>';
   h += '</div>';
   h += '</div></div>';
   return h;
@@ -260,69 +266,73 @@ function renderPMSidebar(){
   var el = document.getElementById('pmSidebar');
   if(!el) return;
 
-  var projects = _pmProjects||[];
-  var myProjects = projects.filter(function(p){return p.owner===(currentUser&&currentUser.name);}).length;
-  var active = projects.filter(function(p){return p.status==='实施中';}).length;
+  var all = _pmProjects||[];
+  // 级别统计基于当前类型筛选后的集合（与列表口径一致）
+  var typed = all.filter(function(p){return !_pmFilter.type||_pmFilter.type==='全部'||p.type===_pmFilter.type;});
+  var myProjects = all.filter(function(p){return p.owner===(currentUser&&currentUser.name);}).length;
+  var active = all.filter(function(p){return p.status==='实施中';}).length;
+  var noQuick = !_pmFilter.owner && !_pmFilter._active;
 
   var h = '';
-  h += '<div style="margin-bottom:18px">';
-  h += '<div style="font-size:11px;font-weight:600;color:#9CA3AF;margin-bottom:8px;letter-spacing:.5px">项目类型</div>';
+  var idx = 0;
+  h += '<div style="margin-bottom:22px">';
+  h += '<div style="font-size:11px;font-weight:500;color:#A8A29A;margin-bottom:8px;letter-spacing:1px">项目类型</div>';
   PM_TYPE_DEFS.forEach(function(td){
-    var sel = td.key===_pmFilter.type && !_pmFilter.owner && !_pmFilter._active;
-    h += '<div onclick="_pmFilter.type=\''+td.key+'\';_pmFilter.owner=\'\';_pmFilter._active=false;renderPMSidebar();renderPMList()" style="padding:6px 10px;border-radius:6px;font-size:12px;cursor:pointer;margin-bottom:3px;'+(sel?'background:#EFF6FF;color:#3B82F6;font-weight:600':'color:#6B7280')+'">'+td.label+'</div>';
+    var sel = td.key===_pmFilter.type && noQuick;
+    var cnt = td.key==='全部' ? all.length : all.filter(function(p){return p.type===td.key;}).length;
+    h += '<div class="pm-nav-item'+(sel?' pm-nav-sel':'')+'" onclick="_pmFilter.type=\''+td.key+'\';_pmFilter.owner=\'\';_pmFilter._active=false;renderPMSidebar();renderPMList()" style="animation-delay:'+(idx++*30)+'ms;display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-radius:8px;font-size:13px;cursor:pointer;margin-bottom:2px;color:'+(sel?'#F7F5F0':'#3A3835')+'">'
+      +'<span>'+td.label+'</span><span class="pm-nav-cnt" style="font-size:11px;color:#A8A29A;font-variant-numeric:tabular-nums">'+cnt+'</span></div>';
   });
   h += '</div>';
 
-  h += '<div style="margin-bottom:18px">';
-  h += '<div style="font-size:11px;font-weight:600;color:#9CA3AF;margin-bottom:8px;letter-spacing:.5px">快速筛选</div>';
+  h += '<div style="margin-bottom:22px">';
+  h += '<div style="font-size:11px;font-weight:500;color:#A8A29A;margin-bottom:8px;letter-spacing:1px">快速筛选</div>';
   var mySel = !!_pmFilter.owner;
-  h += '<div onclick="filterMyProjects()" style="padding:6px 10px;border-radius:6px;font-size:12px;cursor:pointer;display:flex;justify-content:space-between;'+(mySel?'background:#EFF6FF;color:#3B82F6;font-weight:600':'color:#6B7280')+'"><span>我的项目</span><span>'+myProjects+'</span></div>';
+  h += '<div class="pm-nav-item'+(mySel?' pm-nav-sel':'')+'" onclick="filterMyProjects()" style="animation-delay:'+(idx++*30)+'ms;display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-radius:8px;font-size:13px;cursor:pointer;margin-bottom:2px;color:'+(mySel?'#F7F5F0':'#3A3835')+'"><span>我的项目</span><span class="pm-nav-cnt" style="font-size:11px;color:#A8A29A;font-variant-numeric:tabular-nums">'+myProjects+'</span></div>';
   var activeSel = !!_pmFilter._active;
-  h += '<div onclick="filterActiveProjects()" style="padding:6px 10px;border-radius:6px;font-size:12px;cursor:pointer;display:flex;justify-content:space-between;'+(activeSel?'background:#EFF6FF;color:#3B82F6;font-weight:600':'color:#6B7280')+'"><span>进行中</span><span>'+active+'</span></div>';
+  h += '<div class="pm-nav-item'+(activeSel?' pm-nav-sel':'')+'" onclick="filterActiveProjects()" style="animation-delay:'+(idx++*30)+'ms;display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-radius:8px;font-size:13px;cursor:pointer;margin-bottom:2px;color:'+(activeSel?'#F7F5F0':'#3A3835')+'"><span>进行中</span><span class="pm-nav-cnt" style="font-size:11px;color:#A8A29A;font-variant-numeric:tabular-nums">'+active+'</span></div>';
   h += '</div>';
 
+  // ★ V0.6.4L: 项目级别升级为可点击筛选器（单选切换，再次点击取消）
   h += '<div style="margin-bottom:18px">';
-  h += '<div style="font-size:11px;font-weight:600;color:#9CA3AF;margin-bottom:8px;letter-spacing:.5px">项目级别</div>';
+  h += '<div style="font-size:11px;font-weight:500;color:#A8A29A;margin-bottom:8px;letter-spacing:1px">项目级别' + (_pmFilter.level?'（筛选中）':'') + '</div>';
   h += '<div style="display:flex;gap:6px">';
-  [{l:'一级',c:'#EF4444',b:'#FEF2F2'},{l:'二级',c:'#F59E0B',b:'#FFFBEB'},{l:'三级',c:'#10B981',b:'#ECFDF5'}].forEach(function(lv){
-    var cnt = projects.filter(function(p){return String(p.level)===lv.l.charAt(0);}).length;
-    h += '<div style="flex:1;padding:4px 8px;border-radius:6px;border:1px solid '+lv.c+';font-size:10px;text-align:center;background:'+lv.b+';color:'+lv.c+'">'+lv.l+' '+cnt+'</div>';
+  [{v:1,l:'一级',c:'#B3382C'},{v:2,l:'二级',c:'#6E6A63'},{v:3,l:'三级',c:'#A8A29A'}].forEach(function(lv){
+    var cnt = typed.filter(function(p){return String(p.level)===String(lv.v);}).length;
+    var on = String(_pmFilter.level||'')===String(lv.v);
+    h += '<div class="pm-lvl-chip'+(on?' pm-lvl-on':'')+'" onclick="toggleLevelFilter('+lv.v+')" style="flex:1;padding:5px 4px;border-radius:7px;border:1px solid '+(on?'#1F1F1F':'#D8D3C8')+';font-size:11px;text-align:center;color:'+(on?'#F7F5F0':lv.c)+'">'+lv.l+' '+cnt+'</div>';
   });
   h += '</div></div>';
 
   el.innerHTML = h;
 }
 
+function toggleLevelFilter(lv){
+  _pmFilter.level = (String(_pmFilter.level||'')===String(lv)) ? null : lv;
+  renderPMSidebar(); renderPMList();
+}
+
 function filterMyProjects(){
   _pmFilter.type = '全部';
   _pmFilter.search = '';
+  _pmFilter.level = null;
   _pmFilter.owner = (currentUser&&currentUser.name)||'';
   _pmFilter._active = false;
   renderPMList(); renderPMSidebar();
 }
 
+// ★ V0.6.4L: 「进行中」改为切换式筛选（再次点击回到全部），渲染统一走 renderPMList
 function filterActiveProjects(){
-  _pmFilter.type = '全部';
-  _pmFilter.search = '';
-  _pmFilter.owner = '';
-  _pmFilter._active = true;
-  // 暂存到全局，通过自定义渲染实现
-  var el = document.getElementById('pmContent');
-  if(!el) return;
-  var projects = _pmProjects.filter(function(p){return p.status==='实施中';});
-  var html = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">';
-  html += '<div style="display:flex;align-items:center;gap:10px">';
-  html += '<button onclick="_pmFilter._active=false;renderPMList()" style="padding:5px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:12px;background:#fff;cursor:pointer">← 返回全部</button>';
-  html += '<span style="font-size:12px;color:#9CA3AF">进行中项目: '+projects.length+'</span>';
-  html += '</div></div>';
-  if(!projects.length){
-    html += '<div style="text-align:center;padding:60px 20px;color:#9CA3AF">暂无进行中项目</div>';
+  if(_pmFilter._active){
+    _pmFilter._active = false;
   }else{
-    html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px">';
-    projects.forEach(function(p){ html += renderProjectCard(p); });
-    html += '</div>';
+    _pmFilter.type = '全部';
+    _pmFilter.search = '';
+    _pmFilter.level = null;
+    _pmFilter.owner = '';
+    _pmFilter._active = true;
   }
-  el.innerHTML = html;
+  renderPMList(); renderPMSidebar();
 }
 
 // ===== UI: Project Detail =====
@@ -670,12 +680,28 @@ function injectPMStyles(){
   +'.pm-header{padding:16px 20px!important;padding-top:max(16px,env(safe-area-inset-top))!important;min-height:40px!important}'
   +'.pm-header h1{font-size:18px!important}'
   +'.pm-header .header-sub{font-size:11px!important}'
-  +'.pm-card:hover{box-shadow:0 4px 12px rgba(0,0,0,.08);transform:translateY(-2px)}'
-  +'.pm-stat-card{background:#F9FAFB;border-radius:10px;padding:14px 16px;text-align:center}'
-  +'.pm-btn-back:hover{background:#F3F4F6;color:#374151}'
-  +'.pm-add-task-btn{width:100%;padding:8px;border:1px dashed #D1D5DB;border-radius:8px;background:transparent;font-size:11px;color:#9CA3AF;cursor:pointer;margin-top:4px}'
-  +'.pm-add-task-btn:hover{border-color:#3B82F6;color:#3B82F6;background:#EFF6FF}'
-  +'.pm-detail-mode{background:#F9FAFB}'
+  // ★ V0.6.4L 水墨屏设计体系：纸底、发丝线、墨黑/朱砂/黛绿三色、静谧动效
+  +'#pmView{background:#F7F5F0}'
+  +'#pmView ::selection{background:#1F1F1F;color:#F7F5F0}'
+  +'@keyframes pmFadeIn{from{opacity:0;transform:translateX(-4px)}to{opacity:1;transform:none}}'
+  +'@keyframes pmCardIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}'
+  +'.pm-nav-item{transition:background-color .16s ease-out,color .16s ease-out;animation:pmFadeIn .22s ease-out both}'
+  +'.pm-nav-item:hover{background:#EFEDE8}'
+  +'.pm-nav-sel{background:#1F1F1F!important;color:#F7F5F0!important;font-weight:600}'
+  +'.pm-nav-sel .pm-nav-cnt{color:#A8A29A!important}'
+  +'.pm-lvl-chip{transition:background-color .16s ease-out,color .16s ease-out,border-color .16s ease-out;cursor:pointer;user-select:none}'
+  +'.pm-lvl-chip:hover{border-color:#6E6A63}'
+  +'.pm-lvl-on{background:#1F1F1F!important;color:#F7F5F0!important;border-color:#1F1F1F!important}'
+  +'.pm-card{animation:pmCardIn .24s ease-out both}'
+  +'.pm-card:hover{border-color:#A8A29A!important}'
+  +'.pm-del-btn{opacity:0;transition:opacity .16s ease-out,color .16s ease-out}'
+  +'.pm-card:hover .pm-del-btn{opacity:1}'
+  +'.pm-del-btn:hover{color:#B3382C!important}'
+  +'.pm-stat-card{background:#fff;border:1px solid #E3E0D9;border-radius:10px;padding:14px 16px;text-align:center}'
+  +'.pm-btn-back:hover{background:#EFEDE8;color:#1F1F1F}'
+  +'.pm-add-task-btn{width:100%;padding:8px;border:1px dashed #C9C4BA;border-radius:8px;background:transparent;font-size:11px;color:#A8A29A;cursor:pointer;margin-top:4px;transition:all .16s ease-out}'
+  +'.pm-add-task-btn:hover{border-color:#1F1F1F;color:#1F1F1F;background:#fff}'
+  +'.pm-detail-mode{background:#F7F5F0}'
   +'#pmDetailView{display:none}'
   +'.pm-card{background:#fff}'
   ;
@@ -688,7 +714,7 @@ async function enterPMModule(){
   _pmProjects = loadAllProjects();
   _pmView = 'list';
   _pmCurrent = null;
-  _pmFilter = {type:'全部', search:'', owner:'', _active:false};
+  _pmFilter = {type:'全部', search:'', owner:'', _active:false, level:null};
 
   var listEl = document.getElementById('pmListView');
   var detailEl = document.getElementById('pmDetailView');
@@ -721,6 +747,7 @@ window.saveProject = saveProject;
 window.deleteTask = deleteTask;
 window.filterMyProjects = filterMyProjects;
 window.filterActiveProjects = filterActiveProjects;
+window.toggleLevelFilter = toggleLevelFilter;
 
 console.log('[PM] Module loaded - V0.2.0 (研发项目管理 + HTML Modal)');
 
