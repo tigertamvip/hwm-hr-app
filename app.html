@@ -6,8 +6,8 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.6.5d">
-<!-- cache-bust: 2026-07-30-07-45 -->
+<meta name="version" content="V0.6.5e">
+<!-- cache-bust: 2026-07-30-07-55 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json?v=bc">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1095,37 +1095,22 @@ body{
   position:relative;
   overflow:hidden;
 }
-/* ★ V0.6.5d: 顶部横条 — 浅色玻璃 */
+/* ★ V0.6.5e: 顶部横条 — 深蓝磨砂（与深海军蓝底协调） */
 .portal-topbar{
   position:fixed; top:0; left:0; right:0;
-  height:32px; background:rgba(255,255,255,.72); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+  height:32px; background:rgba(0,0,0,0.35); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
   display:flex; align-items:center; justify-content:center;
-  color:#1F1F1F; font-size:13px; font-weight:600;
+  color:#fff; font-size:13px; font-weight:600;
   z-index:1000; letter-spacing:1px;
-  border-bottom:1px solid rgba(0,0,0,.06);
+  border-bottom:1px solid rgba(255,255,255,.10);
 }
-/* ★ V0.6.5d: 清晨海滩 — 极淡白雾透出原图本色 */
+/* ★ V0.6.5e: 深海军蓝渐变底（参考图风格，深邃科技感） */
 .portal-view::before{
   content:'';
   position:absolute;
   inset:0;
-  background-image:
-    linear-gradient(180deg, rgba(255,255,255,.05) 0%, rgba(255,255,255,.14) 100%),
-    url('bg-login.webp');
-  background-size:cover;
-  background-position:center;
-  background-repeat:no-repeat;
+  background:linear-gradient(180deg,#0E1729 0%,#1B2A4A 60%,#15243D 100%);
   z-index:0;
-}
-/* ★ V0.6.5d: 极淡宣纸纹理 — 清新肌理不抢眼 */
-.portal-view::after{
-  content:'';
-  position:absolute;
-  inset:0;
-  background:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.12 0 0 0 0 0.12 0 0 0 0 0.11 0 0 0 0.025 0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23p)'/%3E%3C/svg%3E");
-  z-index:0;
-  pointer-events:none;
 }
 .portal-hero,.portal-grid,.portal-footer,.portal-logout{position:relative;z-index:1}
 
@@ -1137,7 +1122,7 @@ body{
   font-family:"Microsoft YaHei Light","微软雅黑 Light",sans-serif;
   font-size:21px;
   font-weight:300;
-  color:#1F1F1F;
+  color:#FFFFFF;
   line-height:1.5;
   letter-spacing:0.5px;
   margin:8px 0 0;
@@ -1146,7 +1131,7 @@ body{
   font-family:"Microsoft YaHei Light","微软雅黑 Light",sans-serif;
   font-size:26px;
   font-weight:300;
-  color:#1F1F1F;
+  color:#FFFFFF;
   line-height:1.6;
   letter-spacing:2px;
   margin:0;
@@ -1154,24 +1139,35 @@ body{
 .portal-hero .portal-divider{
   width:60px;
   height:1px;
-  background:linear-gradient(90deg,transparent,rgba(31,31,31,.35),transparent);
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);
   margin:18px auto;
 }
 .portal-hero .portal-subtitle{
   font-family:"Microsoft YaHei Light","微软雅黑 Light",sans-serif;
   font-size:22px;
   font-weight:300;
-  color:rgba(0,0,0,.45);
+  color:rgba(255,255,255,.65);
   margin-top:0;
 }
 
 .portal-grid{
   display:grid;
   grid-template-columns:repeat(4,1fr);
-  gap:24px;
+  gap:0;
   width:100%;
   max-width:920px;
   margin-bottom:20px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:14px;
+  overflow:hidden;
+}
+/* ★ V0.6.5e: 白色细分隔线网格（参考图风格，列间+行间） */
+.portal-card:not(:nth-child(4n))::after{
+  content:'';position:absolute;right:0;top:18%;bottom:18%;width:1px;background:rgba(255,255,255,.12);
+}
+.portal-card:not(:nth-last-child(-n+4))::before{
+  content:'';position:absolute;left:14%;right:14%;bottom:0;height:1px;background:rgba(255,255,255,.12);
 }
 /* V0.5.95: 12模块完整grid布局 */
 #portalCard_decision{grid-column:1;grid-row:1}
@@ -1188,64 +1184,64 @@ body{
 #portalCard_hr{grid-column:3;grid-row:3}
 #portalCard_maintenance{grid-column:4;grid-row:3}
 .portal-card{
-  background:rgba(255,255,255,.62);
-  border:1px solid rgba(210,215,220,.45);
-  border-radius:10px;
-  padding:26px 14px;
+  background:transparent;
+  border:none;
+  border-radius:0;
+  padding:32px 14px;
   text-align:center;
   cursor:pointer;
-  transition:transform .18s ease-out,box-shadow .18s ease-out,border-color .18s ease-out,background .18s ease-out;
+  transition:background .22s ease-out;
   display:flex;
   flex-direction:column;
   align-items:center;
   justify-content:center;
-  gap:5px;
-  min-height:116px;
+  gap:9px;
+  min-height:124px;
   position:relative;
   overflow:hidden;
-  box-shadow:0 1px 3px rgba(0,0,0,.04);
+  box-shadow:none;
 }
-/* ★ V0.6.5d: 玻璃感微动效 */
-.portal-card:hover{
-  transform:translateY(-2px);
-  background:rgba(255,255,255,.82);
-  border-color:rgba(165,170,178,.55);
-  box-shadow:0 6px 18px rgba(31,31,31,.06);
-  z-index:10;
-}
-.portal-card:active{transform:scale(.98);transition-duration:.08s}
+.portal-card:hover{background:rgba(255,255,255,.05)}
+.portal-card:active{transform:scale(.97);transition-duration:.08s}
 .portal-card-label{
   font-family:"Microsoft YaHei Light","微软雅黑 Light",sans-serif;
-  font-size:19px;
+  font-size:22px;
   font-weight:700;
-  color:#1B2A4A;
   line-height:1.3;
-  transition:color .18s;
-  text-shadow:0 1px 0 rgba(255,255,255,.8);
-}
-.portal-card:hover .portal-card-label{color:#0F1C33}
-.portal-card-en{
-  font-family:"Microsoft YaHei Light","微软雅黑 Light",sans-serif;
-  font-size:16px;
-  font-weight:300;
-  color:rgba(27,42,74,.48);
-  letter-spacing:1px;
-  transition:color .18s;
-}
-.portal-card:hover .portal-card-en{color:rgba(27,42,74,.68)}
-/* ★ V0.6.5d: SVG 线性图标（与标题呼应的海军蓝） */
-.portal-card-icon{
-  width:26px;height:26px;margin-bottom:3px;color:#1B2A4A;
-  display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(90deg,#4F8AFF 0%,#9F7AEA 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  position:relative;overflow:hidden;
   transition:transform .22s ease-out;
 }
-.portal-card-icon svg{width:26px;height:26px;display:block}
-.portal-card:hover .portal-card-icon{transform:scale(1.06)}
-/* ★ V0.6.5c: 已开通模块图标+文字改海军蓝（品牌藏青 #1B2A4A），未开通不变 */
-.portal-card:not(.disabled) .portal-card-label{color:#1B2A4A}
-.portal-card:not(.disabled) .portal-card-en{color:rgba(27,42,74,.48)}
-.portal-card:not(.disabled):hover .portal-card-label{color:#0F1C33}
-.portal-card:not(.disabled):hover .portal-card-en{color:rgba(27,42,74,.68)}
+.portal-card-label::after{
+  content:'';position:absolute;top:0;left:-100%;width:50%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.5),transparent);
+  transform:skewX(-20deg);
+}
+.portal-card:hover .portal-card-label{transform:translateY(-1px)}
+.portal-card:hover .portal-card-label::after{animation:npShine .9s ease-out}
+@keyframes npShine{from{left:-100%}to{left:200%}}
+.portal-card-en{
+  font-family:"Microsoft YaHei Light","微软雅黑 Light",sans-serif;
+  font-size:14px;
+  font-weight:300;
+  color:rgba(255,255,255,.6);
+  letter-spacing:.5px;
+  transition:color .22s ease-out;
+}
+.portal-card:hover .portal-card-en{color:rgba(255,255,255,.78)}
+/* ★ V0.6.5e: 白色线性图标（参考图风格，统一描边无填充） */
+.portal-card-icon{
+  width:38px;height:38px;margin-bottom:4px;color:#FFFFFF;
+  display:flex;align-items:center;justify-content:center;
+  transition:transform .22s ease-out,color .22s ease-out;
+}
+.portal-card-icon svg{width:38px;height:38px;display:block}
+.portal-card:hover .portal-card-icon{transform:scale(1.08);color:#9FBAFF}
+/* ★ V0.6.5c: 已开通模块专属调整（在深底上保留"开通/未开通"对比） */
+.portal-card:not(.disabled):hover .portal-card-icon{color:#9FBAFF}
+.portal-card:not(.disabled):hover .portal-card-label{transform:translateY(-1px)}
+.portal-card:not(.disabled):hover .portal-card-label::after{animation:npShine .9s ease-out}
 
 /* ★ V0.6.4V: 入场动效 — easeOutExpo 错落淡入（每次进入门户播放一次） */
 @keyframes portalCardIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
@@ -1355,35 +1351,31 @@ body{
 }
 .portal-card-badge{
   position:absolute;
-  top:8px;
-  right:8px;
+  top:10px;
+  right:10px;
   font-size:10px;
   background:transparent;
-  color:#A8A29A;
+  color:rgba(255,255,255,.45);
   padding:2px 8px;
   border-radius:10px;
   font-weight:500;
-  border:1px solid #D6D3CD;
+  border:1px solid rgba(255,255,255,.18);
 }
 .portal-card.disabled{
-  background:rgba(255,255,255,.35);
-  border-color:rgba(210,215,220,.25);
+  background:transparent;
+  border:none;
   cursor:default;
 }
-.portal-card.disabled:hover{transform:none;box-shadow:none;background:rgba(255,255,255,.35);border-color:rgba(210,215,220,.25)}
+.portal-card.disabled:hover{background:transparent;transform:none}
 .portal-card.disabled:active{transform:none}
-.portal-card.disabled .portal-card-icon{color:#B8B4AD}
-.portal-card.disabled .portal-card-label{color:#78746D}
-.portal-card.disabled .portal-card-en{color:#B8B4AD}
-.portal-card.disabled .portal-card-badge{background:transparent;color:#B8B4AD;border-color:#D6D3CD}
+.portal-card.disabled .portal-card-icon{color:#5A5A66;opacity:.55}
+.portal-card.disabled .portal-card-label{background:linear-gradient(90deg,#666 0%,#888 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;opacity:.55}
+.portal-card.disabled .portal-card-en{color:rgba(255,255,255,.28)}
+.portal-card.disabled .portal-card-badge{background:transparent;color:rgba(255,255,255,.30);border-color:rgba(255,255,255,.12)}
 
 /* ★ V0.6.4V: 系统维护卡与全部卡片统一白卡（原品牌蓝特殊规则废弃） */
 
-/* ★ V0.6.4V: 未开工模块 — 水墨浅灰 */
-.portal-card.disabled{
-  background:#F5F4F1;
-  border-color:#E9E6E0;
-}
+/* ★ V0.6.5e: 未开工模块 — 深底透明（disabled 样式见上 1247 行，与新底色协调） */
 
 /* ★ V0.6.1k: 未授权模块 — 看得见但低饱和（提高可见性） */
 .portal-card.unauthorized{
@@ -1411,27 +1403,27 @@ body{
   font-family:"Microsoft YaHei Light","微软雅黑 Light",sans-serif;
   font-size:13px;
   font-weight:300;
-  color:#78746D;
+  color:rgba(255,255,255,.62);
   line-height:2;
   margin-top:auto;
 }
 .portal-logout{
   margin-top:12px;
   font-size:13px;
-  color:#3A3835;
+  color:rgba(255,255,255,.85);
   cursor:pointer;
   background:none;
   border:none;
   padding:4px 8px;
   transition:color .2s;
 }
-.portal-logout:hover{color:#000}
+.portal-logout:hover{color:#fff}
 
 /* 手机端门户 */
 @media(max-width:640px){
   .portal-view{
     padding:28px 16px 32px;
-    background:#F7F5F0;
+    background:#0E1729;
     padding-top:max(28px,env(safe-area-inset-top));
     justify-content:flex-start;
   }
@@ -1461,7 +1453,7 @@ body{
   .portal-card-en{font-size:16px;font-weight:300}
   .portal-card-badge{font-size:9px;padding:1px 6px;top:4px;right:4px}
   .portal-footer{font-size:10px;line-height:1.8}
-  .portal-logout{font-size:14px;color:#3A3835}
+  .portal-logout{font-size:14px;color:rgba(255,255,255,.85)}
   /* 页眉适配 */
   .header{padding:28px 14px;padding-top:max(28px,env(safe-area-inset-top));min-height:64px}
   .header h1{font-size:17px}
