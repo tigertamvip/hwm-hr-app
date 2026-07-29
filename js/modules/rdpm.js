@@ -235,10 +235,9 @@ function renderRdDetail(){
   var h = '';
   // ★ V0.6.4N: 工具栏+阶段管道条 sticky 固定，滚动交付物清单时保持可见
   h += '<div style="position:sticky;top:0;z-index:20;background:#F9FAFB;padding:4px 0 10px">';
-  // Toolbar
+  // Toolbar（★ V0.6.4O: 「返回列表」已上移至页面 header，此处不重复）
   h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">';
   h += '<div style="display:flex;align-items:center;gap:10px">';
-  h += '<button onclick="backToPMList()" style="padding:6px 14px;border:1px solid #D0D5DD;border-radius:6px;background:#fff;font-size:12px;cursor:pointer;color:#374151">← 返回列表</button>';
   h += '<span style="font-weight:600;font-size:16px;color:#111827">'+_rdEsc(p.name)+'</span>';
   h += '<span style="font-size:10px;padding:2px 8px;border-radius:10px;background:#EFF6FF;color:#3B82F6">新产品开发</span>';
   h += '<span style="font-size:11px;color:#6B7280">负责人：'+_rdEsc(p.owner||'')+'</span>';

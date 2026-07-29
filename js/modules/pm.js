@@ -350,9 +350,11 @@ async function openPMDetail(pid){
     var rdListEl = document.getElementById('pmListView');
     var rdDetailEl = document.getElementById('pmDetailView');
     var rdPmv = document.getElementById('pmView');
+    var rdBackBtn = document.getElementById('pmBackListBtn');
     if(rdListEl) rdListEl.style.display='none';
     if(rdDetailEl) rdDetailEl.style.display='block';
     if(rdPmv) rdPmv.classList.add('pm-detail-mode');
+    if(rdBackBtn) rdBackBtn.style.display='';
     _pmCurrent = {project:p, tasks:[]};
     await openRdProjectDetail(p);
     return;
@@ -364,9 +366,11 @@ async function openPMDetail(pid){
   var pmv = document.getElementById('pmView');
   var listEl = document.getElementById('pmListView');
   var detailEl = document.getElementById('pmDetailView');
+  var backBtn = document.getElementById('pmBackListBtn');
   if(listEl) listEl.style.display='none';
   if(detailEl) detailEl.style.display='flex';
   if(pmv) pmv.classList.add('pm-detail-mode');
+  if(backBtn) backBtn.style.display='';
 
   renderPMDetail();
   renderPMTaskBoard();
@@ -374,8 +378,8 @@ async function openPMDetail(pid){
 
 function renderPMToolbar(p){
   var h = '';
+  // ★ V0.6.4O: 「返回列表」已上移至页面 header（新建项目与返回首页之间），此处不再重复
   h += '<div style="display:flex;align-items:center;gap:10px;padding:10px 0;margin-bottom:8px;border-bottom:1px solid #E5E7EB">';
-  h += '<button onclick="backToPMList()" class="pm-btn-back" style="padding:5px 14px;border:1px solid #D0D5DD;border-radius:6px;background:#fff;font-size:12px;cursor:pointer;color:#6B7280">返回列表</button>';
   h += '<span style="flex:1;font-size:13px;color:#374151">'+esc(p.name||'')+'</span>';
   h += '<select onchange="updatePMStatus('+p.id+',this.value)" style="padding:4px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:12px">';
   ['草稿中','审批中','实施中','已完成','已中止'].forEach(function(s){
@@ -575,9 +579,11 @@ function backToPMList(){
   var listEl = document.getElementById('pmListView');
   var detailEl = document.getElementById('pmDetailView');
   var pmv = document.getElementById('pmView');
+  var backBtn = document.getElementById('pmBackListBtn');
   if(listEl) listEl.style.display='block';
   if(detailEl) detailEl.style.display='none';
   if(pmv) pmv.classList.remove('pm-detail-mode');
+  if(backBtn) backBtn.style.display='none';
   renderPMList();
 }
 

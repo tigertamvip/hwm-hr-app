@@ -6,8 +6,8 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.6.4N">
-<!-- cache-bust: 2026-07-29-16-20 -->
+<meta name="version" content="V0.6.4O">
+<!-- cache-bust: 2026-07-29-16-42 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json?v=bc">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2570,7 +2570,7 @@ table.collab-table tbody tr:hover{background:#fffdf5}
 ._confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:9999;display:flex;align-items:center;justify-content:center}
 ._confirm-card{background:rgba(255,255,255,.8);backdrop-filter:blur(10px);border-radius:12px;width:480px;max-width:90vw;box-shadow:0 12px 40px rgba(0,0,0,.2);overflow:hidden}
 ._confirm-title{padding:28px 24px 12px;font-size:16px;font-weight:600;color:#1f2937;border-bottom:1px solid #e5e7eb}
-._confirm-body{padding:10px 28px 20px;font-size:14px;color:#6b7280;line-height:1;white-space:pre-line;word-break:break-word}
+._confirm-body{padding:10px 28px 20px;font-size:14px;color:#6b7280;line-height:1.5;white-space:pre-line;word-break:break-word}
 ._confirm-actions{padding:14px 28px 20px;display:flex;justify-content:flex-end;gap:12px;border-top:1px solid #e5e7eb}
 ._confirm-btn-cancel{padding:10px 40px;border:1px solid #d1d5db;border-radius:8px;background:#fff;color:#6b7280;font-size:14px;cursor:pointer;min-width:100px}
 ._confirm-btn-cancel:hover{background:#F5F5F5}
@@ -3200,6 +3200,7 @@ function togglePortalTips(){
         </div>
         <div style="display:flex;align-items:center;gap:8px">
           <button class="pm-btn-primary" onclick="showNewProjectForm()">+ 新建项目</button>
+          <button id="pmBackListBtn" class="pm-btn-ghost" style="display:none" onclick="backToPMList()">← 返回列表</button>
           <button class="pm-btn-ghost" onclick="goHome()">返回首页</button>
         </div>
       </div>
@@ -6934,8 +6935,8 @@ if('serviceWorker' in navigator){
 </script>
 <script src="js/modules/mbo.js?v=64j"></script>
 <script src="js/modules/rd-template.js?v=1"></script>
-<script src="js/modules/pm.js?v=9"></script>
-<script src="js/modules/rdpm.js?v=5"></script>
+<script src="js/modules/pm.js?v=10"></script>
+<script src="js/modules/rdpm.js?v=6"></script>
 <script src="js/modules/system.js?v=3e"></script>
 <script src="js/modules/dashboard.js?v=j63"></script>
 <script>
