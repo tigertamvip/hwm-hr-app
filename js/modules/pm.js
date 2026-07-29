@@ -464,6 +464,63 @@ function renderPMTaskBoard(){
   el.innerHTML = h;
 }
 
+// ★ V0.6.4S: 在职员工姓名自动补全（通用组件，PM/RDPM 全域姓名输入框复用）
+// opts.multi: true=多值（空格/逗号/顿号分隔，如评审参会人）；false/缺省=单值（如负责人）
+function _pmEmpPool(){
+  var pool = (typeof allEmployees!=='undefined' && allEmployees && allEmployees.length)
+    ? allEmployees
+    : (window.__PRELOADED_EMPLOYEES__||[]);
+  var names = [], seen = {};
+  pool.forEach(function(e){
+    var n = e && (e.name||e['姓名']);
+    if(n && !seen[n]){ seen[n]=true; names.push(n); }
+  });
+  return names;
+}
+function attachEmpNameAutocomplete(input, opts){
+  opts = opts||{};
+  var multi = !!opts.multi;
+  if(!input || !input.parentElement) return;
+  if(window.getComputedStyle(input.parentElement).position==='static'){
+    input.parentElement.style.position = 'relative';
+  }
+  var dropdown = document.createElement('div');
+  dropdown.style.cssText = 'display:none;position:absolute;top:100%;left:0;right:0;margin-top:2px;z-index:5;background:#fff;border:1px solid #D0D5DD;border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,.14);max-height:180px;overflow-y:auto;font-size:12px';
+  input.parentElement.appendChild(dropdown);
+
+  function _parts(){ return input.value.split(/[,，、\s]+/); }
+  function _token(){
+    if(!multi) return {token:input.value.trim(), head:''};
+    var parts = _parts();
+    var last = parts[parts.length-1]||'';
+    return {token:last.trim(), head:input.value.slice(0, input.value.length-last.length)};
+  }
+  function _hide(){ dropdown.style.display='none'; }
+  function _fill(name){
+    if(multi){ var t=_token(); input.value = t.head + name + ' '; }
+    else{ input.value = name; }
+    _hide(); input.focus();
+  }
+  input.addEventListener('input', function(){
+    var t = _token();
+    if(!t.token){ _hide(); return; }
+    var entered = multi ? _parts().map(function(s){return s.trim();}).filter(function(s){return s;}) : [];
+    var hits = _pmEmpPool().filter(function(n){
+      return n.indexOf(t.token)>=0 && entered.indexOf(n)<0;
+    }).slice(0,8);
+    if(!hits.length){ _hide(); return; }
+    dropdown.innerHTML = hits.map(function(n){
+      return '<div data-name="'+esc(n)+'" style="padding:7px 12px;cursor:pointer;color:#1F1F1F" onmouseover="this.style.background=\'#F3F4F6\'" onmouseout="this.style.background=\'\'">'+esc(n)+'</div>';
+    }).join('');
+    dropdown.querySelectorAll('[data-name]').forEach(function(el){
+      el.addEventListener('mousedown', function(e){ e.preventDefault(); _fill(el.getAttribute('data-name')); });
+    });
+    dropdown.style.display='block';
+  });
+  input.addEventListener('blur', function(){ setTimeout(_hide, 150); });
+  input.addEventListener('keydown', function(e){ if(e.key==='Escape') _hide(); });
+}
+
 // ===== Form Modal Helper (replaces _showConfirm for forms) =====
 function showFormModal(html, title, okText, cancelText, onSubmit){
   var overlay = document.createElement('div');
@@ -537,9 +594,9 @@ async function openTaskEdit(pid, tid){
   priorities.forEach(function(s){ h += '<option'+(s===t.priority?' selected':'')+'>'+s+'</option>'; });
   h += '</select></div></div>';
   h += '<div style="display:flex;gap:12px;margin-bottom:12px">';
-  h += '<div style="flex:1">';
+  h += '<div style="flex:1;position:relative">';
   h += '<label style="display:block;font-size:12px;color:#6B7280;margin-bottom:4px">负责人</label>';
-  h += '<input id="te-assignee" value="'+esc(t.assignee||'')+'" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:13px;box-sizing:border-box">';
+  h += '<input id="te-assignee" value="'+esc(t.assignee||'')+'" autocomplete="off" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:13px;box-sizing:border-box">';
   h += '</div>';
   h += '<div style="flex:1">';
   h += '<label style="display:block;font-size:12px;color:#6B7280;margin-bottom:4px">截止日期</label>';
@@ -576,6 +633,8 @@ async function openTaskEdit(pid, tid){
     showToast('任务已保存');
     close();
   });
+  // ★ V0.6.4S: 任务负责人姓名联想（单值模式）
+  attachEmpNameAutocomplete(document.getElementById('te-assignee'), {multi:false});
 }
 
 async function updatePMStatus(pid, status){
@@ -625,7 +684,7 @@ async function showNewProjectForm(){
   h += '</select></div></div>';
   h += '<div style="margin-bottom:12px">';
   h += '<label style="display:block;font-size:12px;color:#6B7280;margin-bottom:4px">项目负责人</label>';
-  h += '<input id="np-owner" value="'+esc(currentName)+'" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:13px;box-sizing:border-box">';
+  h += '<div style="position:relative"><input id="np-owner" value="'+esc(currentName)+'" autocomplete="off" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:13px;box-sizing:border-box"></div>';
   h += '</div>';
   // ★ V1.0 RDPM: 研发项目可选起始阶段（在研项目中间切入）
   h += '<div id="np-rdstart-wrap" style="display:none;margin-bottom:12px">';
@@ -681,6 +740,8 @@ async function showNewProjectForm(){
     }
     if(p) { _pmFilter.type = '全部'; _pmProjects = loadAllProjects(); renderPMList(); renderPMSidebar(); close(); }
   });
+  // ★ V0.6.4S: 项目负责人姓名联想（单值模式）
+  attachEmpNameAutocomplete(document.getElementById('np-owner'), {multi:false});
 }
 
 // ===== Utility =====
@@ -776,6 +837,7 @@ window.deleteTask = deleteTask;
 window.filterMyProjects = filterMyProjects;
 window.filterActiveProjects = filterActiveProjects;
 window.toggleLevelFilter = toggleLevelFilter;
+window.attachEmpNameAutocomplete = attachEmpNameAutocomplete;
 
 console.log('[PM] Module loaded - V0.2.0 (研发项目管理 + HTML Modal)');
 

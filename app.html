@@ -6,8 +6,8 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.6.4R">
-<!-- cache-bust: 2026-07-29-19-35 -->
+<meta name="version" content="V0.6.4S">
+<!-- cache-bust: 2026-07-29-21-36 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json?v=bc">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -6595,8 +6595,11 @@ function _showConfirm(message,title){
 function _showAlert(message,title,autoCloseMs){
   var ms=typeof autoCloseMs==='number'?autoCloseMs:(autoCloseMs===true?5000:0);
   return new Promise(function(resolve){
+    // ★ V0.6.4S: 单例化——先清理所有未关闭的 alert 遮罩，防止连续触发时叠加变暗
+    // （仅清 alert 专用层，不动 _showConfirm 的决策层，避免 Promise 悬决）
+    document.querySelectorAll('._alert-overlay').forEach(function(el){ if(el.parentNode) el.parentNode.removeChild(el); });
     var overlay=document.createElement('div');
-    overlay.className='_confirm-overlay';
+    overlay.className='_confirm-overlay _alert-overlay';
     overlay.style.transition='opacity .5s ease';
     if(ms>0){
       // 无按钮模式：纯提示，自动渐隐
@@ -6935,8 +6938,8 @@ if('serviceWorker' in navigator){
 </script>
 <script src="js/modules/mbo.js?v=64j"></script>
 <script src="js/modules/rd-template.js?v=1"></script>
-<script src="js/modules/pm.js?v=12"></script>
-<script src="js/modules/rdpm.js?v=9"></script>
+<script src="js/modules/pm.js?v=13"></script>
+<script src="js/modules/rdpm.js?v=10"></script>
 <script src="js/modules/system.js?v=3e"></script>
 <script src="js/modules/dashboard.js?v=j63"></script>
 <script>

@@ -106,55 +106,9 @@ async function _rdCreateRectifyTask(pid, title){
   return (r.data&&r.data[0])||null;
 }
 
-// ★ V0.6.4R: 在职员工姓名池（参会人自动补全用，复用全局员工数据，不依赖 mbo.js 内部函数）
-function _rdEmpPool(){
-  var pool = (typeof allEmployees!=='undefined' && allEmployees && allEmployees.length)
-    ? allEmployees
-    : (window.__PRELOADED_EMPLOYEES__||[]);
-  var names = [], seen = {};
-  pool.forEach(function(e){
-    var n = e && (e.name||e['姓名']);
-    if(n && !seen[n]){ seen[n]=true; names.push(n); }
-  });
-  return names;
-}
-
-// ★ V0.6.4R: 参会人自动补全——输入姓氏弹出在职员工下拉，点选填入（分隔符：空格/逗号/顿号）
-// 下拉挂在 input 父容器内（position:relative），弹窗关闭时随 overlay 一并移除，零泄漏
-function _rdAttachAttendeeAutocomplete(input){
-  if(!input || !input.parentElement) return;
-  var dropdown = document.createElement('div');
-  dropdown.style.cssText = 'display:none;position:absolute;top:100%;left:0;right:0;margin-top:2px;z-index:5;background:#fff;border:1px solid #D0D5DD;border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,.14);max-height:180px;overflow-y:auto;font-size:12px';
-  input.parentElement.appendChild(dropdown);
-
-  function _token(){
-    var parts = input.value.split(/[,，、\s]+/);
-    return {token:(parts[parts.length-1]||'').trim(), head:input.value.slice(0, input.value.length-(parts[parts.length-1]||'').length)};
-  }
-  function _hide(){ dropdown.style.display='none'; }
-  function _fill(name){
-    var t = _token();
-    input.value = t.head + name + ' ';
-    _hide(); input.focus();
-  }
-  input.addEventListener('input', function(){
-    var t = _token();
-    if(!t.token){ _hide(); return; }
-    var entered = input.value.split(/[,，、\s]+/).map(function(s){return s.trim();}).filter(function(s){return s;});
-    var hits = _rdEmpPool().filter(function(n){
-      return n.indexOf(t.token)>=0 && entered.indexOf(n)<0;
-    }).slice(0,8);
-    if(!hits.length){ _hide(); return; }
-    dropdown.innerHTML = hits.map(function(n){
-      return '<div data-name="'+_rdEsc(n)+'" style="padding:7px 12px;cursor:pointer;color:#1F1F1F" onmouseover="this.style.background=\'#F3F4F6\'" onmouseout="this.style.background=\'\'">'+_rdEsc(n)+'</div>';
-    }).join('');
-    dropdown.querySelectorAll('[data-name]').forEach(function(el){
-      el.addEventListener('mousedown', function(e){ e.preventDefault(); _fill(el.getAttribute('data-name')); });
-    });
-    dropdown.style.display='block';
-  });
-  input.addEventListener('blur', function(){ setTimeout(_hide, 150); });
-  input.addEventListener('keydown', function(e){ if(e.key==='Escape') _hide(); });
+// ★ V0.6.4S: 姓名自动补全统一改用 pm.js 通用组件 attachEmpNameAutocomplete（本模块不再重复实现）
+function _rdNameAutocomplete(input, multi){
+  if(typeof attachEmpNameAutocomplete==='function') attachEmpNameAutocomplete(input, {multi:multi});
 }
 
 // ===== Template Instantiation =====
@@ -615,6 +569,8 @@ function rdEditDeliverable(did){
     close();
     renderRdDetail();
   });
+  // ★ V0.6.4S: 交付物负责人姓名联想（单值模式）
+  _rdNameAutocomplete(document.getElementById('rd-d-owner'), false);
 }
 function c_projectId(){ return _rdCurrent?_rdCurrent.project.id:null; }
 
@@ -661,21 +617,32 @@ function rdOpenReviewForm(gid){
   h += '<div style="position:relative"><input id="rd-g-att" placeholder="如：谭晨航 尤亚君" autocomplete="off" style="width:100%;padding:7px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:12px;box-sizing:border-box"></div></div>';
   h += '</div>';
   h += '<div style="margin-bottom:10px"><label style="display:block;font-size:11px;color:#6B7280;margin-bottom:3px">评审结论 <span style="color:#EF4444">*</span></label>';
-  h += '<div style="display:flex;gap:8px">';
-  h += '<label style="flex:1;padding:8px;border:1px solid #D0D5DD;border-radius:6px;font-size:12px;cursor:pointer;text-align:center"><input type="radio" name="rd-g-result" value="passed" checked> 通过</label>';
-  h += '<label style="flex:1;padding:8px;border:1px solid #D0D5DD;border-radius:6px;font-size:12px;cursor:pointer;text-align:center"><input type="radio" name="rd-g-result" value="conditional"> 有条件通过</label>';
-  h += '<label style="flex:1;padding:8px;border:1px solid #D0D5DD;border-radius:6px;font-size:12px;cursor:pointer;text-align:center"><input type="radio" name="rd-g-result" value="rejected"> 退回</label>';
+  // ★ V0.6.4S: 语义化配色——通过=绿、有条件通过=黄、退回=红（选中态高亮，未选中灰）
+  h += '<div style="display:flex;gap:8px" id="rd-g-result-wrap">';
+  h += '<label data-v="passed" style="flex:1;padding:8px;border:1px solid #059669;border-radius:6px;font-size:12px;cursor:pointer;text-align:center;background:#ECFDF5;color:#059669;font-weight:600"><input type="radio" name="rd-g-result" value="passed" checked> 通过</label>';
+  h += '<label data-v="conditional" style="flex:1;padding:8px;border:1px solid #D0D5DD;border-radius:6px;font-size:12px;cursor:pointer;text-align:center;background:#fff;color:#6B7280;font-weight:400"><input type="radio" name="rd-g-result" value="conditional"> 有条件通过</label>';
+  h += '<label data-v="rejected" style="flex:1;padding:8px;border:1px solid #D0D5DD;border-radius:6px;font-size:12px;cursor:pointer;text-align:center;background:#fff;color:#6B7280;font-weight:400"><input type="radio" name="rd-g-result" value="rejected"> 退回</label>';
   h += '</div></div>';
   h += '<div style="margin-bottom:10px"><label style="display:block;font-size:11px;color:#6B7280;margin-bottom:3px">评审意见</label>';
   h += '<textarea id="rd-g-concl" rows="3" style="width:100%;padding:7px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:12px;box-sizing:border-box;resize:vertical"></textarea></div>';
   h += '<div><label style="display:block;font-size:11px;color:#6B7280;margin-bottom:3px">整改项（有条件通过时必填，每行一条）</label>';
-  h += '<textarea id="rd-g-actions" rows="3" placeholder="例：补充 EMC 摸底测试数据&#10;修订 BOM 中供应商信息" style="width:100%;padding:7px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:12px;box-sizing:border-box;resize:vertical"></textarea></div>';
+  h += '<textarea id="rd-g-actions" rows="3" placeholder="例：补充 EMC 摸底测试数据&#10;修订 BOM 中供应商信息" style="width:100%;padding:7px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:12px;box-sizing:border-box;resize:vertical"></textarea>';
+  h += '<div id="rd-g-err" style="display:none;color:#DC2626;font-size:11px;margin-top:4px"></div></div>';
 
   showFormModal(h, '提交评审结论', '提交', '取消', async function(close){
     var result = (document.querySelector('input[name="rd-g-result"]:checked')||{}).value||'passed';
     var actionsText = document.getElementById('rd-g-actions').value.trim();
     var actionLines = actionsText?actionsText.split('\n').map(function(s){return s.trim();}).filter(function(s){return s;}):[];
-    if(result==='conditional' && !actionLines.length){ _showAlert('有条件通过必须填写至少一条整改项'); return; }
+    if(result==='conditional' && !actionLines.length){
+      // ★ V0.6.4S: 校验失败弹窗内联提示，不再叠 _showAlert 遮罩（叠加变暗事故的根治）
+      var errEl = document.getElementById('rd-g-err');
+      var taEl = document.getElementById('rd-g-actions');
+      errEl.textContent = '⚠ 有条件通过必须填写至少一条整改项（每行一条）';
+      errEl.style.display = 'block';
+      taEl.style.borderColor = '#DC2626';
+      taEl.focus();
+      return;
+    }
 
     var me = (currentUser&&currentUser.name)||'';
     var actionItems = [];
@@ -706,8 +673,39 @@ function rdOpenReviewForm(gid){
     close();
     renderRdDetail();
   });
-  // ★ V0.6.4R: 参会人姓名自动补全（在职员工联想下拉）
-  _rdAttachAttendeeAutocomplete(document.getElementById('rd-g-att'));
+  // ★ V0.6.4R: 参会人姓名自动补全（在职员工联想下拉，多值模式）
+  _rdNameAutocomplete(document.getElementById('rd-g-att'), true);
+  // ★ V0.6.4S: 整改项输入时清除内联错误提示
+  (function(){
+    var taEl = document.getElementById('rd-g-actions');
+    var errEl = document.getElementById('rd-g-err');
+    if(taEl && errEl) taEl.addEventListener('input', function(){
+      errEl.style.display='none'; taEl.style.borderColor='#D0D5DD';
+    });
+  })();
+  // ★ V0.6.4S: 评审结论按钮选中态配色切换（绿/黄/红）
+  (function(){
+    var COLORS = {
+      passed:{c:'#059669',bg:'#ECFDF5'},
+      conditional:{c:'#D97706',bg:'#FFFBEB'},
+      rejected:{c:'#DC2626',bg:'#FEF2F2'}
+    };
+    var wrap = document.getElementById('rd-g-result-wrap');
+    if(!wrap) return;
+    wrap.querySelectorAll('label[data-v]').forEach(function(lb){
+      lb.addEventListener('click', function(){
+        wrap.querySelectorAll('label[data-v]').forEach(function(x){
+          x.style.borderColor='#D0D5DD'; x.style.background='#fff';
+          x.style.color='#6B7280'; x.style.fontWeight='400';
+        });
+        var st = COLORS[lb.getAttribute('data-v')];
+        if(st){
+          lb.style.borderColor=st.c; lb.style.background=st.bg;
+          lb.style.color=st.c; lb.style.fontWeight='600';
+        }
+      });
+    });
+  })();
 }
 
 // 阶段状态评估：所有正式门 passed→阶段通过并解锁下一阶段；rejected→退回；conditional→有条件
