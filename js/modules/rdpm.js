@@ -348,7 +348,7 @@ function renderRdStagePanel(c, stage, canReview){
   h += '<span style="font-size:10px;padding:2px 8px;border-radius:10px;background:#fff;color:'+st.color+';border:1px solid '+st.color+'">'+st.label+'</span>';
   h += '</div>';
   if(stage.status==='active'||stage.status==='returned'){
-    h += '<div style="font-size:11px;color:#6B7280">完成关键交付物后可申请各评审门</div>';
+    h += '<div style="font-size:11px;color:#6B7280">完成关键交付物后，可启动各项评审</div>';
   }
   h += '</div>';
 
@@ -384,12 +384,13 @@ function renderRdStagePanel(c, stage, canReview){
 
   // Right: gates
   h += '<div style="flex:1;padding:12px 16px;min-width:0">';
-  h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">';
-  h += '<div style="font-size:12px;font-weight:600;color:#374151">评审门（'+gates.filter(function(g){return !g.is_adhoc;}).length+'）</div>';
+  h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">';
+  h += '<div style="font-size:12px;font-weight:600;color:#374151">评审入口（'+gates.filter(function(g){return !g.is_adhoc;}).length+'）</div>';
   if(stage.status!=='locked' && stage.status!=='passed'){
-    h += '<button onclick="rdAddAdhocGate(\''+stage.id+'\')" style="padding:3px 8px;border:1px dashed #D97706;border-radius:6px;background:#FFFBEB;color:#D97706;font-size:10px;cursor:pointer">+ 临时评审</button>';
+    h += '<button onclick="rdAddAdhocGate(\''+stage.id+'\')" style="padding:3px 8px;border:1px dashed #D97706;border-radius:6px;background:#FFFBEB;color:#D97706;font-size:10px;cursor:pointer">+ 发起临时评审</button>';
   }
   h += '</div>';
+  h += '<div style="font-size:9px;color:#A8A29A;margin-bottom:10px;line-height:1.5">前置交付物全部就绪后，由评审人启动评审；临时评审用于过程中即时评估（如型检发现问题），不影响阶段推进。</div>';
   gates.forEach(function(g){ h += renderRdGateCard(c, g, canReview); });
   // 注册提交终点
   if(stage.stage_key==='transfer'){
@@ -429,6 +430,7 @@ function renderRdGateCard(c, g, canReview){
   var reqs = _rdGateRequires(c, g);
   var rc = _rdReadyCount(reqs);
   var naItems = reqs.filter(function(d){return d.status==='na';});
+  var ownerName = c.project.owner||'';
 
   var h = '<div style="border:1px solid #E5E7EB;border-radius:10px;padding:10px 12px;margin-bottom:8px;'+(g.is_adhoc?'border-style:dashed;':'')+'">';
   h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">';
@@ -436,16 +438,22 @@ function renderRdGateCard(c, g, canReview){
   h += '<span style="font-size:10px;padding:1px 8px;border-radius:9px;background:'+gr.bg+';color:'+gr.color+'">'+gr.label+'</span>';
   h += '</div>';
   if(g.result==='pending'){
-    h += '<div style="font-size:10px;color:#6B7280;margin-bottom:6px">前置交付物 '+rc.done+'/'+rc.total+' 就绪</div>';
+    // ★ V0.6.4Q: 评审人规则透明化——谁有权启动评审一眼可见
+    h += '<div style="font-size:10px;color:#9CA3AF;margin-bottom:6px">评审人：'+_rdEsc(ownerName||'项目负责人')+'</div>';
+    if(!g.is_adhoc){
+      h += '<div style="font-size:10px;color:#6B7280;margin-bottom:6px">前置交付物 '+rc.done+'/'+rc.total+' 就绪</div>';
+    }
     if(naItems.length){
       h += '<div style="font-size:10px;color:#D97706;background:#FFFBEB;border-radius:5px;padding:4px 6px;margin-bottom:6px">含 '+naItems.length+' 项 N/A（评审时请复核）：'+naItems.map(function(d){return _rdEsc(d.name);}).join('、')+'</div>';
     }
-    if(rc.ready){
-      if(canReview){
-        h += '<button onclick="rdOpenReviewForm(\''+g.id+'\')" style="width:100%;padding:6px;border:0;border-radius:6px;background:#3B82F6;color:#fff;font-size:11px;cursor:pointer">申请评审</button>';
-      }else{
-        h += '<div style="font-size:10px;color:#9CA3AF;text-align:center">仅项目负责人可提交评审</div>';
-      }
+    // ★ V0.6.4Q: 入口显性化——按钮始终可见，未就绪/无权限时禁用并说明原因
+    if(rc.ready && canReview){
+      h += '<button onclick="rdOpenReviewForm(\''+g.id+'\')" style="width:100%;padding:7px;border:0;border-radius:6px;background:#3B82F6;color:#fff;font-size:11px;font-weight:600;cursor:pointer">启动评审</button>';
+    }else{
+      h += '<button disabled style="width:100%;padding:7px;border:1px solid #E5E7EB;border-radius:6px;background:#F9FAFB;color:#B0B4BA;font-size:11px;cursor:not-allowed">启动评审</button>';
+      h += '<div style="font-size:9px;color:#A8A29A;text-align:center;margin-top:4px">'
+         + (!canReview ? '仅评审人（'+_rdEsc(ownerName)+'）可启动' : '前置交付物全部就绪后可启动')
+         + '</div>';
     }
   }else{
     h += '<div style="font-size:10px;color:#6B7280">评审人：'+_rdEsc(g.reviewed_by||'—')+'　日期：'+_rdEsc(g.review_date||'—')+'</div>';
@@ -675,7 +683,7 @@ async function _rdEvaluateStage(stageId){
 async function rdConfirmConditionalDone(gid){
   var g = _rdCurrent.gates.find(function(x){return x.id===gid;});
   if(!g || !_rdCanReview(_rdCurrent.project)) return;
-  var ok = await _showConfirm('确认该评审的所有整改项已完成，将本评审门标记为「通过」？','确认');
+  var ok = await _showConfirm('确认该评审的所有整改项已完成，将本评审标记为「通过」？','确认');
   if(!ok) return;
   await _rdUpdate(RD_GATE_TABLE, gid, {result:'passed'});
   g.result = 'passed';
@@ -739,10 +747,10 @@ async function rdDeleteIteration(version){
   var started = groupDels.filter(function(d){return d.status!=='pending';});
   var reviewed = groupGates.filter(function(g){return g.result!=='pending';});
   if(started.length || reviewed.length){
-    _showAlert('迭代 '+version+' 已有交付进展或评审记录，不能整组删除。\n（'+started.length+' 项交付物已启动，'+reviewed.length+' 个评审门已有结论）');
+    _showAlert('迭代 '+version+' 已有交付进展或评审记录，不能整组删除。\n（'+started.length+' 项交付物已启动，'+reviewed.length+' 个评审已有结论）');
     return;
   }
-  var ok = await _showConfirm('将删除试产迭代 '+version+' 的全部内容：\n· '+groupDels.length+' 项交付物（DMR 文件组/修模记录/试产工单）\n· '+groupGates.length+' 个评审门\n\n此操作不可恢复。','删除迭代 '+version);
+  var ok = await _showConfirm('将删除试产迭代 '+version+' 的全部内容：\n· '+groupDels.length+' 项交付物（DMR 文件组/修模记录/试产工单）\n· '+groupGates.length+' 个评审\n\n此操作不可恢复。','删除迭代 '+version);
   if(!ok) return;
   try{
     var r1 = await supabase.from(RD_DELIVER_TABLE).delete().eq('project_id',c.project.id).eq('stage_id',stage.id).eq('iteration',version);
