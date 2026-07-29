@@ -6,8 +6,8 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.6.4U">
-<!-- cache-bust: 2026-07-30-05-25 -->
+<meta name="version" content="V0.6.4V">
+<!-- cache-bust: 2026-07-30-06-10 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json?v=bc">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1095,25 +1095,21 @@ body{
   position:relative;
   overflow:hidden;
 }
-/* ★ V0.5.134: 门户顶部横条 */
+/* ★ V0.6.4V: 门户顶部横条 — 纸白+发丝线 */
 .portal-topbar{
   position:fixed; top:0; left:0; right:0;
-  height:32px; background:rgba(2,49,77,0.60); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+  height:32px; background:rgba(247,245,240,.88); backdrop-filter:blur(20px) saturate(1.1); -webkit-backdrop-filter:blur(20px) saturate(1.1);
   display:flex; align-items:center; justify-content:center;
-  color:#fff; font-size:14px; font-weight:600;
+  color:#1F1F1F; font-size:13px; font-weight:600;
   z-index:1000; letter-spacing:1px;
-  box-shadow:0 2px 10px rgba(0,0,0,.18);
+  border-bottom:1px solid #E3E0D9;
 }
-/* V0.5.89: 背景图片移到伪元素做模糊柔化 */
+/* ★ V0.6.4V: 水墨屏门户 — 素纸底取代风景图 */
 .portal-view::before{
   content:'';
   position:absolute;
-  inset:-10px;
-  background-image: linear-gradient(rgba(10,30,60,.35), rgba(20,60,100,.25)), url('bg-login.webp');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  filter:blur(3px);
+  inset:0;
+  background:linear-gradient(180deg,#F7F5F0 0%,#F0EEE8 100%);
   z-index:0;
 }
 .portal-hero,.portal-grid,.portal-footer,.portal-logout{position:relative;z-index:1}
@@ -1126,7 +1122,7 @@ body{
   font-family:"Microsoft YaHei Light","微软雅黑 Light",sans-serif;
   font-size:21px;
   font-weight:300;
-  color:#fff;
+  color:#1F1F1F;
   line-height:1.5;
   letter-spacing:0.5px;
   margin:8px 0 0;
@@ -1135,7 +1131,7 @@ body{
   font-family:"Microsoft YaHei Light","微软雅黑 Light",sans-serif;
   font-size:26px;
   font-weight:300;
-  color:#fff;
+  color:#1F1F1F;
   line-height:1.6;
   letter-spacing:2px;
   margin:0;
@@ -1143,7 +1139,7 @@ body{
 .portal-hero .portal-divider{
   width:60px;
   height:1px;
-  background:linear-gradient(90deg,transparent,rgba(255,187,28,.6),transparent);
+  background:linear-gradient(90deg,transparent,rgba(31,31,31,.38),transparent);
   margin:18px auto;
 }
 .portal-hero .portal-subtitle{
@@ -1170,56 +1166,83 @@ body{
 #portalCard_dashboard{grid-column:4;grid-row:2}
 #portalCard_talent{grid-column:1;grid-row:2}
 #portalCard_payroll{grid-column:3;grid-row:2}
-#portalCard_mbo{background:#6D9D39!important}
-#portalCard_dashboard{background:#6D9D39!important}
-/* ★ V0.6.4T: 项目管理卡片改为绿色（与本周任务/数据中心统一 #6D9D39） */
-#portalCard_talent{background:#6D9D39!important}
+/* ★ V0.6.4V: 全部卡片统一白卡，原绿色特殊规则移除 */
 #portalCard_learning{grid-column:2;grid-row:2}
 #portalCard_ideas{grid-column:1;grid-row:3}
 #portalCard_policies{grid-column:2;grid-row:3}
 #portalCard_hr{grid-column:3;grid-row:3}
 #portalCard_maintenance{grid-column:4;grid-row:3}
 .portal-card{
-  background:#1B4F72;
-  border:1px solid rgba(255,255,255,.08);
-  border-radius:8px;
-  padding:28px 14px;
+  background:#FFFFFF;
+  border:1px solid #E3E0D9;
+  border-radius:10px;
+  padding:24px 14px;
   text-align:center;
   cursor:pointer;
-  transition:transform .25s cubic-bezier(.25,.8,.25,1.2),box-shadow .25s,border-color .25s,background .25s;
+  transition:transform .18s ease-out,box-shadow .18s ease-out,border-color .18s ease-out;
   display:flex;
   flex-direction:column;
   align-items:center;
   justify-content:center;
-  gap:4px;
+  gap:5px;
   min-height:116px;
   position:relative;
   overflow:hidden;
-  box-shadow:0 1px 4px rgba(0,0,0,.08);
+  box-shadow:none;
 }
+/* ★ V0.6.4V: Apple 式微动效 — hover 轻上浮+极淡影，按压 scale(.98) */
 .portal-card:hover{
-  opacity:.8;
+  transform:translateY(-2px);
+  border-color:#C9C5BC;
+  box-shadow:0 6px 18px rgba(31,31,31,.07);
   z-index:10;
 }
-.portal-card:active{}
+.portal-card:active{transform:scale(.98);transition-duration:.08s}
 .portal-card-label{
   font-family:"Microsoft YaHei Light","微软雅黑 Light",sans-serif;
   font-size:19px;
   font-weight:700;
-  color:#ffffff;
+  color:#1F1F1F;
   line-height:1.3;
-  transition:color .25s;
+  transition:color .18s;
 }
-.portal-card:hover .portal-card-label{color:#ffffff}
+.portal-card:hover .portal-card-label{color:#000000}
 .portal-card-en{
   font-family:"Microsoft YaHei Light","微软雅黑 Light",sans-serif;
   font-size:16px;
   font-weight:300;
-  color:rgba(255,255,255,.55);
+  color:#A8A29A;
   letter-spacing:1px;
-  transition:color .25s;
+  transition:color .18s;
 }
-.portal-card:hover .portal-card-en{color:rgba(255,255,255,.7)}
+.portal-card:hover .portal-card-en{color:#6E6A63}
+/* ★ V0.6.4V: 线性 SVG 图标（对齐公司品牌图标集：统一描边/无填充/圆角线帽） */
+.portal-card-icon{
+  width:26px;height:26px;margin-bottom:3px;color:#1F1F1F;
+  display:flex;align-items:center;justify-content:center;
+}
+.portal-card-icon svg{width:26px;height:26px;display:block}
+/* ★ V0.6.4V: 入场动效 — easeOutExpo 错落淡入（每次进入门户播放一次） */
+@keyframes portalCardIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes portalHeroIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.portal-hero{animation:portalHeroIn .5s cubic-bezier(.16,1,.3,1) both}
+.portal-card{animation:portalCardIn .42s cubic-bezier(.16,1,.3,1) both}
+.portal-card:nth-child(1){animation-delay:.05s}
+.portal-card:nth-child(2){animation-delay:.09s}
+.portal-card:nth-child(3){animation-delay:.13s}
+.portal-card:nth-child(4){animation-delay:.17s}
+.portal-card:nth-child(5){animation-delay:.21s}
+.portal-card:nth-child(6){animation-delay:.25s}
+.portal-card:nth-child(7){animation-delay:.29s}
+.portal-card:nth-child(8){animation-delay:.33s}
+.portal-card:nth-child(9){animation-delay:.37s}
+.portal-card:nth-child(10){animation-delay:.41s}
+.portal-card:nth-child(11){animation-delay:.45s}
+.portal-card:nth-child(12){animation-delay:.49s}
+@media (prefers-reduced-motion:reduce){
+  .portal-card,.portal-hero{animation:none}
+  .portal-card,.portal-card:hover,.portal-card:active{transition:none}
+}
 
 /* ★ V0.5.120→抽屉式改造: 顶部抽屉式信息面板（easeOutExpo推出 / easeInExpo回收） */
 .portal-info-panel{
@@ -1310,33 +1333,32 @@ body{
   top:8px;
   right:8px;
   font-size:10px;
-  background:rgba(255,255,255,.1);
-  color:rgba(255,255,255,.55);
+  background:transparent;
+  color:#A8A29A;
   padding:2px 8px;
   border-radius:10px;
   font-weight:500;
-  border:1px solid rgba(255,255,255,.15);
+  border:1px solid #D6D3CD;
 }
 .portal-card.disabled{
+  background:#F5F4F1;
+  border-color:#E9E6E0;
   cursor:default;
 }
+.portal-card.disabled:hover{transform:none;box-shadow:none;border-color:#E9E6E0}
 .portal-card.disabled:active{transform:none}
+.portal-card.disabled .portal-card-icon{color:#B8B4AD}
+.portal-card.disabled .portal-card-label{color:#78746D}
+.portal-card.disabled .portal-card-en{color:#B8B4AD}
+.portal-card.disabled .portal-card-badge{background:transparent;color:#B8B4AD;border-color:#D6D3CD}
 
-/* 系统维护特殊卡片 — hover行为与已开发模块一致 */
-.portal-card-special{background:var(--brand-primary)}
-.portal-card-special:hover{opacity:.9;z-index:10}
-.portal-card-special .portal-card-label{color:#ffffff;font-weight:400}
-.portal-card-special .portal-card-en{color:rgba(255,255,255,.7)}
-.portal-card-special .portal-card-badge{background:rgba(255,255,255,.15);color:rgba(255,255,255,.9)}
+/* ★ V0.6.4V: 系统维护卡与全部卡片统一白卡（原品牌蓝特殊规则废弃） */
 
-/* 未开工建设的模块：浅灰底深色字 */
+/* ★ V0.6.4V: 未开工模块 — 水墨浅灰 */
 .portal-card.disabled{
-  background:rgba(208,216,226,.8);
+  background:#F5F4F1;
+  border-color:#E9E6E0;
 }
-.portal-card.disabled .portal-card-en{color:#ffffff;font-weight:700}
-.portal-card.disabled .portal-card-label{color:#ffffff}
-.portal-card.disabled .portal-card-badge{background:rgba(255,255,255,.15);color:#ffffff;border-color:rgba(255,255,255,.2)}
-.portal-card.disabled:hover{opacity:.8}
 
 /* ★ V0.6.1k: 未授权模块 — 看得见但低饱和（提高可见性） */
 .portal-card.unauthorized{
@@ -1364,27 +1386,27 @@ body{
   font-family:"Microsoft YaHei Light","微软雅黑 Light",sans-serif;
   font-size:13px;
   font-weight:300;
-  color:#fff;
+  color:#78746D;
   line-height:2;
   margin-top:auto;
 }
 .portal-logout{
   margin-top:12px;
   font-size:13px;
-  color:#045C94;
+  color:#3A3835;
   cursor:pointer;
   background:none;
   border:none;
   padding:4px 8px;
   transition:color .2s;
 }
-.portal-logout:hover{color:#02314D}
+.portal-logout:hover{color:#000}
 
 /* 手机端门户 */
 @media(max-width:640px){
   .portal-view{
     padding:28px 16px 32px;
-    background:#F2F4F5;
+    background:#F7F5F0;
     padding-top:max(28px,env(safe-area-inset-top));
     justify-content:flex-start;
   }
@@ -1414,7 +1436,7 @@ body{
   .portal-card-en{font-size:16px;font-weight:300}
   .portal-card-badge{font-size:9px;padding:1px 6px;top:4px;right:4px}
   .portal-footer{font-size:10px;line-height:1.8}
-  .portal-logout{font-size:14px;color:#045C94}
+  .portal-logout{font-size:14px;color:#3A3835}
   /* 页眉适配 */
   .header{padding:28px 14px;padding-top:max(28px,env(safe-area-inset-top));min-height:64px}
   .header h1{font-size:17px}
@@ -2763,61 +2785,74 @@ function togglePortalTips(){
     <h1>Welcome to MBO+AI Team Objective &amp; Plan System</h1>
   </div>
   <div class="portal-grid">
-    <div id="portalCard_decision" class="portal-card portal-card-orange disabled" data-module="decision" style="display:none" data-tip-head="三年规划" data-tip-cn="制定公司中长期三年战略规划，分解战略目标并追踪执行进度。科学规划引领公司稳健发展。" data-tip-en="Formulate three-year strategic planning for the company, decompose strategic goals and track execution progress. Scientific planning guides steady company development." onclick="moduleBuilding()">
-      <div class="portal-card-label">三年规划</div>
-      <div class="portal-card-en">3-Year Plan</div>
+    <div id="portalCard_decision" class="portal-card portal-card-orange disabled" data-module="decision" style="display:none" data-tip-head="13+1" data-tip-cn="制定公司中长期三年战略规划，分解战略目标并追踪执行进度。科学规划引领公司稳健发展。" data-tip-en="Formulate three-year strategic planning for the company, decompose strategic goals and track execution progress. Scientific planning guides steady company development." onclick="moduleBuilding()">
+      <div class="portal-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg></div>
+      <div class="portal-card-label">13+1</div>
+      <div class="portal-card-en">13+1 Plan</div>
       <div class="portal-card-badge">In Progress</div>
     </div>
-    <div id="portalCard_kpi" class="portal-card" data-module="kpi" style="display:none" data-tip-head="本年目标" data-tip-cn="设定年度关键绩效目标，将公司战略层层分解到部门与个人。目标驱动的管理确保上下对齐、聚焦重点。" data-tip-en="Set annual key performance goals, decompose company strategy to departments and individuals. Goal-driven management ensures alignment and focus." onclick="enterModule('kpi')">
-      <div class="portal-card-label">本年目标</div>
+    <div id="portalCard_kpi" class="portal-card" data-module="kpi" style="display:none" data-tip-head="年度目标" data-tip-cn="设定年度关键绩效目标，将公司战略层层分解到部门与个人。目标驱动的管理确保上下对齐、聚焦重点。" data-tip-en="Set annual key performance goals, decompose company strategy to departments and individuals. Goal-driven management ensures alignment and focus." onclick="enterModule('kpi')">
+      <div class="portal-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></div>
+      <div class="portal-card-label">年度目标</div>
       <div class="portal-card-en">Annual Goals</div>
     </div>
     <div id="portalCard_mbo" class="portal-card" data-module="mbo" style="display:none" data-tip-head="本周任务" data-tip-cn="团队目标计划管理下沉到周，公司运营效率和绩效才有扎实根基。借助信息化系统内嵌管理规则与约束机制，用系统自动追踪跟进员工计划进度，优于管理者反复催促督办。一个人如果周计划长期落实不到位，其绩效表现大概率不会理想。" data-tip-en="Weekly team goal management underpins operational efficiency and performance management. An information system auto-tracks task progress instead of frequent managerial chasing. Persistent failure on weekly plans usually leads to poor performance." onclick="enterModule('workplan')">
+      <div class="portal-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
       <div class="portal-card-label">本周任务</div>
       <div class="portal-card-en">Weekly To-Do</div>
     </div>
     <div id="portalCard_rd" class="portal-card portal-card-orange disabled" data-module="rd" style="display:none" data-tip-head="本月计划" data-tip-cn="承上启下的月度计划管理，将本年目标分解为月度里程碑，确保战略执行不脱节。" data-tip-en="Monthly plan management bridging annual and weekly goals. Decompose annual targets into monthly milestones to ensure strategic execution continuity." onclick="moduleBuilding()">
+      <div class="portal-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
       <div class="portal-card-label">本月计划</div>
       <div class="portal-card-en">Monthly Plan</div>
       <div class="portal-card-badge">In Progress</div>
     </div>
-    <div id="portalCard_decision2" class="portal-card portal-card-orange disabled" data-module="decision" style="display:none" data-tip-head="三年规划" data-tip-cn="制定公司中长期三年战略规划，分解战略目标并追踪执行进度。科学规划引领公司稳健发展。" data-tip-en="Formulate three-year strategic planning for the company, decompose strategic goals and track execution progress. Scientific planning guides steady company development." onclick="moduleBuilding()">
-      <div class="portal-card-label">三年规划</div>
-      <div class="portal-card-en">3-Year Plan</div>
+    <div id="portalCard_decision2" class="portal-card portal-card-orange disabled" data-module="decision" style="display:none" data-tip-head="13+1" data-tip-cn="制定公司中长期三年战略规划，分解战略目标并追踪执行进度。科学规划引领公司稳健发展。" data-tip-en="Formulate three-year strategic planning for the company, decompose strategic goals and track execution progress. Scientific planning guides steady company development." onclick="moduleBuilding()">
+      <div class="portal-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg></div>
+      <div class="portal-card-label">13+1</div>
+      <div class="portal-card-en">13+1 Plan</div>
       <div class="portal-card-badge">In Progress</div>
     </div>
     <div id="portalCard_hr" class="portal-card" data-module="hr" style="display:none" data-tip-head="团队" data-tip-cn="管理团队信息、人员档案与组织架构。清晰的组织脉络与人才盘点是高效管理的基础。" data-tip-en="Manage team information, personnel files and organizational structure. Clear organizational mapping and talent inventory are the foundation of efficient management." onclick="enterModule('hr')">
+      <div class="portal-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
       <div class="portal-card-label">团队</div>
       <div class="portal-card-en">Teams</div>
     </div>
     <div id="portalCard_talent" class="portal-card" data-module="pm" style="display:none" data-tip-head="项目管理" data-tip-cn="全生命周期项目管理，从立项、执行到验收闭环跟踪。提升项目交付效率与质量，确保按时按质完成。" data-tip-en="Full-lifecycle project management, from initiation to execution to closure tracking. Improve project delivery efficiency and quality, ensuring on-time completion." onclick="enterModule('pm')">
+      <div class="portal-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg></div>
       <div class="portal-card-label">项目管理</div>
       <div class="portal-card-en">PM</div>
     </div>
-    <div id="portalCard_payroll" class="portal-card disabled" data-module="payroll" style="display:none" data-tip-head="决策工具" data-tip-cn="智能决策辅助工具，提供数据驱动的决策分析与风险评估。科学决策路径助力管理者做出最优选择。" data-tip-en="Intelligent decision support tools providing data-driven analysis and risk assessment. Scientific decision paths help managers make optimal choices." onclick="moduleBuilding()">
-      <div class="portal-card-label">决策工具</div>
-      <div class="portal-card-en">Decision Tool</div>
+    <div id="portalCard_payroll" class="portal-card disabled" data-module="payroll" style="display:none" data-tip-head="人才盘点" data-tip-cn="系统化人才盘点与评估，识别关键岗位人才梯队与高潜员工。人才是组织最核心的资产，盘点让人才决策有据可依。" data-tip-en="Systematic talent review and assessment, identifying key-position pipelines and high-potential employees. Talent is the organization's core asset; structured review makes talent decisions evidence-based." onclick="moduleBuilding()">
+      <div class="portal-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4.5"/><circle cx="17" cy="16" r="3"/><line x1="19.2" y1="18.2" x2="21.5" y2="20.5"/></svg></div>
+      <div class="portal-card-label">人才盘点</div>
+      <div class="portal-card-en">Talent Review</div>
       <div class="portal-card-badge">In Progress</div>
     </div>
-    <div id="portalCard_learning" class="portal-card disabled" data-module="learning" style="display:none" data-tip-head="职业生涯" data-tip-cn="建立岗位能力模型与胜任力标准，评估员工岗位匹配度与发展潜力。人岗匹配是组织效能的基石。" data-tip-en="Build job competency models and standards, evaluate employee-job fit and development potential. Right people in right roles is the foundation of organizational effectiveness." onclick="moduleBuilding()">
-      <div class="portal-card-label">职业生涯</div>
-      <div class="portal-card-en">IDP</div>
+    <div id="portalCard_learning" class="portal-card disabled" data-module="learning" style="display:none" data-tip-head="岗位胜任力" data-tip-cn="建立岗位能力模型与胜任力标准，评估员工岗位匹配度与发展潜力。人岗匹配是组织效能的基石。" data-tip-en="Build job competency models and standards, evaluate employee-job fit and development potential. Right people in right roles is the foundation of organizational effectiveness." onclick="moduleBuilding()">
+      <div class="portal-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg></div>
+      <div class="portal-card-label">岗位胜任力</div>
+      <div class="portal-card-en">Job Competency</div>
       <div class="portal-card-badge">In Progress</div>
     </div>
     <div id="portalCard_policies" class="portal-card" data-module="policies" style="display:none" data-tip-head="体系流程" data-tip-cn="管理公司制度、流程与标准化文档。完善的制度体系是规范化运营与风险管控的基础保障。" data-tip-en="Manage company policies, processes and standardized documents. Sound system frameworks are the foundation for standardized operations and risk control." onclick="enterModule('policies')">
+      <div class="portal-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div>
       <div class="portal-card-label">体系流程</div>
       <div class="portal-card-en">Process</div>
     </div>
     <div id="portalCard_ideas" class="portal-card portal-card-orange disabled" data-module="ideas" style="display:none" data-tip-head="敬业度" data-tip-cn="员工敬业度测评与分析，识别团队活力与留任风险。高敬业度团队是业务持续增长的驱动力。" data-tip-en="Employee engagement assessment and analysis, identifying team vitality and retention risks. Highly engaged teams drive sustainable business growth." onclick="moduleBuilding()">
+      <div class="portal-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
       <div class="portal-card-label">敬业度</div>
       <div class="portal-card-en">Q12</div>
       <div class="portal-card-badge">In Progress</div>
     </div>
     <div id="portalCard_maintenance" class="portal-card portal-card-special" data-module="maintenance" style="display:none" data-tip-head="系统维护" data-tip-cn="系统配置与维护中心。管理员可在此进行系统设置、数据管理与权限配置，保障系统稳定运行。" data-tip-en="System configuration and maintenance center. Administrators can manage settings, data and permissions to ensure stable system operation." onclick="enterModule('system')">
+      <div class="portal-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
       <div class="portal-card-label">系统维护</div>
       <div class="portal-card-en">Settings</div>
     </div>
     <div id="portalCard_dashboard" class="portal-card" data-module="dashboard" style="display:none" data-tip-head="数据中心" data-tip-cn="实时积分排名与提交率统计。支持按角色、中心、时间范围灵活筛选，为管理层提供数据驱动的决策依据。" data-tip-en="Real-time score ranking and submission analytics. Flexible filtering by role, center and time range, providing data-driven insights for management decisions." onclick="enterModule('dashboard')">
+      <div class="portal-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg></div>
       <div class="portal-card-label">数据中心</div>
       <div class="portal-card-en">Data Center</div>
     </div>
