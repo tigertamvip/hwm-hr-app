@@ -200,7 +200,8 @@ function calcRdProgress(stages, deliverables){
 
 // ===== Detail View Entry (pm.js openPMDetail 分流，DOM 切换由 pm.js 完成) =====
 async function openRdProjectDetail(p){
-  var detailEl = document.getElementById('pmDetailView');
+  // ★ V0.6.4N: 写入 pmDetailContent（与通用详情页同容器），避免摧毁该节点导致通用详情页空白
+  var detailEl = document.getElementById('pmDetailContent') || document.getElementById('pmDetailView');
   if(detailEl){
     detailEl.innerHTML = '<div style="text-align:center;padding:60px;color:#9CA3AF;font-size:13px">正在加载研发流程数据…</div>';
   }
@@ -226,12 +227,14 @@ async function openRdProjectDetail(p){
 
 // ===== Render: Detail =====
 function renderRdDetail(){
-  var el = document.getElementById('pmDetailView');
+  var el = document.getElementById('pmDetailContent') || document.getElementById('pmDetailView');
   if(!el || !_rdCurrent) return;
   var c = _rdCurrent, p = c.project;
   var canReview = _rdCanReview(p);
 
   var h = '';
+  // ★ V0.6.4N: 工具栏+阶段管道条 sticky 固定，滚动交付物清单时保持可见
+  h += '<div style="position:sticky;top:0;z-index:20;background:#F9FAFB;padding:4px 0 10px">';
   // Toolbar
   h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">';
   h += '<div style="display:flex;align-items:center;gap:10px">';
@@ -250,6 +253,7 @@ function renderRdDetail(){
 
   // Pipeline bar
   h += renderRdPipeline(c);
+  h += '</div>'; // /sticky 头部容器
 
   // Current stage panel
   var vs = c.stages.find(function(s){return s.stage_key===c.viewStageKey;});
@@ -363,7 +367,13 @@ function renderRdStagePanel(c, stage, canReview){
   iterations.forEach(function(it){
     var group = dels.filter(function(d){return d.iteration===it;});
     h += '<div style="margin:10px 0 6px;padding:6px 10px;background:#F9FAFB;border-radius:8px;border:1px dashed #D1D5DB">';
-    h += '<div style="font-size:11px;font-weight:600;color:#6B7280;margin-bottom:6px">DMR '+_rdEsc(it)+' 文件组（'+group.length+' 项）</div>';
+    h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">';
+    h += '<div style="font-size:11px;font-weight:600;color:#6B7280">DMR '+_rdEsc(it)+' 文件组（'+group.length+' 项）</div>';
+    // ★ V0.6.4N: 误新增迭代可整组撤回（1.0 为模板初始组不可删；仅负责人；有进展则函数内拦截）
+    if(it!=='1.0' && canReview){
+      h += '<button onclick="rdDeleteIteration(\''+_rdEsc(it)+'\')" style="padding:2px 8px;border:1px solid #E7C4C0;border-radius:5px;background:#fff;color:#B3382C;font-size:10px;cursor:pointer">删除本迭代</button>';
+    }
+    h += '</div>';
     group.forEach(function(d){ h += renderRdDeliverableRow(c, d, true); });
     h += '</div>';
   });
@@ -717,6 +727,37 @@ async function rdAddIteration(){
   }catch(e){ _showAlert('新增迭代失败: '+e.message); }
 }
 
+// ★ V0.6.4N: 删除误新增的试产迭代（整组撤回）
+// 安全约束：仅当该迭代全部交付物未开始、全部评审门无结果时允许整组删除
+async function rdDeleteIteration(version){
+  var c = _rdCurrent;
+  if(!c || !version || version==='1.0') return;
+  var stage = c.stages.find(function(s){return s.stage_key==='output';});
+  if(!stage) return;
+  var groupDels = c.deliverables.filter(function(d){return d.iteration===version;});
+  var groupGates = c.gates.filter(function(g){return g.iteration===version;});
+  if(!groupDels.length && !groupGates.length){ _showAlert('未找到迭代 '+version+' 的数据'); return; }
+  var started = groupDels.filter(function(d){return d.status!=='pending';});
+  var reviewed = groupGates.filter(function(g){return g.result!=='pending';});
+  if(started.length || reviewed.length){
+    _showAlert('迭代 '+version+' 已有交付进展或评审记录，不能整组删除。\n（'+started.length+' 项交付物已启动，'+reviewed.length+' 个评审门已有结论）');
+    return;
+  }
+  var ok = await _showConfirm('将删除试产迭代 '+version+' 的全部内容：\n· '+groupDels.length+' 项交付物（DMR 文件组/修模记录/试产工单）\n· '+groupGates.length+' 个评审门\n\n此操作不可恢复。','删除迭代 '+version);
+  if(!ok) return;
+  try{
+    var r1 = await supabase.from(RD_DELIVER_TABLE).delete().eq('project_id',c.project.id).eq('stage_id',stage.id).eq('iteration',version);
+    if(r1.error) throw new Error(r1.error.message);
+    var r2 = await supabase.from(RD_GATE_TABLE).delete().eq('project_id',c.project.id).eq('stage_id',stage.id).eq('iteration',version);
+    if(r2.error) throw new Error(r2.error.message);
+    c.deliverables = c.deliverables.filter(function(d){return d.iteration!==version;});
+    c.gates = c.gates.filter(function(g){return g.iteration!==version;});
+    saveRdCache(c.project.id, {stages:c.stages, deliverables:c.deliverables, gates:c.gates});
+    showToast('迭代 '+version+' 已删除');
+    renderRdDetail();
+  }catch(e){ _showAlert('删除迭代失败: '+e.message); }
+}
+
 // ===== Adhoc Gate (临时评审) =====
 function rdAddAdhocGate(stageId){
   var h = '';
@@ -809,6 +850,7 @@ window.rdMarkNA = rdMarkNA;
 window.rdOpenReviewForm = rdOpenReviewForm;
 window.rdConfirmConditionalDone = rdConfirmConditionalDone;
 window.rdAddIteration = rdAddIteration;
+window.rdDeleteIteration = rdDeleteIteration;
 window.rdAddAdhocGate = rdAddAdhocGate;
 window.rdRegisterSubmit = rdRegisterSubmit;
 window.calcRdProgress = calcRdProgress;

@@ -284,7 +284,7 @@ function renderPMSidebar(){
   PM_TYPE_DEFS.forEach(function(td){
     var sel = td.key===_pmFilter.type && noQuick;
     var cnt = td.key==='全部' ? all.length : all.filter(function(p){return p.type===td.key;}).length;
-    h += '<div class="pm-nav-item'+animCls+(sel?' pm-nav-sel':'')+'" onclick="_pmFilter.type=\''+td.key+'\';_pmFilter.owner=\'\';_pmFilter._active=false;renderPMSidebar();renderPMList()" style="'+(_pmMotionPlayed?'':('animation-delay:'+(idx++*30)+'ms;'))+'display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-radius:8px;font-size:13px;cursor:pointer;margin-bottom:2px;color:'+(sel?'#F7F5F0':'#3A3835')+'">'
+    h += '<div class="pm-nav-item'+animCls+(sel?' pm-nav-sel':'')+'" onclick="_pmFilter.type=\''+td.key+'\';_pmFilter.owner=\'\';_pmFilter._active=false;renderPMSidebar();renderPMList()" style="'+(_pmMotionPlayed?'':('animation-delay:'+(idx++*30)+'ms;'))+'display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-radius:8px;font-size:12px;cursor:pointer;margin-bottom:2px;color:'+(sel?'#F7F5F0':'#3A3835')+'">'
       +'<span>'+td.label+'</span><span class="pm-nav-cnt" style="font-size:11px;color:#A8A29A;font-variant-numeric:tabular-nums">'+cnt+'</span></div>';
   });
   h += '</div>';
@@ -292,9 +292,9 @@ function renderPMSidebar(){
   h += '<div style="margin-bottom:22px">';
   h += '<div style="font-size:11px;font-weight:500;color:#A8A29A;margin-bottom:8px;letter-spacing:1px">快速筛选</div>';
   var mySel = !!_pmFilter.owner;
-  h += '<div class="pm-nav-item'+animCls+(mySel?' pm-nav-sel':'')+'" onclick="filterMyProjects()" style="'+(_pmMotionPlayed?'':('animation-delay:'+(idx++*30)+'ms;'))+'display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-radius:8px;font-size:13px;cursor:pointer;margin-bottom:2px;color:'+(mySel?'#F7F5F0':'#3A3835')+'"><span>我的项目</span><span class="pm-nav-cnt" style="font-size:11px;color:#A8A29A;font-variant-numeric:tabular-nums">'+myProjects+'</span></div>';
+  h += '<div class="pm-nav-item'+animCls+(mySel?' pm-nav-sel':'')+'" onclick="filterMyProjects()" style="'+(_pmMotionPlayed?'':('animation-delay:'+(idx++*30)+'ms;'))+'display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-radius:8px;font-size:12px;cursor:pointer;margin-bottom:2px;color:'+(mySel?'#F7F5F0':'#3A3835')+'"><span>我的项目</span><span class="pm-nav-cnt" style="font-size:11px;color:#A8A29A;font-variant-numeric:tabular-nums">'+myProjects+'</span></div>';
   var activeSel = !!_pmFilter._active;
-  h += '<div class="pm-nav-item'+animCls+(activeSel?' pm-nav-sel':'')+'" onclick="filterActiveProjects()" style="'+(_pmMotionPlayed?'':('animation-delay:'+(idx++*30)+'ms;'))+'display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-radius:8px;font-size:13px;cursor:pointer;margin-bottom:2px;color:'+(activeSel?'#F7F5F0':'#3A3835')+'"><span>进行中</span><span class="pm-nav-cnt" style="font-size:11px;color:#A8A29A;font-variant-numeric:tabular-nums">'+active+'</span></div>';
+  h += '<div class="pm-nav-item'+animCls+(activeSel?' pm-nav-sel':'')+'" onclick="filterActiveProjects()" style="'+(_pmMotionPlayed?'':('animation-delay:'+(idx++*30)+'ms;'))+'display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-radius:8px;font-size:12px;cursor:pointer;margin-bottom:2px;color:'+(activeSel?'#F7F5F0':'#3A3835')+'"><span>进行中</span><span class="pm-nav-cnt" style="font-size:11px;color:#A8A29A;font-variant-numeric:tabular-nums">'+active+'</span></div>';
   h += '</div>';
 
   // ★ V0.6.4L: 项目级别升级为可点击筛选器（单选切换，再次点击取消）
