@@ -29,6 +29,7 @@ var _pmCurrent = null;       // {project, tasks}
 var _pmView = 'list';        // list / detail / board
 var _pmFilter = {type:'全部', search:'', owner:''};
 var _pmProjects = [];
+var _pmMotionPlayed = false; // ★ V0.6.4La: 入场动效仅在进入模块的首次渲染播放一次
 
 // ===== Data Layer =====
 function loadAllProjects(){ return JSON.parse(localStorage.getItem(PM_CACHE_PREFIX+'all')||'[]'); }
@@ -208,11 +209,13 @@ function renderPMList(){
     html += '<div style="text-align:center;padding:70px 20px;color:#A8A29A;font-size:13px">暂无符合条件的项目</div>';
   }else{
     html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px">';
-    projects.forEach(function(p,i){ html += renderProjectCard(p,i); });
+    projects.forEach(function(p,i){ html += renderProjectCard(p,i,!_pmMotionPlayed); });
     html += '</div>';
   }
 
   el.innerHTML = html;
+  // ★ V0.6.4La: 首次渲染完成后锁定动效，后续筛选/点击/云端同步全部静默更新
+  _pmMotionPlayed = true;
 
   // ★ V1.0 RDPM: 预取研发项目阶段数据（驱动卡片阶段条）
   if(typeof rdPrefetchStages==='function'){
@@ -221,7 +224,7 @@ function renderPMList(){
   }
 }
 
-function renderProjectCard(p, idx){
+function renderProjectCard(p, idx, anim){
   // ★ V0.6.4L 水墨屏体系：发丝线、墨黑/朱砂/黛绿、无阴影
   var lvlMeta = {'1':{label:'一级',ink:'#B3382C'},'2':{label:'二级',ink:'#6E6A63'},'3':{label:'三级',ink:'#C9C4BA'}};
   var lm = lvlMeta[p.level]||lvlMeta['3'];
@@ -233,7 +236,7 @@ function renderProjectCard(p, idx){
   var sm = statusMeta[p.status]||statusMeta['草稿中'];
 
   var h = '';
-  h += '<div onclick="openPMDetail('+p.id+')" class="pm-card" style="animation-delay:'+((idx||0)*40)+'ms;position:relative;display:flex;background:#fff;border-radius:10px;border:1px solid #E3E0D9;overflow:hidden;cursor:pointer">';
+  h += '<div onclick="openPMDetail('+p.id+')" class="pm-card'+(anim?' pm-card-anim':'')+'" style="'+(anim?('animation-delay:'+((idx||0)*40)+'ms;'):'')+'position:relative;display:flex;background:#fff;border-radius:10px;border:1px solid #E3E0D9;overflow:hidden;cursor:pointer">';
   h += '<div style="width:2px;min-width:2px;background:'+lm.ink+'"></div>';
   h += '<div style="flex:1;padding:14px 16px">';
   h += '<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px">';
@@ -275,12 +278,13 @@ function renderPMSidebar(){
 
   var h = '';
   var idx = 0;
+  var animCls = _pmMotionPlayed ? '' : ' pm-nav-anim';
   h += '<div style="margin-bottom:22px">';
   h += '<div style="font-size:11px;font-weight:500;color:#A8A29A;margin-bottom:8px;letter-spacing:1px">项目类型</div>';
   PM_TYPE_DEFS.forEach(function(td){
     var sel = td.key===_pmFilter.type && noQuick;
     var cnt = td.key==='全部' ? all.length : all.filter(function(p){return p.type===td.key;}).length;
-    h += '<div class="pm-nav-item'+(sel?' pm-nav-sel':'')+'" onclick="_pmFilter.type=\''+td.key+'\';_pmFilter.owner=\'\';_pmFilter._active=false;renderPMSidebar();renderPMList()" style="animation-delay:'+(idx++*30)+'ms;display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-radius:8px;font-size:13px;cursor:pointer;margin-bottom:2px;color:'+(sel?'#F7F5F0':'#3A3835')+'">'
+    h += '<div class="pm-nav-item'+animCls+(sel?' pm-nav-sel':'')+'" onclick="_pmFilter.type=\''+td.key+'\';_pmFilter.owner=\'\';_pmFilter._active=false;renderPMSidebar();renderPMList()" style="'+(_pmMotionPlayed?'':('animation-delay:'+(idx++*30)+'ms;'))+'display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-radius:8px;font-size:13px;cursor:pointer;margin-bottom:2px;color:'+(sel?'#F7F5F0':'#3A3835')+'">'
       +'<span>'+td.label+'</span><span class="pm-nav-cnt" style="font-size:11px;color:#A8A29A;font-variant-numeric:tabular-nums">'+cnt+'</span></div>';
   });
   h += '</div>';
@@ -288,9 +292,9 @@ function renderPMSidebar(){
   h += '<div style="margin-bottom:22px">';
   h += '<div style="font-size:11px;font-weight:500;color:#A8A29A;margin-bottom:8px;letter-spacing:1px">快速筛选</div>';
   var mySel = !!_pmFilter.owner;
-  h += '<div class="pm-nav-item'+(mySel?' pm-nav-sel':'')+'" onclick="filterMyProjects()" style="animation-delay:'+(idx++*30)+'ms;display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-radius:8px;font-size:13px;cursor:pointer;margin-bottom:2px;color:'+(mySel?'#F7F5F0':'#3A3835')+'"><span>我的项目</span><span class="pm-nav-cnt" style="font-size:11px;color:#A8A29A;font-variant-numeric:tabular-nums">'+myProjects+'</span></div>';
+  h += '<div class="pm-nav-item'+animCls+(mySel?' pm-nav-sel':'')+'" onclick="filterMyProjects()" style="'+(_pmMotionPlayed?'':('animation-delay:'+(idx++*30)+'ms;'))+'display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-radius:8px;font-size:13px;cursor:pointer;margin-bottom:2px;color:'+(mySel?'#F7F5F0':'#3A3835')+'"><span>我的项目</span><span class="pm-nav-cnt" style="font-size:11px;color:#A8A29A;font-variant-numeric:tabular-nums">'+myProjects+'</span></div>';
   var activeSel = !!_pmFilter._active;
-  h += '<div class="pm-nav-item'+(activeSel?' pm-nav-sel':'')+'" onclick="filterActiveProjects()" style="animation-delay:'+(idx++*30)+'ms;display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-radius:8px;font-size:13px;cursor:pointer;margin-bottom:2px;color:'+(activeSel?'#F7F5F0':'#3A3835')+'"><span>进行中</span><span class="pm-nav-cnt" style="font-size:11px;color:#A8A29A;font-variant-numeric:tabular-nums">'+active+'</span></div>';
+  h += '<div class="pm-nav-item'+animCls+(activeSel?' pm-nav-sel':'')+'" onclick="filterActiveProjects()" style="'+(_pmMotionPlayed?'':('animation-delay:'+(idx++*30)+'ms;'))+'display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-radius:8px;font-size:13px;cursor:pointer;margin-bottom:2px;color:'+(activeSel?'#F7F5F0':'#3A3835')+'"><span>进行中</span><span class="pm-nav-cnt" style="font-size:11px;color:#A8A29A;font-variant-numeric:tabular-nums">'+active+'</span></div>';
   h += '</div>';
 
   // ★ V0.6.4L: 项目级别升级为可点击筛选器（单选切换，再次点击取消）
@@ -685,14 +689,16 @@ function injectPMStyles(){
   +'#pmView ::selection{background:#1F1F1F;color:#F7F5F0}'
   +'@keyframes pmFadeIn{from{opacity:0;transform:translateX(-4px)}to{opacity:1;transform:none}}'
   +'@keyframes pmCardIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}'
-  +'.pm-nav-item{transition:background-color .16s ease-out,color .16s ease-out;animation:pmFadeIn .22s ease-out both}'
+  // ★ V0.6.4La: 入场动效只挂独立类，由渲染层控制在模块进入时播放一次（防止每次点击重放造成抖动）
+  +'.pm-nav-anim{animation:pmFadeIn .22s ease-out both}'
+  +'.pm-card-anim{animation:pmCardIn .24s ease-out both}'
+  +'.pm-nav-item{transition:background-color .16s ease-out,color .16s ease-out}'
   +'.pm-nav-item:hover{background:#EFEDE8}'
   +'.pm-nav-sel{background:#1F1F1F!important;color:#F7F5F0!important;font-weight:600}'
   +'.pm-nav-sel .pm-nav-cnt{color:#A8A29A!important}'
   +'.pm-lvl-chip{transition:background-color .16s ease-out,color .16s ease-out,border-color .16s ease-out;cursor:pointer;user-select:none}'
   +'.pm-lvl-chip:hover{border-color:#6E6A63}'
   +'.pm-lvl-on{background:#1F1F1F!important;color:#F7F5F0!important;border-color:#1F1F1F!important}'
-  +'.pm-card{animation:pmCardIn .24s ease-out both}'
   +'.pm-card:hover{border-color:#A8A29A!important}'
   +'.pm-del-btn{opacity:0;transition:opacity .16s ease-out,color .16s ease-out}'
   +'.pm-card:hover .pm-del-btn{opacity:1}'
@@ -715,6 +721,7 @@ async function enterPMModule(){
   _pmView = 'list';
   _pmCurrent = null;
   _pmFilter = {type:'全部', search:'', owner:'', _active:false, level:null};
+  _pmMotionPlayed = false; // ★ V0.6.4La: 每次进入模块重置入场动效
 
   var listEl = document.getElementById('pmListView');
   var detailEl = document.getElementById('pmDetailView');
