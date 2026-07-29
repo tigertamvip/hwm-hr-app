@@ -476,14 +476,28 @@ function showFormModal(html, title, okText, cancelText, onSubmit){
   modal += '</div>';
   modal += '<div style="padding:20px 24px;">' + html + '</div>';
   modal += '<div style="display:flex;justify-content:flex-end;gap:10px;padding:16px 24px;border-top:1px solid #E5E7EB;">';
-  modal += '<button id="pm-form-cancel" style="padding:8px 16px;border:1px solid #D0D5DD;border-radius:6px;background:#fff;font-size:13px;cursor:pointer">' + esc(cancelText||'取消') + '</button>';
+  // ★ V0.6.4R: cancelText===null 时不渲染取消按钮（只读弹窗单按钮场景）
+  if(cancelText!==null){
+    modal += '<button id="pm-form-cancel" style="padding:8px 16px;border:1px solid #D0D5DD;border-radius:6px;background:#fff;font-size:13px;cursor:pointer">' + esc(cancelText||'取消') + '</button>';
+  }
   modal += '<button id="pm-form-ok" style="padding:8px 16px;border:none;border-radius:6px;background:#3B82F6;color:#fff;font-size:13px;cursor:pointer">' + esc(okText||'确定') + '</button>';
   modal += '</div></div>';
   overlay.innerHTML = modal;
   document.body.appendChild(overlay);
   var close = function(){ var el = document.getElementById('pm-form-modal'); if(el && el.parentElement) el.parentElement.removeChild(el); };
-  overlay.querySelector('#pm-form-cancel').onclick = close;
-  overlay.querySelector('#pm-form-ok').onclick = function(){ onSubmit(close); };
+  var cancelBtn = overlay.querySelector('#pm-form-cancel');
+  if(cancelBtn) cancelBtn.onclick = close;
+  // ★ V0.6.4R: 回调异常兜底——任何提交错误必须可见提示，绝不让弹窗静默卡死（本次 createTask 未导出事故的根治防线）
+  overlay.querySelector('#pm-form-ok').onclick = async function(){
+    try{
+      await onSubmit(close);
+    }catch(e){
+      var msg = (e&&e.message)?e.message:String(e);
+      if(typeof _showAlert==='function') _showAlert('操作失败: '+msg);
+      else alert('操作失败: '+msg);
+      console.error('[showFormModal] submit error:', e);
+    }
+  };
   overlay.onclick = function(e){ if(e.target === overlay) close(); };
 }
 

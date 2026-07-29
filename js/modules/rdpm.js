@@ -93,6 +93,70 @@ async function _rdUpdate(table, id, patch){
   if(r.error) console.warn('[RD] update error:', table, r.error.message);
 }
 
+// ★ V0.6.4R: 整改任务创建——模块自治直插 project_tasks，不依赖 pm.js 内部函数
+// （根因：pm.js 的 async createTask 未 window 导出，跨模块调用 ReferenceError 致评审提交静默卡死）
+async function _rdCreateRectifyTask(pid, title){
+  var now = new Date().toISOString();
+  var row = {
+    project_id: pid, title: title, status: '待开始', priority: '高',
+    progress: 0, created_at: now, updated_at: now
+  };
+  var r = await supabase.from(SUPABASE_TASK_TABLE).insert(row).select();
+  if(r.error) throw new Error(r.error.message);
+  return (r.data&&r.data[0])||null;
+}
+
+// ★ V0.6.4R: 在职员工姓名池（参会人自动补全用，复用全局员工数据，不依赖 mbo.js 内部函数）
+function _rdEmpPool(){
+  var pool = (typeof allEmployees!=='undefined' && allEmployees && allEmployees.length)
+    ? allEmployees
+    : (window.__PRELOADED_EMPLOYEES__||[]);
+  var names = [], seen = {};
+  pool.forEach(function(e){
+    var n = e && (e.name||e['姓名']);
+    if(n && !seen[n]){ seen[n]=true; names.push(n); }
+  });
+  return names;
+}
+
+// ★ V0.6.4R: 参会人自动补全——输入姓氏弹出在职员工下拉，点选填入（分隔符：空格/逗号/顿号）
+// 下拉挂在 input 父容器内（position:relative），弹窗关闭时随 overlay 一并移除，零泄漏
+function _rdAttachAttendeeAutocomplete(input){
+  if(!input || !input.parentElement) return;
+  var dropdown = document.createElement('div');
+  dropdown.style.cssText = 'display:none;position:absolute;top:100%;left:0;right:0;margin-top:2px;z-index:5;background:#fff;border:1px solid #D0D5DD;border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,.14);max-height:180px;overflow-y:auto;font-size:12px';
+  input.parentElement.appendChild(dropdown);
+
+  function _token(){
+    var parts = input.value.split(/[,，、\s]+/);
+    return {token:(parts[parts.length-1]||'').trim(), head:input.value.slice(0, input.value.length-(parts[parts.length-1]||'').length)};
+  }
+  function _hide(){ dropdown.style.display='none'; }
+  function _fill(name){
+    var t = _token();
+    input.value = t.head + name + ' ';
+    _hide(); input.focus();
+  }
+  input.addEventListener('input', function(){
+    var t = _token();
+    if(!t.token){ _hide(); return; }
+    var entered = input.value.split(/[,，、\s]+/).map(function(s){return s.trim();}).filter(function(s){return s;});
+    var hits = _rdEmpPool().filter(function(n){
+      return n.indexOf(t.token)>=0 && entered.indexOf(n)<0;
+    }).slice(0,8);
+    if(!hits.length){ _hide(); return; }
+    dropdown.innerHTML = hits.map(function(n){
+      return '<div data-name="'+_rdEsc(n)+'" style="padding:7px 12px;cursor:pointer;color:#1F1F1F" onmouseover="this.style.background=\'#F3F4F6\'" onmouseout="this.style.background=\'\'">'+_rdEsc(n)+'</div>';
+    }).join('');
+    dropdown.querySelectorAll('[data-name]').forEach(function(el){
+      el.addEventListener('mousedown', function(e){ e.preventDefault(); _fill(el.getAttribute('data-name')); });
+    });
+    dropdown.style.display='block';
+  });
+  input.addEventListener('blur', function(){ setTimeout(_hide, 150); });
+  input.addEventListener('keydown', function(e){ if(e.key==='Escape') _hide(); });
+}
+
 // ===== Template Instantiation =====
 // startStageKey: 中间切入的起始阶段；之前的阶段补录通过
 async function instantiateRdProject(pid, startStageKey){
@@ -461,6 +525,13 @@ function renderRdGateCard(c, g, canReview){
     if(g.result==='conditional'){
       h += renderRdActionItems(c, g, canReview);
     }
+    // ★ V0.6.4R: 查看记录（所有人）+ 撤回评审（仅评审人）
+    h += '<div style="display:flex;gap:6px;margin-top:8px">';
+    h += '<button onclick="rdViewGateRecord(\''+g.id+'\')" style="flex:1;padding:4px;border:1px solid #E5E7EB;border-radius:5px;background:#fff;color:#6B7280;font-size:10px;cursor:pointer">查看记录</button>';
+    if(canReview){
+      h += '<button onclick="rdRevokeGate(\''+g.id+'\')" style="flex:1;padding:4px;border:1px solid #E7C4C0;border-radius:5px;background:#fff;color:#B3382C;font-size:10px;cursor:pointer">撤回评审</button>';
+    }
+    h += '</div>';
   }
   h += '</div>';
   return h;
@@ -586,8 +657,8 @@ function rdOpenReviewForm(gid){
   h += '<div style="display:flex;gap:10px;margin-bottom:10px">';
   h += '<div style="flex:1"><label style="display:block;font-size:11px;color:#6B7280;margin-bottom:3px">评审日期</label>';
   h += '<input id="rd-g-date" type="date" value="'+_rdToday()+'" style="width:100%;padding:7px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:12px;box-sizing:border-box"></div>';
-  h += '<div style="flex:1"><label style="display:block;font-size:11px;color:#6B7280;margin-bottom:3px">参会人（逗号分隔）</label>';
-  h += '<input id="rd-g-att" placeholder="如：谭晨航,尤亚君" style="width:100%;padding:7px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:12px;box-sizing:border-box"></div>';
+  h += '<div style="flex:1"><label style="display:block;font-size:11px;color:#6B7280;margin-bottom:3px">参会人（输入姓氏自动联想在职员工）</label>';
+  h += '<div style="position:relative"><input id="rd-g-att" placeholder="如：谭晨航 尤亚君" autocomplete="off" style="width:100%;padding:7px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:12px;box-sizing:border-box"></div></div>';
   h += '</div>';
   h += '<div style="margin-bottom:10px"><label style="display:block;font-size:11px;color:#6B7280;margin-bottom:3px">评审结论 <span style="color:#EF4444">*</span></label>';
   h += '<div style="display:flex;gap:8px">';
@@ -608,18 +679,19 @@ function rdOpenReviewForm(gid){
 
     var me = (currentUser&&currentUser.name)||'';
     var actionItems = [];
-    // 整改项写入 project_tasks
+    // 整改项写入 project_tasks（★ V0.6.4R: 改用模块自治的 _rdCreateRectifyTask）
     if(result==='conditional'){
       for(var i=0;i<actionLines.length;i++){
         var title = '[整改·'+g.gate_name+'] '+actionLines[i];
-        var t = await createTask(c_projectId(), {title:title, status:'待开始', priority:'高'});
+        var t = await _rdCreateRectifyTask(c_projectId(), title);
         actionItems.push({title:actionLines[i], task_id: t?t.id:null});
       }
     }
     var patch = {
       result: result,
       review_date: document.getElementById('rd-g-date').value||_rdToday(),
-      attendees: document.getElementById('rd-g-att').value.split(/[,，]/).map(function(s){return s.trim();}).filter(function(s){return s;}),
+      // ★ V0.6.4R: 参会人支持逗号/顿号/空格分隔
+      attendees: document.getElementById('rd-g-att').value.split(/[,，、\s]+/).map(function(s){return s.trim();}).filter(function(s){return s;}),
       conclusion: document.getElementById('rd-g-concl').value.trim(),
       action_items: actionItems,
       reviewed_by: me
@@ -634,6 +706,8 @@ function rdOpenReviewForm(gid){
     close();
     renderRdDetail();
   });
+  // ★ V0.6.4R: 参会人姓名自动补全（在职员工联想下拉）
+  _rdAttachAttendeeAutocomplete(document.getElementById('rd-g-att'));
 }
 
 // 阶段状态评估：所有正式门 passed→阶段通过并解锁下一阶段；rejected→退回；conditional→有条件
@@ -765,9 +839,68 @@ async function rdDeleteIteration(version){
   }catch(e){ _showAlert('删除迭代失败: '+e.message); }
 }
 
-// ===== Adhoc Gate (临时评审) =====
-function rdAddAdhocGate(stageId){
+// ★ V0.6.4R: 撤回已提交的评审——清除结论/日期/参会人/意见，删除关联整改任务，阶段状态重估（仅评审人）
+async function rdRevokeGate(gid){
+  var c = _rdCurrent;
+  if(!c) return;
+  var g = c.gates.find(function(x){return x.id===gid;});
+  if(!g || g.result==='pending') return;
+  if(!_rdCanReview(c.project)){ _showAlert('仅评审人可撤回评审'); return; }
+  var items = Array.isArray(g.action_items)?g.action_items:[];
+  var resultLabel = ({passed:'通过',conditional:'有条件通过',rejected:'退回'})[g.result]||g.result;
+  var msg = '撤回后将清除「'+g.gate_name+'」的评审结论（'+resultLabel+'），该评审恢复为待评审状态。';
+  if(items.length) msg += '\n关联的 '+items.length+' 项整改任务将一并删除。';
+  msg += '\n\n注意：本阶段状态将重新评估；已解锁的后续阶段保持现状，请自行确认。';
+  var ok = await _showConfirm(msg, '撤回评审');
+  if(!ok) return;
+  try{
+    for(var i=0;i<items.length;i++){
+      if(items[i].task_id) await supabase.from(SUPABASE_TASK_TABLE).delete().eq('id',items[i].task_id);
+    }
+    var patch = {result:'pending', reviewed_by:null, review_date:null, attendees:null, conclusion:null, action_items:null};
+    await _rdUpdate(RD_GATE_TABLE, gid, patch);
+    Object.assign(g, patch);
+    if(typeof syncTasksFromCloud==='function') c.tasks = await syncTasksFromCloud(c.project.id) || [];
+    await _rdEvaluateStage(g.stage_id);
+    showToast('评审已撤回');
+    renderRdDetail();
+  }catch(e){ _showAlert('撤回失败: '+e.message); }
+}
+
+// ★ V0.6.4R: 查看评审记录——只读弹窗展示当时提交的全部信息
+function rdViewGateRecord(gid){
+  var c = _rdCurrent;
+  if(!c) return;
+  var g = c.gates.find(function(x){return x.id===gid;});
+  if(!g || g.result==='pending') return;
+  var gr = RD_GATE_RESULT[g.result]||RD_GATE_RESULT.pending;
+  var atts = Array.isArray(g.attendees)?g.attendees:[];
+  var items = Array.isArray(g.action_items)?g.action_items:[];
+
+  function _row(label, valueHtml){
+    return '<div style="display:flex;gap:10px;padding:6px 0;border-bottom:1px solid #F3F4F6;font-size:12px">'
+      +'<span style="flex-shrink:0;width:64px;color:#9CA3AF">'+label+'</span>'
+      +'<span style="flex:1;color:#1F1F1F;line-height:1.6;word-break:break-word">'+valueHtml+'</span></div>';
+  }
   var h = '';
+  h += '<div style="font-size:13px;font-weight:600;color:#111827;margin-bottom:8px">'+_rdEsc(g.gate_name)+(g.is_adhoc?' <span style="font-size:9px;color:#D97706">临时</span>':'')+'</div>';
+  h += _row('评审结论', '<span style="font-weight:600;color:'+gr.color+'">'+gr.label+'</span>');
+  h += _row('评审人', _rdEsc(g.reviewed_by||'—'));
+  h += _row('评审日期', _rdEsc(g.review_date||'—'));
+  h += _row('参会人', atts.length?atts.map(function(a){return _rdEsc(a);}).join('、'):'—');
+  h += _row('评审意见', g.conclusion?_rdEsc(g.conclusion):'—');
+  if(items.length){
+    h += '<div style="margin-top:10px"><div style="font-size:11px;color:#9CA3AF;margin-bottom:4px">整改项（'+items.length+'）</div>';
+    items.forEach(function(it, i){
+      h += '<div style="font-size:12px;color:#374151;padding:3px 0;line-height:1.5">'+(i+1)+'. '+_rdEsc(it.title)+'</div>';
+    });
+    h += '</div>';
+  }
+  showFormModal(h, '评审记录', '关闭', null, function(close){ close(); });
+}
+
+// ===== Adhoc Gate (临时评审) =====
+function rdAddAdhocGate(stageId){  var h = '';
   h += '<div style="margin-bottom:10px;font-size:11px;color:#D97706;background:#FFFBEB;border-radius:6px;padding:8px">临时评审用于型检过程中发现问题等需要立即评估的场景，不影响主流程的门控判定。</div>';
   h += '<label style="display:block;font-size:11px;color:#6B7280;margin-bottom:3px">评审名称 <span style="color:#EF4444">*</span></label>';
   h += '<input id="rd-adhoc-name" placeholder="例：型检问题临时评审-EMC辐射超标" style="width:100%;padding:7px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:12px;box-sizing:border-box">';
@@ -858,6 +991,8 @@ window.rdOpenReviewForm = rdOpenReviewForm;
 window.rdConfirmConditionalDone = rdConfirmConditionalDone;
 window.rdAddIteration = rdAddIteration;
 window.rdDeleteIteration = rdDeleteIteration;
+window.rdRevokeGate = rdRevokeGate;
+window.rdViewGateRecord = rdViewGateRecord;
 window.rdAddAdhocGate = rdAddAdhocGate;
 window.rdRegisterSubmit = rdRegisterSubmit;
 window.calcRdProgress = calcRdProgress;
