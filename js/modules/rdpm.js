@@ -106,6 +106,32 @@ async function _rdCreateRectifyTask(pid, title){
   return (r.data&&r.data[0])||null;
 }
 
+// ★ V0.6.4U: 项目任务同步——模块自治直查 project_tasks（替代未导出的 pm.js syncTasksFromCloud）
+// 根因：syncTasksFromCloud 是 pm.js 未 window 导出的 async 函数（Annex B 陷阱第三处），
+// typeof 守卫恒 false → c.tasks 恒为空 → 整改项完成状态永远不亮、「确认通过」按钮永不显示
+async function _rdSyncTasks(pid){
+  if(!pid || typeof supabase==='undefined' || !supabase || !supabase.from) return [];
+  try{
+    var r = await supabase.from(SUPABASE_TASK_TABLE).select('*').eq('project_id',pid).order('order_index',{ascending:true});
+    if(r.error) throw new Error(r.error.message);
+    return r.data||[];
+  }catch(e){ console.warn('[RD] sync tasks error:', e.message); return []; }
+}
+
+// ★ V0.6.4U: 整改项点击切换完成状态——研发详情页无任务看板，整改项须在页内可完成
+async function _rdToggleRectifyTask(taskId){
+  var c = _rdCurrent;
+  if(!c) return;
+  var t = (c.tasks||[]).find(function(x){return String(x.id)===String(taskId);});
+  if(!t) return;
+  var next = t.status==='已完成' ? '待开始' : '已完成';
+  var now = new Date().toISOString();
+  var r = await supabase.from(SUPABASE_TASK_TABLE).update({status:next, progress:next==='已完成'?100:0, updated_at:now}).eq('id',taskId);
+  if(r.error){ _showAlert('更新失败: '+r.error.message); return; }
+  t.status = next; t.progress = next==='已完成'?100:0; t.updated_at = now;
+  renderRdDetail();
+}
+
 // ★ V0.6.4S: 姓名自动补全统一改用 pm.js 通用组件 attachEmpNameAutocomplete（本模块不再重复实现）
 function _rdNameAutocomplete(input, multi){
   if(typeof attachEmpNameAutocomplete==='function') attachEmpNameAutocomplete(input, {multi:multi});
@@ -230,10 +256,8 @@ async function openRdProjectDetail(p){
     project: p, stages: data.stages, deliverables: data.deliverables, gates: data.gates,
     viewStageKey: active?active.stage_key:null, tasks: []
   };
-  // 同步任务（整改项状态检查用）
-  if(typeof syncTasksFromCloud==='function'){
-    _rdCurrent.tasks = await syncTasksFromCloud(p.id) || [];
-  }
+  // 同步任务（整改项状态检查用）★ V0.6.4U: 模块自治 _rdSyncTasks
+  _rdCurrent.tasks = await _rdSyncTasks(p.id);
   // 进度回写
   var prog = calcRdProgress(data.stages, data.deliverables);
   if(p.progress!==prog){
@@ -497,15 +521,21 @@ function renderRdActionItems(c, g, canReview){
   h += '<div style="font-size:10px;font-weight:600;color:#EA580C;margin-bottom:4px">整改项（'+items.length+'）</div>';
   var allDone = true;
   items.forEach(function(it){
-    var t = c.tasks.find(function(x){return x.id===it.task_id;});
+    var t = c.tasks.find(function(x){return String(x.id)===String(it.task_id);});
     var done = t && t.status==='已完成';
     if(!done) allDone = false;
-    h += '<div style="font-size:10px;color:'+(done?'#059669':'#374151')+';padding:2px 0">'+(done?'✓ ':'○ ')+_rdEsc(it.title)+'</div>';
+    // ★ V0.6.4U: 整改项行内点击切换完成（研发详情页无任务看板，此处即完成入口）
+    if(t && it.task_id){
+      h += '<div onclick="_rdToggleRectifyTask(\''+it.task_id+'\')" title="点击切换完成状态" style="font-size:10px;color:'+(done?'#059669':'#374151')+';padding:3px 4px;border-radius:4px;cursor:pointer;user-select:none" onmouseover="this.style.background=\'#F3F4F6\'" onmouseout="this.style.background=\'\'">'
+         + (done?'✓ ':'○ ')+_rdEsc(it.title)+'</div>';
+    }else{
+      h += '<div style="font-size:10px;color:#9CA3AF;padding:3px 4px">○ '+_rdEsc(it.title)+'</div>';
+    }
   });
   if(items.length && allDone && canReview){
     h += '<button onclick="rdConfirmConditionalDone(\''+g.id+'\')" style="width:100%;margin-top:4px;padding:5px;border:0;border-radius:6px;background:#059669;color:#fff;font-size:10px;cursor:pointer">整改已全部完成，确认通过</button>';
   }else if(items.length && !allDone){
-    h += '<div style="font-size:9px;color:#9CA3AF;margin-top:2px">整改项在「任务看板」中完成后，由项目负责人确认通过</div>';
+    h += '<div style="font-size:9px;color:#9CA3AF;margin-top:2px">点击整改项标记完成；全部完成后由评审人确认通过</div>';
   }
   h += '</div>';
   return h;
@@ -666,8 +696,8 @@ function rdOpenReviewForm(gid){
     await _rdUpdate(RD_GATE_TABLE, gid, patch);
     Object.assign(g, patch);
 
-    // 刷新任务缓存供整改状态检查
-    if(typeof syncTasksFromCloud==='function') _rdCurrent.tasks = await syncTasksFromCloud(c_projectId()) || [];
+    // 刷新任务缓存供整改状态检查（★ V0.6.4U: 模块自治 _rdSyncTasks）
+    _rdCurrent.tasks = await _rdSyncTasks(c_projectId());
 
     await _rdEvaluateStage(g.stage_id);
     close();
@@ -858,7 +888,7 @@ async function rdRevokeGate(gid){
     var patch = {result:'pending', reviewed_by:null, review_date:null, attendees:null, conclusion:null, action_items:null};
     await _rdUpdate(RD_GATE_TABLE, gid, patch);
     Object.assign(g, patch);
-    if(typeof syncTasksFromCloud==='function') c.tasks = await syncTasksFromCloud(c.project.id) || [];
+    c.tasks = await _rdSyncTasks(c.project.id);
     await _rdEvaluateStage(g.stage_id);
     showToast('评审已撤回');
     renderRdDetail();
@@ -991,6 +1021,7 @@ window.rdAddIteration = rdAddIteration;
 window.rdDeleteIteration = rdDeleteIteration;
 window.rdRevokeGate = rdRevokeGate;
 window.rdViewGateRecord = rdViewGateRecord;
+window._rdToggleRectifyTask = _rdToggleRectifyTask;
 window.rdAddAdhocGate = rdAddAdhocGate;
 window.rdRegisterSubmit = rdRegisterSubmit;
 window.calcRdProgress = calcRdProgress;
