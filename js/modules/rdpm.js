@@ -237,7 +237,7 @@ function renderRdDetail(){
   h += '<div style="display:flex;align-items:center;gap:10px">';
   h += '<button onclick="backToPMList()" style="padding:6px 14px;border:1px solid #D0D5DD;border-radius:6px;background:#fff;font-size:12px;cursor:pointer;color:#374151">← 返回列表</button>';
   h += '<span style="font-weight:600;font-size:16px;color:#111827">'+_rdEsc(p.name)+'</span>';
-  h += '<span style="font-size:10px;padding:2px 8px;border-radius:10px;background:#EFF6FF;color:#3B82F6">研发</span>';
+  h += '<span style="font-size:10px;padding:2px 8px;border-radius:10px;background:#EFF6FF;color:#3B82F6">新产品开发</span>';
   h += '<span style="font-size:11px;color:#6B7280">负责人：'+_rdEsc(p.owner||'')+'</span>';
   h += '</div>';
   h += '<div style="font-size:12px;color:#6B7280">进度 <span style="font-weight:600;color:#111827">'+(p.progress||0)+'%</span></div>';

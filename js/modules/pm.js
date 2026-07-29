@@ -12,13 +12,17 @@ window._pmInit=true;
 var SUPABASE_PM_TABLE = 'projects';
 var SUPABASE_TASK_TABLE = 'project_tasks';
 var PM_CACHE_PREFIX = 'hwm_pm_';
+// ★ V0.6.4k: 项目类别改为业务语义命名（key 保持不变，历史数据与研发阶段门引擎零影响）
 var PM_TYPE_DEFS = [
   {key:'全部', label:'全部项目'},
-  {key:'战略', label:'战略项目管理'},
-  {key:'协同', label:'协同项目管理'},
-  {key:'研发', label:'研发项目管理'},
-  {key:'通用', label:'通用项目管理'}
+  {key:'协同', label:'跨部门协作项目'},
+  {key:'研发', label:'新产品开发项目'},
+  {key:'通用', label:'独立中小型项目'}
 ];
+function pmTypeLabel(key){
+  var d = PM_TYPE_DEFS.find(function(t){return t.key===key;});
+  return d?d.label:(key||'');
+}
 
 // ===== State =====
 var _pmCurrent = null;       // {project, tasks}
@@ -231,7 +235,7 @@ function renderProjectCard(p){
   h += '<div style="font-weight:600;font-size:15px;color:#111827;line-height:1.3">'+esc(p.name||'未命名')+'</div>';
   h += '<div style="display:flex;gap:4px;flex-shrink:0">';
   h += '<span style="font-size:10px;padding:2px 8px;border-radius:10px;background:'+lb+';color:'+lt+'">'+lvlLabels[p.level]+'</span>';
-  h += '<span style="font-size:10px;padding:2px 8px;border-radius:10px;background:'+tbg+';color:'+tc+'">'+esc(p.type||'')+'</span>';
+  h += '<span style="font-size:10px;padding:2px 8px;border-radius:10px;background:'+tbg+';color:'+tc+'">'+esc(pmTypeLabel(p.type))+'</span>';
   h += '</div></div>';
   h += '<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:11px;color:#6B7280;margin-bottom:3px"><span>进度</span><span style="font-weight:600">'+(p.progress||0)+'%</span></div>';
   h += '<div style="height:5px;background:#F3F4F6;border-radius:3px;overflow:hidden"><div style="height:100%;width:'+(p.progress||0)+'%;background:'+lc+';border-radius:3px"></div></div></div>';
