@@ -233,8 +233,8 @@ function renderRdDetail(){
   var canReview = _rdCanReview(p);
 
   var h = '';
-  // ★ V0.6.4N: 工具栏+阶段管道条 sticky 固定，滚动交付物清单时保持可见
-  h += '<div style="position:sticky;top:0;z-index:20;background:#F9FAFB;padding:4px 0 10px">';
+  // ★ V0.6.4N: 工具栏+阶段管道条 sticky 固定，滚动交付物清单时保持可见（V0.6.4P: 底色与外层滚动容器 #F3F4F6 统一，消除色差）
+  h += '<div style="position:sticky;top:0;z-index:20;background:#F3F4F6;padding:4px 0 10px">';
   // Toolbar（★ V0.6.4O: 「返回列表」已上移至页面 header，此处不重复）
   h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">';
   h += '<div style="display:flex;align-items:center;gap:10px">';

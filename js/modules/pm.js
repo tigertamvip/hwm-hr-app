@@ -352,7 +352,8 @@ async function openPMDetail(pid){
     var rdPmv = document.getElementById('pmView');
     var rdBackBtn = document.getElementById('pmBackListBtn');
     if(rdListEl) rdListEl.style.display='none';
-    if(rdDetailEl) rdDetailEl.style.display='block';
+    // ★ V0.6.4P: 必须为 flex（与通用路径一致）——flex-direction:column 生效后 pmDetailContent 才能靠 flex:1 形成固定高度的内部滚动容器，研发详情头部 sticky 才有粘附对象；block 会让高度被内容撑开、滚动甩给外层导致 sticky 失效
+    if(rdDetailEl) rdDetailEl.style.display='flex';
     if(rdPmv) rdPmv.classList.add('pm-detail-mode');
     if(rdBackBtn) rdBackBtn.style.display='';
     _pmCurrent = {project:p, tasks:[]};
