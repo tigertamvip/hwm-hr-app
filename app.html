@@ -6,8 +6,8 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.6.4V">
-<!-- cache-bust: 2026-07-30-06-10 -->
+<meta name="version" content="V0.6.4W">
+<!-- cache-bust: 2026-07-30-06-23 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json?v=bc">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1111,6 +1111,20 @@ body{
   inset:0;
   background:linear-gradient(180deg,#F7F5F0 0%,#F0EEE8 100%);
   z-index:0;
+}
+/* ★ V0.6.4W: 宣纸纹理 + 淡墨晕染层（feTurbulence 程序化生成，零图片请求）
+   细颗粒(0.9频)模拟纸面、低频横向(0.015×0.5)模拟纸纤维走向；
+   右上/左下两团墨色 radial-gradient 如宣纸未干水汽，对角呼应 */
+.portal-view::after{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(ellipse 620px 420px at 86% 6%, rgba(31,31,31,.038), transparent 68%),
+    radial-gradient(ellipse 720px 520px at 6% 94%, rgba(31,31,31,.022), transparent 70%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.12 0 0 0 0 0.12 0 0 0 0 0.11 0 0 0 0.04 0'/%3E%3C/filter%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.015 0.5' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.12 0 0 0 0 0.12 0 0 0 0 0.11 0 0 0 0.022 0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23p)'/%3E%3Crect width='240' height='240' filter='url(%23f)'/%3E%3C/svg%3E");
+  z-index:0;
+  pointer-events:none;
 }
 .portal-hero,.portal-grid,.portal-footer,.portal-logout{position:relative;z-index:1}
 
