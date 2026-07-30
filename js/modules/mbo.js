@@ -521,7 +521,10 @@ function loadWPData(){
     return;
   }
   var frozenKey=getWPLocalStorageKey();
-  (async function(){
+  // ★ V0.6.5h: 返回 IIFE 的 Promise，让 await loadWPData() 真正等到云端拉取/合并完成
+  // 此前 IIFE 是 fire-and-forget，导致 selectWP 在云端数据回填前就用空壳覆盖云端，
+  // 上级（如 Tiger）在下属计划上的编辑会被下属首次打开时丢失。
+  return (async function(){
     // ★ j74: 世代守卫 — 如果之后又触发了新的 loadWPData()，旧请求直接丢弃
     if(_wpLoadGeneration!==gen)return;
     try{
@@ -564,8 +567,20 @@ function loadWPData(){
           seenNewer=true;
           continue;
         }
-        // 本地输入已落盘、云端确认尚未返回时，绝不接受旧云端快照覆盖。
-        if(_wpDirtyPlanVersions[row.week_id])continue;
+        // ★ V0.6.5h: dirty TTL — 仅在最近 15s 内的"用户输入"dirty 才阻止云端覆盖。
+        // selectWP 完整性检查、_autoCarryTasks、空壳创建等"非用户输入"saveWP 也会打 dirty，
+        // 但这些 dirty 不应该永久遮蔽云端上级（如 Tiger）的编辑。脏标记若超过 15s 仍未被
+        // 云端确认清除，视为"卡死的本地输入"，仍允许后续云端 merge 覆盖（merge 内部还有
+        // cloudUpd > localUpd 的时间戳校验兜底，所以用户输入也不会被旧云端覆盖）。
+        var _dirtyTs=_wpDirtyPlanVersions[row.week_id];
+        if(_dirtyTs){
+          var _dirtyMs=Date.parse(_dirtyTs);
+          if(!isNaN(_dirtyMs)&&(Date.now()-_dirtyMs)<15000){
+            continue;
+          }
+          // dirty 已过期，清除并继续走正常合并
+          delete _wpDirtyPlanVersions[row.week_id];
+        }
         // ★ V0.6.1ge: 云端空壳绝不能覆盖本地有内容的计划
         if(localHasWork&&!cloudHasWork){continue;}
         if(!localData[row.week_id]||cloudUpd>localUpd){
@@ -700,8 +715,15 @@ function loadWPData(){
               seenNewer=true;
               continue;
             }
-            // 输入后到云端确认前不允许轮询覆盖本地最新编辑。
-            if(_wpDirtyPlanVersions[row.week_id])continue;
+            // ★ V0.6.5h: dirty TTL — 与主合并一致，过期 dirty 不得永久遮蔽云端更新。
+            var _pollDirtyTs=_wpDirtyPlanVersions[row.week_id];
+            if(_pollDirtyTs){
+              var _pollDirtyMs=Date.parse(_pollDirtyTs);
+              if(!isNaN(_pollDirtyMs)&&(Date.now()-_pollDirtyMs)<15000){
+                continue;
+              }
+              delete _wpDirtyPlanVersions[row.week_id];
+            }
             if(localHasWork&&!cloudHasWork)continue;
             if(!localData[row.week_id]||cloudUpd>localUpd){
               localData[row.week_id]=row.plan_data;
@@ -2061,7 +2083,7 @@ async function delWPFromSidebar(y,m,w){
   renderWPUserInfo();
 }
 
-function selectWP(y,m,w){
+async function selectWP(y,m,w){
   _clearWPTooltips();
   // ★ V0.6.1dn: 退出合并视图时清理残留 DOM
   _wpViewingMergedUrgent=false;
@@ -2073,7 +2095,11 @@ function selectWP(y,m,w){
     var oldToolbar=content.querySelector('.wp-toolbar.merged-urgent');if(oldToolbar)oldToolbar.remove();
   }
   _wpCurrent={year:y,month:m,week:w,plan:null};
-  loadWPData();
+  // ★ V0.6.5h: 关键修复 — 等云端合并完成再渲染。
+  // 此前 loadWPData 是 fire-and-forget 的 IIFE，导致 getWP() 拿到的是空 _wpData，
+  // 立刻进入 else 分支创建空计划并 saveWP() 推上云端，覆盖上级（如 Tiger）在云端已有的编辑。
+  // 例如：Tiger 在 钟雅洁 W31 加任务 → 钟雅洁首次打开 W31 → 空壳覆盖云端 → Tiger 的改动丢失。
+  await loadWPData();
   var plan=getWP(y,m,w);
   // ★ 确定当前正在查看的用户名（自己 or 下属 or 分享查看）
   var correctName=_wpViewingShared||_wpViewingSubordinate||_wpViewingDeptMember||(currentUser&&currentUser.name)||'';
