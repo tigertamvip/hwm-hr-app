@@ -159,12 +159,16 @@ async function deleteTask(project_id, task_id){
 }
 
 // ===== Progress Calculation =====
+// ★ V0.6.5k: 返回 -1 表示"无任务"（显示"未开始"而非0%）
 function calcProjectProgress(pid){
   var tasks = loadProjectTasks(pid);
-  if(!tasks.length) return 0;
+  if(!tasks.length) return -1;
   var total = 0;
   tasks.forEach(function(t){ total += (t.progress||0); });
   return Math.round(total / tasks.length);
+}
+function pmProgressLabel(prog){
+  return prog===-1?'未开始':prog+'%';
 }
 
 // ===== UI: Project List (Card Grid) =====
@@ -246,8 +250,8 @@ function renderProjectCard(p, idx, anim){
   h += '<span style="font-size:10px;padding:2px 8px;border-radius:9px;border:1px solid #C9C4BA;color:#6E6A63">'+esc(pmTypeLabel(p.type))+'</span>';
   h += '<button class="pm-del-btn" onclick="event.stopPropagation();deleteProject('+p.id+')" title="删除项目" style="padding:2px 8px;border:0;background:transparent;font-size:11px;color:#A8A29A;cursor:pointer">删除</button>';
   h += '</div></div>';
-  h += '<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:11px;color:#6E6A63;margin-bottom:4px"><span>进度</span><span style="font-weight:600;color:#1F1F1F">'+(p.progress||0)+'%</span></div>';
-  h += '<div style="height:4px;background:#EFEDE8;border-radius:2px;overflow:hidden"><div style="height:100%;width:'+(p.progress||0)+'%;background:#1F1F1F;border-radius:2px"></div></div></div>';
+  h += '<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:11px;color:#6E6A63;margin-bottom:4px"><span>进度</span><span style="font-weight:600;color:'+(p.progress===-1?'#A8A29A':'#1F1F1F')+'">'+pmProgressLabel(p.progress)+'</span></div>';
+  h += '<div style="height:4px;background:#EFEDE8;border-radius:2px;overflow:hidden"><div style="height:100%;width:'+(p.progress===-1?0:(p.progress||0))+'%;background:'+(p.progress===-1?'#EFEDE8':'#1F1F1F')+';border-radius:2px"></div></div></div>';
   // ★ V1.0 RDPM: 研发项目卡片显示 7 段阶段条（数据来自 rdpm.js 缓存，不影响其他类型）
   if(p.type==='研发' && typeof rdStageBarHtml==='function') h += rdStageBarHtml(p.id);
   var teamCount = (p.team&&Array.isArray(p.team))?p.team.length:0;
@@ -257,7 +261,7 @@ function renderProjectCard(p, idx, anim){
   h += '<span>'+(p.start_date||'')+' ~ '+(p.end_date||'')+'</span>';
   h += '</div>';
   h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid #EFEDE8">';
-  h += '<span style="font-size:10px;padding:2px 8px;border-radius:8px;'+(sm.fill?('background:'+sm.c+';color:#F7F5F0'):('border:1px solid '+sm.c+';color:'+sm.c))+'">'+esc(p.status||'')+'</span>';
+  h += '<button onclick="event.stopPropagation();showProjectTeam('+p.id+')" style="font-size:10px;padding:3px 10px;border-radius:8px;border:1px solid #C9C4BA;background:#fff;color:#6E6A63;cursor:pointer;display:inline-flex;align-items:center;gap:4px" title="查看项目组成员"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>项目团队 ('+teamCount+')</button>';
   h += '<span style="font-size:10px;color:#C9C4BA">'+(p.updated_at?formatDate(p.updated_at):'')+'</span>';
   h += '</div>';
   h += '</div></div>';
@@ -345,6 +349,11 @@ async function openPMDetail(pid){
   var all = loadAllProjects();
   var p = all.find(function(x){return x.id===pid;});
   if(!p){ _showAlert('项目不存在'); return; }
+  // ★ V0.6.5k: 成员名单门禁 — 仅项目组成员/负责人/管理员可进入
+  if(!_pmCanAccessProject(p)){
+    _showAlert('您不在项目成员名单中，无法查看本项目详情。<br><br>请联系项目负责人「'+esc(p.owner||'')+'」将您加入项目组。','权限提示',3000);
+    return;
+  }
   // ★ V1.0 RDPM: 研发项目详情由阶段门引擎接管（rdpm.js）
   if(p.type==='研发' && typeof openRdProjectDetail==='function'){
     var rdListEl = document.getElementById('pmListView');
@@ -406,7 +415,7 @@ function renderPMDetail(){
   var h = '';
   h += renderPMToolbar(p);
   h += '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px">';
-  h += '<div class="pm-stat-card"><div style="font-size:24px;font-weight:600;color:#111827">'+(p.progress||0)+'%</div><div style="font-size:11px;color:#9CA3AF">总进度</div></div>';
+  h += '<div class="pm-stat-card"><div style="font-size:24px;font-weight:600;color:'+(p.progress===-1?'#A8A29A':'#111827')+'">'+pmProgressLabel(p.progress)+'</div><div style="font-size:11px;color:#9CA3AF">总进度</div></div>';
   h += '<div class="pm-stat-card"><div style="font-size:24px;font-weight:600;color:#3B82F6">'+todo+'</div><div style="font-size:11px;color:#9CA3AF">待开始</div></div>';
   h += '<div class="pm-stat-card"><div style="font-size:24px;font-weight:600;color:#F59E0B">'+doing+'</div><div style="font-size:11px;color:#9CA3AF">进行中</div></div>';
   h += '<div class="pm-stat-card"><div style="font-size:24px;font-weight:600;color:#10B981">'+done+'</div><div style="font-size:11px;color:#9CA3AF">已完成</div></div>';
@@ -712,6 +721,11 @@ async function showNewProjectForm(){
   h += '<input id="np-budget" type="number" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:13px;box-sizing:border-box" placeholder="选填">';
   h += '</div>';
   h += '<div style="margin-bottom:12px">';
+  h += '<label style="display:block;font-size:12px;color:#6B7280;margin-bottom:4px">项目组成员（可多选，按空格/逗号分隔添加）</label>';
+  h += '<div style="position:relative"><input id="np-members" autocomplete="off" placeholder="输入姓名后选择，按空格添加下一个" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:13px;box-sizing:border-box"></div>';
+  h += '<div id="np-members-chips" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px"></div>';
+  h += '</div>';
+  h += '<div style="margin-bottom:12px">';
   h += '<label style="display:block;font-size:12px;color:#6B7280;margin-bottom:4px">项目描述</label>';
   h += '<textarea id="np-desc" rows="3" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:13px;box-sizing:border-box;resize:vertical" placeholder="简要描述项目目标和范围"></textarea>';
   h += '</div>';
@@ -726,12 +740,21 @@ async function showNewProjectForm(){
     var end = document.getElementById('np-end').value;
     var budget = document.getElementById('np-budget').value;
     var desc = document.getElementById('np-desc').value.trim();
+    // ★ V0.6.5k: 收集已选项目组成员
+    var memberNames = _npCollectMembers();
+    var today = new Date().toISOString().split('T')[0];
+    var team = memberNames.map(function(n){ return {name:n, role:'成员', joinedAt:today}; });
+    // 负责人自动加入团队
+    if(owner && !team.some(function(t){return t.name===owner;})){
+      team.unshift({name:owner, role:'项目负责人', joinedAt:today});
+    }
 
     var p = await createProject({
       name: name, type: type, level: level, owner: owner,
       start_date: start||null, end_date: end||null,
       budget_pool: budget?parseFloat(budget):null,
-      description: desc
+      description: desc,
+      team: team
     });
     // ★ V1.0 RDPM: 研发项目实例化阶段门流程（含中间切入）
     if(p && p.type==='研发' && typeof instantiateRdProject==='function'){
@@ -742,6 +765,8 @@ async function showNewProjectForm(){
   });
   // ★ V0.6.4S: 项目负责人姓名联想（单值模式）
   attachEmpNameAutocomplete(document.getElementById('np-owner'), {multi:false});
+  // ★ V0.6.5k: 项目组成员多选联想
+  _npInitMemberSelect(document.getElementById('np-members'), document.getElementById('np-members-chips'));
 }
 
 // ===== Utility =====
@@ -819,6 +844,188 @@ async function enterPMModule(){
   if(cloud) { _pmProjects = cloud; saveAllProjects(cloud); renderPMSidebar(); renderPMList(); }
 }
 
+// ===== Project Team Management =====
+// ★ V0.6.5k: 团队数据结构升级为 [{name, role, joinedAt}]，兼容旧版字符串数组
+var _npSelectedMembers = [];
+
+function _npInitMemberSelect(input, chipsEl){
+  if(!input||!chipsEl) return;
+  _npSelectedMembers = [];
+  var names = _pmEmpPool();
+
+  function _renderChips(){
+    var h = '';
+    _npSelectedMembers.forEach(function(n, i){
+      h += '<span style="display:inline-flex;align-items:center;background:#E8F0FE;color:#1B6EC4;font-size:11px;font-weight:500;padding:3px 10px;border-radius:12px;gap:4px">'+esc(n)+'<span onclick="_npRemoveMember('+i+')" style="cursor:pointer;opacity:.6;font-size:14px;line-height:1;margin-left:2px">&times;</span></span>';
+    });
+    chipsEl.innerHTML = h;
+  }
+  window._npRemoveMember = function(i){
+    _npSelectedMembers.splice(i,1);
+    _renderChips();
+  };
+  function _add(name){
+    name = name.trim();
+    if(!name) return;
+    if(_npSelectedMembers.indexOf(name)>=0) return;
+    _npSelectedMembers.push(name);
+    _renderChips();
+    input.value = '';
+  }
+  input.addEventListener('keydown', function(e){
+    if(e.key==='Enter'||e.key===' '||e.key===','){
+      e.preventDefault();
+      _add(input.value);
+    }else if(e.key==='Backspace'&&!input.value&&_npSelectedMembers.length){
+      _npRemoveMember(_npSelectedMembers.length-1);
+    }
+  });
+  input.addEventListener('input', function(){
+    var q = input.value.trim();
+    if(!q) return;
+    // 如果输入包含空格或逗号，尝试拆分添加
+    var parts = input.value.split(/[\s,，]+/).filter(function(s){return s.trim();});
+    if(parts.length>1){
+      parts.forEach(function(s){ _add(s); });
+      input.value = '';
+      return;
+    }
+    // 联想提示
+    if(q.length<1) return;
+    var hits = names.filter(function(n){ return n.indexOf(q)>=0 && _npSelectedMembers.indexOf(n)<0; }).slice(0,6);
+    if(!hits.length) return;
+    // 使用 attachEmpNameAutocomplete 已有逻辑时，这里用简单下拉
+    var dd = document.createElement('div');
+    dd.style.cssText = 'position:absolute;top:100%;left:0;right:0;margin-top:2px;z-index:5;background:#fff;border:1px solid #D0D5DD;border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,.14);max-height:180px;overflow-y:auto;font-size:12px';
+    dd.id = 'np-members-dd';
+    dd.innerHTML = hits.map(function(n){
+      return '<div style="padding:7px 12px;cursor:pointer;color:#1F1F1F" onmouseover="this.style.background=\'#F3F4F6\'" onmouseout="this.style.background=\'\'" onmousedown="event.preventDefault();_npAddMemberFromDD(\''+esc(n)+'\')">'+esc(n)+'</div>';
+    }).join('');
+    var parent = input.parentElement;
+    var old = document.getElementById('np-members-dd');
+    if(old) old.remove();
+    parent.appendChild(dd);
+  });
+  window._npAddMemberFromDD = function(name){
+    _add(name);
+    var dd = document.getElementById('np-members-dd');
+    if(dd) dd.remove();
+  };
+  input.addEventListener('blur', function(){
+    setTimeout(function(){
+      var dd = document.getElementById('np-members-dd');
+      if(dd) dd.remove();
+      if(input.value.trim()) _add(input.value);
+    }, 200);
+  });
+}
+function _npCollectMembers(){
+  return _npSelectedMembers.slice();
+}
+
+function _normalizeTeam(team){
+  if(!Array.isArray(team)) return [];
+  var out = [];
+  team.forEach(function(t){
+    if(!t) return;
+    if(typeof t==='string'){
+      out.push({name:t, role:'成员', joinedAt:''});
+    }else if(t.name){
+      out.push({name:t.name, role:t.role||'成员', joinedAt:t.joinedAt||''});
+    }
+  });
+  return out;
+}
+function _teamNames(team){
+  return _normalizeTeam(team).map(function(t){return t.name;});
+}
+
+// 查看项目团队（弹窗）
+function showProjectTeam(pid){
+  var p = loadAllProjects().find(function(x){return x.id===pid;});
+  if(!p){ _showAlert('项目不存在'); return; }
+  var team = _normalizeTeam(p.team||[]);
+  var owner = p.owner||'';
+  var canEdit = (currentUser&&currentUser.name)===owner;
+
+  var h = '';
+  h += '<div style="font-size:12px;color:#6B7280;margin-bottom:16px">项目负责人：<strong style="color:#1F1F1F">'+esc(owner)+'</strong></div>';
+  if(team.length===0){
+    h += '<div style="padding:32px;text-align:center;color:#9CA3AF;font-size:13px">暂无项目组成员<br>'+(canEdit?'点击下方按钮添加成员':'')+'</div>';
+  }else{
+    h += '<table style="width:100%;border-collapse:collapse;font-size:12px">';
+    h += '<thead><tr style="border-bottom:1px solid #E5E7EB"><th style="text-align:left;padding:8px 4px;color:#6B7280;font-weight:500">成员</th><th style="text-align:left;padding:8px 4px;color:#6B7280;font-weight:500">职责</th><th style="text-align:left;padding:8px 4px;color:#6B7280;font-weight:500">加入时间</th>'+(canEdit?'<th style="padding:8px 4px;width:50px"></th>':'')+'</tr></thead><tbody>';
+    team.forEach(function(t,i){
+      h += '<tr style="border-bottom:1px solid #F3F4F6">';
+      h += '<td style="padding:10px 4px;color:#1F1F1F;font-weight:500">'+esc(t.name)+'</td>';
+      h += '<td style="padding:10px 4px;color:#6B7280">'+esc(t.role)+'</td>';
+      h += '<td style="padding:10px 4px;color:#9CA3AF">'+esc(t.joinedAt||'-')+'</td>';
+      if(canEdit) h += '<td style="padding:10px 4px;text-align:right"><button onclick="removeProjectMember('+p.id+',\''+esc(t.name)+'\')" style="padding:2px 8px;font-size:11px;border:1px solid #FCA5A5;border-radius:4px;background:#FEF2F2;color:#DC2626;cursor:pointer">移除</button></td>';
+      h += '</tr>';
+    });
+    h += '</tbody></table>';
+  }
+
+  if(canEdit){
+    h += '<div style="margin-top:16px;padding-top:16px;border-top:1px solid #E5E7EB">';
+    h += '<div style="font-size:11px;color:#6B7280;margin-bottom:8px">添加成员（选填角色，默认成员）</div>';
+    h += '<div style="display:flex;gap:8px">';
+    h += '<div style="flex:2;position:relative"><input id="ptm-new-name" placeholder="姓名" autocomplete="off" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:13px;box-sizing:border-box"></div>';
+    h += '<select id="ptm-new-role" style="flex:1;padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:13px"><option value="成员">成员</option><option value="项目经理">项目经理</option><option value="技术负责人">技术负责人</option><option value="测试工程师">测试工程师</option><option value="质量工程师">质量工程师</option><option value="工艺工程师">工艺工程师</option><option value="采购工程师">采购工程师</option><option value="财务对接">财务对接</option></select>';
+    h += '<button onclick="addProjectMember('+p.id+')" style="padding:8px 16px;background:#3B82F6;color:#fff;border:none;border-radius:6px;font-size:13px;cursor:pointer">添加</button>';
+    h += '</div></div>';
+  }
+
+  showFormModal(h, '项目团队 / Project Team', '关闭 / Close', null, function(){});
+  attachEmpNameAutocomplete(document.getElementById('ptm-new-name'), {multi:false});
+}
+
+// 添加项目成员
+async function addProjectMember(pid){
+  var nameInput = document.getElementById('ptm-new-name');
+  var roleSel = document.getElementById('ptm-new-role');
+  var name = (nameInput?nameInput.value.trim():'');
+  var role = (roleSel?roleSel.value:'成员');
+  if(!name){ _showAlert('请输入成员姓名'); return; }
+  var p = loadAllProjects().find(function(x){return x.id===pid;});
+  if(!p){ _showAlert('项目不存在'); return; }
+  var team = _normalizeTeam(p.team||[]);
+  if(team.some(function(t){return t.name===name;})){ _showAlert(name+' 已在项目组中'); return; }
+  team.push({name:name, role:role, joinedAt:new Date().toISOString().split('T')[0]});
+  p.team = team;
+  await saveProject(p);
+  _pmProjects = loadAllProjects();
+  showProjectTeam(pid);
+  renderPMList();
+}
+
+// 移除项目成员
+async function removeProjectMember(pid, name){
+  var p = loadAllProjects().find(function(x){return x.id===pid;});
+  if(!p){ _showAlert('项目不存在'); return; }
+  var team = _normalizeTeam(p.team||[]).filter(function(t){return t.name!==name;});
+  p.team = team;
+  await saveProject(p);
+  _pmProjects = loadAllProjects();
+  showProjectTeam(pid);
+  renderPMList();
+}
+
+// ===== 成员名单门禁控制 =====
+// ★ V0.6.5k: 非项目组成员不可进入项目详情
+function _pmCanAccessProject(p){
+  if(!p) return false;
+  var me = (currentUser&&currentUser.name)||'';
+  if(!me) return false;
+  if(p.owner===me) return true;  // 负责人始终可访问
+  // 管理员（有系统维护权限）可访问
+  if(typeof hasPermission==='function'&&hasPermission('maintenance')) return true;
+  // 项目组成员可访问
+  var team = _normalizeTeam(p.team||[]);
+  if(team.some(function(t){return t.name===me;})) return true;
+  return false;
+}
+
 // Expose to global
 window.enterPMModule = enterPMModule;
 window.openPMDetail = openPMDetail;
@@ -838,6 +1045,10 @@ window.filterMyProjects = filterMyProjects;
 window.filterActiveProjects = filterActiveProjects;
 window.toggleLevelFilter = toggleLevelFilter;
 window.attachEmpNameAutocomplete = attachEmpNameAutocomplete;
+window.showProjectTeam = showProjectTeam;
+window.addProjectMember = addProjectMember;
+window.removeProjectMember = removeProjectMember;
+window._pmCanAccessProject = _pmCanAccessProject;
 
 console.log('[PM] Module loaded - V0.2.0 (研发项目管理 + HTML Modal)');
 

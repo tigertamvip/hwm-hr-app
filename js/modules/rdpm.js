@@ -244,6 +244,11 @@ function calcRdProgress(stages, deliverables){
 
 // ===== Detail View Entry (pm.js openPMDetail 分流，DOM 切换由 pm.js 完成) =====
 async function openRdProjectDetail(p){
+  // ★ V0.6.5k: 成员名单门禁 — 非项目组成员不可查看研发项目详情
+  if(typeof _pmCanAccessProject==='function' && !_pmCanAccessProject(p)){
+    _showAlert('您不在项目成员名单中，无法查看本项目详情。<br><br>请联系项目负责人「'+esc(p.owner||'')+'」将您加入项目组。','权限提示',3000);
+    return;
+  }
   // ★ V0.6.4N: 写入 pmDetailContent（与通用详情页同容器），避免摧毁该节点导致通用详情页空白
   var detailEl = document.getElementById('pmDetailContent') || document.getElementById('pmDetailView');
   if(detailEl){
