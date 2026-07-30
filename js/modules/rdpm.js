@@ -268,12 +268,8 @@ function _rdCanSeeStage(p, stageKey){
 }
 
 // ===== Detail View Entry (pm.js openPMDetail 分流，DOM 切换由 pm.js 完成) =====
+// ★ V0.6.5w: 密码验证已在 openPMDetail 完成，此处不再重复（否则弹窗出现两次）
 async function openRdProjectDetail(p){
-  // ★ V0.6.5m: 成员名单+密码门禁 — 成员需验证密码方可进入
-  if(typeof verifyProjectAccess==='function'){
-    var _rdAccessOk = await verifyProjectAccess(p.id);
-    if(!_rdAccessOk) return;
-  }
   // ★ V0.6.4N: 写入 pmDetailContent（与通用详情页同容器），避免摧毁该节点导致通用详情页空白
   var detailEl = document.getElementById('pmDetailContent') || document.getElementById('pmDetailView');
   if(detailEl){
