@@ -83,6 +83,15 @@ async function createProject(data){
 }
 
 async function deleteProject(id){
+  // ★ V0.6.5s: 删除权限检查——仅项目负责人/管理员可删除
+  var p = loadAllProjects().find(function(x){return x.id===id;});
+  if(!p){ _showAlert('项目不存在'); return; }
+  var me = (currentUser&&currentUser.name)||'';
+  var canDelete = (me===p.owner) || (typeof hasPermission==='function'&&hasPermission('maintenance'));
+  if(!canDelete){
+    _showAlert('您没有权限删除此项目。<br><br>只有项目负责人「'+esc(p.owner||'')+'」或系统管理员可以删除项目。','权限提示',3000);
+    return;
+  }
   var ok = await _showConfirm('确认删除此项目？\n\n删除后不可恢复。\n\nConfirm delete? This action cannot be undone.','警告 / Warning');
   if(!ok) return;
   try{
@@ -251,7 +260,9 @@ function renderProjectCard(p, idx, anim){
   h += '<div style="display:flex;gap:4px;flex-shrink:0;align-items:center">';
   h += '<span style="font-size:10px;padding:2px 8px;border-radius:9px;border:1px solid '+lm.ink+';color:'+lm.ink+'">'+lm.label+'</span>';
   h += '<span style="font-size:10px;padding:2px 8px;border-radius:9px;border:1px solid #C9C4BA;color:#6E6A63">'+esc(pmTypeLabel(p.type))+'</span>';
-  h += '<button class="pm-del-btn" onclick="event.stopPropagation();deleteProject('+p.id+')" title="删除项目" style="padding:2px 8px;border:0;background:transparent;font-size:11px;color:#A8A29A;cursor:pointer">删除</button>';
+  // ★ V0.6.5s: 删除按钮仅项目负责人/管理员可见
+  var _canDelete = (currentUser&&currentUser.name)===p.owner || (typeof hasPermission==='function'&&hasPermission('maintenance'));
+  if(_canDelete) h += '<button class="pm-del-btn" onclick="event.stopPropagation();deleteProject('+p.id+')" title="删除项目" style="padding:2px 8px;border:0;background:transparent;font-size:11px;color:#A8A29A;cursor:pointer">删除</button>';
   h += '</div></div>';
   h += '<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:11px;color:#6E6A63;margin-bottom:4px"><span>进度</span><span style="font-weight:600;color:'+(p.progress===-1?'#A8A29A':'#1F1F1F')+'">'+pmProgressLabel(p.progress)+'</span></div>';
   h += '<div style="height:4px;background:#EFEDE8;border-radius:2px;overflow:hidden"><div style="height:100%;width:'+(p.progress===-1?0:(p.progress||0))+'%;background:'+(p.progress===-1?'#EFEDE8':'#1F1F1F')+';border-radius:2px"></div></div></div>';
@@ -400,7 +411,9 @@ function renderPMToolbar(p){
     h += '<option'+(s===p.status?' selected':'')+'>'+s+'</option>';
   });
   h += '</select>';
-  h += '<button onclick="deleteProject('+p.id+')" style="padding:5px 12px;border:1px solid #FCA5A5;border-radius:6px;background:#FEF2F2;color:#DC2626;font-size:12px;cursor:pointer">删除</button>';
+  // ★ V0.6.5s: 删除按钮仅项目负责人/管理员可见
+  var _canDeleteToolbar = (currentUser&&currentUser.name)===p.owner || (typeof hasPermission==='function'&&hasPermission('maintenance'));
+  if(_canDeleteToolbar) h += '<button onclick="deleteProject('+p.id+')" style="padding:5px 12px;border:1px solid #FCA5A5;border-radius:6px;background:#FEF2F2;color:#DC2626;font-size:12px;cursor:pointer">删除</button>';
   h += '</div>';
   return h;
 }
@@ -542,7 +555,7 @@ function showFormModal(html, title, okText, cancelText, onSubmit){
   var overlay = document.createElement('div');
   overlay.id = 'pm-form-modal';
   overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;z-index:10000;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;';
-  var modal = '<div style="background:#fff;border-radius:12px;padding:0;width:480px;max-width:90%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.2);">';
+  var modal = '<div style="background:#fff;border-radius:12px;padding:0;width:576px;max-width:92%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.2);">';
   modal += '<div style="display:flex;align-items:center;gap:10px;padding:20px 24px;border-bottom:1px solid #E5E7EB;">';
   modal += '<span style="font-size:18px">&#9888;</span>';
   modal += '<span style="font-weight:700;font-size:16px;color:#111827;">' + esc(title||'') + '</span>';

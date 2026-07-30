@@ -55,7 +55,9 @@ function _rdCnNum(n){
 }
 function _rdCanReview(project){
   var me = (currentUser&&currentUser.name)||'';
-  return me && (project.owner===me || project.created_by===me);
+  // ★ V0.6.5s: 管理员也可评审/删除
+  var isAdmin = (typeof hasPermission==='function'&&hasPermission('maintenance'));
+  return me && (project.owner===me || project.created_by===me || isAdmin);
 }
 
 // ===== Cache =====
