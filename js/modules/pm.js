@@ -258,13 +258,16 @@ function renderProjectCard(p, idx, anim){
   // ★ V1.0 RDPM: 研发项目卡片显示 7 段阶段条（数据来自 rdpm.js 缓存，不影响其他类型）
   if(p.type==='研发' && typeof rdStageBarHtml==='function') h += rdStageBarHtml(p.id);
   var teamCount = (p.team&&Array.isArray(p.team))?p.team.length:0;
-  h += '<div style="display:flex;align-items:center;gap:14px;font-size:11px;color:#A8A29A">';
+  h += '<div style="display:flex;align-items:center;gap:14px;font-size:12px;color:#6B7280">';
   h += '<span>'+esc(p.owner||'')+'</span>';
   h += '<span>团队 '+teamCount+' 人</span>';
   h += '<span>'+(p.start_date||'')+' ~ '+(p.end_date||'')+'</span>';
   h += '</div>';
   h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid #EFEDE8">';
+  h += '<div style="display:flex;gap:8px">';
   h += '<button onclick="event.stopPropagation();showProjectTeam('+p.id+')" style="font-size:11px;padding:6px 14px;border-radius:10px;border:none;background:#1F1F1F;color:#F7F5F0;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-weight:500" title="查看项目组成员"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>项目团队 ('+teamCount+')</button>';
+  h += '<button onclick="event.stopPropagation();showProjectGantt('+p.id+')" style="font-size:11px;padding:6px 14px;border-radius:10px;border:1px solid #C9C4BA;background:#fff;color:#6E6A63;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-weight:500" title="查看项目甘特图"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:block"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>项目甘特图</button>';
+  h += '</div>';
   h += '<span style="font-size:10px;color:#C9C4BA">'+(p.updated_at?formatDate(p.updated_at):'')+'</span>';
   h += '</div>';
   h += '</div></div>';
@@ -1055,7 +1058,85 @@ function showProjectTeam(pid){
   attachEmpNameAutocomplete(document.getElementById('ptm-new-name'), {multi:false});
 }
 
-// 添加项目成员（含密码+阶段权限）
+// ===== 项目甘特图 =====
+function showProjectGantt(pid){
+  var p = loadAllProjects().find(function(x){return x.id===pid;});
+  if(!p){ _showAlert('项目不存在'); return; }
+  var tasks = loadProjectTasks(pid);
+  var startD = p.start_date ? new Date(p.start_date) : null;
+  var endD = p.end_date ? new Date(p.end_date) : null;
+  var today = new Date();
+  today.setHours(0,0,0,0);
+
+  // 计算时间轴范围
+  var minD = startD, maxD = endD;
+  tasks.forEach(function(t){
+    var sd = t.start_date?new Date(t.start_date):null;
+    var dd = t.due_date?new Date(t.due_date):null;
+    if(sd && (!minD || sd<minD)) minD=sd;
+    if(dd && (!maxD || dd>maxD)) maxD=dd;
+  });
+  if(!minD) minD = new Date(today.getFullYear(), today.getMonth(), 1);
+  if(!maxD) maxD = new Date(minD.getTime()+30*24*3600*1000);
+  var totalDays = Math.ceil((maxD-minD)/(24*3600*1000))||1;
+  var dayW = Math.max(20, Math.floor(800/totalDays));
+  var chartW = totalDays*dayW;
+
+  var h = '';
+  h += '<div style="font-size:13px;color:#1F1F1F;font-weight:600;margin-bottom:4px">'+esc(p.name||'')+'</div>';
+  h += '<div style="font-size:11px;color:#6B7280;margin-bottom:16px">'+(p.start_date||'')+' ~ '+(p.end_date||'')+'</div>';
+  h += '<div style="overflow-x:auto;background:#fff;border:1px solid #E5E7EB;border-radius:8px;padding:12px">';
+  h += '<div style="min-width:'+(chartW+140)+'px">';
+
+  // 表头（日期）
+  h += '<div style="display:flex;border-bottom:1px solid #E5E7EB;padding-bottom:4px;margin-bottom:8px">';
+  h += '<div style="width:120px;flex-shrink:0;font-size:11px;font-weight:600;color:#6B7280">任务</div>';
+  var step = Math.max(1,Math.ceil(totalDays/15));
+  for(var i=0;i<totalDays;i+=step){
+    var d = new Date(minD.getTime()+i*24*3600*1000);
+    h += '<div style="width:'+(step*dayW)+'px;flex-shrink:0;font-size:10px;color:#9CA3AF;text-align:center">'+(d.getMonth()+1)+'/'+d.getDate()+'</div>';
+  }
+  h += '</div>';
+
+  // 任务行
+  var hasTasks = tasks.length>0;
+  if(!hasTasks){
+    h += '<div style="padding:32px;text-align:center;color:#9CA3AF;font-size:12px">暂无任务数据</div>';
+  }else{
+    tasks.forEach(function(t, ti){
+      var sd = t.start_date?new Date(t.start_date):minD;
+      var dd = t.due_date?new Date(t.due_date):sd;
+      var offset = Math.max(0, Math.floor((sd-minD)/(24*3600*1000))*dayW);
+      var barW = Math.max(1, Math.floor((dd-sd)/(24*3600*1000))*dayW);
+      var prog = t.progress||0;
+      var statusColor = t.status==='已完成'?'#059669':(t.status==='进行中'?'#3B82F6':'#9CA3AF');
+      h += '<div style="display:flex;align-items:center;height:28px;border-bottom:1px solid #F3F4F6">';
+      h += '<div style="width:120px;flex-shrink:0;font-size:11px;color:#374151;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+esc(t.title||'')+'">'+esc(t.title||'未命名')+'</div>';
+      h += '<div style="flex:1;position:relative;height:20px">';
+      h += '<div style="position:absolute;left:'+offset+'px;width:'+barW+'px;height:100%;background:'+statusColor+';border-radius:3px;opacity:'+(prog===0?'0.3':'0.8')+'"></div>';
+      if(prog>0){
+        h += '<div style="position:absolute;left:'+offset+'px;width:'+Math.floor(barW*prog/100)+'px;height:100%;background:'+statusColor+';border-radius:3px"></div>';
+      }
+      h += '</div>';
+      h += '<div style="width:50px;flex-shrink:0;font-size:10px;color:#9CA3AF;text-align:right">'+prog+'%</div>';
+      h += '</div>';
+    });
+  }
+
+  // 今日线
+  var todayOffset = Math.floor((today-minD)/(24*3600*1000))*dayW;
+  if(todayOffset>=0 && todayOffset<=chartW){
+    h += '<div style="position:relative;margin-top:4px">';
+    h += '<div style="position:absolute;left:'+(120+todayOffset)+'px;top:-'+(tasks.length*28+8)+'px;width:1px;height:'+(tasks.length*28+16)+'px;background:#EF4444;z-index:2"></div>';
+    h += '<div style="position:absolute;left:'+(120+todayOffset-14)+'px;top:-'+(tasks.length*28+16)+'px;font-size:9px;color:#EF4444;z-index:2">今天</div>';
+    h += '</div>';
+  }
+
+  h += '</div></div>';
+  h += '<div style="margin-top:12px;font-size:10px;color:#9CA3AF">● 绿色=已完成 | 蓝色=进行中 | 灰色=待开始</div>';
+
+  showFormModal(h, '项目甘特图 / Project Gantt Chart', '关闭 / Close', null, function(close){ close(); });
+}
 async function addProjectMember(pid){
   var nameInput = document.getElementById('ptm-new-name');
   var pwdInput = document.getElementById('ptm-new-pwd');
@@ -1211,6 +1292,7 @@ window.filterActiveProjects = filterActiveProjects;
 window.toggleLevelFilter = toggleLevelFilter;
 window.attachEmpNameAutocomplete = attachEmpNameAutocomplete;
 window.showProjectTeam = showProjectTeam;
+window.showProjectGantt = showProjectGantt;
 window.addProjectMember = addProjectMember;
 window.removeProjectMember = removeProjectMember;
 window.toggleMemberStage = toggleMemberStage;
