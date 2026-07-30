@@ -344,7 +344,8 @@ function renderRdDetail(){
 }
 
 function renderRdPipeline(c){
-  var h = '<div style="display:flex;align-items:stretch;gap:0;margin-bottom:16px;background:#fff;border:1px solid #E5E7EB;border-radius:12px;padding:14px 12px;overflow-x:auto">';
+  // ★ V0.6.5q: 阶段名称移到圆点上方，连接线简化，减少顶部留白
+  var h = '<div style="display:flex;align-items:flex-start;gap:0;margin-bottom:16px;background:#fff;border:1px solid #E5E7EB;border-radius:12px;padding:10px 12px 14px;overflow-x:auto">';
   c.stages.forEach(function(s, i){
     var st = RD_STAGE_STATUS[s.status]||RD_STAGE_STATUS.locked;
     var isView = c.viewStageKey===s.stage_key;
@@ -355,26 +356,27 @@ function renderRdPipeline(c){
     if(!canSee){
       // 未授权阶段：显示锁图标，灰化，不可点击
       h += '<div style="flex:1;min-width:82px;display:flex;flex-direction:column;align-items:center;position:relative;opacity:.35" title="您没有权限查看此阶段">';
-      if(i>0){
-        h += '<div style="position:absolute;top:15px;left:-50%;width:100%;height:2px;background:#E5E7EB;z-index:0"></div>';
-      }
+      h += '<div style="font-size:11px;color:#9CA3AF;margin-bottom:6px">'+_rdEsc(s.stage_name)+'</div>';
       h += '<div style="position:relative;z-index:1;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;background:#E5E7EB;color:#9CA3AF;border:2px solid #E5E7EB">🔒</div>';
-      h += '<div style="margin-top:6px;font-size:11px;color:#9CA3AF">'+_rdEsc(s.stage_name)+'</div>';
-      h += '<div style="font-size:10px;color:#9CA3AF">未授权</div>';
+      h += '<div style="font-size:10px;color:#9CA3AF;margin-top:6px">未授权</div>';
       h += '</div>';
       return;
     }
     h += '<div style="flex:1;min-width:82px;display:flex;flex-direction:column;align-items:center;position:relative;'+(clickable?'cursor:pointer':'opacity:.55')+'" '
        + (clickable?('onclick="rdSwitchStage(\''+s.stage_key+'\')"'):'') + '>';
+    // 阶段名称在上方
+    h += '<div style="font-size:12px;font-weight:'+(isView?'600':'400')+';color:'+(isView?'#111827':'#6B7280')+';margin-bottom:6px">'+_rdEsc(s.stage_name)+'</div>';
+    // 连接线（简化为细线）
     if(i>0){
-      h += '<div style="position:absolute;top:15px;left:-50%;width:100%;height:2px;background:'+(s.status==='locked'?'#E5E7EB':'#3B82F6')+';z-index:0"></div>';
+      h += '<div style="position:absolute;top:36px;left:-50%;width:100%;height:1px;background:'+(s.status==='locked'?'#E5E7EB':'#3B82F6')+';z-index:0"></div>';
     }
+    // 圆点
     h += '<div style="position:relative;z-index:1;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;'
        + 'background:'+(isView?st.color:(s.status==='passed'?'#059669':(s.status==='locked'?'#E5E7EB':st.bg)))
        + ';color:'+(isView?'#fff':(s.status==='passed'?'#fff':(s.status==='locked'?'#9CA3AF':st.color)))
        + ';border:2px solid '+(isView?st.color:(s.status==='passed'?'#059669':(s.status==='locked'?'#E5E7EB':st.color)))+'">'+icon+'</div>';
-    h += '<div style="margin-top:6px;font-size:11px;font-weight:'+(isView?'600':'400')+';color:'+(isView?'#111827':'#6B7280')+'">'+_rdEsc(s.stage_name)+'</div>';
-    h += '<div style="font-size:10px;color:'+st.color+'">'+st.label+'</div>';
+    // 状态标签在下方
+    h += '<div style="font-size:10px;color:'+st.color+';margin-top:6px">'+st.label+'</div>';
     h += '</div>';
   });
   h += '</div>';
@@ -530,40 +532,40 @@ function renderRdGateCard(c, g, canReview){
   var naItems = reqs.filter(function(d){return d.status==='na';});
   var ownerName = c.project.owner||'';
 
-  var h = '<div style="border:1px solid #E5E7EB;border-radius:10px;padding:10px 12px;margin-bottom:8px;'+(g.is_adhoc?'border-style:dashed;':'')+'">';
-  h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">';
-  h += '<span style="font-size:12px;font-weight:600;color:#111827">'+_rdEsc(g.gate_name)+(g.is_adhoc?' <span style="font-size:9px;color:#D97706">临时</span>':'')+'</span>';
-  h += '<span style="font-size:10px;padding:1px 8px;border-radius:9px;background:'+gr.bg+';color:'+gr.color+'">'+gr.label+'</span>';
+  var h = '<div style="border:1px solid #E5E7EB;border-radius:10px;padding:12px 14px;margin-bottom:8px;'+(g.is_adhoc?'border-style:dashed;':'')+'">';
+  h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">';
+  h += '<span style="font-size:13px;font-weight:600;color:#111827">'+_rdEsc(g.gate_name)+(g.is_adhoc?' <span style="font-size:10px;color:#D97706">临时</span>':'')+'</span>';
+  h += '<span style="font-size:11px;padding:2px 10px;border-radius:10px;background:'+gr.bg+';color:'+gr.color+'">'+gr.label+'</span>';
   h += '</div>';
   if(g.result==='pending'){
     // ★ V0.6.4Q: 评审人规则透明化——谁有权启动评审一眼可见
-    h += '<div style="font-size:10px;color:#9CA3AF;margin-bottom:6px">评审人：'+_rdEsc(ownerName||'项目负责人')+'</div>';
+    h += '<div style="font-size:11px;color:#9CA3AF;margin-bottom:6px">评审人：'+_rdEsc(ownerName||'项目负责人')+'</div>';
     if(!g.is_adhoc){
-      h += '<div style="font-size:10px;color:#6B7280;margin-bottom:6px">前置交付物 '+rc.done+'/'+rc.total+' 就绪</div>';
+      h += '<div style="font-size:11px;color:#6B7280;margin-bottom:6px">前置交付物 '+rc.done+'/'+rc.total+' 就绪</div>';
     }
     if(naItems.length){
-      h += '<div style="font-size:10px;color:#D97706;background:#FFFBEB;border-radius:5px;padding:4px 6px;margin-bottom:6px">含 '+naItems.length+' 项 N/A（评审时请复核）：'+naItems.map(function(d){return _rdEsc(d.name);}).join('、')+'</div>';
+      h += '<div style="font-size:11px;color:#D97706;background:#FFFBEB;border-radius:5px;padding:5px 8px;margin-bottom:6px">含 '+naItems.length+' 项 N/A（评审时请复核）：'+naItems.map(function(d){return _rdEsc(d.name);}).join('、')+'</div>';
     }
     // ★ V0.6.4Q: 入口显性化——按钮始终可见，未就绪/无权限时禁用并说明原因
     if(rc.ready && canReview){
-      h += '<button onclick="rdOpenReviewForm(\''+g.id+'\')" style="width:100%;padding:7px;border:0;border-radius:6px;background:#3B82F6;color:#fff;font-size:11px;font-weight:600;cursor:pointer">启动评审</button>';
+      h += '<button onclick="rdOpenReviewForm(\''+g.id+'\')" style="width:100%;padding:8px;border:0;border-radius:6px;background:#3B82F6;color:#fff;font-size:12px;font-weight:600;cursor:pointer">启动评审</button>';
     }else{
-      h += '<button disabled style="width:100%;padding:7px;border:1px solid #E5E7EB;border-radius:6px;background:#F9FAFB;color:#B0B4BA;font-size:11px;cursor:not-allowed">启动评审</button>';
-      h += '<div style="font-size:9px;color:#A8A29A;text-align:center;margin-top:4px">'
+      h += '<button disabled style="width:100%;padding:8px;border:1px solid #E5E7EB;border-radius:6px;background:#F9FAFB;color:#B0B4BA;font-size:12px;cursor:not-allowed">启动评审</button>';
+      h += '<div style="font-size:10px;color:#A8A29A;text-align:center;margin-top:5px">'
          + (!canReview ? '仅评审人（'+_rdEsc(ownerName)+'）可启动' : '前置交付物全部就绪后可启动')
          + '</div>';
     }
   }else{
-    h += '<div style="font-size:10px;color:#6B7280">评审人：'+_rdEsc(g.reviewed_by||'—')+'　日期：'+_rdEsc(g.review_date||'—')+'</div>';
-    if(g.conclusion){ h += '<div style="font-size:10px;color:#374151;margin-top:4px;background:#F9FAFB;border-radius:5px;padding:4px 6px">'+_rdEsc(g.conclusion)+'</div>'; }
+    h += '<div style="font-size:11px;color:#6B7280">评审人：'+_rdEsc(g.reviewed_by||'—')+'　日期：'+_rdEsc(g.review_date||'—')+'</div>';
+    if(g.conclusion){ h += '<div style="font-size:11px;color:#374151;margin-top:5px;background:#F9FAFB;border-radius:5px;padding:5px 8px">'+_rdEsc(g.conclusion)+'</div>'; }
     if(g.result==='conditional'){
       h += renderRdActionItems(c, g, canReview);
     }
     // ★ V0.6.4R: 查看记录（所有人）+ 撤回评审（仅评审人）
     h += '<div style="display:flex;gap:6px;margin-top:8px">';
-    h += '<button onclick="rdViewGateRecord(\''+g.id+'\')" style="flex:1;padding:4px;border:1px solid #E5E7EB;border-radius:5px;background:#fff;color:#6B7280;font-size:10px;cursor:pointer">查看记录</button>';
+    h += '<button onclick="rdViewGateRecord(\''+g.id+'\')" style="flex:1;padding:5px;border:1px solid #E5E7EB;border-radius:5px;background:#fff;color:#6B7280;font-size:11px;cursor:pointer">查看记录</button>';
     if(canReview){
-      h += '<button onclick="rdRevokeGate(\''+g.id+'\')" style="flex:1;padding:4px;border:1px solid #E7C4C0;border-radius:5px;background:#fff;color:#B3382C;font-size:10px;cursor:pointer">撤回评审</button>';
+      h += '<button onclick="rdRevokeGate(\''+g.id+'\')" style="flex:1;padding:5px;border:1px solid #E7C4C0;border-radius:5px;background:#fff;color:#B3382C;font-size:11px;cursor:pointer">撤回评审</button>';
     }
     h += '</div>';
   }

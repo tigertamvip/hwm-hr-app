@@ -51,6 +51,9 @@ async function saveProject(p){
   var idx = all.findIndex(function(x){return x.id===p.id;});
   if(idx>=0) all[idx]=p; else all.push(p);
   saveAllProjects(all);
+  // ★ V0.6.5q: 同步更新内存中的项目列表，确保卡片进度立即刷新
+  _pmProjects = all;
+  if(_pmView==='list') renderPMList();
   try{
     var r = await supabase.from(SUPABASE_PM_TABLE).upsert(p,{onConflict:'id'});
     if(r.error) console.warn('[PM] Save error:',r.error.message);
@@ -212,7 +215,7 @@ function renderPMList(){
   if(!projects.length){
     html += '<div style="text-align:center;padding:70px 20px;color:#A8A29A;font-size:13px">暂无符合条件的项目</div>';
   }else{
-    html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px">';
+    html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(336px,1fr));gap:14px">';
     projects.forEach(function(p,i){ html += renderProjectCard(p,i,!_pmMotionPlayed); });
     html += '</div>';
   }
@@ -261,7 +264,7 @@ function renderProjectCard(p, idx, anim){
   h += '<span>'+(p.start_date||'')+' ~ '+(p.end_date||'')+'</span>';
   h += '</div>';
   h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid #EFEDE8">';
-  h += '<button onclick="event.stopPropagation();showProjectTeam('+p.id+')" style="font-size:10px;padding:3px 10px;border-radius:8px;border:1px solid #C9C4BA;background:#fff;color:#6E6A63;cursor:pointer;display:inline-flex;align-items:center;gap:4px" title="查看项目组成员"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>项目团队 ('+teamCount+')</button>';
+  h += '<button onclick="event.stopPropagation();showProjectTeam('+p.id+')" style="font-size:11px;padding:6px 14px;border-radius:10px;border:none;background:#1F1F1F;color:#F7F5F0;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-weight:500" title="查看项目组成员"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>项目团队 ('+teamCount+')</button>';
   h += '<span style="font-size:10px;color:#C9C4BA">'+(p.updated_at?formatDate(p.updated_at):'')+'</span>';
   h += '</div>';
   h += '</div></div>';
