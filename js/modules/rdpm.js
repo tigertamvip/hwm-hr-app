@@ -299,6 +299,9 @@ async function openRdProjectDetail(p){
 }
 
 // ===== Render: Detail =====
+// ★ V0.6.5aa: 研发详情页 Tab 切换 — 阶段管道 | 甘特图
+var _rdDetailTab = 'pipeline';
+
 function renderRdDetail(){
   var el = document.getElementById('pmDetailContent') || document.getElementById('pmDetailView');
   if(!el || !_rdCurrent) return;
@@ -323,22 +326,124 @@ function renderRdDetail(){
   h += '</div>';
   h += '</div>';
 
-  // Pipeline bar
-  h += renderRdPipeline(c);
-  h += '</div>'; // /sticky 头部容器
+  // ★ V0.6.5aa: Tab 切换 — 阶段管道 | 甘特图
+  h += '<div style="display:flex;gap:0;margin-bottom:14px;border-bottom:1px solid #E5E7EB">';
+  var rdTabs = [{key:'pipeline',label:'阶段管道'},{key:'gantt',label:'甘特图'}];
+  rdTabs.forEach(function(t){
+    var sel = _rdDetailTab===t.key;
+    h += '<div onclick="window._rdDetailTab=\''+t.key+'\';renderRdDetail();" style="padding:8px 16px;font-size:12px;cursor:pointer;border-bottom:2px solid '+(sel?'#3B82F6':'transparent')+';color:'+(sel?'#3B82F6':'#6B7280')+';font-weight:'+(sel?'600':'400')+';margin-bottom:-1px">'+t.label+'</div>';
+  });
+  h += '</div>';
 
-  // Current stage panel（★ V0.6.5m: 成员阶段权限检查 — 未授权阶段不渲染面板）
-  var vs = c.stages.find(function(s){return s.stage_key===c.viewStageKey;});
-  if(vs && !_rdCanSeeStage(c.project, vs.stage_key)){
-    vs = c.stages.find(function(s){return _rdCanSeeStage(c.project, s.stage_key);});
-    if(vs) c.viewStageKey = vs.stage_key;
+  if(_rdDetailTab==='gantt' || window._rdDetailTab==='gantt'){
+    // 甘特图视图 — 用研发阶段数据渲染
+    h += _renderRdGantt(c);
+  }else{
+    // Pipeline bar
+    h += renderRdPipeline(c);
+    h += '</div>'; // /sticky 头部容器
+
+    // Current stage panel（★ V0.6.5m: 成员阶段权限检查 — 未授权阶段不渲染面板）
+    var vs = c.stages.find(function(s){return s.stage_key===c.viewStageKey;});
+    if(vs && !_rdCanSeeStage(c.project, vs.stage_key)){
+      vs = c.stages.find(function(s){return _rdCanSeeStage(c.project, s.stage_key);});
+      if(vs) c.viewStageKey = vs.stage_key;
+    }
+    if(vs) h += renderRdStagePanel(c, vs, canReview);
+
+    // History (other stages, collapsed)
+    h += renderRdHistory(c);
   }
-  if(vs) h += renderRdStagePanel(c, vs, canReview);
-
-  // History (other stages, collapsed)
-  h += renderRdHistory(c);
 
   el.innerHTML = h;
+}
+
+// ★ V0.6.5aa: 研发项目甘特图 — 用阶段数据渲染
+function _renderRdGantt(c){
+  var p = c.project;
+  var stages = c.stages||[];
+  var startD = p.start_date ? new Date(p.start_date) : new Date();
+  var endD = p.end_date ? new Date(p.end_date) : new Date(startD.getTime()+90*24*3600*1000);
+  var today = new Date();
+  today.setHours(0,0,0,0);
+  var totalMs = endD - startD || 1;
+
+  var h = '';
+  h += '<div style="background:#fff;border:1px solid #E5E7EB;border-radius:10px;padding:16px">';
+  h += '<div style="font-size:12px;color:#6B7280;margin-bottom:12px">'+(p.start_date||'')+' ~ '+(p.end_date||'')+'</div>';
+
+  // 表头
+  var stageNames = {preresearch:'预研',initiation:'立项',input:'设计输入',output:'设计输出',verification:'设计验证',validation:'设计确认',transfer:'设计转化'};
+  var stageColors = {passed:'#059669',active:'#3B82F6',locked:'#9CA3AF'};
+
+  // 计算每个阶段的日期范围（按权重分配项目周期）
+  var totalWeight = 0;
+  stages.forEach(function(s){
+    var tpl = (typeof RD_TEMPLATE!=='undefined') ? RD_TEMPLATE.find(function(t){return t.stage_key===s.stage_key;}) : null;
+    totalWeight += tpl ? tpl.weight : 0;
+  });
+
+  var currentD = new Date(startD);
+  var stageBars = [];
+  stages.forEach(function(s, i){
+    var tpl = (typeof RD_TEMPLATE!=='undefined') ? RD_TEMPLATE.find(function(t){return t.stage_key===s.stage_key;}) : null;
+    var w = tpl ? tpl.weight : 0;
+    var stageMs = totalMs * (w / totalWeight);
+    var sStart = new Date(currentD);
+    var sEnd = new Date(currentD.getTime() + stageMs);
+    stageBars.push({name:stageNames[s.stage_key]||s.stage_name, status:s.status, start:sStart, end:sEnd, weight:w});
+    currentD = sEnd;
+  });
+
+  // 甘特图渲染
+  var barH = 28;
+  var labelW = 100;
+  var chartW = 700;
+
+  h += '<div style="overflow-x:auto">';
+  h += '<div style="min-width:'+(labelW+chartW)+'px">';
+
+  // 日期刻度
+  h += '<div style="display:flex;border-bottom:1px solid #E5E7EB;padding-bottom:6px;margin-bottom:8px">';
+  h += '<div style="width:'+labelW+'px;flex-shrink:0;font-size:11px;font-weight:600;color:#6B7280">阶段</div>';
+  var stepMs = totalMs / 6;
+  for(var i=0;i<=6;i++){
+    var d = new Date(startD.getTime() + stepMs * i);
+    h += '<div style="width:'+(chartW/6)+'px;flex-shrink:0;font-size:10px;color:#9CA3AF;text-align:center">'+(d.getMonth()+1)+'/'+d.getDate()+'</div>';
+  }
+  h += '</div>';
+
+  // 阶段条
+  stageBars.forEach(function(sb, i){
+    var offset = Math.max(0, (sb.start - startD) / totalMs * chartW);
+    var barW = Math.max(4, (sb.end - sb.start) / totalMs * chartW);
+    var color = stageColors[sb.status]||'#9CA3AF';
+    h += '<div style="display:flex;align-items:center;height:'+barH+'px;border-bottom:1px solid #F3F4F6">';
+    h += '<div style="width:'+labelW+'px;flex-shrink:0;font-size:11px;color:#374151">'+_rdEsc(sb.name)+'</div>';
+    h += '<div style="flex:1;position:relative;height:'+(barH-8)+'px">';
+    h += '<div style="position:absolute;left:'+offset+'px;top:4px;width:'+barW+'px;height:'+(barH-16)+'px;background:'+color+';border-radius:4px;opacity:'+(sb.status==='locked'?'0.3':'0.85')+'" title="'+_rdEsc(sb.name)+'"></div>';
+    h += '</div>';
+    h += '</div>';
+  });
+
+  // 今日线
+  var todayOffset = (today - startD) / totalMs * chartW;
+  if(todayOffset>=0 && todayOffset<=chartW){
+    h += '<div style="position:relative;margin-top:4px">';
+    h += '<div style="position:absolute;left:'+(labelW+todayOffset)+'px;top:-'+(stageBars.length*barH+8)+'px;width:1px;height:'+(stageBars.length*barH+16)+'px;background:#EF4444;z-index:2;pointer-events:none"></div>';
+    h += '<div style="position:absolute;left:'+(labelW+todayOffset-12)+'px;top:-'+(stageBars.length*barH+16)+'px;font-size:9px;color:#EF4444;z-index:2;pointer-events:none">今天</div>';
+    h += '</div>';
+  }
+
+  h += '</div></div>';
+  h += '<div style="margin-top:8px;font-size:10px;color:#9CA3AF;display:flex;gap:12px">';
+  h += '<span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#059669;margin-right:3px"></span>已通过</span>';
+  h += '<span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#3B82F6;margin-right:3px"></span>进行中</span>';
+  h += '<span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#9CA3AF;margin-right:3px"></span>未开始</span>';
+  h += '<span style="color:#EF4444">| 红色竖线 = 今天</span>';
+  h += '</div>';
+  h += '</div>';
+  return h;
 }
 
 function renderRdPipeline(c){
@@ -1071,6 +1176,8 @@ window.rdPrefetchStages = rdPrefetchStages;
 window.rdStageBarHtml = rdStageBarHtml;
 window.renderRdDetail = renderRdDetail;
 window.rdSwitchStage = rdSwitchStage;
+window._rdDetailTab = _rdDetailTab;
+window._renderRdGantt = _renderRdGantt;
 window.rdEditDeliverable = rdEditDeliverable;
 window.rdMarkNA = rdMarkNA;
 window.rdOpenReviewForm = rdOpenReviewForm;
