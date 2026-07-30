@@ -918,7 +918,16 @@ function _npInitMemberSelect(input, chipsEl){
   });
 }
 function _npCollectMembers(){
-  return _npSelectedMembers.slice();
+  // ★ V0.6.5n: 从 chips DOM 读取成员，防止全局变量状态丢失/重置
+  var chipsEl = document.getElementById('np-members-chips');
+  if(!chipsEl) return _npSelectedMembers.slice();
+  var chips = chipsEl.querySelectorAll('span');
+  var names = [];
+  chips.forEach(function(chip){
+    var name = chip.textContent.replace(/×/g,'').trim();
+    if(name && names.indexOf(name)<0) names.push(name);
+  });
+  return names;
 }
 
 // ★ V0.6.5m: 团队数据结构升级为 [{name, dept, password, accessStages, joinedAt}]
