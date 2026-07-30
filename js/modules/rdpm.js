@@ -37,6 +37,9 @@ var RD_GATE_RESULT = {
   rejected:   {label:'退回',     color:'#DC2626', bg:'#FEF2F2'}
 };
 
+// ★ V0.6.6b: 甘特图颗粒度
+var _rdGanttGranularity = null;
+
 // ===== State =====
 var _rdCurrent = null; // {project, stages, deliverables, gates, viewStageKey, tasks}
 
@@ -368,21 +371,90 @@ function _renderRdGantt(c){
   today.setHours(0,0,0,0);
   var totalMs = endD - startD || 1;
 
+  // ★ V0.6.6b: 五档颗粒度
+  var gran = (typeof _rdGanttGranularity!=='undefined' && _rdGanttGranularity) || 'auto';
+  if(gran==='auto'){
+    var days = Math.ceil(totalMs/(24*3600*1000));
+    gran = days<=30?'day':days<=180?'week':days<=365?'month':days<=730?'quarter':'year';
+  }
+
   var h = '';
+  // 颗粒度切换
+  h += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">';
+  h += '<span style="font-size:12px;color:#6B7280">时间颗粒度：</span>';
+  ['day','week','month','quarter','year'].forEach(function(g){
+    var sel = gran===g;
+    h += '<button onclick="window._rdGanttGranularity=\''+g+'\';renderRdDetail();" style="padding:4px 12px;font-size:11px;border:1px solid '+(sel?'#3B82F6':'#D0D5DD')+';border-radius:6px;background:'+(sel?'#3B82F6':'#fff')+';color:'+(sel?'#fff':'#6B7280')+';cursor:pointer">'+_rdGanttGranularityLabel(g)+'</button>';
+  });
+  h += '</div>';
+
+  // 时间轴计算
+  var colW, cols = [];
+  if(gran==='day'){
+    colW = 40;
+    for(var d=new Date(startD); d<=endD; d.setDate(d.getDate()+1)){
+      cols.push({label:(d.getMonth()+1)+'/'+d.getDate(), ms:24*3600*1000, start:new Date(d)});
+    }
+  }else if(gran==='week'){
+    colW = 80;
+    var wd = new Date(startD);
+    wd.setDate(wd.getDate()-wd.getDay());
+    while(wd<=endD){
+      var we = new Date(wd); we.setDate(we.getDate()+6);
+      cols.push({label:(wd.getMonth()+1)+'/'+wd.getDate()+'~'+(we.getMonth()+1)+'/'+we.getDate(), ms:7*24*3600*1000, start:new Date(wd)});
+      wd.setDate(wd.getDate()+7);
+    }
+  }else if(gran==='month'){
+    colW = 100;
+    var md = new Date(startD.getFullYear(), startD.getMonth(), 1);
+    while(md<=endD){
+      var me = new Date(md.getFullYear(), md.getMonth()+1, 0);
+      cols.push({label:md.getFullYear()+'-'+String(md.getMonth()+1).padStart(2,'0'), ms:me-md, start:new Date(md)});
+      md.setMonth(md.getMonth()+1);
+    }
+  }else if(gran==='quarter'){
+    colW = 120;
+    var qm = Math.floor(startD.getMonth()/3)*3;
+    var qd = new Date(startD.getFullYear(), qm, 1);
+    while(qd<=endD){
+      var qe = new Date(qd.getFullYear(), qd.getMonth()+3, 0);
+      cols.push({label:qd.getFullYear()+'Q'+(Math.floor(qd.getMonth()/3)+1), ms:qe-qd, start:new Date(qd)});
+      qd.setMonth(qd.getMonth()+3);
+    }
+  }else{ // year
+    colW = 150;
+    var yd = new Date(startD.getFullYear(), 0, 1);
+    while(yd<=endD){
+      var ye = new Date(yd.getFullYear()+1, 0, 0);
+      cols.push({label:yd.getFullYear()+'年', ms:ye-yd, start:new Date(yd)});
+      yd.setFullYear(yd.getFullYear()+1);
+    }
+  }
+  var chartW = cols.length * colW;
+
   h += '<div style="background:#fff;border:1px solid #E5E7EB;border-radius:10px;padding:16px">';
-  h += '<div style="font-size:12px;color:#6B7280;margin-bottom:12px">'+(p.start_date||'')+' ~ '+(p.end_date||'')+'</div>';
+  h += '<div style="overflow-x:auto">';
+  h += '<div style="min-width:'+(chartW+360)+'px">';
 
   // 表头
-  var stageNames = {preresearch:'预研',initiation:'立项',input:'设计输入',output:'设计输出',verification:'设计验证',validation:'设计确认',transfer:'设计转化'};
-  var stageColors = {passed:'#059669',active:'#3B82F6',locked:'#9CA3AF'};
+  h += '<div style="display:flex;border-bottom:1px solid #E5E7EB;background:#F9FAFB;padding-bottom:6px;margin-bottom:8px">';
+  h += '<div style="width:80px;flex-shrink:0;padding:6px 8px;font-size:11px;font-weight:600;color:#374151;border-right:1px solid #E5E7EB">阶段</div>';
+  h += '<div style="width:70px;flex-shrink:0;padding:6px 4px;font-size:10px;font-weight:600;color:#6B7280;border-right:1px solid #E5E7EB">OWN</div>';
+  h += '<div style="width:80px;flex-shrink:0;padding:6px 4px;font-size:10px;font-weight:600;color:#6B7280;border-right:1px solid #E5E7EB">启动日期</div>';
+  h += '<div style="width:80px;flex-shrink:0;padding:6px 4px;font-size:10px;font-weight:600;color:#6B7280;border-right:1px solid #E5E7EB">完成截止</div>';
+  cols.forEach(function(c){
+    h += '<div style="width:'+colW+'px;flex-shrink:0;padding:6px 2px;font-size:10px;color:#9CA3AF;text-align:center;border-right:1px solid #F3F4F6">'+c.label+'</div>';
+  });
+  h += '</div>';
 
   // 计算每个阶段的日期范围（按权重分配项目周期）
+  var stageNames = {preresearch:'预研',initiation:'立项',input:'设计输入',output:'设计输出',verification:'设计验证',validation:'设计确认',transfer:'设计转化'};
+  var stageColors = {passed:'#059669',active:'#3B82F6',locked:'#9CA3AF'};
   var totalWeight = 0;
   stages.forEach(function(s){
     var tpl = (typeof RD_TEMPLATE!=='undefined') ? RD_TEMPLATE.find(function(t){return t.stage_key===s.stage_key;}) : null;
     totalWeight += tpl ? tpl.weight : 0;
   });
-
   var currentD = new Date(startD);
   var stageBars = [];
   stages.forEach(function(s, i){
@@ -391,37 +463,47 @@ function _renderRdGantt(c){
     var stageMs = totalMs * (w / totalWeight);
     var sStart = new Date(currentD);
     var sEnd = new Date(currentD.getTime() + stageMs);
-    stageBars.push({name:stageNames[s.stage_key]||s.stage_name, status:s.status, start:sStart, end:sEnd, weight:w});
+    stageBars.push({
+      name: stageNames[s.stage_key]||s.stage_name,
+      status: s.status,
+      start: sStart,
+      end: sEnd,
+      weight: w,
+      owner: s.owner||'',
+      startDate: s.start_date||'',
+      endDate: s.end_date||'',
+      id: s.id
+    });
     currentD = sEnd;
   });
 
-  // 甘特图渲染
-  var barH = 28;
-  var labelW = 100;
-  var chartW = 700;
-
-  h += '<div style="overflow-x:auto">';
-  h += '<div style="min-width:'+(labelW+chartW)+'px">';
-
-  // 日期刻度
-  h += '<div style="display:flex;border-bottom:1px solid #E5E7EB;padding-bottom:6px;margin-bottom:8px">';
-  h += '<div style="width:'+labelW+'px;flex-shrink:0;font-size:11px;font-weight:600;color:#6B7280">阶段</div>';
-  var stepMs = totalMs / 6;
-  for(var i=0;i<=6;i++){
-    var d = new Date(startD.getTime() + stepMs * i);
-    h += '<div style="width:'+(chartW/6)+'px;flex-shrink:0;font-size:10px;color:#9CA3AF;text-align:center">'+(d.getMonth()+1)+'/'+d.getDate()+'</div>';
-  }
-  h += '</div>';
-
   // 阶段条
+  var barH = 32;
   stageBars.forEach(function(sb, i){
     var offset = Math.max(0, (sb.start - startD) / totalMs * chartW);
     var barW = Math.max(4, (sb.end - sb.start) / totalMs * chartW);
     var color = stageColors[sb.status]||'#9CA3AF';
-    h += '<div style="display:flex;align-items:center;height:'+barH+'px;border-bottom:1px solid #F3F4F6">';
-    h += '<div style="width:'+labelW+'px;flex-shrink:0;font-size:11px;color:#374151">'+_rdEsc(sb.name)+'</div>';
+    var own = sb.owner||'TBD';
+    var startDate = sb.startDate||'TBD';
+    var endDate = sb.endDate||'TBD';
+
+    h += '<div style="display:flex;align-items:center;height:'+barH+'px;border-bottom:1px solid #F3F4F6;'+(i%2===0?'background:#fff':'background:#FAFAFA')+'">';
+    h += '<div style="width:80px;flex-shrink:0;padding:6px 8px;font-size:11px;color:#374151;border-right:1px solid #E5E7EB;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+_rdEsc(sb.name)+'">'+_rdEsc(sb.name)+'</div>';
+    // OWN（可编辑）
+    h += '<div style="width:70px;flex-shrink:0;padding:6px 4px;font-size:10px;border-right:1px solid #E5E7EB;display:flex;align-items:center">'
+       + '<span onclick="_rdEditStageField(\''+sb.id+'\',\'owner\',\''+esc(own)+'\')" style="cursor:pointer;color:'+(own==='TBD'?'#A8A29A':'#374151')+';border-bottom:1px dashed '+(own==='TBD'?'#D0D5DD':'transparent')+';padding:1px 2px" title="点击修改负责人">'+_rdEsc(own)+'</span>'
+       + '</div>';
+    // 启动日期（可编辑）
+    h += '<div style="width:80px;flex-shrink:0;padding:6px 4px;font-size:10px;border-right:1px solid #E5E7EB;display:flex;align-items:center">'
+       + '<span onclick="_rdEditStageField(\''+sb.id+'\',\'start_date\',\''+startDate+'\')" style="cursor:pointer;color:'+(startDate==='TBD'?'#A8A29A':'#374151')+';border-bottom:1px dashed '+(startDate==='TBD'?'#D0D5DD':'transparent')+';padding:1px 2px" title="点击修改启动日期">'+startDate+'</span>'
+       + '</div>';
+    // 完成截止（可编辑）
+    h += '<div style="width:80px;flex-shrink:0;padding:6px 4px;font-size:10px;border-right:1px solid #E5E7EB;display:flex;align-items:center">'
+       + '<span onclick="_rdEditStageField(\''+sb.id+'\',\'end_date\',\''+endDate+'\')" style="cursor:pointer;color:'+(endDate==='TBD'?'#A8A29A':'#374151')+';border-bottom:1px dashed '+(endDate==='TBD'?'#D0D5DD':'transparent')+';padding:1px 2px" title="点击修改截止日期">'+endDate+'</span>'
+       + '</div>';
+    // 时间轴
     h += '<div style="flex:1;position:relative;height:'+(barH-8)+'px">';
-    h += '<div style="position:absolute;left:'+offset+'px;top:4px;width:'+barW+'px;height:'+(barH-16)+'px;background:'+color+';border-radius:4px;opacity:'+(sb.status==='locked'?'0.3':'0.85')+'" title="'+_rdEsc(sb.name)+'"></div>';
+    h += '<div style="position:absolute;left:'+offset+'px;top:6px;width:'+barW+'px;height:'+(barH-16)+'px;background:'+color+';border-radius:4px;opacity:'+(sb.status==='locked'?'0.3':'0.85')+'" title="'+_rdEsc(sb.name)+'"></div>';
     h += '</div>';
     h += '</div>';
   });
@@ -430,8 +512,8 @@ function _renderRdGantt(c){
   var todayOffset = (today - startD) / totalMs * chartW;
   if(todayOffset>=0 && todayOffset<=chartW){
     h += '<div style="position:relative;margin-top:4px">';
-    h += '<div style="position:absolute;left:'+(labelW+todayOffset)+'px;top:-'+(stageBars.length*barH+8)+'px;width:1px;height:'+(stageBars.length*barH+16)+'px;background:#EF4444;z-index:2;pointer-events:none"></div>';
-    h += '<div style="position:absolute;left:'+(labelW+todayOffset-12)+'px;top:-'+(stageBars.length*barH+16)+'px;font-size:9px;color:#EF4444;z-index:2;pointer-events:none">今天</div>';
+    h += '<div style="position:absolute;left:'+(80+70+80+80+todayOffset)+'px;top:-'+(stageBars.length*barH+8)+'px;width:1px;height:'+(stageBars.length*barH+16)+'px;background:#EF4444;z-index:2;pointer-events:none"></div>';
+    h += '<div style="position:absolute;left:'+(80+70+80+80+todayOffset-12)+'px;top:-'+(stageBars.length*barH+16)+'px;font-size:9px;color:#EF4444;z-index:2;pointer-events:none">今天</div>';
     h += '</div>';
   }
 
@@ -444,6 +526,56 @@ function _renderRdGantt(c){
   h += '</div>';
   h += '</div>';
   return h;
+}
+
+// ★ V0.6.6b: 五档颗粒度标签
+function _rdGanttGranularityLabel(g){
+  return {day:'按日',week:'按周',month:'按月',quarter:'按季',year:'按年'}[g]||g;
+}
+
+// ★ V0.6.6b: 阶段字段编辑（OWN/日期）
+async function _rdEditStageField(stageId, field, currentVal){
+  var label = {owner:'负责人',start_date:'启动日期',end_date:'完成截止日期'}[field]||field;
+  var inputType = field==='owner'?'text':'date';
+  var h = '<div style="margin-bottom:12px"><label style="font-size:12px;color:#6B7280;display:block;margin-bottom:4px">'+label+'</label>';
+  h += '<input id="rdsf-in" type="'+inputType+'" value="'+(currentVal==='TBD'?'':currentVal)+'" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:13px;box-sizing:border-box">';
+  h += '</div>';
+  var inputId = 'rdsf-in';
+
+  return new Promise(function(resolve){
+    showFormModal(h, '编辑'+label+' / Edit '+label, '确定 / OK', '取消 / Cancel', function(close){
+      var el = document.getElementById(inputId);
+      var val = el?el.value.trim():'';
+      if(!val){ close(); resolve(null); return; }
+      close();
+      resolve(val);
+    });
+    if(field==='owner'){
+      setTimeout(function(){
+        var el = document.getElementById(inputId);
+        if(el && typeof attachEmpNameAutocomplete==='function'){
+          attachEmpNameAutocomplete(el, {multi:false});
+          el.focus();
+        }
+      }, 80);
+    }else{
+      setTimeout(function(){ var el = document.getElementById(inputId); if(el) el.focus(); }, 80);
+    }
+  }).then(function(val){
+    if(!val) return;
+    var patch = {};
+    patch[field] = val;
+    try{
+      supabase.from(RD_STAGE_TABLE).update(patch).eq('id',stageId).then(function(){
+        if(_rdCurrent && _rdCurrent.stages){
+          var s = _rdCurrent.stages.find(function(x){return x.id===stageId;});
+          if(s){ s[field] = val; }
+          renderRdDetail();
+          showToast('已更新');
+        }
+      });
+    }catch(e){ showToast('更新失败: '+e.message); }
+  });
 }
 
 function renderRdPipeline(c){
