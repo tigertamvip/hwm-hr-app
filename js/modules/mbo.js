@@ -3213,7 +3213,7 @@ function renderWPTable(plan){
     html+='</button>';
     // ★ V0.6.1ad: 完成评价 Toggle（部门成员视图）
     if(_wpCurrent.plan && _wpCurrent.plan.bossEvaluated){
-      html+='<button onclick="revokeBossEval()">↩️ 撤销评价</button>';
+      html+='<button onclick="revokeBossEval()"><span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;margin-right:4px"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6.7 2.97L3 13"/></svg></span> 撤销评价</button>';
     }else{
       html+='<button onclick="openBossEval()">⭐ 完成评价</button>';
     }
@@ -3228,7 +3228,7 @@ function renderWPTable(plan){
     html+='</button>';
     // ★ V0.6.1ad: 完成评价 Toggle（直属下属视图）
     if(_wpCurrent.plan && _wpCurrent.plan.bossEvaluated){
-      html+='<button onclick="revokeBossEval()">↩️ 撤销评价</button>';
+      html+='<button onclick="revokeBossEval()"><span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;margin-right:4px"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6.7 2.97L3 13"/></svg></span> 撤销评价</button>';
     }else{
       html+='<button onclick="openBossEval()">⭐ 完成评价</button>';
     }
@@ -3246,31 +3246,31 @@ function renderWPTable(plan){
       }else if(isLockedByBoss){
         html+='<button disabled class="wp-btn-toggle-locked" title="上级已锁定周计划，请联系上级解除锁定"><span>🔒</span> 周行动项已提交</button>';
       }else{
-        html+='<button onclick="undoWPSubmit()" class="wp-btn-toggle-submitted"><span>↩</span> 撤回周行动项</button>';
+        html+='<button onclick="undoWPSubmit()" class="wp-btn-toggle-submitted"><span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;margin-right:4px"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6.7 2.97L3 13"/></svg></span> 撤回周行动项</button>';
       }
     }else{
-      html+='<button onclick="submitWPPlan()" class="wp-btn-primary"><span>📋</span> 提交周行动项</button>';
+      html+='<button onclick="submitWPPlan()" class="wp-btn-primary"><span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;margin-right:4px"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span> 提交周行动项</button>';
     }
     if(plan.summarySubmittedAt){
       if(plan.bossEvaluated){
         html+='<button disabled class="wp-btn-toggle-locked" title="上级已评价，无法撤回"><span>🔒</span> 周小结已提交</button>';
       }else{
-        html+='<button onclick="undoWPWeekSummary()" class="wp-btn-toggle-submitted"><span>↩</span> 撤回周小结</button>';
+        html+='<button onclick="undoWPWeekSummary()" class="wp-btn-toggle-submitted"><span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;margin-right:4px"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6.7 2.97L3 13"/></svg></span> 撤回周小结</button>';
       }
     }else{
-      html+='<button onclick="submitWPWeekSummary()" class="wp-btn-summary"><span>✅</span> 提交周小结</button>';
+      html+='<button onclick="submitWPWeekSummary()" class="wp-btn-summary"><span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;margin-right:4px"><polyline points="20 6 9 17 4 12"/></svg></span> 提交周小结</button>';
     }
     var isDeleteLocked=plan.firstSubmittedAt||plan.summarySubmittedAt||isLockedByBoss||plan.bossEvaluated;
     if(isDeleteLocked){
-      html+='<button class="wp-btn-delete wp-btn-disabled" title="如要清空本周行动项请先解除上级锁定或撤回提交周小结及周计划" onclick="deleteCurrentWPPlan()"><span>🗑</span> 清空本周行动</button>';
+      html+='<button class="wp-btn-delete wp-btn-disabled" title="如要清空本周行动项请先解除上级锁定或撤回提交周小结及周计划" onclick="deleteCurrentWPPlan()"><span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;margin-right:4px"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg></span> 清空本周行动</button>';
     }else{
-      html+='<button class="wp-btn-delete" onclick="deleteCurrentWPPlan()"><span>🗑</span> 清空本周行动</button>';
+      html+='<button class="wp-btn-delete" onclick="deleteCurrentWPPlan()"><span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;margin-right:4px"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg></span> 清空本周行动</button>';
     }
   // ★ j81: 工具操作前加分隔线 — 视觉分组（工作流 / 工具）
   html+='<span class="wp-toolbar-divider" aria-hidden="true"></span>';
   html+='<button class="wp-btn-export" onclick="exportCurrentWP()" title="导出周行动项"><span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></span> 导出</button>';
   if(plan.bossEvaluated){
-      html+='<button onclick="viewBossEval()"><span style="color:#2A476A">📋</span> 查看上级评价</button>';
+      html+='<button onclick="viewBossEval()"><span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;margin-right:4px"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span> 查看上级评价</button>';
     }
     html+='<button id="wpAiAssessBtn" class="wp-btn-ai" onclick="aiAssessWP()" style="margin-left:auto" title="点击生成本周 AI 综合分析"><span style="font-size:14px;font-weight:700">AI</span><span>建议</span></button>';
   }
