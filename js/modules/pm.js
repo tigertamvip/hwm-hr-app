@@ -410,6 +410,9 @@ async function openPMDetail(pid){
   var all = loadAllProjects();
   var p = all.find(function(x){return x.id===pid;});
   if(!p){ _showAlert('项目不存在'); return; }
+  // ★ V0.6.6f: 进入项目详情时重置 Tab 状态，防止残留 'gantt' 导致错误进入甘特图
+  _pmDetailTab = 'board';
+  window._rdDetailTab = 'pipeline';
   // ★ V0.6.5m: 成员名单+密码门禁 — 成员需验证密码方可进入
   var _accessOk = await verifyProjectAccess(pid);
   if(!_accessOk) return;
