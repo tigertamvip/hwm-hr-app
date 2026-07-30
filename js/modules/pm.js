@@ -529,7 +529,10 @@ function attachEmpNameAutocomplete(input, opts){
 }
 
 // ===== Form Modal Helper (replaces _showConfirm for forms) =====
+// ★ V0.6.5o: 每次创建前先移除旧遮罩，防止多次调用时遮罩叠加变暗
 function showFormModal(html, title, okText, cancelText, onSubmit){
+  var oldOverlay = document.getElementById('pm-form-modal');
+  if(oldOverlay && oldOverlay.parentElement) oldOverlay.parentElement.removeChild(oldOverlay);
   var overlay = document.createElement('div');
   overlay.id = 'pm-form-modal';
   overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;z-index:10000;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;';
