@@ -487,9 +487,155 @@ function renderPMDetail(){
   h += '<span>周期: '+(p.start_date||'?')+' ~ '+(p.end_date||'?')+'</span>';
   if(p.budget_pool) h += '<span>奖金池: '+Number(p.budget_pool).toLocaleString()+' 元</span>';
   h += '</div>';
-  h += '<div style="font-weight:600;font-size:13px;margin-bottom:8px">任务看板</div>';
-  h += '<div id="pmTaskBoard" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;min-height:200px"></div>';
+  // ★ V0.6.5y: Tab 切换 — 任务看板 | 甘特图
+  h += '<div style="display:flex;gap:0;margin-bottom:16px;border-bottom:1px solid #E5E7EB">';
+  var tabs = [{key:'board',label:'任务看板'},{key:'gantt',label:'甘特图'}];
+  tabs.forEach(function(t){
+    var sel = (_pmDetailTab||'board')===t.key;
+    h += '<div onclick="_pmDetailTab=\''+t.key+'\';renderPMDetail();" style="padding:8px 16px;font-size:12px;cursor:pointer;border-bottom:2px solid '+(sel?'#3B82F6':'transparent')+';color:'+(sel?'#3B82F6':'#6B7280')+';font-weight:'+(sel?'600':'400')+';margin-bottom:-1px">'+t.label+'</div>';
+  });
+  h += '</div>';
+  // 甘特图视图
+  if((_pmDetailTab||'board')==='gantt'){
+    h += renderPMGantt(p, tasks);
+  }else{
+    h += '<div id="pmTaskBoard" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;min-height:200px"></div>';
+  }
   el.innerHTML = h;
+  if((_pmDetailTab||'board')!=='gantt') renderPMTaskBoard();
+}
+
+// ===== 甘特图渲染 =====
+var _pmDetailTab = 'board';
+var _pmGanttGranularity = null; // null=auto, 'day', 'week', 'month'
+
+function _pmGanttAutoGranularity(p){
+  var startD = p.start_date?new Date(p.start_date):new Date();
+  var endD = p.end_date?new Date(p.end_date):new Date(startD.getTime()+30*24*3600*1000);
+  var days = Math.ceil((endD-startD)/(24*3600*1000));
+  if(days<=30) return 'day';
+  if(days<=180) return 'week';
+  return 'month';
+}
+
+function _pmGanttGranularityLabel(g){
+  return {day:'按日',week:'按周',month:'按月'}[g]||g;
+}
+
+function renderPMGantt(p, tasks){
+  var gran = _pmGanttGranularity || _pmGanttAutoGranularity(p);
+  var startD = p.start_date?new Date(p.start_date):new Date();
+  var endD = p.end_date?new Date(p.end_date):new Date(startD.getTime()+30*24*3600*1000);
+  var today = new Date();
+  today.setHours(0,0,0,0);
+
+  var h = '';
+  // 颗粒度切换
+  h += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">';
+  h += '<span style="font-size:12px;color:#6B7280">时间颗粒度：</span>';
+  ['day','week','month'].forEach(function(g){
+    var sel = gran===g;
+    h += '<button onclick="_pmGanttGranularity=\''+g+'\';renderPMDetail();" style="padding:4px 12px;font-size:11px;border:1px solid '+(sel?'#3B82F6':'#D0D5DD')+';border-radius:6px;background:'+(sel?'#3B82F6':'#fff')+';color:'+(sel?'#fff':'#6B7280')+';cursor:pointer">'+_pmGanttGranularityLabel(g)+'</button>';
+  });
+  h += '</div>';
+
+  // 时间轴计算
+  var totalMs = endD - startD;
+  var colW, cols = [];
+  if(gran==='day'){
+    colW = 40;
+    for(var d=new Date(startD); d<=endD; d.setDate(d.getDate()+1)){
+      cols.push({label:(d.getMonth()+1)+'/'+d.getDate(), ms:24*3600*1000, start:new Date(d)});
+    }
+  }else if(gran==='week'){
+    colW = 80;
+    var wd = new Date(startD);
+    wd.setDate(wd.getDate()-wd.getDay()); // 从周一开始
+    while(wd<=endD){
+      var we = new Date(wd); we.setDate(we.getDate()+6);
+      cols.push({label:(wd.getMonth()+1)+'/'+wd.getDate()+'~'+(we.getMonth()+1)+'/'+we.getDate(), ms:7*24*3600*1000, start:new Date(wd)});
+      wd.setDate(wd.getDate()+7);
+    }
+  }else{ // month
+    colW = 100;
+    var md = new Date(startD.getFullYear(), startD.getMonth(), 1);
+    while(md<=endD){
+      var me = new Date(md.getFullYear(), md.getMonth()+1, 0);
+      cols.push({label:md.getFullYear()+'-'+String(md.getMonth()+1).padStart(2,'0'), ms:me-md, start:new Date(md)});
+      md.setMonth(md.getMonth()+1);
+    }
+  }
+
+  var chartW = cols.length * colW;
+
+  h += '<div style="overflow-x:auto;background:#fff;border:1px solid #E5E7EB;border-radius:10px">';
+  h += '<div style="min-width:'+(chartW+200)+'px">';
+
+  // 表头
+  h += '<div style="display:flex;border-bottom:1px solid #E5E7EB;background:#F9FAFB">';
+  h += '<div style="width:180px;flex-shrink:0;padding:8px 10px;font-size:11px;font-weight:600;color:#374151;border-right:1px solid #E5E7EB">任务 / 负责人</div>';
+  h += '<div style="width:70px;flex-shrink:0;padding:8px 6px;font-size:10px;color:#6B7280;border-right:1px solid #E5E7EB">开始</div>';
+  h += '<div style="width:70px;flex-shrink:0;padding:8px 6px;font-size:10px;color:#6B7280;border-right:1px solid #E5E7EB">结束</div>';
+  cols.forEach(function(c){
+    h += '<div style="width:'+colW+'px;flex-shrink:0;padding:8px 2px;font-size:10px;color:#6B7280;text-align:center;border-right:1px solid #F3F4F6">'+c.label+'</div>';
+  });
+  h += '</div>';
+
+  // 任务行
+  if(!tasks.length){
+    h += '<div style="padding:32px;text-align:center;color:#9CA3AF;font-size:12px">暂无任务数据</div>';
+  }else{
+    tasks.forEach(function(t, ti){
+      var sd = t.start_date?new Date(t.start_date):startD;
+      var dd = t.due_date?new Date(t.due_date):sd;
+      var prog = t.progress||0;
+      var statusColor = t.status==='已完成'?'#059669':(t.status==='进行中'?'#3B82F6':'#9CA3AF');
+      var bgColor = t.status==='已完成'?'#ECFDF5':(t.status==='进行中'?'#EFF6FF':'#F9FAFB');
+
+      h += '<div style="display:flex;border-bottom:1px solid #F3F4F6;'+(ti%2===0?'background:#fff':'background:#FAFAFA')+'">';
+      h += '<div style="width:180px;flex-shrink:0;padding:8px 10px;font-size:11px;color:#374151;border-right:1px solid #E5E7EB;display:flex;align-items:center;gap:4px">';
+      h += '<span style="width:6px;height:6px;border-radius:50%;background:'+statusColor+';flex-shrink:0"></span>';
+      h += '<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+esc(t.title||'')+'">'+esc(t.title||'未命名')+'</span>';
+      h += '</div>';
+      h += '<div style="width:70px;flex-shrink:0;padding:8px 6px;font-size:10px;color:#9CA3AF;border-right:1px solid #E5E7EB">'+(t.start_date||'')+'</div>';
+      h += '<div style="width:70px;flex-shrink:0;padding:8px 6px;font-size:10px;color:#9CA3AF;border-right:1px solid #E5E7EB">'+(t.due_date||'')+'</div>';
+
+      // 时间轴区域
+      h += '<div style="flex:1;position:relative;height:36px;background:'+bgColor+'">';
+      var taskOffset = Math.max(0, (sd - startD) / totalMs * chartW);
+      var taskW = Math.max(4, (dd - sd) / totalMs * chartW);
+      var progW = Math.floor(taskW * prog / 100);
+
+      // 任务条
+      h += '<div style="position:absolute;left:'+taskOffset+'px;top:8px;width:'+taskW+'px;height:20px;background:'+statusColor+';border-radius:4px;opacity:'+(prog===0?'0.25':'0.85')+'" title="'+esc(t.title||'')+' '+prog+'%"></div>';
+      // 进度填充
+      if(prog>0){
+        h += '<div style="position:absolute;left:'+taskOffset+'px;top:8px;width:'+progW+'px;height:20px;background:'+statusColor+';border-radius:4px;opacity:1"></div>';
+      }
+      // 进度文字
+      if(prog>0){
+        h += '<div style="position:absolute;left:'+(taskOffset+taskW/2-12)+'px;top:12px;font-size:9px;color:#fff;font-weight:600;text-shadow:0 0 2px rgba(0,0,0,.3)">'+prog+'%</div>';
+      }
+      h += '</div>';
+      h += '</div>';
+    });
+  }
+
+  // 今日线
+  var todayOffset = (today - startD) / totalMs * chartW;
+  if(todayOffset>=0 && todayOffset<=chartW){
+    h += '<div style="position:absolute;left:'+(180+70+70+todayOffset)+'px;top:0;width:1px;height:100%;background:#EF4444;z-index:2;pointer-events:none"></div>';
+    h += '<div style="position:absolute;left:'+(180+70+70+todayOffset-12)+'px;top:2px;font-size:9px;color:#EF4444;z-index:2;pointer-events:none">今天</div>';
+  }
+
+  h += '</div></div>';
+  h += '<div style="margin-top:8px;font-size:10px;color:#9CA3AF;display:flex;gap:12px">';
+  h += '<span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#059669;margin-right:3px"></span>已完成</span>';
+  h += '<span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#3B82F6;margin-right:3px"></span>进行中</span>';
+  h += '<span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#9CA3AF;margin-right:3px"></span>待开始</span>';
+  h += '<span style="color:#EF4444">| 红色竖线 = 今天</span>';
+  h += '</div>';
+  return h;
 }
 
 function renderPMTaskBoard(){
