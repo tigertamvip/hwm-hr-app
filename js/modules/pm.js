@@ -876,6 +876,8 @@ function _npInitMemberSelect(input, chipsEl){
   function _add(name){
     name = name.trim();
     if(!name) return;
+    // ★ V0.6.5s: 只允许添加员工表中存在的姓名，防止部分输入被误存
+    if(names.indexOf(name)<0) return;
     if(_npSelectedMembers.indexOf(name)>=0) return;
     _npSelectedMembers.push(name);
     _renderChips();
@@ -899,9 +901,9 @@ function _npInitMemberSelect(input, chipsEl){
       input.value = '';
       return;
     }
-    // 联想提示
+    // ★ V0.6.5s: 联想匹配改为前缀匹配（防误匹配），且只显示未添加的完整姓名
     if(q.length<1) return;
-    var hits = names.filter(function(n){ return n.indexOf(q)>=0 && _npSelectedMembers.indexOf(n)<0; }).slice(0,6);
+    var hits = names.filter(function(n){ return n.indexOf(q)===0 && _npSelectedMembers.indexOf(n)<0; }).slice(0,6);
     if(!hits.length) return;
     // 使用 attachEmpNameAutocomplete 已有逻辑时，这里用简单下拉
     var dd = document.createElement('div');
