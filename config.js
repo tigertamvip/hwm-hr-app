@@ -16,7 +16,7 @@ window.APP_CONFIG = {
     brandName: 'HWM',
     iconText: 'HWM',
     address: '安徽省合肥市',
-    copyright: 'Tiger-Buddy+AI',
+    copyright: 'Tiger-Buddy',
   },
   
   // ===== 品牌色 =====

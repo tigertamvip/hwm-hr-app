@@ -1624,7 +1624,7 @@ async function _renderMergedUrgentView(){
   toolbar.id='wpToolbar';
   // ★ V0.6.1do: 工具栏文字统一 13px；导出按钮 margin-left:auto 让其靠右
   toolbar.innerHTML='<span style="color:#3B7DB4;font-weight:600;font-size:13px">📋 合并视图 — 只读模式</span>'+
-    '<button class="wp-btn-export" onclick="exportMergedUrgent()" style="margin-left:auto"><span>📥</span> 导出合并表</button>';
+    '<button class="wp-btn-export" onclick="exportMergedUrgent()" style="margin-left:auto"><span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></span> 导出合并表</button>';
   content.appendChild(toolbar);
 
   // 表格容器
@@ -3202,7 +3202,7 @@ function renderWPTable(plan){
   if(_wpViewingShared){
     // ★ V0.5.79b: 只读模式 — 被授权查看他人周计划
     html+='<span style="color:#3B7DB4;font-weight:600">📖 只读模式 — 您正在查看 '+esc(_wpViewingShared)+' 分享的周计划</span>';
-    html+='<button class="wp-btn-export" onclick="exportCurrentWP()" style="margin-left:auto"><span>📥</span> 导出周行动项</button>';
+    html+='<button class="wp-btn-export" onclick="exportCurrentWP()" style="margin-left:auto"><span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></span> 导出周行动项</button>';
   }else if(_wpViewingDeptMember){
     // 部门成员视图：审核锁定 + 上级评价（同直属下属）
     // ★ V0.6.1af: 上级锁定按钮只反映上级自己锁定的状态，员工提交锁定不显示为已锁定
@@ -3268,7 +3268,7 @@ function renderWPTable(plan){
     }
   // ★ j81: 工具操作前加分隔线 — 视觉分组（工作流 / 工具）
   html+='<span class="wp-toolbar-divider" aria-hidden="true"></span>';
-  html+='<button class="wp-btn-export" onclick="exportCurrentWP()" title="导出周行动项"><span>📥</span> 导出</button>';
+  html+='<button class="wp-btn-export" onclick="exportCurrentWP()" title="导出周行动项"><span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></span> 导出</button>';
   if(plan.bossEvaluated){
       html+='<button onclick="viewBossEval()"><span style="color:#2A476A">📋</span> 查看上级评价</button>';
     }
@@ -3276,7 +3276,7 @@ function renderWPTable(plan){
   }
   // 安全兜底
   if(html.indexOf('<button', html.lastIndexOf('wpToolbar')) < 0){
-    html+='<button class="wp-btn-export" onclick="exportCurrentWP()"><span>📥</span> 导出周行动项</button>';
+    html+='<button class="wp-btn-export" onclick="exportCurrentWP()"><span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></span> 导出周行动项</button>';
   }
   html+='</div>';
   // ★ V0.6.3b: AI 分析进度指示器（初始隐藏）
