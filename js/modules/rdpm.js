@@ -242,12 +242,35 @@ function calcRdProgress(stages, deliverables){
   return Math.min(100, total);
 }
 
+// ★ V0.6.5m: 成员阶段可见性 — 非负责人/管理员时按 accessStages 过滤
+function _rdVisibleStages(p){
+  var me = (currentUser&&currentUser.name)||'';
+  if(!me) return [];
+  // 负责人/管理员可看全部
+  if(p.owner===me) return null; // null = 不过滤
+  if(typeof hasPermission==='function'&&hasPermission('maintenance')) return null;
+  // 从项目团队数据中获取当前用户的 accessStages
+  var team = (p.team||[]);
+  var member = null;
+  team.forEach(function(t){
+    if(t && t.name===me) member = t;
+  });
+  if(!member) return []; // 不在团队 = 无权限
+  return member.accessStages||[];
+}
+
+function _rdCanSeeStage(p, stageKey){
+  var vis = _rdVisibleStages(p);
+  if(vis===null) return true; // 不过滤
+  return vis.indexOf(stageKey)>=0;
+}
+
 // ===== Detail View Entry (pm.js openPMDetail 分流，DOM 切换由 pm.js 完成) =====
 async function openRdProjectDetail(p){
-  // ★ V0.6.5k: 成员名单门禁 — 非项目组成员不可查看研发项目详情
-  if(typeof _pmCanAccessProject==='function' && !_pmCanAccessProject(p)){
-    _showAlert('您不在项目成员名单中，无法查看本项目详情。<br><br>请联系项目负责人「'+esc(p.owner||'')+'」将您加入项目组。','权限提示',3000);
-    return;
+  // ★ V0.6.5m: 成员名单+密码门禁 — 成员需验证密码方可进入
+  if(typeof verifyProjectAccess==='function'){
+    var _rdAccessOk = await verifyProjectAccess(p.id);
+    if(!_rdAccessOk) return;
   }
   // ★ V0.6.4N: 写入 pmDetailContent（与通用详情页同容器），避免摧毁该节点导致通用详情页空白
   var detailEl = document.getElementById('pmDetailContent') || document.getElementById('pmDetailView');
@@ -256,7 +279,12 @@ async function openRdProjectDetail(p){
   }
   var data = await ensureRdProject(p.id);
   if(!data){ _showAlert('研发流程数据加载失败'); return; }
+  // ★ V0.6.5m: 默认展示当前用户有权限的第一个阶段
   var active = data.stages.find(function(s){return s.status!=='locked'&&s.status!=='passed';}) || data.stages[data.stages.length-1];
+  if(active && !_rdCanSeeStage(p, active.stage_key)){
+    var firstVisible = data.stages.find(function(s){return _rdCanSeeStage(p, s.stage_key);});
+    if(firstVisible) active = firstVisible;
+  }
   _rdCurrent = {
     project: p, stages: data.stages, deliverables: data.deliverables, gates: data.gates,
     viewStageKey: active?active.stage_key:null, tasks: []
@@ -301,8 +329,12 @@ function renderRdDetail(){
   h += renderRdPipeline(c);
   h += '</div>'; // /sticky 头部容器
 
-  // Current stage panel
+  // Current stage panel（★ V0.6.5m: 成员阶段权限检查 — 未授权阶段不渲染面板）
   var vs = c.stages.find(function(s){return s.stage_key===c.viewStageKey;});
+  if(vs && !_rdCanSeeStage(c.project, vs.stage_key)){
+    vs = c.stages.find(function(s){return _rdCanSeeStage(c.project, s.stage_key);});
+    if(vs) c.viewStageKey = vs.stage_key;
+  }
   if(vs) h += renderRdStagePanel(c, vs, canReview);
 
   // History (other stages, collapsed)
@@ -316,8 +348,22 @@ function renderRdPipeline(c){
   c.stages.forEach(function(s, i){
     var st = RD_STAGE_STATUS[s.status]||RD_STAGE_STATUS.locked;
     var isView = c.viewStageKey===s.stage_key;
-    var clickable = s.status!=='locked';
+    // ★ V0.6.5m: 成员阶段可见性过滤 — 未授权阶段显示锁定图标且不可点击
+    var canSee = _rdCanSeeStage(c.project, s.stage_key);
+    var clickable = canSee && s.status!=='locked';
     var icon = s.status==='passed'?'✓':(i+1);
+    if(!canSee){
+      // 未授权阶段：显示锁图标，灰化，不可点击
+      h += '<div style="flex:1;min-width:82px;display:flex;flex-direction:column;align-items:center;position:relative;opacity:.35" title="您没有权限查看此阶段">';
+      if(i>0){
+        h += '<div style="position:absolute;top:15px;left:-50%;width:100%;height:2px;background:#E5E7EB;z-index:0"></div>';
+      }
+      h += '<div style="position:relative;z-index:1;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;background:#E5E7EB;color:#9CA3AF;border:2px solid #E5E7EB">🔒</div>';
+      h += '<div style="margin-top:6px;font-size:11px;color:#9CA3AF">'+_rdEsc(s.stage_name)+'</div>';
+      h += '<div style="font-size:10px;color:#9CA3AF">未授权</div>';
+      h += '</div>';
+      return;
+    }
     h += '<div style="flex:1;min-width:82px;display:flex;flex-direction:column;align-items:center;position:relative;'+(clickable?'cursor:pointer':'opacity:.55')+'" '
        + (clickable?('onclick="rdSwitchStage(\''+s.stage_key+'\')"'):'') + '>';
     if(i>0){
@@ -337,6 +383,11 @@ function renderRdPipeline(c){
 
 function rdSwitchStage(key){
   if(!_rdCurrent) return;
+  // ★ V0.6.5m: 成员阶段权限检查 — 未授权阶段不可切换
+  if(!_rdCanSeeStage(_rdCurrent.project, key)){
+    showToast('您没有权限查看此阶段信息');
+    return;
+  }
   _rdCurrent.viewStageKey = key;
   renderRdDetail();
 }
@@ -548,6 +599,8 @@ function renderRdActionItems(c, g, canReview){
 
 function renderRdHistory(c){
   var others = c.stages.filter(function(s){return s.stage_key!==c.viewStageKey;});
+  // ★ V0.6.5m: 过滤未授权阶段
+  others = others.filter(function(s){return _rdCanSeeStage(c.project, s.stage_key);});
   var h = '<div style="background:#fff;border:1px solid #E5E7EB;border-radius:12px;padding:12px 16px">';
   h += '<div style="font-size:12px;font-weight:600;color:#374151;margin-bottom:8px">其他阶段</div>';
   h += '<div style="display:flex;flex-wrap:wrap;gap:8px">';

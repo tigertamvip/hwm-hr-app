@@ -349,11 +349,9 @@ async function openPMDetail(pid){
   var all = loadAllProjects();
   var p = all.find(function(x){return x.id===pid;});
   if(!p){ _showAlert('项目不存在'); return; }
-  // ★ V0.6.5k: 成员名单门禁 — 仅项目组成员/负责人/管理员可进入
-  if(!_pmCanAccessProject(p)){
-    _showAlert('您不在项目成员名单中，无法查看本项目详情。<br><br>请联系项目负责人「'+esc(p.owner||'')+'」将您加入项目组。','权限提示',3000);
-    return;
-  }
+  // ★ V0.6.5m: 成员名单+密码门禁 — 成员需验证密码方可进入
+  var _accessOk = await verifyProjectAccess(pid);
+  if(!_accessOk) return;
   // ★ V1.0 RDPM: 研发项目详情由阶段门引擎接管（rdpm.js）
   if(p.type==='研发' && typeof openRdProjectDetail==='function'){
     var rdListEl = document.getElementById('pmListView');
@@ -923,15 +921,22 @@ function _npCollectMembers(){
   return _npSelectedMembers.slice();
 }
 
+// ★ V0.6.5m: 团队数据结构升级为 [{name, dept, password, accessStages, joinedAt}]
 function _normalizeTeam(team){
   if(!Array.isArray(team)) return [];
   var out = [];
   team.forEach(function(t){
     if(!t) return;
     if(typeof t==='string'){
-      out.push({name:t, role:'成员', joinedAt:''});
+      out.push({name:t, dept:'', password:'', accessStages:[], joinedAt:''});
     }else if(t.name){
-      out.push({name:t.name, role:t.role||'成员', joinedAt:t.joinedAt||''});
+      out.push({
+        name: t.name,
+        dept: t.dept||'',
+        password: t.password||'',
+        accessStages: t.accessStages||[],
+        joinedAt: t.joinedAt||''
+      });
     }
   });
   return out;
@@ -940,7 +945,37 @@ function _teamNames(team){
   return _normalizeTeam(team).map(function(t){return t.name;});
 }
 
-// 查看项目团队（弹窗）
+// 从员工表获取部门信息
+function _getMemberDept(name){
+  var pool = (typeof allEmployees!=='undefined' && allEmployees && allEmployees.length)
+    ? allEmployees
+    : (window.__PRELOADED_EMPLOYEES__||[]);
+  for(var i=0;i<pool.length;i++){
+    var e = pool[i];
+    if(e && (e.name===name || e['姓名']===name)){
+      return e.dept||e['部门']||'';
+    }
+  }
+  return '';
+}
+
+// 7 个研发阶段定义（与 rd-template.js 一致）
+var _RD_STAGE_KEYS = [
+  {key:'preresearch', name:'预研'},
+  {key:'initiation', name:'立项'},
+  {key:'input', name:'设计输入'},
+  {key:'output', name:'设计输出'},
+  {key:'verification', name:'设计验证'},
+  {key:'validation', name:'设计确认'},
+  {key:'transfer', name:'设计转化'}
+];
+
+// 生成 6 位随机密码
+function _genPwd(){
+  return Math.floor(100000+Math.random()*900000).toString();
+}
+
+// 查看项目团队设置（表格弹窗）
 function showProjectTeam(pid){
   var p = loadAllProjects().find(function(x){return x.id===pid;});
   if(!p){ _showAlert('项目不存在'); return; }
@@ -953,50 +988,78 @@ function showProjectTeam(pid){
   if(team.length===0){
     h += '<div style="padding:32px;text-align:center;color:#9CA3AF;font-size:13px">暂无项目组成员<br>'+(canEdit?'点击下方按钮添加成员':'')+'</div>';
   }else{
-    h += '<table style="width:100%;border-collapse:collapse;font-size:12px">';
-    h += '<thead><tr style="border-bottom:1px solid #E5E7EB"><th style="text-align:left;padding:8px 4px;color:#6B7280;font-weight:500">成员</th><th style="text-align:left;padding:8px 4px;color:#6B7280;font-weight:500">职责</th><th style="text-align:left;padding:8px 4px;color:#6B7280;font-weight:500">加入时间</th>'+(canEdit?'<th style="padding:8px 4px;width:50px"></th>':'')+'</tr></thead><tbody>';
+    h += '<table style="width:100%;border-collapse:collapse;font-size:11px">';
+    h += '<thead><tr style="border-bottom:1px solid #E5E7EB">';
+    h += '<th style="text-align:left;padding:6px 4px;color:#6B7280;font-weight:500">姓名</th>';
+    h += '<th style="text-align:left;padding:6px 4px;color:#6B7280;font-weight:500">部门</th>';
+    h += '<th style="text-align:left;padding:6px 4px;color:#6B7280;font-weight:500">进入密码</th>';
+    _RD_STAGE_KEYS.forEach(function(s){
+      h += '<th style="text-align:center;padding:6px 4px;color:#6B7280;font-weight:500;width:36px">'+s.name+'</th>';
+    });
+    if(canEdit) h += '<th style="padding:6px 4px;width:50px"></th>';
+    h += '</tr></thead><tbody>';
     team.forEach(function(t,i){
       h += '<tr style="border-bottom:1px solid #F3F4F6">';
-      h += '<td style="padding:10px 4px;color:#1F1F1F;font-weight:500">'+esc(t.name)+'</td>';
-      h += '<td style="padding:10px 4px;color:#6B7280">'+esc(t.role)+'</td>';
-      h += '<td style="padding:10px 4px;color:#9CA3AF">'+esc(t.joinedAt||'-')+'</td>';
-      if(canEdit) h += '<td style="padding:10px 4px;text-align:right"><button onclick="removeProjectMember('+p.id+',\''+esc(t.name)+'\')" style="padding:2px 8px;font-size:11px;border:1px solid #FCA5A5;border-radius:4px;background:#FEF2F2;color:#DC2626;cursor:pointer">移除</button></td>';
+      h += '<td style="padding:8px 4px;color:#1F1F1F;font-weight:500">'+esc(t.name)+'</td>';
+      h += '<td style="padding:8px 4px;color:#6B7280">'+esc(t.dept||'-')+'</td>';
+      h += '<td style="padding:8px 4px;color:#6B7280">'+(canEdit?esc(t.password||'未设'):'••••••')+'</td>';
+      _RD_STAGE_KEYS.forEach(function(s){
+        var checked = (t.accessStages||[]).indexOf(s.key)>=0;
+        if(canEdit){
+          h += '<td style="text-align:center;padding:8px 4px"><input type="checkbox" '+(checked?'checked':'')+' onchange="toggleMemberStage('+p.id+',\''+esc(t.name)+'\',\''+s.key+'\',this.checked)" style="cursor:pointer"></td>';
+        }else{
+          h += '<td style="text-align:center;padding:8px 4px">'+(checked?'☑':'—')+'</td>';
+        }
+      });
+      if(canEdit) h += '<td style="padding:8px 4px;text-align:right"><button onclick="removeProjectMember('+p.id+',\''+esc(t.name)+'\')" style="padding:2px 6px;font-size:10px;border:1px solid #FCA5A5;border-radius:4px;background:#FEF2F2;color:#DC2626;cursor:pointer">移除</button></td>';
       h += '</tr>';
     });
     h += '</tbody></table>';
+    h += '<div style="margin-top:8px;font-size:10px;color:#9CA3AF">☑ = 该成员进入项目后可见此阶段信息</div>';
   }
 
   if(canEdit){
     h += '<div style="margin-top:16px;padding-top:16px;border-top:1px solid #E5E7EB">';
-    h += '<div style="font-size:11px;color:#6B7280;margin-bottom:8px">添加成员（选填角色，默认成员）</div>';
-    h += '<div style="display:flex;gap:8px">';
-    h += '<div style="flex:2;position:relative"><input id="ptm-new-name" placeholder="姓名" autocomplete="off" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:13px;box-sizing:border-box"></div>';
-    h += '<select id="ptm-new-role" style="flex:1;padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:13px"><option value="成员">成员</option><option value="项目经理">项目经理</option><option value="技术负责人">技术负责人</option><option value="测试工程师">测试工程师</option><option value="质量工程师">质量工程师</option><option value="工艺工程师">工艺工程师</option><option value="采购工程师">采购工程师</option><option value="财务对接">财务对接</option></select>';
+    h += '<div style="font-size:11px;color:#6B7280;margin-bottom:8px">添加成员</div>';
+    h += '<div style="display:flex;gap:8px;flex-wrap:wrap">';
+    h += '<div style="flex:1;min-width:120px;position:relative"><input id="ptm-new-name" placeholder="姓名" autocomplete="off" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:13px;box-sizing:border-box"></div>';
+    h += '<input id="ptm-new-pwd" placeholder="密码（默认随机）" style="width:140px;padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:13px;box-sizing:border-box">';
     h += '<button onclick="addProjectMember('+p.id+')" style="padding:8px 16px;background:#3B82F6;color:#fff;border:none;border-radius:6px;font-size:13px;cursor:pointer">添加</button>';
+    h += '</div>';
+    h += '<div style="margin-top:8px;font-size:10px;color:#9CA3AF">勾选下方阶段以授权该成员查看对应里程碑信息</div>';
+    h += '<div id="ptm-new-stages" style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap">';
+    _RD_STAGE_KEYS.forEach(function(s){
+      h += '<label style="display:inline-flex;align-items:center;gap:3px;font-size:11px;color:#6B7280;cursor:pointer"><input type="checkbox" value="'+s.key+'" class="ptm-stage-cb">'+s.name+'</label>';
+    });
     h += '</div></div>';
   }
 
-  showFormModal(h, '项目团队 / Project Team', '关闭 / Close', null, function(){});
+  showFormModal(h, '项目团队设置 / Project Team Settings', '关闭 / Close', null, function(){});
   attachEmpNameAutocomplete(document.getElementById('ptm-new-name'), {multi:false});
 }
 
-// 添加项目成员
+// 添加项目成员（含密码+阶段权限）
 async function addProjectMember(pid){
   var nameInput = document.getElementById('ptm-new-name');
-  var roleSel = document.getElementById('ptm-new-role');
+  var pwdInput = document.getElementById('ptm-new-pwd');
   var name = (nameInput?nameInput.value.trim():'');
-  var role = (roleSel?roleSel.value:'成员');
+  var pwd = (pwdInput?pwdInput.value.trim():'')||_genPwd();
   if(!name){ _showAlert('请输入成员姓名'); return; }
   var p = loadAllProjects().find(function(x){return x.id===pid;});
   if(!p){ _showAlert('项目不存在'); return; }
   var team = _normalizeTeam(p.team||[]);
   if(team.some(function(t){return t.name===name;})){ _showAlert(name+' 已在项目组中'); return; }
-  team.push({name:name, role:role, joinedAt:new Date().toISOString().split('T')[0]});
+  // 收集阶段权限
+  var stages = [];
+  document.querySelectorAll('.ptm-stage-cb:checked').forEach(function(cb){ stages.push(cb.value); });
+  var dept = _getMemberDept(name);
+  team.push({name:name, dept:dept, password:pwd, accessStages:stages, joinedAt:new Date().toISOString().split('T')[0]});
   p.team = team;
   await saveProject(p);
   _pmProjects = loadAllProjects();
   showProjectTeam(pid);
   renderPMList();
+  showToast(name+' 已加入项目组，密码：'+pwd);
 }
 
 // 移除项目成员
@@ -1011,19 +1074,104 @@ async function removeProjectMember(pid, name){
   renderPMList();
 }
 
+// 切换成员阶段权限
+async function toggleMemberStage(pid, name, stageKey, checked){
+  var p = loadAllProjects().find(function(x){return x.id===pid;});
+  if(!p) return;
+  var team = _normalizeTeam(p.team||[]);
+  var member = team.find(function(t){return t.name===name;});
+  if(!member) return;
+  if(!member.accessStages) member.accessStages = [];
+  if(checked){
+    if(member.accessStages.indexOf(stageKey)<0) member.accessStages.push(stageKey);
+  }else{
+    member.accessStages = member.accessStages.filter(function(k){return k!==stageKey;});
+  }
+  p.team = team;
+  await saveProject(p);
+  showToast((checked?'已授权':'已取消')+' '+name+' 查看'+_RD_STAGE_KEYS.find(function(s){return s.key===stageKey;}).name+'阶段');
+}
+
 // ===== 成员名单门禁控制 =====
-// ★ V0.6.5k: 非项目组成员不可进入项目详情
+// ★ V0.6.5m: 非项目组成员不可进入；成员需验证密码；负责人/管理员免密
 function _pmCanAccessProject(p){
   if(!p) return false;
   var me = (currentUser&&currentUser.name)||'';
   if(!me) return false;
-  if(p.owner===me) return true;  // 负责人始终可访问
-  // 管理员（有系统维护权限）可访问
+  if(p.owner===me) return true;
   if(typeof hasPermission==='function'&&hasPermission('maintenance')) return true;
-  // 项目组成员可访问
   var team = _normalizeTeam(p.team||[]);
   if(team.some(function(t){return t.name===me;})) return true;
   return false;
+}
+
+// 获取当前用户在项目中的成员信息
+function _pmGetMemberInfo(p){
+  if(!p) return null;
+  var me = (currentUser&&currentUser.name)||'';
+  if(!me) return null;
+  if(p.owner===me) return {name:me, isOwner:true};
+  var team = _normalizeTeam(p.team||[]);
+  var m = team.find(function(t){return t.name===me;});
+  return m?Object.assign({isOwner:false},m):null;
+}
+
+// 密码验证弹窗（成员进入项目时调用）
+async function verifyProjectAccess(pid){
+  var p = loadAllProjects().find(function(x){return x.id===pid;});
+  if(!p){ _showAlert('项目不存在'); return false; }
+  var me = (currentUser&&currentUser.name)||'';
+  if(!me) return false;
+  // 负责人/管理员免密
+  if(p.owner===me) return true;
+  if(typeof hasPermission==='function'&&hasPermission('maintenance')) return true;
+  // 成员需验证密码
+  var member = _pmGetMemberInfo(p);
+  if(!member){ _showAlert('您不在项目成员名单中，无法查看本项目详情。<br><br>请联系项目负责人「'+esc(p.owner||'')+'」将您加入项目组。','权限提示',3000); return false; }
+  if(!member.password){ _showAlert('项目负责人尚未为您设置进入密码，请联系负责人「'+esc(p.owner||'')+'」设置。','权限提示',3000); return false; }
+
+  return new Promise(function(resolve){
+    var _resolved = false;
+    var h = '';
+    h += '<div style="margin-bottom:16px;text-align:center">';
+    h += '<div style="font-size:24px;margin-bottom:8px">🔐</div>';
+    h += '<div style="font-size:14px;color:#1F1F1F;font-weight:600;margin-bottom:4px">项目区门禁验证</div>';
+    h += '<div style="font-size:12px;color:#6B7280;margin-bottom:16px">请输入您的项目区进入密码</div>';
+    h += '<input id="pv-pwd" type="password" maxlength="6" placeholder="6 位数字密码" style="width:180px;padding:10px 14px;border:1px solid #D0D5DD;border-radius:8px;font-size:16px;text-align:center;letter-spacing:4px;box-sizing:border-box" onkeydown="if(event.key===\'Enter\')document.getElementById(\'pm-form-ok\').click()">';
+    h += '</div>';
+    h += '<div id="pv-err" style="display:none;text-align:center;color:#DC2626;font-size:12px;margin-bottom:12px">密码错误，请重试</div>';
+    showFormModal(h, '项目区门禁 / Project Access', '进入 / Enter', '取消 / Cancel', function(close){
+      var pwd = document.getElementById('pv-pwd').value.trim();
+      if(!pwd){ return; }
+      if(pwd === member.password){
+        _resolved = true;
+        close();
+        resolve(true);
+      }else{
+        document.getElementById('pv-err').style.display='block';
+        document.getElementById('pv-pwd').value='';
+        document.getElementById('pv-pwd').focus();
+      }
+    });
+    // 密码输入框自动聚焦
+    setTimeout(function(){
+      var pwdInput = document.getElementById('pv-pwd');
+      if(pwdInput) pwdInput.focus();
+    }, 100);
+    // ★ 取消/关闭时兜底 resolve(false)，防止 Promise 悬挂
+    setTimeout(function(){
+      var modalEl = document.getElementById('pm-form-modal');
+      if(modalEl){
+        var obs = new MutationObserver(function(mutations){
+          if(!document.getElementById('pm-form-modal') && !_resolved){
+            obs.disconnect();
+            resolve(false);
+          }
+        });
+        obs.observe(document.body, {childList:true});
+      }
+    }, 150);
+  });
 }
 
 // Expose to global
@@ -1048,7 +1196,10 @@ window.attachEmpNameAutocomplete = attachEmpNameAutocomplete;
 window.showProjectTeam = showProjectTeam;
 window.addProjectMember = addProjectMember;
 window.removeProjectMember = removeProjectMember;
+window.toggleMemberStage = toggleMemberStage;
 window._pmCanAccessProject = _pmCanAccessProject;
+window._pmGetMemberInfo = _pmGetMemberInfo;
+window.verifyProjectAccess = verifyProjectAccess;
 
 console.log('[PM] Module loaded - V0.2.0 (研发项目管理 + HTML Modal)');
 
