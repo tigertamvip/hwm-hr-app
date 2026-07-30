@@ -6,8 +6,8 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.6.5d">
-<!-- cache-bust: 2026-07-30-07-45 -->
+<meta name="version" content="V0.6.5f">
+<!-- cache-bust: 2026-07-30-08-09 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json?v=bc">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1241,11 +1241,12 @@ body{
 }
 .portal-card-icon svg{width:26px;height:26px;display:block}
 .portal-card:hover .portal-card-icon{transform:scale(1.06)}
-/* ★ V0.6.5c: 已开通模块图标+文字改海军蓝（品牌藏青 #1B2A4A），未开通不变 */
-.portal-card:not(.disabled) .portal-card-label{color:#1B2A4A}
-.portal-card:not(.disabled) .portal-card-en{color:rgba(27,42,74,.48)}
-.portal-card:not(.disabled):hover .portal-card-label{color:#0F1C33}
-.portal-card:not(.disabled):hover .portal-card-en{color:rgba(27,42,74,.68)}
+/* ★ V0.6.5f: 已开通模块统一苹果蓝 #007AFF（Apple 系统蓝，明快科技感） */
+.portal-card:not(.disabled) .portal-card-icon{color:#007AFF}
+.portal-card:not(.disabled) .portal-card-label{color:#007AFF}
+.portal-card:not(.disabled) .portal-card-en{color:rgba(0,122,255,.50)}
+.portal-card:not(.disabled):hover .portal-card-label{color:#0051D2}
+.portal-card:not(.disabled):hover .portal-card-en{color:rgba(0,122,255,.72)}
 
 /* ★ V0.6.4V: 入场动效 — easeOutExpo 错落淡入（每次进入门户播放一次） */
 @keyframes portalCardIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
