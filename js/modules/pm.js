@@ -507,7 +507,7 @@ function renderPMDetail(){
 
 // ===== 甘特图渲染 =====
 var _pmDetailTab = 'board';
-var _pmGanttGranularity = null; // null=auto, 'day', 'week', 'month'
+var _pmGanttGranularity = null; // null=auto, 'day', 'week', 'month', 'quarter', 'year'
 
 function _pmGanttAutoGranularity(p){
   var startD = p.start_date?new Date(p.start_date):new Date();
@@ -515,11 +515,13 @@ function _pmGanttAutoGranularity(p){
   var days = Math.ceil((endD-startD)/(24*3600*1000));
   if(days<=30) return 'day';
   if(days<=180) return 'week';
-  return 'month';
+  if(days<=365) return 'month';
+  if(days<=730) return 'quarter';
+  return 'year';
 }
 
 function _pmGanttGranularityLabel(g){
-  return {day:'按日',week:'按周',month:'按月'}[g]||g;
+  return {day:'按日',week:'按周',month:'按月',quarter:'按季',year:'按年'}[g]||g;
 }
 
 function renderPMGantt(p, tasks){
@@ -530,10 +532,10 @@ function renderPMGantt(p, tasks){
   today.setHours(0,0,0,0);
 
   var h = '';
-  // 颗粒度切换
+  // 颗粒度切换（五档）
   h += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">';
   h += '<span style="font-size:12px;color:#6B7280">时间颗粒度：</span>';
-  ['day','week','month'].forEach(function(g){
+  ['day','week','month','quarter','year'].forEach(function(g){
     var sel = gran===g;
     h += '<button onclick="_pmGanttGranularity=\''+g+'\';renderPMDetail();" style="padding:4px 12px;font-size:11px;border:1px solid '+(sel?'#3B82F6':'#D0D5DD')+';border-radius:6px;background:'+(sel?'#3B82F6':'#fff')+';color:'+(sel?'#fff':'#6B7280')+';cursor:pointer">'+_pmGanttGranularityLabel(g)+'</button>';
   });
@@ -550,13 +552,13 @@ function renderPMGantt(p, tasks){
   }else if(gran==='week'){
     colW = 80;
     var wd = new Date(startD);
-    wd.setDate(wd.getDate()-wd.getDay()); // 从周一开始
+    wd.setDate(wd.getDate()-wd.getDay());
     while(wd<=endD){
       var we = new Date(wd); we.setDate(we.getDate()+6);
       cols.push({label:(wd.getMonth()+1)+'/'+wd.getDate()+'~'+(we.getMonth()+1)+'/'+we.getDate(), ms:7*24*3600*1000, start:new Date(wd)});
       wd.setDate(wd.getDate()+7);
     }
-  }else{ // month
+  }else if(gran==='month'){
     colW = 100;
     var md = new Date(startD.getFullYear(), startD.getMonth(), 1);
     while(md<=endD){
@@ -564,18 +566,36 @@ function renderPMGantt(p, tasks){
       cols.push({label:md.getFullYear()+'-'+String(md.getMonth()+1).padStart(2,'0'), ms:me-md, start:new Date(md)});
       md.setMonth(md.getMonth()+1);
     }
+  }else if(gran==='quarter'){
+    colW = 120;
+    var qm = Math.floor(startD.getMonth()/3)*3;
+    var qd = new Date(startD.getFullYear(), qm, 1);
+    while(qd<=endD){
+      var qe = new Date(qd.getFullYear(), qd.getMonth()+3, 0);
+      cols.push({label:qd.getFullYear()+'Q'+(Math.floor(qd.getMonth()/3)+1), ms:qe-qd, start:new Date(qd)});
+      qd.setMonth(qd.getMonth()+3);
+    }
+  }else{ // year
+    colW = 150;
+    var yd = new Date(startD.getFullYear(), 0, 1);
+    while(yd<=endD){
+      var ye = new Date(yd.getFullYear()+1, 0, 0);
+      cols.push({label:yd.getFullYear()+'年', ms:ye-yd, start:new Date(yd)});
+      yd.setFullYear(yd.getFullYear()+1);
+    }
   }
 
   var chartW = cols.length * colW;
 
   h += '<div style="overflow-x:auto;background:#fff;border:1px solid #E5E7EB;border-radius:10px">';
-  h += '<div style="min-width:'+(chartW+200)+'px">';
+  h += '<div style="min-width:'+(chartW+340)+'px">';
 
   // 表头
   h += '<div style="display:flex;border-bottom:1px solid #E5E7EB;background:#F9FAFB">';
-  h += '<div style="width:180px;flex-shrink:0;padding:8px 10px;font-size:11px;font-weight:600;color:#374151;border-right:1px solid #E5E7EB">任务 / 负责人</div>';
-  h += '<div style="width:70px;flex-shrink:0;padding:8px 6px;font-size:10px;color:#6B7280;border-right:1px solid #E5E7EB">开始</div>';
-  h += '<div style="width:70px;flex-shrink:0;padding:8px 6px;font-size:10px;color:#6B7280;border-right:1px solid #E5E7EB">结束</div>';
+  h += '<div style="width:160px;flex-shrink:0;padding:8px 10px;font-size:11px;font-weight:600;color:#374151;border-right:1px solid #E5E7EB">任务</div>';
+  h += '<div style="width:80px;flex-shrink:0;padding:8px 6px;font-size:10px;color:#6B7280;border-right:1px solid #E5E7EB">OWN</div>';
+  h += '<div style="width:80px;flex-shrink:0;padding:8px 6px;font-size:10px;color:#6B7280;border-right:1px solid #E5E7EB">启动日期</div>';
+  h += '<div style="width:80px;flex-shrink:0;padding:8px 6px;font-size:10px;color:#6B7280;border-right:1px solid #E5E7EB">完成截止</div>';
   cols.forEach(function(c){
     h += '<div style="width:'+colW+'px;flex-shrink:0;padding:8px 2px;font-size:10px;color:#6B7280;text-align:center;border-right:1px solid #F3F4F6">'+c.label+'</div>';
   });
@@ -591,14 +611,27 @@ function renderPMGantt(p, tasks){
       var prog = t.progress||0;
       var statusColor = t.status==='已完成'?'#059669':(t.status==='进行中'?'#3B82F6':'#9CA3AF');
       var bgColor = t.status==='已完成'?'#ECFDF5':(t.status==='进行中'?'#EFF6FF':'#F9FAFB');
+      var own = t.assignee||'TBD';
+      var startDate = t.start_date||'TBD';
+      var dueDate = t.due_date||'TBD';
 
       h += '<div style="display:flex;border-bottom:1px solid #F3F4F6;'+(ti%2===0?'background:#fff':'background:#FAFAFA')+'">';
-      h += '<div style="width:180px;flex-shrink:0;padding:8px 10px;font-size:11px;color:#374151;border-right:1px solid #E5E7EB;display:flex;align-items:center;gap:4px">';
+      h += '<div style="width:160px;flex-shrink:0;padding:8px 10px;font-size:11px;color:#374151;border-right:1px solid #E5E7EB;display:flex;align-items:center;gap:4px">';
       h += '<span style="width:6px;height:6px;border-radius:50%;background:'+statusColor+';flex-shrink:0"></span>';
       h += '<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+esc(t.title||'')+'">'+esc(t.title||'未命名')+'</span>';
       h += '</div>';
-      h += '<div style="width:70px;flex-shrink:0;padding:8px 6px;font-size:10px;color:#9CA3AF;border-right:1px solid #E5E7EB">'+(t.start_date||'')+'</div>';
-      h += '<div style="width:70px;flex-shrink:0;padding:8px 6px;font-size:10px;color:#9CA3AF;border-right:1px solid #E5E7EB">'+(t.due_date||'')+'</div>';
+      // OWN（可编辑）
+      h += '<div style="width:80px;flex-shrink:0;padding:8px 4px;font-size:10px;border-right:1px solid #E5E7EB;display:flex;align-items:center">'
+         + '<span onclick="_pmEditTaskField(\''+t.id+'\',\'assignee\',\''+esc(own)+'\')" style="cursor:pointer;color:'+(own==='TBD'?'#A8A29A':'#374151')+';border-bottom:1px dashed '+(own==='TBD'?'#D0D5DD':'transparent')+';padding:1px 2px" title="点击修改负责人">'+esc(own)+'</span>'
+         + '</div>';
+      // 启动日期（可编辑）
+      h += '<div style="width:80px;flex-shrink:0;padding:8px 4px;font-size:10px;border-right:1px solid #E5E7EB;display:flex;align-items:center">'
+         + '<span onclick="_pmEditTaskField(\''+t.id+'\',\'start_date\',\''+startDate+'\')" style="cursor:pointer;color:'+(startDate==='TBD'?'#A8A29A':'#374151')+';border-bottom:1px dashed '+(startDate==='TBD'?'#D0D5DD':'transparent')+';padding:1px 2px" title="点击修改启动日期">'+startDate+'</span>'
+         + '</div>';
+      // 完成截止（可编辑）
+      h += '<div style="width:80px;flex-shrink:0;padding:8px 4px;font-size:10px;border-right:1px solid #E5E7EB;display:flex;align-items:center">'
+         + '<span onclick="_pmEditTaskField(\''+t.id+'\',\'due_date\',\''+dueDate+'\')" style="cursor:pointer;color:'+(dueDate==='TBD'?'#A8A29A':'#374151')+';border-bottom:1px dashed '+(dueDate==='TBD'?'#D0D5DD':'transparent')+';padding:1px 2px" title="点击修改截止日期">'+dueDate+'</span>'
+         + '</div>';
 
       // 时间轴区域
       h += '<div style="flex:1;position:relative;height:36px;background:'+bgColor+'">';
@@ -977,6 +1010,61 @@ async function showNewProjectForm(){
   attachEmpNameAutocomplete(document.getElementById('np-owner'), {multi:false});
   // ★ V0.6.5k: 项目组成员多选联想
   _npInitMemberSelect(document.getElementById('np-members'), document.getElementById('np-members-chips'));
+}
+
+// ===== 甘特图任务字段编辑 =====
+// ★ V0.6.6b: 非研发项目甘特图 OWN/日期可编辑
+async function _pmEditTaskField(taskId, field, currentVal){
+  var label = {assignee:'负责人',start_date:'启动日期',due_date:'完成截止日期'}[field]||field;
+  var inputType = field==='assignee'?'text':'date';
+  var h = '<div style="margin-bottom:12px"><label style="font-size:12px;color:#6B7280;display:block;margin-bottom:4px">'+label+'</label>';
+  h += '<input id="pmtf-in" type="'+inputType+'" value="'+(currentVal==='TBD'?'':currentVal)+'" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:13px;box-sizing:border-box">';
+  h += '</div>';
+  var nameLabel = {assignee:'负责人姓名',start_date:'启动日期（YYYY-MM-DD）',due_date:'完成截止日期（YYYY-MM-DD）'}[field]||'';
+  var inputId = 'pmtf-in';
+
+  return new Promise(function(resolve){
+    showFormModal(h, '编辑'+label+' / Edit '+label, '确定 / OK', '取消 / Cancel', function(close){
+      var el = document.getElementById(inputId);
+      var val = el?el.value.trim():'';
+      if(!val){ close(); resolve(null); return; }
+      close();
+      resolve(val);
+    });
+    if(field==='assignee'){
+      setTimeout(function(){
+        var el = document.getElementById(inputId);
+        if(el && typeof attachEmpNameAutocomplete==='function'){
+          attachEmpNameAutocomplete(el, {multi:false});
+          el.focus();
+        }
+      }, 80);
+    }else{
+      setTimeout(function(){ var el = document.getElementById(inputId); if(el) el.focus(); }, 80);
+    }
+  }).then(function(val){
+    if(!val) return;
+    var tasks = _pmCurrent.tasks||[];
+    var task = tasks.find(function(t){return t.id===taskId;});
+    if(!task) return;
+    var patch = {};
+    patch[field] = val;
+    try{
+      supabase.from(SUPABASE_TASK_TABLE).update(patch).eq('id',taskId).then(function(){
+        // 更新本地数据
+        var all = loadAllProjects();
+        var idx = all.findIndex(function(x){return x.id===_pmCurrent.project.id;});
+        if(idx>=0){
+          var tasks = loadProjectTasks(_pmCurrent.project.id);
+          var ti = tasks.findIndex(function(x){return x.id===taskId;});
+          if(ti>=0){ tasks[ti][field] = val; saveProjectTasks(_pmCurrent.project.id, tasks); }
+          _pmCurrent.tasks = tasks;
+          renderPMDetail();
+          showToast('已更新');
+        }
+      });
+    }catch(e){ showToast('更新失败: '+e.message); }
+  });
 }
 
 // ===== Utility =====
@@ -1507,6 +1595,7 @@ window.attachEmpNameAutocomplete = attachEmpNameAutocomplete;
 window.showProjectTeam = showProjectTeam;
 window.showProjectGantt = showProjectGantt;
 window.openProjectGanttTab = openProjectGanttTab;
+window._pmEditTaskField = _pmEditTaskField;
 window.addProjectMember = addProjectMember;
 window.removeProjectMember = removeProjectMember;
 window.toggleMemberStage = toggleMemberStage;

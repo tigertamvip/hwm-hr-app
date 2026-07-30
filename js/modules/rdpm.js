@@ -1192,4 +1192,9 @@ window.rdRegisterSubmit = rdRegisterSubmit;
 window.calcRdProgress = calcRdProgress;
 window.syncRdFromCloud = syncRdFromCloud;
 window.initRdPm = initRdPm;
+// ★ V0.6.6b: 甘特图 OWN+日期+五档颗粒度
+window._rdDetailTab = _rdDetailTab;
+window._renderRdGantt = _renderRdGantt;
+window._rdGanttGranularityLabel = _rdGanttGranularityLabel;
+window._rdEditStageField = _rdEditStageField;
 }
