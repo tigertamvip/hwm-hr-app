@@ -1294,7 +1294,7 @@ async function verifyProjectAccess(pid){
     h += '<div style="font-size:24px;margin-bottom:8px">🔐</div>';
     h += '<div style="font-size:14px;color:#1F1F1F;font-weight:600;margin-bottom:4px">项目区门禁验证</div>';
     h += '<div style="font-size:12px;color:#6B7280;margin-bottom:16px">请输入您的项目区进入密码</div>';
-    h += '<input id="pv-pwd" type="password" maxlength="6" placeholder="6 位数字密码" style="width:180px;padding:10px 14px;border:1px solid #D0D5DD;border-radius:8px;font-size:16px;text-align:center;letter-spacing:4px;box-sizing:border-box" onkeydown="if(event.key===\'Enter\')document.getElementById(\'pm-form-ok\').click()">';
+    h += '<input id="pv-pwd" type="password" maxlength="6" autocomplete="new-password" placeholder="6 位数字密码" style="width:180px;padding:10px 14px;border:1px solid #D0D5DD;border-radius:8px;font-size:16px;text-align:center;letter-spacing:4px;box-sizing:border-box" onkeydown="if(event.key===\'Enter\')document.getElementById(\'pm-form-ok\').click()">';
     h += '</div>';
     h += '<div id="pv-err" style="display:none;text-align:center;color:#DC2626;font-size:12px;margin-bottom:12px">密码错误，请重试</div>';
     showFormModal(h, '项目区门禁 / Project Access', '进入 / Enter', '取消 / Cancel', function(close){
