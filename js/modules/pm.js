@@ -838,6 +838,8 @@ async function enterPMModule(){
   if(detailEl) detailEl.style.display='none';
   if(pmv) pmv.classList.remove('pm-detail-mode');
 
+  // ★ V0.6.5o: 返回列表前刷新 _pmProjects（详情页 saveProject 可能已更新 localStorage 中的 progress）
+  _pmProjects = loadAllProjects();
   renderPMSidebar();
   renderPMList();
 
@@ -1046,7 +1048,7 @@ function showProjectTeam(pid){
     h += '</div></div>';
   }
 
-  showFormModal(h, '项目团队设置 / Project Team Settings', '关闭 / Close', null, function(){});
+  showFormModal(h, '项目团队设置 / Project Team Settings', '关闭 / Close', null, function(close){ close(); });
   attachEmpNameAutocomplete(document.getElementById('ptm-new-name'), {multi:false});
 }
 
