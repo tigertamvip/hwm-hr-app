@@ -40,8 +40,44 @@ async function syncProjectsFromCloud(){
     var resp = await supabase.from(SUPABASE_PM_TABLE).select('*').order('updated_at',{ascending:false});
     if(resp.error){ console.warn('[PM] Cloud sync error:',resp.error.message); return; }
     var cloud = resp.data||[];
-    saveAllProjects(cloud);
-    return cloud;
+    var local = loadAllProjects();
+    var cloudIds = {};
+    cloud.forEach(function(p){ cloudIds[p.id]=p; });
+    // ★ V0.6.5u: 合并而非覆盖——本地更新的项目优先保留并回推云端
+    var merged = [];
+    var needPush = []; // 本地有但云端缺失或较新的项目，需回推
+    local.forEach(function(p){
+      var c = cloudIds[p.id];
+      if(!c){
+        // 本地有云端无 → 回推
+        needPush.push(p);
+        merged.push(p);
+      }else{
+        // 两边都有，比 updated_at
+        var lt = new Date(p.updated_at||0).getTime();
+        var ct = new Date(c.updated_at||0).getTime();
+        if(lt > ct){
+          needPush.push(p);
+          merged.push(p);
+        }else{
+          merged.push(c);
+        }
+        delete cloudIds[p.id];
+      }
+    });
+    // 云端独有（本地无）
+    Object.keys(cloudIds).forEach(function(k){ merged.push(cloudIds[k]); });
+    saveAllProjects(merged);
+    // 异步回推本地领先的数据到云端
+    if(needPush.length){
+      (async function(){
+        for(var i=0; i<needPush.length; i++){
+          try{ await supabase.from(SUPABASE_PM_TABLE).upsert(needPush[i],{onConflict:'id'}); }
+          catch(e){ console.warn('[PM] Push-back failed:',e.message); }
+        }
+      })();
+    }
+    return merged;
   }catch(e){ console.warn('[PM] Cloud sync exception:',e.message); }
 }
 
@@ -54,10 +90,18 @@ async function saveProject(p){
   // ★ V0.6.5q: 同步更新内存中的项目列表，确保卡片进度立即刷新
   _pmProjects = all;
   if(_pmView==='list') renderPMList();
-  try{
-    var r = await supabase.from(SUPABASE_PM_TABLE).upsert(p,{onConflict:'id'});
-    if(r.error) console.warn('[PM] Save error:',r.error.message);
-  }catch(e){ console.warn('[PM] Save exception:',e.message); }
+  // ★ V0.6.5u: Supabase 保存加重试（最多3次），确保云端同步成功
+  var cloudOk = false;
+  for(var attempt=0; attempt<3 && !cloudOk; attempt++){
+    try{
+      var r = await supabase.from(SUPABASE_PM_TABLE).upsert(p,{onConflict:'id'});
+      if(r.error){ console.warn('[PM] Cloud save error (attempt '+(attempt+1)+'/3):',r.error.message); }
+      else { cloudOk = true; }
+    }catch(e){ console.warn('[PM] Cloud save exception (attempt '+(attempt+1)+'/3):',e.message); }
+    if(!cloudOk && attempt<2) await new Promise(function(rs){setTimeout(rs,500);});
+  }
+  if(!cloudOk) console.warn('[PM] Cloud save FAILED after 3 attempts, localStorage only');
+  return cloudOk;
 }
 
 async function createProject(data){
