@@ -369,6 +369,168 @@ function _rdIsProjectOwner(){
   return p.owner === me || (typeof hasPermission==='function'&&hasPermission('maintenance'));
 }
 
+// ★ V0.6.6l: 解析项目成员数据（兼容旧字符串+新JSON数组）
+function _rdParseMembers(raw){
+  if(!raw) return [];
+  if(typeof raw === 'object') return raw;
+  if(typeof raw !== 'string') return [];
+  var trimmed = raw.trim();
+  if(!trimmed) return [];
+  if(trimmed.startsWith('[')){
+    try{ var arr = JSON.parse(trimmed); if(Array.isArray(arr)) return arr; }catch(e){}
+  }
+  // 兼容旧格式：逗号分隔的名字
+  return trimmed.split(/[,，、;；\s]+/).filter(function(n){return n&&n.trim();}).map(function(n){
+    return {name:n.trim(),dept:'',role:'组员',ratio:0};
+  });
+}
+
+// ★ V0.6.6l: 计算项目成员总人数
+function _rdMembersCount(raw){
+  return _rdParseMembers(raw).length;
+}
+
+// ★ V0.6.6l: 渲染项目成员管理弹窗（含表格+自动求和+100%校验）
+async function _rdOpenMembersModal(stageId){
+  if(!_rdCurrent) return;
+  var stage = _rdCurrent.stages.find(function(s){return s.id===stageId;});
+  if(!stage) return;
+  var me = (typeof currentUser!=='undefined'&&currentUser&&currentUser.name)||'';
+  var isOwner = stage.owner === me || (typeof hasPermission==='function'&&hasPermission('maintenance'));
+  // 项目负责人才能编辑
+  if(!isOwner){
+    showToast('仅项目负责人可编辑项目成员');
+    return;
+  }
+  var members = _rdParseMembers(stage.members||'');
+  var allEmps = (typeof allEmployees!=='undefined')?allEmployees:[];
+  // 尝试从项目团队中查找部门
+  var team = _rdCurrent.project && _rdCurrent.project.team ? _rdCurrent.project.team : [];
+  function findDept(n){ var m = team.find(function(t){return t.name===n;}); return m?(m.dept||''):''; }
+
+  var html = '';
+  html += '<div style="margin-bottom:8px;font-size:12px;color:#6B7280">本阶段项目成员（奖金分配比例总和需=100%）</div>';
+  html += '<div id="rd-mem-table" style="max-height:380px;overflow:auto;border:1px solid #E5E7EB;border-radius:6px">';
+  html += '<table style="width:100%;border-collapse:collapse;font-size:12px">';
+  html += '<thead style="position:sticky;top:0;background:#F9FAFB;z-index:1"><tr>';
+  html += '<th style="padding:8px 6px;border-bottom:1px solid #E5E7EB;width:36px">序号</th>';
+  html += '<th style="padding:8px 6px;border-bottom:1px solid #E5E7EB;text-align:left">姓名</th>';
+  html += '<th style="padding:8px 6px;border-bottom:1px solid #E5E7EB;text-align:left">来自部门</th>';
+  html += '<th style="padding:8px 6px;border-bottom:1px solid #E5E7EB;text-align:left">组内职责</th>';
+  html += '<th style="padding:8px 6px;border-bottom:1px solid #E5E7EB;width:80px">奖金分配%</th>';
+  html += '<th style="padding:8px 6px;border-bottom:1px solid #E5E7EB;width:48px">操作</th>';
+  html += '</tr></thead><tbody id="rd-mem-tbody">';
+  function buildRow(idx, m){
+    var h = '<tr data-idx="'+idx+'">';
+    h += '<td style="padding:6px;border-bottom:1px solid #F3F4F6;text-align:center;color:#6B7280">'+(idx+1)+'</td>';
+    h += '<td style="padding:6px;border-bottom:1px solid #F3F4F6"><input class="rd-mem-name" data-fld="name" value="'+esc(m.name||'')+'" placeholder="点击选择" style="width:100%;padding:4px 6px;border:1px solid #D0D5DD;border-radius:4px;box-sizing:border-box"></td>';
+    h += '<td style="padding:6px;border-bottom:1px solid #F3F4F6"><input class="rd-mem-dept" data-fld="dept" value="'+esc(m.dept||findDept(m.name)||'')+'" style="width:100%;padding:4px 6px;border:1px solid #D0D5DD;border-radius:4px;box-sizing:border-box"></td>';
+    h += '<td style="padding:6px;border-bottom:1px solid #F3F4F6"><input class="rd-mem-role" data-fld="role" value="'+esc(m.role||'组员')+'" style="width:100%;padding:4px 6px;border:1px solid #D0D5DD;border-radius:4px;box-sizing:border-box"></td>';
+    h += '<td style="padding:6px;border-bottom:1px solid #F3F4F6"><input class="rd-mem-ratio" data-fld="ratio" type="number" min="0" max="100" step="1" value="'+(m.ratio||0)+'" style="width:100%;padding:4px 6px;border:1px solid #D0D5DD;border-radius:4px;box-sizing:border-box;text-align:center"></td>';
+    h += '<td style="padding:6px;border-bottom:1px solid #F3F4F6;text-align:center"><button type="button" class="rd-mem-del" data-idx="'+idx+'" style="padding:2px 8px;border:1px solid #FCA5A5;border-radius:4px;background:#FEF2F2;color:#DC2626;cursor:pointer;font-size:11px">删除</button></td>';
+    h += '</tr>';
+    return h;
+  }
+  if(!members.length){
+    members = [{name:'',dept:'',role:'组员',ratio:0}];
+  }
+  members.forEach(function(m, i){ html += buildRow(i, m); });
+  html += '</tbody></table>';
+  html += '</div>';
+  html += '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px">';
+  html += '<button type="button" id="rd-mem-add" style="padding:6px 14px;border:1px solid #D0D5DD;border-radius:6px;background:#fff;color:#374151;cursor:pointer;font-size:12px">+ 添加成员</button>';
+  html += '<div id="rd-mem-sum-wrap" style="font-size:12px;color:#6B7280">合计：<span id="rd-mem-sum" style="font-weight:600;color:#1B6EC4;font-size:14px">0</span>% <span id="rd-mem-warn" style="color:#DC2626;margin-left:8px;display:none">⚠ 总和超过 100%，请调整</span></div>';
+  html += '</div>';
+
+  showFormModal(html, '项目组成员 / Members', '保存 / Save', '取消 / Cancel', function(close){
+    var tbody = document.getElementById('rd-mem-tbody');
+    var rows = tbody ? tbody.querySelectorAll('tr') : [];
+    var arr = [];
+    rows.forEach(function(tr){
+      var name = tr.querySelector('[data-fld="name"]').value.trim();
+      if(!name) return;
+      var dept = tr.querySelector('[data-fld="dept"]').value.trim();
+      var role = tr.querySelector('[data-fld="role"]').value.trim();
+      var ratio = parseFloat(tr.querySelector('[data-fld="ratio"]').value)||0;
+      arr.push({name:name,dept:dept,role:role||'组员',ratio:ratio});
+    });
+    var total = arr.reduce(function(s,m){return s+(+m.ratio||0);},0);
+    if(total > 100.01){
+      showAlert('奖金分配比例总和为 '+total.toFixed(1)+'%，超过 100%，请调整后保存。','比例超限');
+      return; // 不关闭，让用户继续改
+    }
+    var json = JSON.stringify(arr);
+    close();
+    // 保存到云端+内存
+    try{
+      supabase.from(RD_STAGE_TABLE).update({members:json}).eq('id',stageId).then(function(){
+        stage.members = json;
+        renderRdDetail();
+        showToast('已保存');
+      });
+    }catch(e){ showToast('保存失败: '+e.message); }
+  });
+
+  // 绑定交互：添加/删除/实时求和
+  function recalc(){
+    var tbody = document.getElementById('rd-mem-tbody');
+    var sum = 0;
+    if(tbody){
+      tbody.querySelectorAll('.rd-mem-ratio').forEach(function(inp){
+        sum += parseFloat(inp.value)||0;
+      });
+    }
+    var sumEl = document.getElementById('rd-mem-sum');
+    var warnEl = document.getElementById('rd-mem-warn');
+    if(sumEl) sumEl.textContent = sum.toFixed(1);
+    if(warnEl) warnEl.style.display = sum > 100.01 ? 'inline' : 'none';
+  }
+  setTimeout(function(){
+    var tbody = document.getElementById('rd-mem-tbody');
+    function bindRow(tr){
+      tr.querySelectorAll('input').forEach(function(inp){
+        inp.addEventListener('input', recalc);
+      });
+      var nameInp = tr.querySelector('[data-fld="name"]');
+      if(nameInp && typeof attachEmpNameAutocomplete==='function'){
+        attachEmpNameAutocomplete(nameInp, {multi:false});
+        nameInp.addEventListener('input', function(){
+          // 选择员工后自动填部门
+          var dep = findDept(nameInp.value.trim());
+          if(dep) tr.querySelector('[data-fld="dept"]').value = dep;
+        });
+      }
+      var del = tr.querySelector('.rd-mem-del');
+      if(del) del.addEventListener('click', function(){
+        tr.parentNode.removeChild(tr);
+        renumberRows();
+        recalc();
+      });
+    }
+    function renumberRows(){
+      var rows = tbody.querySelectorAll('tr');
+      rows.forEach(function(tr, i){
+        tr.setAttribute('data-idx', i);
+        var idxCell = tr.querySelector('td:first-child');
+        if(idxCell) idxCell.textContent = i+1;
+      });
+    }
+    tbody.querySelectorAll('tr').forEach(bindRow);
+    var addBtn = document.getElementById('rd-mem-add');
+    if(addBtn){
+      addBtn.addEventListener('click', function(){
+        var tmp = document.createElement('tbody');
+        tmp.innerHTML = buildRow(tbody.querySelectorAll('tr').length, {name:'',dept:'',role:'组员',ratio:0});
+        var newRow = tmp.firstChild;
+        tbody.appendChild(newRow);
+        bindRow(newRow);
+        recalc();
+      });
+    }
+    recalc();
+  }, 80);
+}
+
 // ★ V0.6.5aa: 研发项目甘特图 — 用阶段数据渲染
 function _renderRdGantt(c){
   var p = c.project;
@@ -544,9 +706,12 @@ function _renderRdGantt(c){
     h += '<div style="width:70px;flex-shrink:0;padding:6px 4px;font-size:10px;border-right:1px solid #E5E7EB;display:flex;align-items:center">'
        + '<span '+(isOwner?'onclick="_rdEditStageField(\''+sb.id+'\',\'assistant\',\''+esc(asst)+'\')"':'')+' style="cursor:'+editCursor+';color:'+(asst==='TBD'?'#A8A29A':'#374151')+';border-bottom:1px dashed '+(asst==='TBD'?'#D0D5DD':'transparent')+';padding:1px 2px" title="'+editHint+'">'+_rdEsc(asst)+'</span>'
        + '</div>';
-    // 项目成员
-    h += '<div style="width:100px;flex-shrink:0;padding:6px 4px;font-size:10px;border-right:1px solid #E5E7EB;display:flex;align-items:center;overflow:hidden">'
-       + '<span '+(isOwner?'onclick="_rdEditStageField(\''+sb.id+'\',\'members\',\''+esc(mems)+'\')"':'')+' style="cursor:'+editCursor+';color:'+(mems==='TBD'?'#A8A29A':'#374151')+';border-bottom:1px dashed '+(mems==='TBD'?'#D0D5DD':'transparent')+';padding:1px 2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+editHint+'">'+_rdEsc(mems)+'</span>'
+    // ★ V0.6.6l: 项目成员——只显示人数，点击弹窗编辑
+    var memCount = _rdMembersCount(mems);
+    var memLabel = memCount>0 ? (memCount+' 人') : 'TBD';
+    var memColor = memCount>0 ? '#374151' : '#A8A29A';
+    h += '<div style="width:100px;flex-shrink:0;padding:6px 4px;font-size:10px;border-right:1px solid #E5E7EB;display:flex;align-items:center">'
+       + '<span onclick="_rdOpenMembersModal(\''+sb.id+'\')" style="cursor:pointer;color:'+memColor+';border-bottom:1px dashed '+(memCount===0?'#D0D5DD':'transparent')+';padding:1px 2px" title="'+(isOwner?'点击管理项目成员':'查看项目成员')+'">'+memLabel+'</span>'
        + '</div>';
     // 启动日期
     h += '<div style="width:80px;flex-shrink:0;padding:6px 4px;font-size:10px;border-right:1px solid #E5E7EB;display:flex;align-items:center">'
@@ -1426,4 +1591,8 @@ window._rdGanttGranularityLabel = _rdGanttGranularityLabel;
 window._rdEditStageField = _rdEditStageField;
 window._rdEditProjectDate = _rdEditProjectDate;
 window._rdIsProjectOwner = _rdIsProjectOwner;
+// ★ V0.6.6l: 项目组成员管理（表格+自动求和+100%校验）
+window._rdOpenMembersModal = _rdOpenMembersModal;
+window._rdParseMembers = _rdParseMembers;
+window._rdMembersCount = _rdMembersCount;
 }
