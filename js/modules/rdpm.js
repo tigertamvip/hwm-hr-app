@@ -1001,9 +1001,10 @@ function _rdRenderBonusPanel(c){
   h += '<div style="font-size:10px;color:#9CA3AF;display:flex;align-items:center;gap:4px"><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>点击甘特图"项目成员"列单元格可切换到该阶段</div>';
   h += '<div style="margin-top:8px;padding:8px 10px;background:#F0F9FF;border-left:2px solid #3B82F6;border-radius:4px;font-size:10px;color:#475569;line-height:1.6">';
   h += '<div style="font-weight:600;color:#1E40AF;margin-bottom:2px">💡 奖金计算算法</div>';
-  h += '<div><strong>积分映射</strong>：+2级=5分 / +1级=3分 / 0级=2分 / -1级=1分 / -2级=0分；交付效率：按时=5分 / 延期=2分 / 逾期=0分</div>';
+  h += '<div><strong>积分映射</strong>：+2级=5分 / +1级=3分 / 0级=2分 / -1级=1分 / -2级=0分；交付效率：按时=5分 / 延期=2分</div>';
   h += '<div><strong>综合积分</strong> = 交付效率分 + 交付质量分 + 综合评价分</div>';
-  h += '<div><strong>单位积分奖金</strong> = 总奖金池 ÷ 全体成员总积分；<strong>应发奖金</strong> = 个人综合积分 × 单位积分奖金</div>';
+  h += '<div><strong>单位积分奖金</strong> = 总奖金池 ÷ 全体成员总积分</div>';
+  h += '<div><strong>应发奖金</strong> = 个人综合积分 × 单位积分奖金；<span style="color:#DC2626;font-weight:600">⚠ 逾期未交付 → 应发奖金直接归零</span></div>';
   h += '</div>';
   h += '</div>';
 
@@ -1071,7 +1072,8 @@ function _rdBindBonusPanel(){
       if(i<all.length && all[i].name){
         var base = pool * (all[i].ratio/100);
         var score = (EFF_SCORE[all[i].efficiency]||0)+(BONUS_SCORE[all[i].quality]||0)+(BONUS_SCORE[all[i].overall]||0);
-        var final = score * unit;
+        // ★ V0.6.6w: 逾期未交付 → 应发奖金直接归零
+        var final = (all[i].efficiency==='逾期未交付') ? 0 : (score * unit);
         if(baseEl) baseEl.textContent = base?base.toFixed(0):'—';
         if(scoreEl) scoreEl.textContent = score+' 分';
         if(finalEl) finalEl.textContent = final?final.toFixed(0):'—';
