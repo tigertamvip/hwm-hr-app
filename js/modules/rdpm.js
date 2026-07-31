@@ -999,8 +999,8 @@ function _rdRenderBonusPanel(c){
   }
   h += '</div>';
   h += '<div style="font-size:10px;color:#9CA3AF;display:flex;align-items:center;gap:4px"><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>点击甘特图"项目成员"列单元格可切换到该阶段</div>';
-  h += '<div style="margin-top:8px;padding:8px 10px;background:#F0F9FF;border-left:2px solid #3B82F6;border-radius:4px;font-size:10px;color:#475569;line-height:1.6">';
-  h += '<div style="font-weight:600;color:#1E40AF;margin-bottom:2px">💡 奖金计算算法</div>';
+  h += '<div style="margin-top:8px;padding:10px 12px;background:#F0F9FF;border-left:3px solid #3B82F6;border-radius:6px;font-size:12px;color:#334155;line-height:1.7">';
+  h += '<div style="font-weight:700;color:#1E40AF;margin-bottom:4px;font-size:13px">💡 奖金计算算法</div>';
   h += '<div><strong>积分映射</strong>：+2级=5分 / +1级=3分 / 0级=2分 / -1级=1分 / -2级=0分；交付效率：按时=5分 / 延期=2分</div>';
   h += '<div><strong>综合积分</strong> = 交付效率分 + 交付质量分 + 综合评价分</div>';
   h += '<div><strong>单位积分奖金</strong> = 总奖金池 ÷ 全体成员总积分</div>';
@@ -1151,19 +1151,25 @@ function _rdBindBonusPanel(){
     addBtn.addEventListener('click', function(){
       var tr = document.createElement('tr');
       tr.setAttribute('data-idx', tbody.querySelectorAll('tr').length);
-      tr.innerHTML = '<td style="padding:5px;border-bottom:1px solid #F3F4F6;text-align:center;color:#6B7280;font-size:11px">'+(tbody.querySelectorAll('tr').length+1)+'</td>'
-        +'<td style="padding:4px;border-bottom:1px solid #F3F4F6"><input class="rd-mem-name" data-fld="name" placeholder="选择" style="width:100%;padding:4px 6px;border:1px solid #D0D5DD;border-radius:4px;font-size:11px;box-sizing:border-box"></td>'
-        +'<td style="padding:4px;border-bottom:1px solid #F3F4F6"><input class="rd-mem-dept" data-fld="dept" style="width:100%;padding:4px 6px;border:1px solid #D0D5DD;border-radius:4px;font-size:11px;box-sizing:border-box"></td>'
-        +'<td style="padding:4px;border-bottom:1px solid #F3F4F6"><input class="rd-mem-role" data-fld="role" value="组员" style="width:100%;padding:4px 6px;border:1px solid #D0D5DD;border-radius:4px;font-size:11px;box-sizing:border-box"></td>'
-        +'<td style="padding:4px;border-bottom:1px solid #F3F4F6"><select class="rd-mem-eff" data-fld="efficiency" style="width:100%;padding:3px 4px;border:1px solid #D0D5DD;border-radius:4px;font-size:11px;background:#fff;box-sizing:border-box"><option value="按时交付" selected>按时交付</option><option value="延期交付">延期交付</option><option value="逾期未交付">逾期未交付</option></select></td>'
-        +'<td style="padding:4px;border-bottom:1px solid #F3F4F6"><select class="rd-mem-qual" data-fld="quality" style="width:100%;padding:3px 4px;border:1px solid #D0D5DD;border-radius:4px;font-size:11px;background:#fff;box-sizing:border-box"><option value="+2">+2级 优于预期</option><option value="+1">+1级 略优于预期</option><option value="0" selected>0级 符合预期</option><option value="-1">-1级 有差距</option><option value="-2">-2级 严重差距</option></select></td>'
-        +'<td style="padding:4px;border-bottom:1px solid #F3F4F6"><select class="rd-mem-ovr" data-fld="overall" style="width:100%;padding:3px 4px;border:1px solid #D0D5DD;border-radius:4px;font-size:11px;background:#fff;box-sizing:border-box"><option value="+2">+2级 优秀</option><option value="+1">+1级 良好</option><option value="0">0级 合格</option><option value="-1">-1级 基本合格</option><option value="-2">-2级 有较大差距</option><option value="无法评估" selected>无法评估</option></select></td>'
-        +'<td style="padding:4px;border-bottom:1px solid #F3F4F6;text-align:center;color:#6B7280;font-size:11px" class="rd-mem-base">—</td>'
-        +'<td style="padding:4px;border-bottom:1px solid #F3F4F6"><input class="rd-mem-ratio" data-fld="ratio" type="number" min="0" max="100" step="0.1" value="0" style="width:100%;padding:4px 6px;border:1px solid #D0D5DD;border-radius:4px;font-size:11px;box-sizing:border-box;text-align:center"></td>'
-        +'<td style="padding:4px;border-bottom:1px solid #F3F4F6;text-align:center;color:#1B6EC4;font-weight:600;font-size:11px" class="rd-mem-final">—</td>'
-        +'<td style="padding:4px;border-bottom:1px solid #F3F4F6;text-align:center"><button type="button" class="rd-mem-del" style="padding:2px 6px;border:1px solid #FCA5A5;border-radius:4px;background:#FEF2F2;color:#DC2626;cursor:pointer;font-size:10px">×</button></td>';
+      tr.innerHTML = '<td style="padding:3px;border-bottom:1px solid #F3F4F6;text-align:center;color:#6B7280;font-size:10px"></td>'
+        +'<td style="padding:3px;border-bottom:1px solid #F3F4F6"><input class="rd-mem-name" data-fld="name" placeholder="选择" style="width:100%;height:26px;padding:2px 6px;border:1px solid #D0D5DD;border-radius:4px;font-size:11px;box-sizing:border-box"></td>'
+        +'<td style="padding:3px;border-bottom:1px solid #F3F4F6"><input class="rd-mem-dept" data-fld="dept" style="width:100%;height:26px;padding:2px 6px;border:1px solid #D0D5DD;border-radius:4px;font-size:11px;box-sizing:border-box"></td>'
+        +'<td style="padding:3px;border-bottom:1px solid #F3F4F6"><input class="rd-mem-role" data-fld="role" value="组员" style="width:100%;height:26px;padding:2px 6px;border:1px solid #D0D5DD;border-radius:4px;font-size:11px;box-sizing:border-box"></td>'
+        +'<td style="padding:3px;border-bottom:1px solid #F3F4F6"><select class="rd-mem-eff" data-fld="efficiency" style="width:100%;height:26px;padding:0 2px;border:1px solid #D0D5DD;border-radius:4px;font-size:10px;background:#fff;box-sizing:border-box"><option value="按时交付" selected>按时交付</option><option value="延期交付">延期交付</option><option value="逾期未交付">逾期未交付</option></select></td>'
+        +'<td style="padding:3px;border-bottom:1px solid #F3F4F6"><select class="rd-mem-qual" data-fld="quality" style="width:100%;height:26px;padding:0 2px;border:1px solid #D0D5DD;border-radius:4px;font-size:10px;background:#fff;box-sizing:border-box"><option value="+2">+2级 优于预期</option><option value="+1">+1级 略优于预期</option><option value="0" selected>0级 符合预期</option><option value="-1">-1级 有差距</option><option value="-2">-2级 严重差距</option></select></td>'
+        +'<td style="padding:3px;border-bottom:1px solid #F3F4F6"><select class="rd-mem-ovr" data-fld="overall" style="width:100%;height:26px;padding:0 2px;border:1px solid #D0D5DD;border-radius:4px;font-size:10px;background:#fff;box-sizing:border-box"><option value="+2">+2级 优秀</option><option value="+1">+1级 良好</option><option value="0">0级 合格</option><option value="-1">-1级 基本合格</option><option value="-2">-2级 有较大差距</option><option value="无法评估" selected>无法评估</option></select></td>'
+        +'<td style="padding:3px;border-bottom:1px solid #F3F4F6"><input class="rd-mem-ratio" data-fld="ratio" type="number" min="0" max="100" step="0.1" value="0" style="width:100%;height:26px;padding:2px 4px;border:1px solid #D0D5DD;border-radius:4px;font-size:11px;box-sizing:border-box;text-align:center"></td>'
+        +'<td style="padding:3px;border-bottom:1px solid #F3F4F6;text-align:center;color:#6B7280;font-size:11px;vertical-align:middle" class="rd-mem-base">—</td>'
+        +'<td style="padding:3px;border-bottom:1px solid #F3F4F6;text-align:center;color:#059669;font-weight:600;font-size:11px;vertical-align:middle" class="rd-mem-score">—</td>'
+        +'<td style="padding:3px;border-bottom:1px solid #F3F4F6;text-align:center;color:#1B6EC4;font-weight:600;font-size:11px;vertical-align:middle" class="rd-mem-final">—</td>'
+        +'<td style="padding:3px;border-bottom:1px solid #F3F4F6;text-align:center;vertical-align:middle;white-space:nowrap">'
+        +'<button type="button" class="rd-mem-addrow" style="width:20px;height:20px;line-height:1;border:1px solid #BFDBFE;border-radius:4px;background:#EFF6FF;color:#1B6EC4;cursor:pointer;font-size:12px;font-weight:600;display:inline-block;margin-right:3px" title="在下方添加成员">+</button>'
+        +'<button type="button" class="rd-mem-delrow" style="width:20px;height:20px;line-height:1;border:1px solid #FCA5A5;border-radius:4px;background:#FEF2F2;color:#DC2626;cursor:pointer;font-size:12px;font-weight:600;display:inline-block" title="删除本行">−</button>'
+        +'</td>';
       tbody.appendChild(tr);
       bindRow(tr);
+      renumberRows();
+      updateDelButtons();
       recalcPanel();
     });
   }
