@@ -970,7 +970,10 @@ function _rdRenderBonusPanel(c){
     h2 += '<td style="padding:3px;border-bottom:1px solid #F3F4F6"><input class="rd-mem-ratio" data-fld="ratio" type="number" min="0" max="100" step="0.1" value="'+ratio+'" '+(!isOwner?'disabled':'')+' style="width:100%;height:26px;padding:2px 4px;border:1px solid #D0D5DD;border-radius:4px;font-size:11px;box-sizing:border-box;text-align:center"></td>';
     h2 += '<td style="padding:3px;border-bottom:1px solid #F3F4F6;text-align:right;color:#6B7280;font-size:11px;padding-right:10px;vertical-align:middle" class="rd-mem-base">—</td>';
     h2 += '<td style="padding:3px;border-bottom:1px solid #F3F4F6;text-align:right;color:#1B6EC4;font-weight:600;font-size:11px;padding-right:10px;vertical-align:middle" class="rd-mem-final">—</td>';
-    h2 += '<td style="padding:3px;border-bottom:1px solid #F3F4F6;text-align:center;vertical-align:middle"><button type="button" class="rd-mem-del" '+(!isOwner?'disabled':'')+' style="padding:2px 6px;border:1px solid #FCA5A5;border-radius:4px;background:#FEF2F2;color:#DC2626;cursor:pointer;font-size:10px'+(isOwner?'':'disabled')+'>×</button></td>';
+    h2 += '<td style="padding:3px;border-bottom:1px solid #F3F4F6;text-align:center;vertical-align:middle;white-space:nowrap">'
+       + '<button type="button" class="rd-mem-addrow" '+(!isOwner?'disabled':'')+' style="width:20px;height:20px;line-height:1;border:1px solid #BFDBFE;border-radius:4px;background:#EFF6FF;color:#1B6EC4;cursor:pointer;font-size:12px;font-weight:600;display:inline-block;margin-right:3px" title="在下方添加成员">+</button>'
+       + '<button type="button" class="rd-mem-delrow" '+(!isOwner?'disabled':'')+' style="width:20px;height:20px;line-height:1;border:1px solid #FCA5A5;border-radius:4px;background:#FEF2F2;color:#DC2626;cursor:pointer;font-size:12px;font-weight:600;display:inline-block" title="删除本行">−</button>'
+       + '</td>';
     h2 += '</tr>';
     return h2;
   }
@@ -1071,14 +1074,56 @@ function _rdBindBonusPanel(){
         if(m&&m.dept) tr.querySelector('[data-fld="dept"]').value = m.dept;
       });
     }
-    var del = tr.querySelector('.rd-mem-del');
-    if(del) del.addEventListener('click', function(){
+    // ★ V0.6.6s: +按钮在下方添加新行
+    var addBtn = tr.querySelector('.rd-mem-addrow');
+    if(addBtn) addBtn.addEventListener('click', function(){
+      var newTr = document.createElement('tr');
+      newTr.innerHTML = '<td style="padding:3px;border-bottom:1px solid #F3F4F6;text-align:center;color:#6B7280;font-size:10px;vertical-align:middle"></td>'
+        +'<td style="padding:3px;border-bottom:1px solid #F3F4F6"><input class="rd-mem-name" data-fld="name" placeholder="选择" style="width:100%;height:26px;padding:2px 6px;border:1px solid #D0D5DD;border-radius:4px;font-size:11px;box-sizing:border-box"></td>'
+        +'<td style="padding:3px;border-bottom:1px solid #F3F4F6"><input class="rd-mem-dept" data-fld="dept" style="width:100%;height:26px;padding:2px 6px;border:1px solid #D0D5DD;border-radius:4px;font-size:11px;box-sizing:border-box"></td>'
+        +'<td style="padding:3px;border-bottom:1px solid #F3F4F6"><input class="rd-mem-role" data-fld="role" value="组员" style="width:100%;height:26px;padding:2px 6px;border:1px solid #D0D5DD;border-radius:4px;font-size:11px;box-sizing:border-box"></td>'
+        +'<td style="padding:3px;border-bottom:1px solid #F3F4F6"><select class="rd-mem-eff" data-fld="efficiency" style="width:100%;height:26px;padding:0 2px;border:1px solid #D0D5DD;border-radius:4px;font-size:10px;background:#fff;box-sizing:border-box"><option value="按时交付" selected>按时交付</option><option value="延期交付">延期交付</option><option value="逾期未交付">逾期未交付</option></select></td>'
+        +'<td style="padding:3px;border-bottom:1px solid #F3F4F6"><select class="rd-mem-qual" data-fld="quality" style="width:100%;height:26px;padding:0 2px;border:1px solid #D0D5DD;border-radius:4px;font-size:10px;background:#fff;box-sizing:border-box"><option value="+2">+2级 优于预期</option><option value="+1">+1级 略优于预期</option><option value="0" selected>0级 符合预期</option><option value="-1">-1级 有差距</option><option value="-2">-2级 严重差距</option></select></td>'
+        +'<td style="padding:3px;border-bottom:1px solid #F3F4F6"><select class="rd-mem-ovr" data-fld="overall" style="width:100%;height:26px;padding:0 2px;border:1px solid #D0D5DD;border-radius:4px;font-size:10px;background:#fff;box-sizing:border-box"><option value="+2">+2级 优秀</option><option value="+1">+1级 良好</option><option value="0">0级 合格</option><option value="-1">-1级 基本合格</option><option value="-2">-2级 有较大差距</option><option value="无法评估" selected>无法评估</option></select></td>'
+        +'<td style="padding:3px;border-bottom:1px solid #F3F4F6"><input class="rd-mem-ratio" data-fld="ratio" type="number" min="0" max="100" step="0.1" value="0" style="width:100%;height:26px;padding:2px 4px;border:1px solid #D0D5DD;border-radius:4px;font-size:11px;box-sizing:border-box;text-align:center"></td>'
+        +'<td style="padding:3px;border-bottom:1px solid #F3F4F6;text-align:right;color:#6B7280;font-size:11px;padding-right:10px;vertical-align:middle" class="rd-mem-base">—</td>'
+        +'<td style="padding:3px;border-bottom:1px solid #F3F4F6;text-align:right;color:#1B6EC4;font-weight:600;font-size:11px;padding-right:10px;vertical-align:middle" class="rd-mem-final">—</td>'
+        +'<td style="padding:3px;border-bottom:1px solid #F3F4F6;text-align:center;vertical-align:middle;white-space:nowrap">'
+        +'<button type="button" class="rd-mem-addrow" style="width:20px;height:20px;line-height:1;border:1px solid #BFDBFE;border-radius:4px;background:#EFF6FF;color:#1B6EC4;cursor:pointer;font-size:12px;font-weight:600;display:inline-block;margin-right:3px" title="在下方添加成员">+</button>'
+        +'<button type="button" class="rd-mem-delrow" style="width:20px;height:20px;line-height:1;border:1px solid #FCA5A5;border-radius:4px;background:#FEF2F2;color:#DC2626;cursor:pointer;font-size:12px;font-weight:600;display:inline-block" title="删除本行">−</button>'
+        +'</td>';
+      tr.parentNode.insertBefore(newTr, tr.nextSibling);
+      bindRow(newTr);
+      renumberRows();
+      updateDelButtons();
+      recalcPanel();
+    });
+    // ★ V0.6.6s: -按钮删除本行（至少保留1行）
+    var delBtn = tr.querySelector('.rd-mem-delrow');
+    if(delBtn) delBtn.addEventListener('click', function(){
+      var rows = tr.parentNode.querySelectorAll('tr');
+      if(rows.length <= 1){
+        if(typeof showToast==='function') showToast('至少保留 1 位成员');
+        return;
+      }
       tr.parentNode.removeChild(tr);
       renumberRows();
+      updateDelButtons();
       recalcPanel();
     });
   }
+  // ★ V0.6.6s: 更新删除按钮可用状态（只剩1行时禁用）
+  function updateDelButtons(){
+    var rows = tbody.querySelectorAll('tr');
+    var delBtns = tbody.querySelectorAll('.rd-mem-delrow');
+    delBtns.forEach(function(btn){
+      btn.disabled = rows.length <= 1;
+      btn.style.opacity = rows.length <= 1 ? '0.4' : '1';
+      btn.style.cursor = rows.length <= 1 ? 'not-allowed' : 'pointer';
+    });
+  }
   tbody.querySelectorAll('tr').forEach(bindRow);
+  updateDelButtons();
 
   var addBtn = document.getElementById('rd-mem-add');
   if(addBtn){
