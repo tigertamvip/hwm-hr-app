@@ -6,8 +6,8 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.6.8b">
-<!-- cache-bust: 2026-07-31-15-44 -->
+<meta name="version" content="V0.7.0">
+<!-- cache-bust: 2026-07-31-20-42 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json?v=bc">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1085,402 +1085,65 @@ body{
   .toast{bottom:20px;font-size:12px;padding:8px 18px}
 }
 
-/* ===== 门户首页 · 藏蓝金典 ===== */
-.portal-view{
-  min-height:100vh;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  padding:32px 20px 20px;
-  position:relative;
-  overflow:hidden;
-}
-/* ★ V0.6.5d: 顶部横条 — 浅色玻璃 */
-.portal-topbar{
-  position:fixed; top:0; left:0; right:0;
-  height:32px; background:rgba(255,255,255,.72); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
-  display:flex; align-items:center; justify-content:center;
-  color:#1F1F1F; font-size:13px; font-weight:600;
-  z-index:1000; letter-spacing:1px;
-  border-bottom:1px solid rgba(0,0,0,.06);
-}
-/* ★ V0.6.5d: 清晨海滩 — 极淡白雾透出原图本色 */
-.portal-view::before{
-  content:'';
-  position:absolute;
-  inset:0;
-  background-image:
-    linear-gradient(180deg, rgba(255,255,255,.05) 0%, rgba(255,255,255,.14) 100%),
-    url('bg-login.webp');
-  background-size:cover;
-  background-position:center;
-  background-repeat:no-repeat;
-  z-index:0;
-}
-/* ★ V0.6.5d: 极淡宣纸纹理 — 清新肌理不抢眼 */
-.portal-view::after{
-  content:'';
-  position:absolute;
-  inset:0;
-  background:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.12 0 0 0 0 0.12 0 0 0 0 0.11 0 0 0 0.025 0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23p)'/%3E%3C/svg%3E");
-  z-index:0;
-  pointer-events:none;
-}
-.portal-hero,.portal-grid,.portal-footer,.portal-logout{position:relative;z-index:1}
+/* ===== 门户首页 · V0.7.0 Taste Redesign (sidebar + workspace) ===== */
+/* Design Read: B2B enterprise HR dashboard for medical-device managers.
+   Precision-instrument visual language: structured data zones,
+   restrained industrial palette, no decorative fluff.
+   Dials: VARIANCE=4 MOTION=2 DENSITY=5 */
 
-.portal-hero{
-  text-align:center;
-  margin:auto 0;
-}
-.portal-hero h1{
-  font-family:"Microsoft YaHei Light","微软雅黑 Light",sans-serif;
-  font-size:21px;
-  font-weight:300;
-  color:#1F1F1F;
-  line-height:1.5;
-  letter-spacing:0.5px;
-  margin:8px 0 0;
-}
-.portal-hero .portal-cn-title{
-  font-family:"Microsoft YaHei Light","微软雅黑 Light",sans-serif;
-  font-size:26px;
-  font-weight:300;
-  color:#1F1F1F;
-  line-height:1.6;
-  letter-spacing:2px;
-  margin:0;
-}
-.portal-hero .portal-divider{
-  width:60px;
-  height:1px;
-  background:linear-gradient(90deg,transparent,rgba(31,31,31,.35),transparent);
-  margin:18px auto;
-}
-.portal-hero .portal-subtitle{
-  font-family:"Microsoft YaHei Light","微软雅黑 Light",sans-serif;
-  font-size:22px;
-  font-weight:300;
-  color:rgba(0,0,0,.45);
-  margin-top:0;
-}
-
-.portal-grid{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:24px;
-  width:100%;
-  max-width:920px;
-  margin-bottom:20px;
-}
-/* V0.5.95: 12模块完整grid布局 */
-#portalCard_decision{grid-column:1;grid-row:1}
-#portalCard_kpi{grid-column:2;grid-row:1}
-#portalCard_mbo{grid-column:4;grid-row:1}
-#portalCard_rd{grid-column:3;grid-row:1}
-#portalCard_dashboard{grid-column:4;grid-row:2}
-#portalCard_talent{grid-column:1;grid-row:2}
-#portalCard_payroll{grid-column:3;grid-row:2}
-/* ★ V0.6.4V: 全部卡片统一白卡，原绿色特殊规则移除 */
-#portalCard_learning{grid-column:2;grid-row:2}
-#portalCard_ideas{grid-column:1;grid-row:3}
-#portalCard_policies{grid-column:2;grid-row:3}
-#portalCard_hr{grid-column:3;grid-row:3}
-#portalCard_maintenance{grid-column:4;grid-row:3}
-.portal-card{
-  background:rgba(255,255,255,.62);
-  border:1px solid rgba(210,215,220,.45);
-  border-radius:10px;
-  padding:26px 14px;
-  text-align:center;
-  cursor:pointer;
-  transition:transform .18s ease-out,box-shadow .18s ease-out,border-color .18s ease-out,background .18s ease-out;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  gap:5px;
-  min-height:116px;
-  position:relative;
-  overflow:hidden;
-  box-shadow:0 1px 3px rgba(0,0,0,.04);
-}
-/* ★ V0.6.5d: 玻璃感微动效 */
-.portal-card:hover{
-  transform:translateY(-2px);
-  background:rgba(255,255,255,.82);
-  border-color:rgba(165,170,178,.55);
-  box-shadow:0 6px 18px rgba(31,31,31,.06);
-  z-index:10;
-}
-.portal-card:active{transform:scale(.98);transition-duration:.08s}
-.portal-card-label{
-  font-family:"Microsoft YaHei Light","微软雅黑 Light",sans-serif;
-  font-size:19px;
-  font-weight:700;
-  color:#1B2A4A;
-  line-height:1.3;
-  transition:color .18s;
-  text-shadow:0 1px 0 rgba(255,255,255,.8);
-}
-.portal-card:hover .portal-card-label{color:#0F1C33}
-.portal-card-en{
-  font-family:"Microsoft YaHei Light","微软雅黑 Light",sans-serif;
-  font-size:16px;
-  font-weight:300;
-  color:rgba(27,42,74,.48);
-  letter-spacing:1px;
-  transition:color .18s;
-}
-.portal-card:hover .portal-card-en{color:rgba(27,42,74,.68)}
-/* ★ V0.6.5d: SVG 线性图标（与标题呼应的海军蓝） */
-.portal-card-icon{
-  width:26px;height:26px;margin-bottom:3px;color:#1B2A4A;
-  display:flex;align-items:center;justify-content:center;
-  transition:transform .22s ease-out;
-}
-.portal-card-icon svg{width:26px;height:26px;display:block}
-.portal-card:hover .portal-card-icon{transform:scale(1.06)}
-/* ★ V0.6.5f: 已开通模块统一苹果蓝 #007AFF（Apple 系统蓝，明快科技感） */
-.portal-card:not(.disabled) .portal-card-icon{color:#007AFF}
-.portal-card:not(.disabled) .portal-card-label{color:#007AFF}
-.portal-card:not(.disabled) .portal-card-en{color:rgba(0,122,255,.50)}
-.portal-card:not(.disabled):hover .portal-card-label{color:#0051D2}
-.portal-card:not(.disabled):hover .portal-card-en{color:rgba(0,122,255,.72)}
-
-/* ★ V0.6.4V: 入场动效 — easeOutExpo 错落淡入（每次进入门户播放一次） */
-@keyframes portalCardIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-@keyframes portalHeroIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-.portal-hero{animation:portalHeroIn .5s cubic-bezier(.16,1,.3,1) both}
-.portal-card{animation:portalCardIn .42s cubic-bezier(.16,1,.3,1) both}
-.portal-card:nth-child(1){animation-delay:.05s}
-.portal-card:nth-child(2){animation-delay:.09s}
-.portal-card:nth-child(3){animation-delay:.13s}
-.portal-card:nth-child(4){animation-delay:.17s}
-.portal-card:nth-child(5){animation-delay:.21s}
-.portal-card:nth-child(6){animation-delay:.25s}
-.portal-card:nth-child(7){animation-delay:.29s}
-.portal-card:nth-child(8){animation-delay:.33s}
-.portal-card:nth-child(9){animation-delay:.37s}
-.portal-card:nth-child(10){animation-delay:.41s}
-.portal-card:nth-child(11){animation-delay:.45s}
-.portal-card:nth-child(12){animation-delay:.49s}
-@media (prefers-reduced-motion:reduce){
-  .portal-card,.portal-hero{animation:none}
-  .portal-card,.portal-card:hover,.portal-card:active{transition:none}
-}
-
-/* ★ V0.5.120→抽屉式改造: 顶部抽屉式信息面板（easeOutExpo推出 / easeInExpo回收） */
-.portal-info-panel{
-  position:fixed;
-  top:32px;
-  left:0; right:0;
-  display:flex;
-  justify-content:center;
-  z-index:100;
-  pointer-events:none;
-  transform:translateY(-100%);
-  opacity:0;
-  visibility:hidden;
-  transition:
-    transform 460ms cubic-bezier(0.7,0,0.84,0),
-    opacity 380ms cubic-bezier(0.7,0,0.84,0),
-    visibility 0s linear 460ms;
-  will-change:transform,opacity;
-}
-.portal-info-panel.is-open{
-  transform:translateY(0);
-  opacity:1;
-  visibility:visible;
-  transition:
-    transform 520ms cubic-bezier(0.16,1,0.3,1),
-    opacity 380ms cubic-bezier(0.16,1,0.3,1),
-    visibility 0s linear 0s;
-}
-.portal-info-panel-inner{
-  width:960px;
-  max-width:96vw;
-  background:rgba(255,255,255,0.90);
-  backdrop-filter:blur(20px) saturate(180%);
-  -webkit-backdrop-filter:blur(20px) saturate(180%);
-  border:1px solid rgba(255,255,255,0.3);
-  border-radius:12px;
-  box-shadow:0 12px 40px rgba(0,0,0,.18);
-  padding:20px 28px;
-  pointer-events:auto;
-  white-space:normal;
-  position:relative;
-}
-.portal-info-panel-inner::after{
-  content:'';
-  position:absolute;
-  top:-1px; left:0; right:0;
-  height:1px;
-  background:linear-gradient(90deg,transparent,rgba(133,183,235,0.6),transparent);
-  opacity:0;
-  transition:opacity 400ms ease 120ms;
-}
-.portal-info-panel.is-open .portal-info-panel-inner::after{opacity:1}
-.portal-info-panel .tip-head,
-.portal-info-panel .tip-cn,
-.portal-info-panel .tip-en{
-  opacity:0;
-  transform:translateY(-6px);
-  transition:opacity 250ms cubic-bezier(.23,1,.32,1),transform 250ms cubic-bezier(.16,1,.3,1);
-}
-.portal-info-panel.is-open .tip-head{opacity:1;transform:translateY(0);transition-delay:100ms}
-.portal-info-panel.is-open .tip-cn{opacity:1;transform:translateY(0);transition-delay:160ms}
-.portal-info-panel.is-open .tip-en{opacity:1;transform:translateY(0);transition-delay:220ms}
-.portal-info-panel .tip-head{
-  font-size:14px;
-  font-weight:600;
-  color:#3B7DB4;
-  margin-bottom:10px;
-  padding-bottom:8px;
-  border-bottom:1px solid #E8EEF2;
-}
-.portal-info-panel .tip-cn{
-  font-size:13px;
-  color:#333;
-  line-height:1.7;
-  margin-bottom:6px;
-}
-.portal-info-panel .tip-en{
-  font-size:11px;
-  color:#888;
-  line-height:1.6;
-  font-style:italic;
-}
-@media (max-width:1024px){
-  .portal-info-panel{display:none!important}
-}
-.portal-card-badge{
-  position:absolute;
-  top:8px;
-  right:8px;
-  font-size:10px;
-  background:transparent;
-  color:#A8A29A;
-  padding:2px 8px;
-  border-radius:10px;
-  font-weight:500;
-  border:1px solid #D6D3CD;
-}
-.portal-card.disabled{
-  background:rgba(255,255,255,.35);
-  border-color:rgba(210,215,220,.25);
-  cursor:default;
-}
-.portal-card.disabled:hover{transform:none;box-shadow:none;background:rgba(255,255,255,.35);border-color:rgba(210,215,220,.25)}
-.portal-card.disabled:active{transform:none}
-.portal-card.disabled .portal-card-icon{color:#B8B4AD}
-.portal-card.disabled .portal-card-label{color:#78746D}
-.portal-card.disabled .portal-card-en{color:#B8B4AD}
-.portal-card.disabled .portal-card-badge{background:transparent;color:#B8B4AD;border-color:#D6D3CD}
-
-/* ★ V0.6.4V: 系统维护卡与全部卡片统一白卡（原品牌蓝特殊规则废弃） */
-
-/* ★ V0.6.4V: 未开工模块 — 水墨浅灰 */
-.portal-card.disabled{
-  background:#F5F4F1;
-  border-color:#E9E6E0;
-}
-
-/* ★ V0.6.1k: 未授权模块 — 看得见但低饱和（提高可见性） */
-.portal-card.unauthorized{
-  opacity:.55;
-  cursor:default;
-  filter:grayscale(.35);
-  transition:opacity .3s ease,filter .3s ease;
-}
-.portal-card.unauthorized:hover{
-  opacity:.75;
-  filter:grayscale(.15);
-}
-.portal-card.unauthorized .portal-card-label,
-.portal-card.unauthorized .portal-card-en{
-  opacity:.7;
-}
-.portal-card.unauthorized .portal-card-badge{
-  background:rgba(0,0,0,.04);
-  color:#9ca3af;
-  border-color:rgba(0,0,0,.03);
-}
-
-.portal-footer{
-  text-align:center;
-  font-family:"Microsoft YaHei Light","微软雅黑 Light",sans-serif;
-  font-size:13px;
-  font-weight:300;
-  color:#78746D;
-  line-height:2;
-  margin-top:auto;
-}
-.portal-logout{
-  margin-top:12px;
-  font-size:13px;
-  color:#3A3835;
-  cursor:pointer;
-  background:none;
-  border:none;
-  padding:4px 8px;
-  transition:color .2s;
-}
-.portal-logout:hover{color:#000}
-
-/* 手机端门户 */
-@media(max-width:640px){
-  .portal-view{
-    padding:28px 16px 32px;
-    background:#F7F5F0;
-    padding-top:max(28px,env(safe-area-inset-top));
-    justify-content:flex-start;
-  }
-  .portal-view::before{display:none}
-  .portal-hero{margin-bottom:48px;margin-top:0}
-  .portal-hero h1{font-size:20px;letter-spacing:1px;line-height:1.6}
-  .portal-hero .portal-divider{margin:14px auto;width:40px}
-  .portal-hero .portal-subtitle{font-size:16px}
-  .portal-grid{
-    grid-template-columns:repeat(2,1fr);
-    gap:12px;
-    max-width:100%;
-  }
-  /* V0.5.95: 移动端全部取消固定定位，正常流动 */
-  #portalCard_decision,#portalCard_kpi,#portalCard_mbo,#portalCard_rd,#portalCard_dashboard,#portalCard_talent,#portalCard_payroll,#portalCard_learning,#portalCard_ideas,#portalCard_policies,#portalCard_hr,#portalCard_maintenance{grid-column:auto!important;grid-row:auto!important}
-  /* 奇数卡片时最后一行右对齐（系统维护等特殊模块） */
-  .portal-grid .portal-card:nth-last-child(1):nth-child(odd){
-    grid-column:2;
-    justify-self:stretch;
-  }
-  .portal-card{
-    padding:20px 10px;
-    min-height:110px;
-    border-radius:10px;
-  }
-  .portal-card-label{font-size:19px;font-weight:700}
-  .portal-card-en{font-size:16px;font-weight:300}
-  .portal-card-badge{font-size:9px;padding:1px 6px;top:4px;right:4px}
-  .portal-footer{font-size:10px;line-height:1.8}
-  .portal-logout{font-size:14px;color:#3A3835}
-  /* 页眉适配 */
-  .header{padding:28px 14px;padding-top:max(28px,env(safe-area-inset-top));min-height:64px}
-  .header h1{font-size:17px}
-  .header-sub{font-size:12px}
-  .btn-sm{padding:5px 10px;font-size:12px}
-}
-
-/* 超小屏 (iPhone SE 等) */
-@media(max-width:374px){
-  .portal-view{padding:20px 10px 24px}
-  .portal-hero{margin-bottom:36px}
-  .portal-hero h1{font-size:17px}
-  .portal-hero .portal-subtitle{font-size:13px}
-  .portal-grid{gap:8px}
-  .portal-card{padding:16px 6px;min-height:96px}
-  .portal-card-label{font-size:16px;font-weight:700}
-  .portal-card-en{font-size:14px;font-weight:300}
-}
+.portal-view{display:flex;min-height:100vh;background:#fff;color:#1a1c1e;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
+.portal-sidebar{width:220px;flex-shrink:0;background:#f8f9fa;border-right:1px solid #dadce0;display:flex;flex-direction:column;padding:20px 0}
+.portal-sidebar-header{padding:0 20px 20px;border-bottom:1px solid #dadce0;margin-bottom:12px}
+.portal-sidebar-logo{font-size:15px;font-weight:700;letter-spacing:-0.3px}
+.portal-sidebar-logo em{font-style:normal;color:#1967d2}
+.portal-sidebar-sub{font-size:11px;color:#5f6368;margin-top:2px}
+.portal-sidebar-nav{flex:1;padding:8px 12px}
+.portal-nav-section{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:#5f6368;padding:12px 8px 6px}
+.portal-nav-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:6px;font-size:13px;color:#5f6368;cursor:pointer;transition:background .12s;text-decoration:none;margin-bottom:2px}
+.portal-nav-item:hover{background:#e8f0fe;color:#1a1c1e}
+.portal-nav-item.active{background:#e8f0fe;color:#1967d2;font-weight:600}
+.portal-nav-item .portal-nav-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.portal-nav-badge{font-size:10px;padding:1px 6px;border-radius:8px;margin-left:auto;background:#e8f0fe;color:#1967d2;font-weight:600}
+.portal-sidebar-footer{padding:16px 20px 0;border-top:1px solid #dadce0;display:flex;align-items:center;gap:8px;font-size:12px;color:#5f6368}
+.portal-sidebar-avatar{width:28px;height:28px;border-radius:50%;background:#1967d2;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+.portal-main{flex:1;display:flex;flex-direction:column;min-width:0}
+.portal-topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 28px;border-bottom:1px solid #dadce0;background:#fff}
+.portal-breadcrumb{font-size:13px;color:#5f6368}
+.portal-breadcrumb strong{color:#1a1c1e;font-weight:600}
+.portal-content{padding:24px 28px 40px;flex:1}
+.portal-alert{display:flex;align-items:center;gap:10px;padding:10px 16px;border-radius:6px;font-size:13px;margin-bottom:24px;background:#fef7e0;border:1px solid #e37400;color:#5c4200}
+.portal-alert strong{color:#e37400;margin-right:4px}
+.portal-datastrip{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:28px}
+.portal-datacell{background:#f8f9fa;border:1px solid #dadce0;border-radius:6px;padding:16px}
+.portal-datacell .pdc-label{font-size:11px;color:#5f6368;margin-bottom:4px;letter-spacing:0.3px}
+.portal-datacell .pdc-value{font-size:28px;font-weight:700;letter-spacing:-0.5px}
+.portal-datacell .pdc-sub{font-size:12px;color:#5f6368;margin-top:2px}
+.portal-twocol{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.portal-panel{background:#fff;border:1px solid #dadce0;border-radius:6px;overflow:hidden}
+.portal-panel-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #dadce0;background:#f8f9fa;font-size:13px;font-weight:600}
+.portal-panel-body{padding:12px 16px}
+.portal-task-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #e8eaed;font-size:13px}
+.portal-task-item:last-child{border-bottom:none}
+.portal-task-prio{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.portal-task-due{font-size:11px;color:#5f6368;margin-left:auto}
+.portal-task-due.overdue{color:#c5221f;font-weight:600}
+.portal-modgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.portal-modchip{display:flex;align-items:center;gap:8px;padding:10px 14px;border:1px solid #dadce0;border-radius:6px;font-size:12px;cursor:pointer;transition:all .12s;text-decoration:none;color:#1a1c1e}
+.portal-modchip:hover{background:#e8f0fe;border-color:#1967d2}
+.portal-modchip .pmc-icon{width:28px;height:28px;border-radius:4px;background:#e8f0fe;color:#1967d2;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.portal-modchip .pmc-label{font-weight:500}
+.portal-modchip .pmc-status{font-size:10px;padding:1px 5px;border-radius:4px;margin-left:auto;font-weight:600}
+.pmc-live{background:#e6f4ea;color:#188038}
+.pmc-beta{background:#e8f0fe;color:#1967d2}
+.pmc-soon{background:#e8eaed;color:#5f6368}
+.portal-feed-item{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid #e8eaed;font-size:12px}
+.portal-feed-item:last-child{border-bottom:none}
+.portal-feed-dot{width:8px;height:8px;border-radius:50%;background:#1967d2;flex-shrink:0;margin-top:4px}
+.portal-feed-time{color:#5f6368;font-size:11px;white-space:nowrap}
+.portal-logout-btn{padding:8px 16px;border:1px solid #dadce0;border-radius:6px;background:#fff;color:#5f6368;font-size:12px;cursor:pointer;transition:all .12s}
+.portal-logout-btn:hover{background:#f8f9fa;color:#1a1c1e}
+@media(max-width:960px){.portal-view{flex-direction:column}.portal-sidebar{width:100%;flex-direction:row;overflow-x:auto;padding:8px 12px}.portal-sidebar-header,.portal-sidebar-footer{display:none}.portal-sidebar-nav{display:flex;flex-direction:row;gap:4px}.portal-nav-section{display:none}.portal-datastrip{grid-template-columns:repeat(2,1fr)}.portal-twocol{grid-template-columns:1fr}.portal-modgrid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:640px){.portal-datastrip{grid-template-columns:1fr}.portal-modgrid{grid-template-columns:1fr}}
 
 /* ===== 人力资源制度模块 — UI Design v2 ===== */
 /* 设计系统: Primary #185FA5 | BG #F5F5F0 | Card #FFF | Border #D3D1C7 | Text #2C2C2A/#5F5E5A */
@@ -2803,106 +2466,88 @@ function togglePortalTips(){
   </div><!-- /login-right -->
 </div>
 
-<!-- 门户首页 -->
+<!-- 门户首页 · V0.7.0 Taste Redesign -->
 <div id="portalView" class="portal-view" style="display:none">
-  <div class="portal-topbar" id="portal-topbar"></div>
-  <div class="portal-hero">
-    <div class="portal-cn-title">欢迎进入MBO+AI 团队目标与行动管理系统</div>
-    <h1>Welcome to MBO + Action System</h1>
-  </div>
-  <div class="portal-grid">
-    <div id="portalCard_decision" class="portal-card portal-card-orange disabled" data-module="decision" style="display:none" data-tip-head="13+1" data-tip-cn="制定公司中长期三年战略规划，分解战略目标并追踪执行进度。科学规划引领公司稳健发展。" data-tip-en="Formulate three-year strategic planning for the company, decompose strategic goals and track execution progress. Scientific planning guides steady company development." onclick="moduleBuilding()">
-      <div class="portal-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg></div>
-      <div class="portal-card-label">13+1</div>
-      <div class="portal-card-en">13+1 Plan</div>
-      <div class="portal-card-badge">In Progress</div>
+  <!-- Sidebar -->
+  <aside class="portal-sidebar">
+    <div class="portal-sidebar-header">
+      <div class="portal-sidebar-logo">MBO<em>+</em>AI</div>
+      <div class="portal-sidebar-sub">团队目标与行动管理</div>
     </div>
-    <div id="portalCard_kpi" class="portal-card" data-module="kpi" style="display:none" data-tip-head="年度目标" data-tip-cn="设定年度关键绩效目标，将公司战略层层分解到部门与个人。目标驱动的管理确保上下对齐、聚焦重点。" data-tip-en="Set annual key performance goals, decompose company strategy to departments and individuals. Goal-driven management ensures alignment and focus." onclick="enterModule('kpi')">
-      <div class="portal-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></div>
-      <div class="portal-card-label">年度目标</div>
-      <div class="portal-card-en">Annual Goals</div>
+    <nav class="portal-sidebar-nav">
+      <div class="portal-nav-section">主要</div>
+      <a class="portal-nav-item active" href="#"><span class="portal-nav-dot" style="background:#1967d2"></span>首页概览</a>
+      <a class="portal-nav-item" onclick="enterModule('workplan')"><span class="portal-nav-dot" style="background:#188038"></span>周行动计划 <span class="portal-nav-badge">3</span></a>
+      <a class="portal-nav-item" onclick="enterModule('mbo')"><span class="portal-nav-dot" style="background:#e37400"></span>月度目标</a>
+      <div class="portal-nav-section">模块</div>
+      <a class="portal-nav-item" onclick="enterModule('hr')">人事档案</a>
+      <a class="portal-nav-item" onclick="moduleBuilding()">薪酬管理</a>
+      <a class="portal-nav-item" onclick="enterModule('pm')">研发项目 <span class="portal-nav-badge">Beta</span></a>
+      <a class="portal-nav-item" onclick="enterModule('dashboard')">数据中心 <span class="portal-nav-badge">Beta</span></a>
+      <div class="portal-nav-section">管理</div>
+      <a class="portal-nav-item" onclick="enterModule('system')">系统设置</a>
+      <a class="portal-nav-item" href="#">帮助文档</a>
+    </nav>
+    <div class="portal-sidebar-footer">
+      <div class="portal-sidebar-avatar">T</div>
+      <div><strong>Tiger</strong><br><span style="font-size:10px">管理员 · 南京</span></div>
     </div>
-    <div id="portalCard_mbo" class="portal-card" data-module="mbo" style="display:none" data-tip-head="本周任务" data-tip-cn="团队目标计划管理下沉到周，公司运营效率和绩效才有扎实根基。借助信息化系统内嵌管理规则与约束机制，用系统自动追踪跟进员工计划进度，优于管理者反复催促督办。一个人如果周计划长期落实不到位，其绩效表现大概率不会理想。" data-tip-en="Weekly team goal management underpins operational efficiency and performance management. An information system auto-tracks task progress instead of frequent managerial chasing. Persistent failure on weekly plans usually leads to poor performance." onclick="enterModule('workplan')">
-      <div class="portal-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
-      <div class="portal-card-label">本周任务</div>
-      <div class="portal-card-en">Weekly To-Do</div>
+  </aside>
+  <!-- Main -->
+  <main class="portal-main">
+    <div class="portal-topbar">
+      <div class="portal-breadcrumb">首页 / <strong>工作台</strong></div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:12px;color:#5f6368">7月31日 周五</span>
+        <button class="portal-logout-btn" onclick="logout()">退出登录</button>
+      </div>
     </div>
-    <div id="portalCard_rd" class="portal-card portal-card-orange disabled" data-module="rd" style="display:none" data-tip-head="本月计划" data-tip-cn="承上启下的月度计划管理，将本年目标分解为月度里程碑，确保战略执行不脱节。" data-tip-en="Monthly plan management bridging annual and weekly goals. Decompose annual targets into monthly milestones to ensure strategic execution continuity." onclick="moduleBuilding()">
-      <div class="portal-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
-      <div class="portal-card-label">本月计划</div>
-      <div class="portal-card-en">Monthly Plan</div>
-      <div class="portal-card-badge">In Progress</div>
+    <div class="portal-content">
+      <div class="portal-alert"><strong>⚠ 1 项逾期任务</strong> — 研发团队激励表格上线 · 原定 7月30日</div>
+      <div class="portal-datastrip">
+        <div class="portal-datacell"><div class="pdc-label">本周待办</div><div class="pdc-value" style="color:#1967d2">3</div><div class="pdc-sub">2 进行中 · 1 已完成</div></div>
+        <div class="portal-datacell"><div class="pdc-label">逾期任务</div><div class="pdc-value" style="color:#c5221f">1</div><div class="pdc-sub">截止 7月30日</div></div>
+        <div class="portal-datacell"><div class="pdc-label">本月完成率</div><div class="pdc-value" style="color:#188038">87%</div><div class="pdc-sub">较上月 +5%</div></div>
+        <div class="portal-datacell"><div class="pdc-label">团队总数</div><div class="pdc-value">199</div><div class="pdc-sub">在岗 187 · 离职 12</div></div>
+      </div>
+      <div class="portal-twocol">
+        <div class="portal-panel">
+          <div class="portal-panel-header"><span>📋 待办优先级</span><span style="font-size:11px;color:#5f6368">3 条</span></div>
+          <div class="portal-panel-body">
+            <div class="portal-task-item"><span class="portal-task-prio" style="background:#c5221f"></span><span>完成研发团队激励表格上线</span><span class="portal-task-due overdue">逾期 1 天</span></div>
+            <div class="portal-task-item"><span class="portal-task-prio" style="background:#e37400"></span><span>审核第三季度 KPI 方案</span><span class="portal-task-due">明天到期</span></div>
+            <div class="portal-task-item"><span class="portal-task-prio" style="background:#188038"></span><span>准备研发中心培训材料</span><span class="portal-task-due">3 天后</span></div>
+          </div>
+        </div>
+        <div class="portal-panel">
+          <div class="portal-panel-header"><span>🕐 最近动态</span><span style="font-size:11px;color:#5f6368">今天</span></div>
+          <div class="portal-panel-body">
+            <div class="portal-feed-item"><span class="portal-feed-dot"></span><span>谭晨航 提交了本周工作计划</span><span class="portal-feed-time">10:32</span></div>
+            <div class="portal-feed-item"><span class="portal-feed-dot"></span><span>葛师师 更新了研发项目状态</span><span class="portal-feed-time">09:15</span></div>
+            <div class="portal-feed-item"><span class="portal-feed-dot"></span><span>韩铁工 完成了 KPI 自评</span><span class="portal-feed-time">昨天</span></div>
+            <div class="portal-feed-item"><span class="portal-feed-dot"></span><span>系统更新至 V0.7.0</span><span class="portal-feed-time">今天 08:00</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="portal-panel">
+        <div class="portal-panel-header"><span>🧩 功能模块</span><span style="font-size:11px;color:#5f6368">12 个模块</span></div>
+        <div class="portal-panel-body">
+          <div class="portal-modgrid">
+            <a class="portal-modchip" onclick="enterModule('hr')"><span class="pmc-icon">📁</span><span class="pmc-label">人事档案</span><span class="pmc-status pmc-live">运行中</span></a>
+            <a class="portal-modchip" onclick="moduleBuilding()"><span class="pmc-icon">💰</span><span class="pmc-label">薪酬管理</span><span class="pmc-status pmc-live">运行中</span></a>
+            <a class="portal-modchip" onclick="enterModule('mbo')"><span class="pmc-icon">🎯</span><span class="pmc-label">月度目标</span><span class="pmc-status pmc-live">运行中</span></a>
+            <a class="portal-modchip" onclick="enterModule('dashboard')"><span class="pmc-icon">📊</span><span class="pmc-label">数据中心</span><span class="pmc-status pmc-beta">Beta</span></a>
+            <a class="portal-modchip" onclick="enterModule('pm')"><span class="pmc-icon">🔬</span><span class="pmc-label">研发管理</span><span class="pmc-status pmc-beta">Beta</span></a>
+            <a class="portal-modchip" onclick="moduleBuilding()"><span class="pmc-icon">👥</span><span class="pmc-label">人才中心</span><span class="pmc-status pmc-soon">即将推出</span></a>
+            <a class="portal-modchip" onclick="moduleBuilding()"><span class="pmc-icon">📚</span><span class="pmc-label">学习中心</span><span class="pmc-status pmc-soon">即将推出</span></a>
+            <a class="portal-modchip" onclick="enterModule('policies')"><span class="pmc-icon">📝</span><span class="pmc-label">体系流程</span><span class="pmc-status pmc-beta">Beta</span></a>
+            <a class="portal-modchip" onclick="enterModule('system')"><span class="pmc-icon">🔔</span><span class="pmc-label">系统维护</span><span class="pmc-status pmc-live">运行中</span></a>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:16px;text-align:center;font-size:11px;color:#5f6368">Tiger-Buddy 虎伴科技 · MBO+AI V0.7.0</div>
     </div>
-    <div id="portalCard_decision2" class="portal-card portal-card-orange disabled" data-module="decision" style="display:none" data-tip-head="13+1" data-tip-cn="制定公司中长期三年战略规划，分解战略目标并追踪执行进度。科学规划引领公司稳健发展。" data-tip-en="Formulate three-year strategic planning for the company, decompose strategic goals and track execution progress. Scientific planning guides steady company development." onclick="moduleBuilding()">
-      <div class="portal-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg></div>
-      <div class="portal-card-label">13+1</div>
-      <div class="portal-card-en">13+1 Plan</div>
-      <div class="portal-card-badge">In Progress</div>
-    </div>
-    <div id="portalCard_hr" class="portal-card" data-module="hr" style="display:none" data-tip-head="团队" data-tip-cn="管理团队信息、人员档案与组织架构。清晰的组织脉络与人才盘点是高效管理的基础。" data-tip-en="Manage team information, personnel files and organizational structure. Clear organizational mapping and talent inventory are the foundation of efficient management." onclick="enterModule('hr')">
-      <div class="portal-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
-      <div class="portal-card-label">团队</div>
-      <div class="portal-card-en">Teams</div>
-    </div>
-    <div id="portalCard_talent" class="portal-card" data-module="pm" style="display:none" data-tip-head="项目管理" data-tip-cn="全生命周期项目管理，从立项、执行到验收闭环跟踪。提升项目交付效率与质量，确保按时按质完成。" data-tip-en="Full-lifecycle project management, from initiation to execution to closure tracking. Improve project delivery efficiency and quality, ensuring on-time completion." onclick="enterModule('pm')">
-      <div class="portal-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg></div>
-      <div class="portal-card-label">项目管理</div>
-      <div class="portal-card-en">PM</div>
-    </div>
-    <div id="portalCard_payroll" class="portal-card disabled" data-module="payroll" style="display:none" data-tip-head="人才盘点" data-tip-cn="系统化人才盘点与评估，识别关键岗位人才梯队与高潜员工。人才是组织最核心的资产，盘点让人才决策有据可依。" data-tip-en="Systematic talent review and assessment, identifying key-position pipelines and high-potential employees. Talent is the organization's core asset; structured review makes talent decisions evidence-based." onclick="moduleBuilding()">
-      <div class="portal-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4.5"/><circle cx="17" cy="16" r="3"/><line x1="19.2" y1="18.2" x2="21.5" y2="20.5"/></svg></div>
-      <div class="portal-card-label">人才盘点</div>
-      <div class="portal-card-en">Talent Review</div>
-      <div class="portal-card-badge">In Progress</div>
-    </div>
-    <div id="portalCard_learning" class="portal-card disabled" data-module="learning" style="display:none" data-tip-head="岗位胜任力" data-tip-cn="建立岗位能力模型与胜任力标准，评估员工岗位匹配度与发展潜力。人岗匹配是组织效能的基石。" data-tip-en="Build job competency models and standards, evaluate employee-job fit and development potential. Right people in right roles is the foundation of organizational effectiveness." onclick="moduleBuilding()">
-      <div class="portal-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg></div>
-      <div class="portal-card-label">岗位胜任力</div>
-      <div class="portal-card-en">Job Competency</div>
-      <div class="portal-card-badge">In Progress</div>
-    </div>
-    <div id="portalCard_policies" class="portal-card" data-module="policies" style="display:none" data-tip-head="体系流程" data-tip-cn="管理公司制度、流程与标准化文档。完善的制度体系是规范化运营与风险管控的基础保障。" data-tip-en="Manage company policies, processes and standardized documents. Sound system frameworks are the foundation for standardized operations and risk control." onclick="enterModule('policies')">
-      <div class="portal-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div>
-      <div class="portal-card-label">体系流程</div>
-      <div class="portal-card-en">Process</div>
-    </div>
-    <div id="portalCard_ideas" class="portal-card portal-card-orange disabled" data-module="ideas" style="display:none" data-tip-head="敬业度" data-tip-cn="员工敬业度测评与分析，识别团队活力与留任风险。高敬业度团队是业务持续增长的驱动力。" data-tip-en="Employee engagement assessment and analysis, identifying team vitality and retention risks. Highly engaged teams drive sustainable business growth." onclick="moduleBuilding()">
-      <div class="portal-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
-      <div class="portal-card-label">敬业度</div>
-      <div class="portal-card-en">Q12</div>
-      <div class="portal-card-badge">In Progress</div>
-    </div>
-    <div id="portalCard_maintenance" class="portal-card portal-card-special" data-module="maintenance" style="display:none" data-tip-head="系统维护" data-tip-cn="系统配置与维护中心。管理员可在此进行系统设置、数据管理与权限配置，保障系统稳定运行。" data-tip-en="System configuration and maintenance center. Administrators can manage settings, data and permissions to ensure stable system operation." onclick="enterModule('system')">
-      <div class="portal-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
-      <div class="portal-card-label">系统维护</div>
-      <div class="portal-card-en">Settings</div>
-    </div>
-    <div id="portalCard_dashboard" class="portal-card" data-module="dashboard" style="display:none" data-tip-head="数据中心" data-tip-cn="实时积分排名与提交率统计。支持按角色、中心、时间范围灵活筛选，为管理层提供数据驱动的决策依据。" data-tip-en="Real-time score ranking and submission analytics. Flexible filtering by role, center and time range, providing data-driven insights for management decisions." onclick="enterModule('dashboard')">
-      <div class="portal-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg></div>
-      <div class="portal-card-label">数据中心</div>
-      <div class="portal-card-en">Data Center</div>
-    </div>
-  </div>
-  <!-- ★ V0.5.112→抽屉式改造: 顶部抽屉式信息面板 -->
-  <div class="portal-info-panel" id="portalInfoPanel">
-    <div class="portal-info-panel-inner">
-      <div class="tip-head" id="panelTipHead">请将鼠标悬停在模块上查看详情</div>
-      <div class="tip-cn" id="panelTipCn"></div>
-      <div class="tip-en" id="panelTipEn"></div>
-    </div>
-  </div>
-  <div class="portal-footer">
-    If you have any questions, please contact the HR Department<br>
-    如果使用过程中有任何问题，请咨询人力资源部<br>
-    <span id="footer-copy">&copy; Tiger-Buddy 版权所有</span>
-  </div>
-
-  <!-- ★ V0.6.1.hs: 提示窗开关移至右下角，与版本号同一水平线 bottom:24px -->
-  <div id="portalTipToggle" style="position:fixed;right:24px;bottom:24px;z-index:10000;font-size:11px;color:rgba(255,255,255,.55);font-family:-apple-system,'苹方',sans-serif;display:flex;align-items:center;gap:6px" onclick="togglePortalTips()" title="关闭后鼠标悬停模块不弹窗">
-    <span>提示窗</span>
-    <span id="portalTipSlider"><span id="portalTipKnob"></span></span>
-  </div>
-  <button style="position:fixed;top:48px;right:24px;z-index:100;padding:8px 16px;background:rgba(255,255,255,.15);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:24px;font-size:12px;font-weight:500;cursor:pointer;transition:all .2s;box-shadow:0 2px 10px rgba(0,0,0,.1)" onclick="logout()" onmouseover="this.style.background='rgba(255,255,255,.25)';this.style.borderColor='rgba(255,255,255,.4)';this.style.transform='translateY(-1px)';this.style.boxShadow='0 4px 16px rgba(0,0,0,.18)'" onmouseout="this.style.background='rgba(255,255,255,.15)';this.style.borderColor='rgba(255,255,255,.25)';this.style.transform='none';this.style.boxShadow='0 2px 10px rgba(0,0,0,.1)'"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;margin-right:4px"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> 退出登录</button>
+  </main>
 </div>
 
 <div id="appView" style="display:none">
