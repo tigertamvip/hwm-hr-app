@@ -6,8 +6,8 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.7.1p">
-<!-- cache-bust: 2026-08-01-07-35 -->
+<meta name="version" content="V0.7.1q">
+<!-- cache-bust: 2026-08-01-07-40 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json?v=bc">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1085,7 +1085,7 @@ body{
   .toast{bottom:20px;font-size:12px;padding:8px 18px}
 }
 
-/* ===== 门户首页 · V0.7.1p Taste Redesign (sidebar + workspace) ===== */
+/* ===== 门户首页 · V0.7.1q Taste Redesign (sidebar + workspace) ===== */
 /* Design Read: B2B enterprise HR dashboard for medical-device managers.
    Precision-instrument visual language: structured data zones,
    restrained industrial palette, no decorative fluff.
@@ -1116,10 +1116,18 @@ body{
 .portal-content{padding:24px 28px 40px;flex:1}
 .portal-alert{display:flex;align-items:center;gap:10px;padding:10px 16px;border-radius:6px;font-size:13px;margin-bottom:24px;background:#fef7e0;border:1px solid #e37400;color:#5c4200}
 .portal-alert strong{color:#e37400;margin-right:4px}
-.portal-datastrip{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:28px}
-.portal-datacell{background:#f8f9fa;border:1px solid #dadce0;border-radius:6px;padding:16px;transition:all .12s}
+.portal-datastrip{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:12px;margin-bottom:28px}
+.portal-datacell{background:#f8f9fa;border:1px solid #dadce0;border-radius:6px;padding:16px;transition:all .12s;position:relative;overflow:hidden}
 .portal-datacell--clickable{cursor:pointer}
 .portal-datacell--clickable:hover{background:#e8f0fe;border-color:#1967d2;box-shadow:0 2px 8px rgba(25,103,210,.15)}
+.portal-datacell--clickable:hover .pdc-arrow{opacity:1!important}
+.portal-datacell--primary{background:linear-gradient(135deg,#e8f0fe 0%,#f8f9fa 100%);border-color:#1967d2}
+.portal-datacell--primary .pdc-value{font-size:32px;color:#1967d2}
+.portal-datacell--alert{background:#fce8e6;border-color:#d93025;animation:portalPulse 2s ease-in-out infinite}
+.portal-datacell--alert .pdc-value{color:#d93025}
+.portal-datacell--ok .pdc-value{color:#188038}
+@keyframes portalPulse{0%,100%{box-shadow:0 0 0 0 rgba(217,48,37,.15)}50%{box-shadow:0 0 0 6px rgba(217,48,37,0)}}
+@media(prefers-reduced-motion:reduce){.portal-datacell--alert{animation:none}}
 .portal-datacell .pdc-label{font-size:11px;color:#5f6368;margin-bottom:4px;letter-spacing:0.3px}
 .portal-datacell .pdc-value{font-size:28px;font-weight:700;letter-spacing:-0.5px}
 .portal-datacell .pdc-sub{font-size:12px;color:#5f6368;margin-top:2px}
@@ -1140,9 +1148,14 @@ body{
 .portal-task-prio{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .portal-task-due{font-size:11px;color:#5f6368;margin-left:auto}
 .portal-task-due.overdue{color:#c5221f;font-weight:600}
-.portal-modgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.portal-modchip{display:flex;align-items:center;gap:8px;padding:10px 14px;border:1px solid #dadce0;border-radius:6px;font-size:12px;cursor:pointer;transition:all .12s;text-decoration:none;color:#1a1c1e}
-.portal-modchip:hover{background:#e8f0fe;border-color:#1967d2}
+.portal-modgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px}
+.portal-modgroup{font-size:10px;color:#5f6368;font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin:8px 0 6px}
+.portal-modgroup:first-child{margin-top:0}
+.portal-modchip--disabled{opacity:.5;background:#f8f9fa}
+.portal-modchip--disabled:hover{background:#f8f9fa;border-color:#dadce0;transform:none;box-shadow:none}
+.portal-modchip{display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid #dadce0;border-radius:6px;font-size:12px;cursor:pointer;transition:all .12s;text-decoration:none;color:#1a1c1e;background:#fff}
+.portal-modchip:hover{background:#e8f0fe;border-color:#1967d2;transform:translateY(-1px);box-shadow:0 2px 4px rgba(0,0,0,.04)}
+
 .portal-modchip .pmc-icon{width:28px;height:28px;border-radius:4px;background:#e8f0fe;color:#1967d2;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
 .portal-modchip .pmc-label{font-weight:500}
 .portal-modchip .pmc-status{font-size:10px;padding:1px 5px;border-radius:4px;margin-left:auto;font-weight:600}
@@ -1153,9 +1166,17 @@ body{
 .portal-feed-item:last-child{border-bottom:none}
 .portal-feed-dot{width:8px;height:8px;border-radius:50%;background:#1967d2;flex-shrink:0;margin-top:4px}
 .portal-feed-time{color:#5f6368;font-size:11px;white-space:nowrap}
-.portal-logout-btn{padding:8px 16px;border:1px solid #dadce0;border-radius:6px;background:#fff;color:#5f6368;font-size:12px;cursor:pointer;transition:all .12s}
-.portal-logout-btn:hover{background:#f8f9fa;color:#1a1c1e}
-@media(max-width:960px){.portal-view{flex-direction:column}.portal-sidebar{width:100%;flex-direction:row;overflow-x:auto;padding:8px 12px}.portal-sidebar-header,.portal-sidebar-footer{display:none}.portal-sidebar-nav{display:flex;flex-direction:row;gap:4px}.portal-nav-section{display:none}.portal-datastrip{grid-template-columns:repeat(2,1fr)}.portal-twocol{grid-template-columns:1fr}.portal-modgrid{grid-template-columns:repeat(2,1fr)}}
+.portal-avatar-btn{position:relative}
+.portal-avatar{width:32px;height:32px;border-radius:50%;background:#1967d2;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;cursor:pointer;border:none;transition:transform .12s}
+.portal-avatar:hover{transform:scale(1.05)}
+.portal-avatar-dropdown{position:absolute;top:calc(100% + 6px);right:0;background:#fff;border:1px solid #dadce0;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.08);min-width:180px;padding:6px;z-index:1000;display:none}
+.portal-avatar-dropdown.open{display:block}
+.portal-avatar-dropdown .pad-head{padding:8px 10px;border-bottom:1px solid #e8eaed;font-size:11px;color:#5f6368;margin-bottom:4px}
+.portal-avatar-dropdown .pad-item{display:block;width:100%;padding:8px 10px;border:none;background:none;text-align:left;cursor:pointer;font-size:13px;color:#1a1c1e;border-radius:4px;font-family:inherit}
+.portal-avatar-dropdown .pad-item:hover{background:#f8f9fa}
+.portal-avatar-dropdown .pad-item.danger{color:#d93025}
+.portal-avatar-dropdown .pad-item.danger:hover{background:#fce8e6}
+@media(max-width:960px){.portal-view{flex-direction:column}.portal-sidebar{width:100%;flex-direction:row;overflow-x:auto;padding:8px 12px}.portal-sidebar-header,.portal-sidebar-footer{display:none}.portal-sidebar-nav{display:flex;flex-direction:row;gap:4px}.portal-nav-section{display:none}.portal-datastrip{grid-template-columns:repeat(2,1fr)}.portal-twocol{grid-template-columns:1fr}.portal-modgrid{grid-template-columns:repeat(2,1fr);gap:6px}}
 @media(max-width:640px){.portal-datastrip{grid-template-columns:1fr}.portal-modgrid{grid-template-columns:1fr}}
 
 /* ===== 人力资源制度模块 — UI Design v2 ===== */
@@ -2417,7 +2438,7 @@ select.form-input{padding-right:28px;appearance:auto;-webkit-appearance:menulist
 </head>
 <body>
 
-<!-- ★ V0.7.1p: 去掉左下角版本号悬浮徽章（用户要求） -->
+<!-- ★ V0.7.1q: 去掉左下角版本号悬浮徽章（用户要求） -->
 
 <!-- ★ V0.6.1bd: 门户提示窗开关逻辑 -->
 <script>
@@ -2445,7 +2466,7 @@ function togglePortalTips(){
 
 <div class="password-overlay" id="passwordGate">
   <div class="login-topbar" id="login-topbar"></div>
-  <!-- ★ V0.7.1p: 登录页左下角版本号徽章（恢复之前设计） -->
+  <!-- ★ V0.7.1q: 登录页左下角版本号徽章（恢复之前设计） -->
   <div id="loginVersionBadge" style="position:fixed;left:24px;bottom:max(24px,env(safe-area-inset-bottom));z-index:10000;font-size:11px;color:#fff;font-family:'SF Mono',Menlo,Monaco,Consolas,monospace;pointer-events:none;user-select:none;line-height:1.4;text-shadow:0 1px 2px rgba(0,0,0,.4)">
     <span id="loginVersionBadgeText"></span>
   </div>
@@ -2479,7 +2500,7 @@ function togglePortalTips(){
   </div><!-- /login-right -->
 </div>
 
-<!-- 门户首页 · V0.7.1p Taste Redesign -->
+<!-- 门户首页 · V0.7.1q Taste Redesign -->
 <div id="portalView" class="portal-view" style="display:none">
   <!-- Sidebar -->
   <aside class="portal-sidebar">
@@ -2490,7 +2511,7 @@ function togglePortalTips(){
     <nav class="portal-sidebar-nav">
       <div class="portal-nav-section">主要</div>
       <a class="portal-nav-item active" href="#"><span class="portal-nav-dot" style="background:#1967d2"></span>首页概览</a>
-      <a class="portal-nav-item" onclick="enterModule('workplan')"><span class="portal-nav-dot" style="background:#188038"></span>周行动计划 <span class="portal-nav-badge">3</span></a>
+      <a class="portal-nav-item" onclick="enterModule('workplan')"><span class="portal-nav-dot" style="background:#188038"></span>周行动计划 <span class="portal-nav-badge" id="portalNavWpBadge" style="display:none"></span></a>
       <a class="portal-nav-item" onclick="enterModule('mbo')"><span class="portal-nav-dot" style="background:#e37400"></span>月度目标</a>
       <div class="portal-nav-section portal-nav-section--with-btn">常用模块 <a class="portal-nav-edit" onclick="_showFavModulesModal()" title="选择常用模块">编辑</a></div>
       <div id="portalFavList"></div>
@@ -2507,19 +2528,35 @@ function togglePortalTips(){
   <main class="portal-main">
     <div class="portal-topbar">
       <div class="portal-breadcrumb">首页 / <strong>工作台</strong></div>
-      <div style="display:flex;align-items:center;gap:10px">
+      <div style="display:flex;align-items:center;gap:12px">
         <span id="portalTopDate" style="font-size:12px;color:#5f6368"></span>
         <script>document.getElementById("portalTopDate").textContent=(function(){var d=new Date(),m=["1月","2月","3月","4月","5月","6月","7月","8月","9月","10月","11月","12月"][d.getMonth()],w=["日","一","二","三","四","五","六"][d.getDay()];return m+d.getDate()+"日 "+"周"+w;})();</script>
-        <button class="portal-logout-btn" onclick="logout()">退出登录</button>
+        <div class="portal-avatar-btn">
+          <button class="portal-avatar" onclick="document.getElementById('portalAvatarDrop').classList.toggle('open';
+        (function(){
+          var av = document.querySelector('.portal-avatar');
+          var hd = document.querySelector('.portal-avatar-dropdown .pad-head');
+          var me = (typeof currentUser!=='undefined'&&currentUser&&currentUser.name)||'User';
+          if(av) av.textContent = me.charAt(0).toUpperCase();
+          if(hd) hd.textContent = me + ' · ' + ((typeof currentUser!=='undefined'&&currentUser&&currentUser.role)||'用户');
+        })())"></button>
+          <div class="portal-avatar-dropdown" id="portalAvatarDrop">
+            <div class="pad-head"></div>
+            <button class="pad-item" onclick="alert('账户设置 - 即将推出')">👤 账户设置</button>
+            <button class="pad-item" onclick="alert('切换主题 - 即将推出')">🎨 切换主题</button>
+            <button class="pad-item" onclick="alert('帮助与反馈 - 即将推出')">❓ 帮助与反馈</button>
+            <button class="pad-item danger" onclick="logout()">🚪 退出登录</button>
+          </div>
+        </div>
       </div>
     </div>
     <div class="portal-content">
       <div class="portal-alert" id="portalAlert" style="display:none"><strong></strong> <span id="portalAlertMsg"></span></div>
       <div class="portal-datastrip">
-        <div class="portal-datacell portal-datacell--clickable" onclick="enterModule('workplan')" title="点击进入周行动计划"><div class="pdc-label">本周待办</div><div class="pdc-value" style="color:#1967d2" id="pdcTodo">—</div><div class="pdc-sub" id="pdcTodoSub">加载中…</div></div>
-        <div class="portal-datacell portal-datacell--clickable" onclick="enterModule('workplan')" title="点击进入周行动计划"><div class="pdc-label">逾期任务</div><div class="pdc-value" style="color:#c5221f" id="pdcOverdue">—</div><div class="pdc-sub" id="pdcOverdueSub">加载中…</div></div>
-        <div class="portal-datacell portal-datacell--clickable" onclick="enterModule('workplan')" title="点击进入周行动计划"><div class="pdc-label">本月完成率</div><div class="pdc-value" style="color:#188038" id="pdcRate">—%</div><div class="pdc-sub" id="pdcRateSub">加载中…</div></div>
-        <div class="portal-datacell portal-datacell--clickable" onclick="enterModule('pm')" title="点击进入项目管理"><div class="pdc-label">参与项目数</div><div class="pdc-value" id="pdcTeam" style="color:#0F7BE1">—</div><div class="pdc-sub" id="pdcTeamSub">加载中…</div></div>
+        <div class="portal-datacell portal-datacell--clickable portal-datacell--primary" onclick="enterModule('workplan')" title="点击进入周行动计划"><div class="pdc-label">本周待办</div><div class="pdc-value" id="pdcTodo">—</div><div class="pdc-sub" id="pdcTodoSub">加载中…</div><span style="position:absolute;top:14px;right:14px;font-size:14px;color:#5f6368;opacity:0;transition:opacity .12s" class="pdc-arrow">↗</span></div>
+        <div class="portal-datacell portal-datacell--clickable" id="pdcOverdueCell" onclick="enterModule('workplan')" title="点击进入周行动计划"><div class="pdc-label">逾期任务</div><div class="pdc-value" id="pdcOverdue">—</div><div class="pdc-sub" id="pdcOverdueSub">加载中…</div><span class="pdc-arrow" style="position:absolute;top:14px;right:14px;font-size:14px;color:#5f6368;opacity:0;transition:opacity .12s">↗</span></div>
+        <div class="portal-datacell portal-datacell--clickable portal-datacell--ok" onclick="enterModule('workplan')" title="点击进入周行动计划"><div class="pdc-label">本月完成率</div><div class="pdc-value" id="pdcRate">—%</div><div class="pdc-sub" id="pdcRateSub">加载中…</div><span class="pdc-arrow" style="position:absolute;top:14px;right:14px;font-size:14px;color:#5f6368;opacity:0;transition:opacity .12s">↗</span></div>
+        <div class="portal-datacell portal-datacell--clickable" onclick="enterModule('pm')" title="点击进入项目管理"><div class="pdc-label">参与项目数</div><div class="pdc-value" id="pdcTeam" style="color:#1967d2">—</div><div class="pdc-sub" id="pdcTeamSub">加载中…</div><span class="pdc-arrow" style="position:absolute;top:14px;right:14px;font-size:14px;color:#5f6368;opacity:0;transition:opacity .12s">↗</span></div>
       </div>
       <div class="portal-twocol">
         <div class="portal-panel">
@@ -2534,30 +2571,34 @@ function togglePortalTips(){
             <div class="portal-feed-item"><span class="portal-feed-dot"></span><span>谭晨航 提交了本周工作计划</span><span class="portal-feed-time">10:32</span></div>
             <div class="portal-feed-item"><span class="portal-feed-dot"></span><span>葛师师 更新了研发项目状态</span><span class="portal-feed-time">09:15</span></div>
             <div class="portal-feed-item"><span class="portal-feed-dot"></span><span>韩铁工 完成了 KPI 自评</span><span class="portal-feed-time">昨天</span></div>
-            <div class="portal-feed-item"><span class="portal-feed-dot"></span><span>系统更新至 V0.7.1p</span><span class="portal-feed-time">今天 08:00</span></div>
+            <div class="portal-feed-item"><span class="portal-feed-dot"></span><span>系统更新至 V0.7.1q</span><span class="portal-feed-time">今天 08:00</span></div>
           </div>
         </div>
       </div>
       <div class="portal-panel">
-        <div class="portal-panel-header"><span>🧩 功能模块</span><span style="font-size:11px;color:#5f6368">12 个模块</span></div>
+        <div class="portal-panel-header"><span>🧩 功能模块</span><span style="font-size:11px;color:#5f6368">7 个可用 · 5 个即将推出</span></div>
         <div class="portal-panel-body">
+          <div class="portal-modgroup">可用模块</div>
           <div class="portal-modgrid">
-            <a class="portal-modchip" onclick="moduleBuilding()"><span class="pmc-icon">🎯</span><span class="pmc-label">13+1</span><span class="pmc-status pmc-soon">即将推出</span></a>
-            <a class="portal-modchip" onclick="enterModule('kpi')"><span class="pmc-icon">🎯</span><span class="pmc-label">年度目标</span><span class="pmc-status pmc-live">运行中</span></a>
-            <a class="portal-modchip" onclick="enterModule('workplan')"><span class="pmc-icon">📋</span><span class="pmc-label">本周任务</span><span class="pmc-status pmc-live">运行中</span></a>
-            <a class="portal-modchip" onclick="moduleBuilding()"><span class="pmc-icon">📅</span><span class="pmc-label">本月计划</span><span class="pmc-status pmc-soon">即将推出</span></a>
             <a class="portal-modchip" onclick="enterModule('hr')"><span class="pmc-icon">📁</span><span class="pmc-label">员工档案</span><span class="pmc-status pmc-live">运行中</span></a>
-            <a class="portal-modchip" onclick="enterModule('pm')"><span class="pmc-icon">🔬</span><span class="pmc-label">项目管理</span><span class="pmc-status pmc-beta">Beta</span></a>
-            <a class="portal-modchip" onclick="moduleBuilding()"><span class="pmc-icon">👥</span><span class="pmc-label">人才盘点</span><span class="pmc-status pmc-soon">即将推出</span></a>
-            <a class="portal-modchip" onclick="moduleBuilding()"><span class="pmc-icon">🎓</span><span class="pmc-label">岗位胜任力</span><span class="pmc-status pmc-soon">即将推出</span></a>
-            <a class="portal-modchip" onclick="enterModule('policies')"><span class="pmc-icon">📝</span><span class="pmc-label">体系流程</span><span class="pmc-status pmc-beta">Beta</span></a>
-            <a class="portal-modchip" onclick="moduleBuilding()"><span class="pmc-icon">💡</span><span class="pmc-label">敬业度</span><span class="pmc-status pmc-soon">即将推出</span></a>
-            <a class="portal-modchip" onclick="enterModule('dashboard')"><span class="pmc-icon">📊</span><span class="pmc-label">数据中心</span><span class="pmc-status pmc-beta">Beta</span></a>
+            <a class="portal-modchip" onclick="enterModule('workplan')"><span class="pmc-icon">📋</span><span class="pmc-label">本周任务</span><span class="pmc-status pmc-live">运行中</span></a>
+            <a class="portal-modchip" onclick="enterModule('kpi')"><span class="pmc-icon">🎯</span><span class="pmc-label">年度目标</span><span class="pmc-status pmc-live">运行中</span></a>
             <a class="portal-modchip" onclick="enterModule('system')"><span class="pmc-icon">⚙️</span><span class="pmc-label">系统维护</span><span class="pmc-status pmc-live">运行中</span></a>
+            <a class="portal-modchip" onclick="enterModule('pm')"><span class="pmc-icon">🔬</span><span class="pmc-label">项目管理</span><span class="pmc-status pmc-beta">Beta</span></a>
+            <a class="portal-modchip" onclick="enterModule('dashboard')"><span class="pmc-icon">📊</span><span class="pmc-label">数据中心</span><span class="pmc-status pmc-beta">Beta</span></a>
+            <a class="portal-modchip" onclick="enterModule('policies')"><span class="pmc-icon">📝</span><span class="pmc-label">体系流程</span><span class="pmc-status pmc-beta">Beta</span></a>
+          </div>
+          <div class="portal-modgroup">即将推出</div>
+          <div class="portal-modgrid">
+            <a class="portal-modchip portal-modchip--disabled" onclick="moduleBuilding()"><span class="pmc-icon">🎯</span><span class="pmc-label">13+1</span><span class="pmc-status pmc-soon">即将推出</span></a>
+            <a class="portal-modchip portal-modchip--disabled" onclick="moduleBuilding()"><span class="pmc-icon">📅</span><span class="pmc-label">本月计划</span><span class="pmc-status pmc-soon">即将推出</span></a>
+            <a class="portal-modchip portal-modchip--disabled" onclick="moduleBuilding()"><span class="pmc-icon">👥</span><span class="pmc-label">人才盘点</span><span class="pmc-status pmc-soon">即将推出</span></a>
+            <a class="portal-modchip portal-modchip--disabled" onclick="moduleBuilding()"><span class="pmc-icon">🎓</span><span class="pmc-label">岗位胜任力</span><span class="pmc-status pmc-soon">即将推出</span></a>
+            <a class="portal-modchip portal-modchip--disabled" onclick="moduleBuilding()"><span class="pmc-icon">💡</span><span class="pmc-label">敬业度</span><span class="pmc-status pmc-soon">即将推出</span></a>
           </div>
         </div>
       </div>
-      <div style="margin-top:16px;text-align:center;font-size:11px;color:#5f6368">Tiger-Buddy 虎伴科技 · MBO+AI V0.7.1p</div>
+      <div style="margin-top:16px;text-align:center;font-size:11px;color:#5f6368">Tiger-Buddy 虎伴科技 · MBO+AI V0.7.1q</div>
     </div>
   </main>
 </div>
@@ -3986,7 +4027,7 @@ function goHome(){
   sysCloseModal(); // ★ 清理系统维护弹窗
   // ★ V0.6.1.hu: 清理所有残留 tooltip（防止耗时列 tooltip 跨页面残留）
   document.querySelectorAll('.wp-tooltip').forEach(function(t){t.remove();});
-  // ★ V0.7.1p: 切到门户前立即用最新的 localStorage 数据刷新（避免 5s 重试）
+  // ★ V0.7.1q: 切到门户前立即用最新的 localStorage 数据刷新（避免 5s 重试）
   if(typeof _refreshPortalData==='function'){
     _refreshPortalData();
   }
@@ -4011,7 +4052,7 @@ function goHome(){
   if(btn)btn.classList.remove('show');
 }
 
-// ★ V0.7.1pa: 门户数据动态刷新 — 关联周行动计划和人员数据
+// ★ V0.7.1qa: 门户数据动态刷新 — 关联周行动计划和人员数据
 function _refreshPortalData(){
   var now = new Date();
   var yr = now.getFullYear(), mo = now.getMonth()+1;
@@ -4021,7 +4062,7 @@ function _refreshPortalData(){
   var wk = Math.ceil((now.getDate() + dayOfFirst - 1)/7);
   var weekId = yr+'-'+('0'+mo).slice(-2)+'-W'+wk;
 
-  // --- 参与项目数 (V0.7.1p: 从项目管理模块读取+状态分布) ---
+  // --- 参与项目数 (V0.7.1q: 从项目管理模块读取+状态分布) ---
   var _myProjects = 0;
   var _myDoing = 0;        // 进行中（未完成）
   var _myDone = 0;         // 已完成
@@ -4049,16 +4090,26 @@ function _refreshPortalData(){
   var pdcTeam = document.getElementById('pdcTeam');
   var pdcTeamSub = document.getElementById('pdcTeamSub');
   if(pdcTeam) pdcTeam.textContent = _myProjects;
+    // ★ V0.7.1q: 同步更新侧边栏"周行动计划"badge
+    var wpBadge = document.getElementById('portalNavWpBadge');
+    if(wpBadge){
+      if(monthUnfinished>0){
+        wpBadge.textContent = monthUnfinished;
+        wpBadge.style.display = 'inline-block';
+      } else {
+        wpBadge.style.display = 'none';
+      }
+    }
   if(pdcTeamSub){
     if(_myProjects===0){
       pdcTeamSub.textContent = '当前你参与的项目数为：0';
     } else {
-      // V0.7.1p: 进行中/已完成 状态分布
+      // V0.7.1q: 进行中/已完成 状态分布
       pdcTeamSub.textContent = _myDoing+' 进行中 · '+_myDone+' 已完成';
     }
   }
 
-  // --- 本月未完成任务统计 (V0.7.1p: 来源=当月所有周计划) ---
+  // --- 本月未完成任务统计 (V0.7.1q: 来源=当月所有周计划) ---
   try {
     var user = (typeof currentUser!=='undefined'&&currentUser&&currentUser.name)||'';
     var wpKey = 'hwm_workplans_'+user;
@@ -4113,6 +4164,11 @@ function _refreshPortalData(){
     var pdcOverdue = document.getElementById('pdcOverdue');
     var pdcOverdueSub = document.getElementById('pdcOverdueSub');
     if(pdcOverdue) pdcOverdue.textContent = overdueCount;
+    var overdueCell = document.getElementById('pdcOverdueCell');
+    if(overdueCell){
+      if(overdueCount>0) overdueCell.classList.add('portal-datacell--alert');
+      else overdueCell.classList.remove('portal-datacell--alert');
+    }
     if(pdcOverdueSub){
       if(overdueCount>0 && overdueMsgs.length>0) pdcOverdueSub.textContent = overdueMsgs.slice(0,3).join(' · ');
       else pdcOverdueSub.textContent = '暂无逾期任务';
@@ -4123,7 +4179,7 @@ function _refreshPortalData(){
     if(pdcRate) pdcRate.textContent = rate!==null ? rate+'%' : '—%';
     if(pdcRateSub) pdcRateSub.textContent = thisMonthTasks.total>0 ? ('共 '+thisMonthTasks.total+' 项任务') : '暂无本月数据';
 
-    // --- V0.7.1p: 重要紧急/重要不急任务列表 （显示未完成 + 已逾期完成之外的） ---
+    // --- V0.7.1q: 重要紧急/重要不急任务列表 （显示未完成 + 已逾期完成之外的） ---
     var prioTasks = [];
     Object.keys(wpData).forEach(function(wid){
       var p2 = wpData[wid];
@@ -4203,7 +4259,7 @@ function _refreshPortalData(){
   }
 }
 
-// ★ V0.7.1p: 渲染常用模块列表到侧边栏
+// ★ V0.7.1q: 渲染常用模块列表到侧边栏
 var ALL_MODULES = [
   {key:'13plus1', name:'13+1', icon:'🎯', status:'soon', handler:'moduleBuilding()'},
   {key:'kpi',     name:'年度目标', icon:'🎯', status:'live', handler:"enterModule('kpi')"},
@@ -4294,7 +4350,7 @@ function _showFavModulesModal(){
 }
 _renderFavModules();
 
-// ★ V0.7.1p: 全局事件 — 周计划保存后立即通知门户刷新（不需返回首页）
+// ★ V0.7.1q: 全局事件 — 周计划保存后立即通知门户刷新（不需返回首页）
 window.addEventListener('workplan-changed', function(){
   if(typeof _refreshPortalData==='function'){
     _refreshPortalData();
@@ -4308,7 +4364,7 @@ localStorage.setItem = function(k, v){
     try { window.dispatchEvent(new Event('workplan-changed')); } catch(e){}
   }
 };
-// V0.7.1p: 进入门户即刷新（goHome 调用 _refreshPortalData）
+// V0.7.1q: 进入门户即刷新（goHome 调用 _refreshPortalData）
 
 
 function enterModule(mod){
