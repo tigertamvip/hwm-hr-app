@@ -6,8 +6,8 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.7.1g">
-<!-- cache-bust: 2026-07-31-22-08 -->
+<meta name="version" content="V0.7.1h">
+<!-- cache-bust: 2026-07-31-22-13 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json?v=bc">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1085,7 +1085,7 @@ body{
   .toast{bottom:20px;font-size:12px;padding:8px 18px}
 }
 
-/* ===== 门户首页 · V0.7.1g Taste Redesign (sidebar + workspace) ===== */
+/* ===== 门户首页 · V0.7.1h Taste Redesign (sidebar + workspace) ===== */
 /* Design Read: B2B enterprise HR dashboard for medical-device managers.
    Precision-instrument visual language: structured data zones,
    restrained industrial palette, no decorative fluff.
@@ -2474,7 +2474,7 @@ function togglePortalTips(){
   </div><!-- /login-right -->
 </div>
 
-<!-- 门户首页 · V0.7.1g Taste Redesign -->
+<!-- 门户首页 · V0.7.1h Taste Redesign -->
 <div id="portalView" class="portal-view" style="display:none">
   <!-- Sidebar -->
   <aside class="portal-sidebar">
@@ -2516,7 +2516,7 @@ function togglePortalTips(){
         <div class="portal-datacell"><div class="pdc-label">本周待办</div><div class="pdc-value" style="color:#1967d2" id="pdcTodo">—</div><div class="pdc-sub" id="pdcTodoSub">加载中…</div></div>
         <div class="portal-datacell"><div class="pdc-label">逾期任务</div><div class="pdc-value" style="color:#c5221f" id="pdcOverdue">—</div><div class="pdc-sub" id="pdcOverdueSub">加载中…</div></div>
         <div class="portal-datacell"><div class="pdc-label">本月完成率</div><div class="pdc-value" style="color:#188038" id="pdcRate">—%</div><div class="pdc-sub" id="pdcRateSub">加载中…</div></div>
-        <div class="portal-datacell"><div class="pdc-label">团队总数</div><div class="pdc-value" id="pdcTeam">—</div><div class="pdc-sub" id="pdcTeamSub">加载中…</div></div>
+        <div class="portal-datacell"><div class="pdc-label">参与项目数</div><div class="pdc-value" id="pdcTeam" style="color:#0F7BE1">—</div><div class="pdc-sub" id="pdcTeamSub">加载中…</div></div>
       </div>
       <div class="portal-twocol">
         <div class="portal-panel">
@@ -2531,7 +2531,7 @@ function togglePortalTips(){
             <div class="portal-feed-item"><span class="portal-feed-dot"></span><span>谭晨航 提交了本周工作计划</span><span class="portal-feed-time">10:32</span></div>
             <div class="portal-feed-item"><span class="portal-feed-dot"></span><span>葛师师 更新了研发项目状态</span><span class="portal-feed-time">09:15</span></div>
             <div class="portal-feed-item"><span class="portal-feed-dot"></span><span>韩铁工 完成了 KPI 自评</span><span class="portal-feed-time">昨天</span></div>
-            <div class="portal-feed-item"><span class="portal-feed-dot"></span><span>系统更新至 V0.7.1g</span><span class="portal-feed-time">今天 08:00</span></div>
+            <div class="portal-feed-item"><span class="portal-feed-dot"></span><span>系统更新至 V0.7.1h</span><span class="portal-feed-time">今天 08:00</span></div>
           </div>
         </div>
       </div>
@@ -2554,7 +2554,7 @@ function togglePortalTips(){
           </div>
         </div>
       </div>
-      <div style="margin-top:16px;text-align:center;font-size:11px;color:#5f6368">Tiger-Buddy 虎伴科技 · MBO+AI V0.7.1g</div>
+      <div style="margin-top:16px;text-align:center;font-size:11px;color:#5f6368">Tiger-Buddy 虎伴科技 · MBO+AI V0.7.1h</div>
     </div>
   </main>
 </div>
@@ -3983,7 +3983,7 @@ function goHome(){
   sysCloseModal(); // ★ 清理系统维护弹窗
   // ★ V0.6.1.hu: 清理所有残留 tooltip（防止耗时列 tooltip 跨页面残留）
   document.querySelectorAll('.wp-tooltip').forEach(function(t){t.remove();});
-  // ★ V0.7.1g: 切到门户前立即用最新的 localStorage 数据刷新（避免 5s 重试）
+  // ★ V0.7.1h: 切到门户前立即用最新的 localStorage 数据刷新（避免 5s 重试）
   if(typeof _refreshPortalData==='function'){
     _refreshPortalData();
   }
@@ -4008,7 +4008,7 @@ function goHome(){
   if(btn)btn.classList.remove('show');
 }
 
-// ★ V0.7.1ga: 门户数据动态刷新 — 关联周行动计划和人员数据
+// ★ V0.7.1ha: 门户数据动态刷新 — 关联周行动计划和人员数据
 function _refreshPortalData(){
   var now = new Date();
   var yr = now.getFullYear(), mo = now.getMonth()+1;
@@ -4018,7 +4018,7 @@ function _refreshPortalData(){
   var wk = Math.ceil((now.getDate() + dayOfFirst - 1)/7);
   var weekId = yr+'-'+('0'+mo).slice(-2)+'-W'+wk;
 
-  // --- 团队总数 (V0.7.1g: 修复为显示当前在职人数) ---
+  // --- 团队总数 (V0.7.1h: 修复为显示当前在职人数) ---
   var empCount = (typeof allEmployees!=='undefined'&&allEmployees.length) ? allEmployees.length : 0;
   var activeCount = 0, resignedCount = 0;
   if(window.allEmployees){
@@ -4036,7 +4036,7 @@ function _refreshPortalData(){
   if(pdcTeam) pdcTeam.textContent = activeCount;
   if(pdcTeamSub) pdcTeamSub.textContent = '花名册 '+empCount+' 人 · 离职 '+resignedCount;
 
-  // --- 本月未完成任务统计 (V0.7.1g: 来源=当月所有周计划) ---
+  // --- 本月未完成任务统计 (V0.7.1h: 来源=当月所有周计划) ---
   try {
     var user = (typeof currentUser!=='undefined'&&currentUser&&currentUser.name)||'';
     var wpKey = 'hwm_workplans_'+user;
@@ -4101,7 +4101,7 @@ function _refreshPortalData(){
     if(pdcRate) pdcRate.textContent = rate!==null ? rate+'%' : '—%';
     if(pdcRateSub) pdcRateSub.textContent = thisMonthTasks.total>0 ? ('共 '+thisMonthTasks.total+' 项任务') : '暂无本月数据';
 
-    // --- V0.7.1g: 重要紧急/重要不急任务列表 （显示未完成 + 已逾期完成之外的） ---
+    // --- V0.7.1h: 重要紧急/重要不急任务列表 （显示未完成 + 已逾期完成之外的） ---
     var prioTasks = [];
     Object.keys(wpData).forEach(function(wid){
       var p2 = wpData[wid];
@@ -4181,7 +4181,7 @@ function _refreshPortalData(){
   }
 }
 
-// ★ V0.7.1g: 全局事件 — 周计划保存后立即通知门户刷新（不需返回首页）
+// ★ V0.7.1h: 全局事件 — 周计划保存后立即通知门户刷新（不需返回首页）
 window.addEventListener('workplan-changed', function(){
   if(typeof _refreshPortalData==='function'){
     _refreshPortalData();
@@ -4191,11 +4191,11 @@ window.addEventListener('workplan-changed', function(){
 var _origSetItem = localStorage.setItem;
 localStorage.setItem = function(k, v){
   _origSetItem.call(this, k, v);
-  if(k && k.indexOf('hwm_workplans_')===0){
+  if(k && (k.indexOf('hwm_workplans_')===0 || k.indexOf('hwm_pm_')===0)){
     try { window.dispatchEvent(new Event('workplan-changed')); } catch(e){}
   }
 };
-// V0.7.1g: 进入门户即刷新（goHome 调用 _refreshPortalData）
+// V0.7.1h: 进入门户即刷新（goHome 调用 _refreshPortalData）
 
 
 function enterModule(mod){
