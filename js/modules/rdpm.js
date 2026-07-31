@@ -361,6 +361,14 @@ function renderRdDetail(){
   el.innerHTML = h;
 }
 
+// ★ V0.6.6k: 判断当前用户是否为项目负责人
+function _rdIsProjectOwner(){
+  if(!_rdCurrent||!_rdCurrent.project) return false;
+  var p = _rdCurrent.project;
+  var me = (typeof currentUser!=='undefined'&&currentUser&&currentUser.name)||'';
+  return p.owner === me || (typeof hasPermission==='function'&&hasPermission('maintenance'));
+}
+
 // ★ V0.6.5aa: 研发项目甘特图 — 用阶段数据渲染
 function _renderRdGantt(c){
   var p = c.project;
@@ -449,12 +457,16 @@ function _renderRdGantt(c){
 
   h += '<div style="background:#fff;border:1px solid #E5E7EB;border-radius:10px;padding:16px">';
   h += '<div style="overflow-x:auto">';
-  h += '<div style="min-width:'+(chartW+360)+'px">';
+  h += '<div style="min-width:'+(chartW+520)+'px">';
 
-  // 表头
+  // ★ V0.6.6k: 表头——OWN + 副组长 + 项目助理 + 项目成员 + 起止日期
+  var isOwner = _rdIsProjectOwner();
   h += '<div style="display:flex;border-bottom:1px solid #E5E7EB;background:#F9FAFB;padding-bottom:6px;margin-bottom:8px">';
   h += '<div style="width:80px;flex-shrink:0;padding:6px 8px;font-size:11px;font-weight:600;color:#374151;border-right:1px solid #E5E7EB">阶段</div>';
   h += '<div style="width:70px;flex-shrink:0;padding:6px 4px;font-size:10px;font-weight:600;color:#6B7280;border-right:1px solid #E5E7EB">OWN</div>';
+  h += '<div style="width:70px;flex-shrink:0;padding:6px 4px;font-size:10px;font-weight:600;color:#6B7280;border-right:1px solid #E5E7EB">副组长</div>';
+  h += '<div style="width:70px;flex-shrink:0;padding:6px 4px;font-size:10px;font-weight:600;color:#6B7280;border-right:1px solid #E5E7EB">项目助理</div>';
+  h += '<div style="width:100px;flex-shrink:0;padding:6px 4px;font-size:10px;font-weight:600;color:#6B7280;border-right:1px solid #E5E7EB">项目成员</div>';
   h += '<div style="width:80px;flex-shrink:0;padding:6px 4px;font-size:10px;font-weight:600;color:#6B7280;border-right:1px solid #E5E7EB">启动日期</div>';
   h += '<div style="width:80px;flex-shrink:0;padding:6px 4px;font-size:10px;font-weight:600;color:#6B7280;border-right:1px solid #E5E7EB">完成截止</div>';
   cols.forEach(function(c){
@@ -492,6 +504,9 @@ function _renderRdGantt(c){
       end: sEnd,
       weight: w,
       owner: s.owner||'',
+      vice_leader: s.vice_leader||'',
+      assistant: s.assistant||'',
+      members: s.members||'',
       startDate: s.start_date||'',
       endDate: s.end_date||'',
       id: s.id
@@ -506,22 +521,40 @@ function _renderRdGantt(c){
     var barW = Math.max(4, (sb.end - sb.start) / totalMs * chartW);
     var color = stageColors[sb.status]||'#9CA3AF';
     var own = sb.owner||'TBD';
+    var vice = sb.vice_leader||'TBD';
+    var asst = sb.assistant||'TBD';
+    var mems = sb.members||'TBD';
     var startDate = sb.startDate||'TBD';
     var endDate = sb.endDate||'TBD';
+    // ★ V0.6.6k: 项目负责人才能编辑，其他人只读
+    var editCursor = isOwner?'pointer':'default';
+    var editHint = isOwner?'点击修改':'仅项目负责人可编辑';
 
     h += '<div style="display:flex;align-items:center;height:'+barH+'px;border-bottom:1px solid #F3F4F6;'+(i%2===0?'background:#fff':'background:#FAFAFA')+'">';
     h += '<div style="width:80px;flex-shrink:0;padding:6px 8px;font-size:11px;color:#374151;border-right:1px solid #E5E7EB;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+_rdEsc(sb.name)+'">'+_rdEsc(sb.name)+'</div>';
-    // OWN（可编辑）
+    // OWN
     h += '<div style="width:70px;flex-shrink:0;padding:6px 4px;font-size:10px;border-right:1px solid #E5E7EB;display:flex;align-items:center">'
-       + '<span onclick="_rdEditStageField(\''+sb.id+'\',\'owner\',\''+esc(own)+'\')" style="cursor:pointer;color:'+(own==='TBD'?'#A8A29A':'#374151')+';border-bottom:1px dashed '+(own==='TBD'?'#D0D5DD':'transparent')+';padding:1px 2px" title="点击修改负责人">'+_rdEsc(own)+'</span>'
+       + '<span '+(isOwner?'onclick="_rdEditStageField(\''+sb.id+'\',\'owner\',\''+esc(own)+'\')"':'')+' style="cursor:'+editCursor+';color:'+(own==='TBD'?'#A8A29A':'#374151')+';border-bottom:1px dashed '+(own==='TBD'?'#D0D5DD':'transparent')+';padding:1px 2px" title="'+editHint+'">'+_rdEsc(own)+'</span>'
        + '</div>';
-    // 启动日期（可编辑）
-    h += '<div style="width:80px;flex-shrink:0;padding:6px 4px;font-size:10px;border-right:1px solid #E5E7EB;display:flex;align-items:center">'
-       + '<span onclick="_rdEditStageField(\''+sb.id+'\',\'start_date\',\''+startDate+'\')" style="cursor:pointer;color:'+(startDate==='TBD'?'#A8A29A':'#374151')+';border-bottom:1px dashed '+(startDate==='TBD'?'#D0D5DD':'transparent')+';padding:1px 2px" title="点击修改启动日期">'+startDate+'</span>'
+    // 副组长
+    h += '<div style="width:70px;flex-shrink:0;padding:6px 4px;font-size:10px;border-right:1px solid #E5E7EB;display:flex;align-items:center">'
+       + '<span '+(isOwner?'onclick="_rdEditStageField(\''+sb.id+'\',\'vice_leader\',\''+esc(vice)+'\')"':'')+' style="cursor:'+editCursor+';color:'+(vice==='TBD'?'#A8A29A':'#374151')+';border-bottom:1px dashed '+(vice==='TBD'?'#D0D5DD':'transparent')+';padding:1px 2px" title="'+editHint+'">'+_rdEsc(vice)+'</span>'
        + '</div>';
-    // 完成截止（可编辑）
+    // 项目助理
+    h += '<div style="width:70px;flex-shrink:0;padding:6px 4px;font-size:10px;border-right:1px solid #E5E7EB;display:flex;align-items:center">'
+       + '<span '+(isOwner?'onclick="_rdEditStageField(\''+sb.id+'\',\'assistant\',\''+esc(asst)+'\')"':'')+' style="cursor:'+editCursor+';color:'+(asst==='TBD'?'#A8A29A':'#374151')+';border-bottom:1px dashed '+(asst==='TBD'?'#D0D5DD':'transparent')+';padding:1px 2px" title="'+editHint+'">'+_rdEsc(asst)+'</span>'
+       + '</div>';
+    // 项目成员
+    h += '<div style="width:100px;flex-shrink:0;padding:6px 4px;font-size:10px;border-right:1px solid #E5E7EB;display:flex;align-items:center;overflow:hidden">'
+       + '<span '+(isOwner?'onclick="_rdEditStageField(\''+sb.id+'\',\'members\',\''+esc(mems)+'\')"':'')+' style="cursor:'+editCursor+';color:'+(mems==='TBD'?'#A8A29A':'#374151')+';border-bottom:1px dashed '+(mems==='TBD'?'#D0D5DD':'transparent')+';padding:1px 2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+editHint+'">'+_rdEsc(mems)+'</span>'
+       + '</div>';
+    // 启动日期
     h += '<div style="width:80px;flex-shrink:0;padding:6px 4px;font-size:10px;border-right:1px solid #E5E7EB;display:flex;align-items:center">'
-       + '<span onclick="_rdEditStageField(\''+sb.id+'\',\'end_date\',\''+endDate+'\')" style="cursor:pointer;color:'+(endDate==='TBD'?'#A8A29A':'#374151')+';border-bottom:1px dashed '+(endDate==='TBD'?'#D0D5DD':'transparent')+';padding:1px 2px" title="点击修改截止日期">'+endDate+'</span>'
+       + '<span '+(isOwner?'onclick="_rdEditStageField(\''+sb.id+'\',\'start_date\',\''+startDate+'\')"':'')+' style="cursor:'+editCursor+';color:'+(startDate==='TBD'?'#A8A29A':'#374151')+';border-bottom:1px dashed '+(startDate==='TBD'?'#D0D5DD':'transparent')+';padding:1px 2px" title="'+editHint+'">'+startDate+'</span>'
+       + '</div>';
+    // 完成截止
+    h += '<div style="width:80px;flex-shrink:0;padding:6px 4px;font-size:10px;border-right:1px solid #E5E7EB;display:flex;align-items:center">'
+       + '<span '+(isOwner?'onclick="_rdEditStageField(\''+sb.id+'\',\'end_date\',\''+endDate+'\')"':'')+' style="cursor:'+editCursor+';color:'+(endDate==='TBD'?'#A8A29A':'#374151')+';border-bottom:1px dashed '+(endDate==='TBD'?'#D0D5DD':'transparent')+';padding:1px 2px" title="'+editHint+'">'+endDate+'</span>'
        + '</div>';
     // 时间轴
     h += '<div style="flex:1;position:relative;height:'+(barH-8)+'px">';
@@ -534,8 +567,9 @@ function _renderRdGantt(c){
   var todayOffset = (today - startD) / totalMs * chartW;
   if(todayOffset>=0 && todayOffset<=chartW){
     h += '<div style="position:relative;margin-top:4px">';
-    h += '<div style="position:absolute;left:'+(80+70+80+80+todayOffset)+'px;top:-'+(stageBars.length*barH+8)+'px;width:1px;height:'+(stageBars.length*barH+16)+'px;background:#EF4444;z-index:2;pointer-events:none"></div>';
-    h += '<div style="position:absolute;left:'+(80+70+80+80+todayOffset-12)+'px;top:-'+(stageBars.length*barH+16)+'px;font-size:9px;color:#EF4444;z-index:2;pointer-events:none">今天</div>';
+    // ★ V0.6.6k: 7 列偏移 (阶段80+OWN70+副70+助理70+成员100+启动80+完成80=550)
+    h += '<div style="position:absolute;left:'+(550+todayOffset)+'px;top:-'+(stageBars.length*barH+8)+'px;width:1px;height:'+(stageBars.length*barH+16)+'px;background:#EF4444;z-index:2;pointer-events:none"></div>';
+    h += '<div style="position:absolute;left:'+(550+todayOffset-12)+'px;top:-'+(stageBars.length*barH+16)+'px;font-size:9px;color:#EF4444;z-index:2;pointer-events:none">今天</div>';
     h += '</div>';
   }
 
@@ -557,12 +591,14 @@ function _rdGanttGranularityLabel(g){
 
 // ★ V0.6.6b: 阶段字段编辑（OWN/日期）
 async function _rdEditStageField(stageId, field, currentVal){
-  var label = {owner:'负责人',start_date:'启动日期',end_date:'完成截止日期'}[field]||field;
-  var inputType = field==='owner'?'text':'date';
+  var labelMap = {owner:'负责人',vice_leader:'副组长',assistant:'项目助理',members:'项目成员',start_date:'启动日期',end_date:'完成截止日期'};
+  var label = labelMap[field]||field;
+  var inputType = (field==='owner'||field==='vice_leader'||field==='assistant'||field==='members')?'text':'date';
   var h = '<div style="margin-bottom:12px"><label style="font-size:12px;color:#6B7280;display:block;margin-bottom:4px">'+label+'</label>';
-  h += '<input id="rdsf-in" type="'+inputType+'" value="'+(currentVal==='TBD'?'':currentVal)+'" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:13px;box-sizing:border-box">';
+  h += '<input id="rdsf-in" type="'+inputType+'" value="'+(currentVal==='TBD'?'':currentVal)+'" placeholder="'+(field==='members'?'多个成员用逗号分隔':'')+'" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:13px;box-sizing:border-box">';
   h += '</div>';
   var inputId = 'rdsf-in';
+  var isNameField = (field==='owner'||field==='vice_leader'||field==='assistant'||field==='members');
 
   return new Promise(function(resolve){
     showFormModal(h, '编辑'+label+' / Edit '+label, '确定 / OK', '取消 / Cancel', function(close){
@@ -572,11 +608,12 @@ async function _rdEditStageField(stageId, field, currentVal){
       close();
       resolve(val);
     });
-    if(field==='owner'){
+    if(isNameField){
       setTimeout(function(){
         var el = document.getElementById(inputId);
         if(el && typeof attachEmpNameAutocomplete==='function'){
-          attachEmpNameAutocomplete(el, {multi:false});
+          var multi = (field==='members');
+          attachEmpNameAutocomplete(el, {multi:multi});
           el.focus();
         }
       }, 80);
@@ -598,6 +635,42 @@ async function _rdEditStageField(stageId, field, currentVal){
       });
     }catch(e){ showToast('更新失败: '+e.message); }
   });
+}
+
+// ★ V0.6.6k: 项目负责人可编辑项目起止日期（其他成员只读）
+async function _rdEditProjectDate(field){
+  if(!_rdCurrent) return;
+  var p = _rdCurrent.project;
+  if(!p) return;
+  var me = (typeof currentUser!=='undefined'&&currentUser&&currentUser.name)||'';
+  if(p.owner !== me && !(typeof hasPermission==='function'&&hasPermission('maintenance'))){
+    showToast('仅项目负责人可编辑项目起止日期');
+    return;
+  }
+  var currentVal = p[field]||'';
+  var label = field==='start_date'?'项目启动日期':'项目完成截止日期';
+  var h = '<div style="margin-bottom:12px"><label style="font-size:12px;color:#6B7280;display:block;margin-bottom:4px">'+label+'</label>';
+  h += '<input id="rdproj-in" type="date" value="'+currentVal+'" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:13px;box-sizing:border-box">';
+  h += '</div>';
+  showFormModal(h, '编辑'+label, '确定 / OK', '取消 / Cancel', function(close){
+    var el = document.getElementById('rdproj-in');
+    var val = el?el.value.trim():'';
+    if(!val){ close(); return; }
+    var patch = {};
+    patch[field] = val;
+    if(typeof SUPABASE_PROJECTS_TABLE!=='undefined'){
+      supabase.from(SUPABASE_PROJECTS_TABLE).update(patch).eq('id',p.id).then(function(){
+        p[field] = val;
+        var all = loadAllProjects();
+        var idx = all.findIndex(function(x){return x.id===p.id;});
+        if(idx>=0){ all[idx][field]=val; saveAllProjects(all); }
+        close();
+        renderRdDetail();
+        showToast('已更新');
+      });
+    }else{ close(); }
+  });
+  setTimeout(function(){ var el=document.getElementById('rdproj-in'); if(el) el.focus(); }, 80);
 }
 
 function renderRdPipeline(c){
@@ -1346,9 +1419,11 @@ window.rdRegisterSubmit = rdRegisterSubmit;
 window.calcRdProgress = calcRdProgress;
 window.syncRdFromCloud = syncRdFromCloud;
 window.initRdPm = initRdPm;
-// ★ V0.6.6b: 甘特图 OWN+日期+五档颗粒度
+// ★ V0.6.6k: 甘特图 3 个角色列+项目起止日期（仅项目负责人可编辑）
 window._rdDetailTab = _rdDetailTab;
 window._renderRdGantt = _renderRdGantt;
 window._rdGanttGranularityLabel = _rdGanttGranularityLabel;
 window._rdEditStageField = _rdEditStageField;
+window._rdEditProjectDate = _rdEditProjectDate;
+window._rdIsProjectOwner = _rdIsProjectOwner;
 }
