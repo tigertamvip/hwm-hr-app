@@ -918,21 +918,21 @@ function _rdRenderBonusPanel(c){
   h += '<span style="font-size:12px;color:#6B7280">单位积分：<span id="rd-unit-bonus" style="font-weight:600;color:#059669;font-size:13px">—</span></span>';
   h += '</div>';
 
-  // 成员表格
+  // 成员表格（明确列宽：姓名140px+其他列合理分配，总~950px，配合 table-layout:fixed）
   h += '<div style="overflow-x:auto;max-width:100%">';
-  h += '<table style="width:100%;border-collapse:collapse;font-size:11px;min-width:1100px;table-layout:fixed">';
+  h += '<table style="width:100%;border-collapse:collapse;font-size:11px;table-layout:fixed;min-width:960px">';
   h += '<thead><tr style="background:#F9FAFB">';
-  h += '<th style="padding:6px 2px;border-bottom:1px solid #E5E7EB;width:30px;color:#6B7280;font-size:10px">#</th>';
-  h += '<th style="padding:6px 4px;border-bottom:1px solid #E5E7EB;text-align:left;color:#374151;font-size:10px;font-weight:600">姓名</th>';
-  h += '<th style="padding:6px 4px;border-bottom:1px solid #E5E7EB;width:72px;color:#6B7280;font-size:10px">部门</th>';
-  h += '<th style="padding:6px 4px;border-bottom:1px solid #E5E7EB;width:70px;color:#6B7280;font-size:10px">职责</th>';
-  h += '<th style="padding:6px 4px;border-bottom:1px solid #E5E7EB;width:88px;color:#6B7280;font-size:10px">交付效率</th>';
-  h += '<th style="padding:6px 4px;border-bottom:1px solid #E5E7EB;width:88px;color:#6B7280;font-size:10px">交付质量</th>';
-  h += '<th style="padding:6px 4px;border-bottom:1px solid #E5E7EB;width:100px;color:#6B7280;font-size:10px">综合评价</th>';
-  h += '<th style="padding:6px 4px;border-bottom:1px solid #E5E7EB;width:70px;color:#6B7280;font-size:10px">分配比%</th>';
-  h += '<th style="padding:6px 4px;border-bottom:1px solid #E5E7EB;width:86px;color:#6B7280;font-size:10px">奖金基数</th>';
-  h += '<th style="padding:6px 4px;border-bottom:1px solid #E5E7EB;width:88px;color:#6B7280;font-size:10px">应发奖金</th>';
-  h += '<th style="padding:6px 2px;border-bottom:1px solid #E5E7EB;width:40px;color:#6B7280;font-size:10px">操作</th>';
+  h += '<th style="padding:6px 2px;border-bottom:1px solid #E5E7EB;width:32px;color:#6B7280;font-size:10px">#</th>';
+  h += '<th style="padding:6px 4px;border-bottom:1px solid #E5E7EB;width:140px;text-align:left;color:#374151;font-size:10px;font-weight:600">姓名</th>';
+  h += '<th style="padding:6px 4px;border-bottom:1px solid #E5E7EB;width:80px;color:#6B7280;font-size:10px">部门</th>';
+  h += '<th style="padding:6px 4px;border-bottom:1px solid #E5E7EB;width:80px;color:#6B7280;font-size:10px">职责</th>';
+  h += '<th style="padding:6px 4px;border-bottom:1px solid #E5E7EB;width:95px;color:#6B7280;font-size:10px">交付效率</th>';
+  h += '<th style="padding:6px 4px;border-bottom:1px solid #E5E7EB;width:95px;color:#6B7280;font-size:10px">交付质量</th>';
+  h += '<th style="padding:6px 4px;border-bottom:1px solid #E5E7EB;width:115px;color:#6B7280;font-size:10px">综合评价</th>';
+  h += '<th style="padding:6px 4px;border-bottom:1px solid #E5E7EB;width:72px;color:#6B7280;font-size:10px">分配比%</th>';
+  h += '<th style="padding:6px 4px;border-bottom:1px solid #E5E7EB;width:90px;color:#6B7280;font-size:10px">奖金基数</th>';
+  h += '<th style="padding:6px 4px;border-bottom:1px solid #E5E7EB;width:90px;color:#6B7280;font-size:10px">应发奖金</th>';
+  h += '<th style="padding:6px 2px;border-bottom:1px solid #E5E7EB;width:44px;color:#6B7280;font-size:10px">操作</th>';
   h += '</tr></thead><tbody id="rd-mem-tbody">';
 
   function buildRow(idx, m){
