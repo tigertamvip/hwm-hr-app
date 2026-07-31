@@ -7,7 +7,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <meta name="version" content="V0.7.1k">
-<!-- cache-bust: 2026-08-01-07-00 -->
+<!-- cache-bust: 2026-08-01-07-05 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json?v=bc">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -4193,6 +4193,97 @@ function _refreshPortalData(){
     console.warn('[portal] _refreshPortalData error:', e);
   }
 }
+
+// ★ V0.7.1k: 渲染常用模块列表到侧边栏
+var ALL_MODULES = [
+  {key:'13plus1', name:'13+1', icon:'🎯', status:'soon', handler:'moduleBuilding()'},
+  {key:'kpi',     name:'年度目标', icon:'🎯', status:'live', handler:"enterModule('kpi')"},
+  {key:'workplan',name:'本周任务', icon:'📋', status:'live', handler:"enterModule('workplan')"},
+  {key:'month',   name:'本月计划', icon:'📅', status:'soon', handler:'moduleBuilding()'},
+  {key:'hr',      name:'团队',     icon:'📁', status:'live', handler:"enterModule('hr')"},
+  {key:'pm',      name:'项目管理', icon:'🔬', status:'beta', handler:"enterModule('pm')"},
+  {key:'talent',  name:'人才盘点', icon:'👥', status:'soon', handler:'moduleBuilding()'},
+  {key:'job',     name:'岗位胜任力', icon:'🎓', status:'soon', handler:'moduleBuilding()'},
+  {key:'policies',name:'体系流程', icon:'📝', status:'beta', handler:"enterModule('policies')"},
+  {key:'engage',  name:'敬业度',   icon:'💡', status:'soon', handler:'moduleBuilding()'},
+  {key:'dashboard',name:'数据中心', icon:'📊', status:'beta', handler:"enterModule('dashboard')"},
+  {key:'system',  name:'系统维护', icon:'⚙️', status:'live', handler:"enterModule('system')"}
+];
+function _getFavModules(){
+  try { return JSON.parse(localStorage.getItem('hwm_favorite_modules')||'[]'); } catch(e){ return []; }
+}
+function _setFavModules(arr){
+  localStorage.setItem('hwm_favorite_modules', JSON.stringify(arr));
+  _renderFavModules();
+}
+function _renderFavModules(){
+  var box = document.getElementById('portalFavList');
+  if(!box) return;
+  var favs = _getFavModules();
+  if(favs.length===0){
+    box.innerHTML = '<div class="fav-empty">点击右上角"编辑"选择你常用的模块</div>';
+    return;
+  }
+  var html = '';
+  favs.forEach(function(key){
+    var m = ALL_MODULES.filter(function(x){return x.key===key;})[0];
+    if(!m) return;
+    var badge = m.status==='live' ? '' : '<span class="portal-nav-badge" style="background:'+(m.status==='beta'?'#e8f0fe;color:#1967d2':'#e8eaed;color:#5f6368')+'">'+({beta:'Beta',soon:'即将推出'}[m.status]||'')+'</span>';
+    html += '<a class="portal-nav-item" onclick="'+m.handler+'">'+m.icon+' '+m.name+badge+'</a>';
+  });
+  box.innerHTML = html;
+}
+function _showFavModulesModal(){
+  var favs = _getFavModules();
+  var modal = document.createElement('div');
+  modal.id = 'favModulesModal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:10000;display:flex;align-items:center;justify-content:center';
+  var gridHtml = '';
+  ALL_MODULES.forEach(function(m){
+    var checked = favs.indexOf(m.key)>=0;
+    var statusColor = m.status==='live'?'#188038':(m.status==='beta'?'#1967d2':'#9ca3af');
+    var statusText = ({live:'运行中',beta:'Beta',soon:'即将推出'}[m.status]||'');
+    gridHtml += '<label style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid '+(checked?'#1967d2':'#dadce0')+';border-radius:6px;cursor:pointer;font-size:13px;background:'+(checked?'#e8f0fe':'#fff')+'">'+
+      '<input type="checkbox" data-mod-key="'+m.key+'" '+(checked?'checked':'')+' style="cursor:pointer"/>'+
+      '<span style="font-size:18px">'+m.icon+'</span>'+
+      '<span style="flex:1;font-weight:500">'+m.name+'</span>'+
+      '<span style="font-size:10px;padding:1px 6px;border-radius:4px;background:#fff;color:'+statusColor+';border:1px solid '+statusColor+'33">'+statusText+'</span>'+
+    '</label>';
+  });
+  modal.innerHTML = '<div style="background:#fff;border-radius:10px;width:560px;max-width:90vw;max-height:80vh;display:flex;flex-direction:column;overflow:hidden">'+
+    '<div style="padding:16px 20px;border-bottom:1px solid #dadce0;display:flex;align-items:center;justify-content:space-between">'+
+      '<h3 style="margin:0;font-size:15px;font-weight:600">⭐ 选择常用模块</h3>'+
+      '<button onclick="document.getElementById(\'favModulesModal\').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#5f6368;line-height:1">×</button>'+
+    '</div>'+
+    '<div style="padding:12px 20px;border-bottom:1px solid #e8eaed;font-size:12px;color:#5f6368;background:#f8f9fa">勾选你常用的模块（可多选），所选模块将出现在侧边栏"常用模块"区域</div>'+
+    '<div style="padding:16px 20px;overflow-y:auto;display:grid;grid-template-columns:1fr 1fr;gap:8px">'+gridHtml+'</div>'+
+    '<div style="padding:14px 20px;border-top:1px solid #dadce0;display:flex;justify-content:space-between;align-items:center;background:#f8f9fa">'+
+      '<span style="font-size:11px;color:#5f6368" id="favSelectedCount">已选 '+favs.length+' 个</span>'+
+      '<div style="display:flex;gap:8px">'+
+        '<button onclick="document.getElementById(\'favModulesModal\').remove()" style="padding:6px 14px;border:1px solid #dadce0;border-radius:6px;background:#fff;color:#5f6368;cursor:pointer;font-size:13px">取消</button>'+
+        '<button id="favSaveBtn" style="padding:6px 16px;border:1px solid #1967d2;border-radius:6px;background:#1967d2;color:#fff;cursor:pointer;font-size:13px;font-weight:500">保存</button>'+
+      '</div>'+
+    '</div>'+
+  '</div>';
+  document.body.appendChild(modal);
+  var countEl = document.getElementById('favSelectedCount');
+  modal.querySelectorAll('input[type=checkbox]').forEach(function(cb){
+    cb.addEventListener('change', function(){
+      var n = modal.querySelectorAll('input[type=checkbox]:checked').length;
+      if(countEl) countEl.textContent = '已选 '+n+' 个';
+    });
+  });
+  document.getElementById('favSaveBtn').onclick = function(){
+    var selected = [];
+    modal.querySelectorAll('input[type=checkbox]:checked').forEach(function(cb){
+      selected.push(cb.dataset.modKey);
+    });
+    _setFavModules(selected);
+    modal.remove();
+  };
+  modal.addEventListener('click', function(e){ if(e.target===modal) modal.remove(); });
+}
+_renderFavModules();
 
 // ★ V0.7.1k: 全局事件 — 周计划保存后立即通知门户刷新（不需返回首页）
 window.addEventListener('workplan-changed', function(){
