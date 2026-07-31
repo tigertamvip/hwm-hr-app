@@ -6,8 +6,8 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.7.1">
-<!-- cache-bust: 2026-07-31-20-50 -->
+<meta name="version" content="V0.7.1a">
+<!-- cache-bust: 2026-07-31-21-00 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json?v=bc">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1085,7 +1085,7 @@ body{
   .toast{bottom:20px;font-size:12px;padding:8px 18px}
 }
 
-/* ===== 门户首页 · V0.7.1 Taste Redesign (sidebar + workspace) ===== */
+/* ===== 门户首页 · V0.7.1a Taste Redesign (sidebar + workspace) ===== */
 /* Design Read: B2B enterprise HR dashboard for medical-device managers.
    Precision-instrument visual language: structured data zones,
    restrained industrial palette, no decorative fluff.
@@ -2466,7 +2466,7 @@ function togglePortalTips(){
   </div><!-- /login-right -->
 </div>
 
-<!-- 门户首页 · V0.7.1 Taste Redesign -->
+<!-- 门户首页 · V0.7.1a Taste Redesign -->
 <div id="portalView" class="portal-view" style="display:none">
   <!-- Sidebar -->
   <aside class="portal-sidebar">
@@ -2503,12 +2503,12 @@ function togglePortalTips(){
       </div>
     </div>
     <div class="portal-content">
-      <div class="portal-alert"><strong>⚠ 1 项逾期任务</strong> — 研发团队激励表格上线 · 原定 7月30日</div>
+      <div class="portal-alert" id="portalAlert" style="display:none"><strong></strong> <span id="portalAlertMsg"></span></div>
       <div class="portal-datastrip">
-        <div class="portal-datacell"><div class="pdc-label">本周待办</div><div class="pdc-value" style="color:#1967d2">3</div><div class="pdc-sub">2 进行中 · 1 已完成</div></div>
-        <div class="portal-datacell"><div class="pdc-label">逾期任务</div><div class="pdc-value" style="color:#c5221f">1</div><div class="pdc-sub">截止 7月30日</div></div>
-        <div class="portal-datacell"><div class="pdc-label">本月完成率</div><div class="pdc-value" style="color:#188038">87%</div><div class="pdc-sub">较上月 +5%</div></div>
-        <div class="portal-datacell"><div class="pdc-label">团队总数</div><div class="pdc-value">199</div><div class="pdc-sub">在岗 187 · 离职 12</div></div>
+        <div class="portal-datacell"><div class="pdc-label">本周待办</div><div class="pdc-value" style="color:#1967d2" id="pdcTodo">—</div><div class="pdc-sub" id="pdcTodoSub">加载中…</div></div>
+        <div class="portal-datacell"><div class="pdc-label">逾期任务</div><div class="pdc-value" style="color:#c5221f" id="pdcOverdue">—</div><div class="pdc-sub" id="pdcOverdueSub">加载中…</div></div>
+        <div class="portal-datacell"><div class="pdc-label">本月完成率</div><div class="pdc-value" style="color:#188038" id="pdcRate">—%</div><div class="pdc-sub" id="pdcRateSub">加载中…</div></div>
+        <div class="portal-datacell"><div class="pdc-label">团队总数</div><div class="pdc-value" id="pdcTeam">—</div><div class="pdc-sub" id="pdcTeamSub">加载中…</div></div>
       </div>
       <div class="portal-twocol">
         <div class="portal-panel">
@@ -2525,7 +2525,7 @@ function togglePortalTips(){
             <div class="portal-feed-item"><span class="portal-feed-dot"></span><span>谭晨航 提交了本周工作计划</span><span class="portal-feed-time">10:32</span></div>
             <div class="portal-feed-item"><span class="portal-feed-dot"></span><span>葛师师 更新了研发项目状态</span><span class="portal-feed-time">09:15</span></div>
             <div class="portal-feed-item"><span class="portal-feed-dot"></span><span>韩铁工 完成了 KPI 自评</span><span class="portal-feed-time">昨天</span></div>
-            <div class="portal-feed-item"><span class="portal-feed-dot"></span><span>系统更新至 V0.7.1</span><span class="portal-feed-time">今天 08:00</span></div>
+            <div class="portal-feed-item"><span class="portal-feed-dot"></span><span>系统更新至 V0.7.1a</span><span class="portal-feed-time">今天 08:00</span></div>
           </div>
         </div>
       </div>
@@ -2548,7 +2548,7 @@ function togglePortalTips(){
           </div>
         </div>
       </div>
-      <div style="margin-top:16px;text-align:center;font-size:11px;color:#5f6368">Tiger-Buddy 虎伴科技 · MBO+AI V0.7.1</div>
+      <div style="margin-top:16px;text-align:center;font-size:11px;color:#5f6368">Tiger-Buddy 虎伴科技 · MBO+AI V0.7.1a</div>
     </div>
   </main>
 </div>
@@ -3713,6 +3713,7 @@ var currentUser=null;
     document.getElementById('hrPoliciesView').style.display='none';
     document.getElementById('portalView').style.display='flex';
     applyRoleUI();
+  _refreshPortalData();
   }
 })();
 
@@ -3995,6 +3996,115 @@ function goHome(){
   if(si)si.value='';
   var btn=document.getElementById('policiesBackToTop');
   if(btn)btn.classList.remove('show');
+}
+
+// ★ V0.7.1aa: 门户数据动态刷新 — 关联周行动计划和人员数据
+function _refreshPortalData(){
+  var now = new Date();
+  var yr = now.getFullYear(), mo = now.getMonth()+1;
+  // ISO week — 简化计算: 取本月第几周
+  var firstDay = new Date(yr, mo-1, 1);
+  var dayOfFirst = firstDay.getDay()||7;
+  var wk = Math.ceil((now.getDate() + dayOfFirst - 1)/7);
+  var weekId = yr+'-'+('0'+mo).slice(-2)+'-W'+wk;
+
+  // --- 团队总数 ---
+  var empCount = (typeof allEmployees!=='undefined'&&allEmployees.length) ? allEmployees.length : 0;
+  var activeCount = 0, resignedCount = 0;
+  if(window.allEmployees){
+    var act_keys = (typeof ACTIVE_STATUS!=='undefined')?ACTIVE_STATUS:['在职','已转正','正式','试用','试用期','active'];
+    var res_keys = (typeof SKIP_STATUS!=='undefined')?SKIP_STATUS:['已离职','离职','quit','left','resigned'];
+    allEmployees.forEach(function(e){
+      var st = (e.status||'').toLowerCase();
+      if(act_keys.some(function(k){return st===k.toLowerCase();})) activeCount++;
+      else if(res_keys.some(function(k){return st===k.toLowerCase();})) resignedCount++;
+    });
+  }
+  var pdcTeam = document.getElementById('pdcTeam');
+  var pdcTeamSub = document.getElementById('pdcTeamSub');
+  if(pdcTeam) pdcTeam.textContent = empCount;
+  if(pdcTeamSub) pdcTeamSub.textContent = '在岗 '+activeCount+' · 离职 '+resignedCount;
+
+  // --- 本周任务统计 ---
+  try {
+    var user = (typeof currentUser!=='undefined'&&currentUser&&currentUser.name)||'';
+    var wpKey = 'hwm_workplans_'+user;
+    var raw = localStorage.getItem(wpKey);
+    var wpData = raw ? JSON.parse(raw) : {};
+    var plan = wpData[weekId];
+    var todoCount = 0, doingCount = 0, doneCount = 0;
+    var overdueCount = 0;
+    var overdueMsgs = [];
+    var todayStr = now.toISOString().slice(0,10);
+    var thisMonthTasks = {done:0,total:0};
+
+    // 遍历本周计划
+    if(plan && plan.tasks && plan.tasks.length){
+      plan.tasks.forEach(function(t){
+        if(!t.work) return;
+        todoCount++;
+        if(t.status==='按时完成') doneCount++;
+        else if(t.status==='进行中') doingCount++;
+        else if(t.status==='暂停中'){ /* 不计入进行中 */ }
+        // 逾期判断
+        var pDate = t.plannedDate||'';
+        if(pDate && pDate < todayStr && t.status!=='按时完成' && t.status!=='逾期完成' && t.status!=='未做' && t.status!=='暂停中'){
+          overdueCount++;
+          overdueMsgs.push(t.work.slice(0,20));
+        }
+      });
+    }
+    // 本月完成率 (all months' weeks for current user)
+    Object.keys(wpData).forEach(function(wid){
+      var p2 = wpData[wid];
+      if(!p2 || !p2.tasks) return;
+      // Check if week belongs to current month
+      var parts = wid.split('-');
+      if(parseInt(parts[1])===mo && parseInt(parts[0])===yr){
+        p2.tasks.forEach(function(t){
+          if(!t.work) return;
+          thisMonthTasks.total++;
+          if(t.status==='按时完成'||t.status==='逾期完成'||t.status==='未做') thisMonthTasks.done++;
+        });
+      }
+    });
+    var rate = thisMonthTasks.total>0 ? Math.round(thisMonthTasks.done/thisMonthTasks.total*100) : null;
+
+    // Update DOM
+    var pdcTodo = document.getElementById('pdcTodo');
+    var pdcTodoSub = document.getElementById('pdcTodoSub');
+    if(pdcTodo) pdcTodo.textContent = todoCount||'0';
+    if(pdcTodoSub) pdcTodoSub.textContent = doingCount+' 进行中 · '+doneCount+' 已完成';
+
+    var pdcOverdue = document.getElementById('pdcOverdue');
+    var pdcOverdueSub = document.getElementById('pdcOverdueSub');
+    if(pdcOverdue) pdcOverdue.textContent = overdueCount;
+    if(pdcOverdueSub){
+      if(overdueCount>0 && overdueMsgs.length>0) pdcOverdueSub.textContent = overdueMsgs.slice(0,3).join(' · ');
+      else pdcOverdueSub.textContent = '暂无逾期任务';
+    }
+
+    var pdcRate = document.getElementById('pdcRate');
+    var pdcRateSub = document.getElementById('pdcRateSub');
+    if(pdcRate) pdcRate.textContent = rate!==null ? rate+'%' : '—%';
+    if(pdcRateSub) pdcRateSub.textContent = thisMonthTasks.total>0 ? ('共 '+thisMonthTasks.total+' 项任务') : '暂无本月数据';
+
+    // Alert banner
+    var alertEl = document.getElementById('portalAlert');
+    if(alertEl){
+      if(overdueCount>0){
+        alertEl.style.display = 'flex';
+        var alertStrong = alertEl.querySelector('strong');
+        var alertMsg = document.getElementById('portalAlertMsg');
+        if(alertStrong) alertStrong.textContent = '⚠ '+overdueCount+' 项逾期任务';
+        if(alertMsg) alertMsg.textContent = overdueMsgs.slice(0,3).join(' · ');
+      } else {
+        alertEl.style.display = 'none';
+      }
+    }
+  } catch(e){
+    console.warn('[portal] _refreshPortalData error:', e);
+  }
 }
 
 function enterModule(mod){
