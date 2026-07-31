@@ -320,8 +320,8 @@ function renderProjectCard(p, idx, anim){
   h += '</div>';
   h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid #EFEDE8">';
   h += '<div style="display:flex;gap:8px">';
-  h += '<button onclick="event.stopPropagation();showProjectTeam('+p.id+')" style="font-size:11px;padding:6px 14px;border-radius:10px;border:1px solid #BFDBFE;background:#EFF6FF;color:#1B6EC4;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-weight:500;transition:all 0.2s ease" title="查看项目组成员" onmouseover="this.style.background=\'#DBEAFE\'" onmouseout="this.style.background=\'#EFF6FF\'"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>项目团队 ('+teamCount+')</button>';
-  h += '<button onclick="event.stopPropagation();openProjectGanttTab('+p.id+')" style="font-size:11px;padding:6px 14px;border-radius:10px;border:1px solid #E5E7EB;background:#F9FAFB;color:#374151;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-weight:500;transition:all 0.2s ease" title="查看项目甘特图" onmouseover="this.style.background=\'#F3F4F6\';this.style.borderColor=\'#D1D5DB\'" onmouseout="this.style.background=\'#F9FAFB\';this.style.borderColor=\'#E5E7EB\'"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:block"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>项目甘特图</button>';
+  h += '<button onclick="event.stopPropagation();showProjectTeam('+p.id+')" style="font-size:11px;padding:6px 14px;border-radius:6px;border:1px solid #BFDBFE;background:#EFF6FF;color:#1B6EC4;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-weight:500;transition:all 0.2s ease" title="查看项目组成员" onmouseover="this.style.background=\'#DBEAFE\'" onmouseout="this.style.background=\'#EFF6FF\'"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>项目团队 ('+teamCount+')</button>';
+  h += '<button onclick="event.stopPropagation();openProjectGanttTab('+p.id+')" style="font-size:11px;padding:6px 14px;border-radius:6px;border:1px solid #BFDBFE;background:#EFF6FF;color:#1B6EC4;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-weight:500;transition:all 0.2s ease" title="查看项目甘特图" onmouseover="this.style.background=\'#DBEAFE\'" onmouseout="this.style.background=\'#EFF6FF\'"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:block"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>项目甘特图</button>';
   h += '</div>';
   h += '<span style="font-size:10px;color:#C9C4BA">'+(p.updated_at?formatDate(p.updated_at):'')+'</span>';
   h += '</div>';
@@ -1105,11 +1105,11 @@ function injectPMStyles(){
   +'.pm-card-anim{animation:pmCardIn .24s ease-out both}'
   +'.pm-nav-item{transition:background-color .16s ease-out,color .16s ease-out}'
   +'.pm-nav-item:hover{background:#EFEDE8}'
-  +'.pm-nav-sel{background:#1B6EC4!important;color:#F7F5F0!important;font-weight:600}'
+  +'.pm-nav-sel{background:rgba(27,110,196,0.5)!important;color:#F7F5F0!important;font-weight:600}'
   +'.pm-nav-sel .pm-nav-cnt{color:#BFDBFE!important}'
   +'.pm-lvl-chip{transition:background-color .16s ease-out,color .16s ease-out,border-color .16s ease-out;cursor:pointer;user-select:none}'
   +'.pm-lvl-chip:hover{border-color:#1B6EC4}'
-  +'.pm-lvl-on{background:#1B6EC4!important;color:#F7F5F0!important;border-color:#1B6EC4!important}'
+  +'.pm-lvl-on{background:rgba(27,110,196,0.5)!important;color:#F7F5F0!important;border-color:#1B6EC4!important}'
   +'.pm-card:hover{border-color:#A8A29A!important}'
   +'.pm-del-btn{opacity:0;transition:opacity .16s ease-out,color .16s ease-out}'
   +'.pm-card:hover .pm-del-btn{opacity:1}'
