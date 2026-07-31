@@ -878,7 +878,7 @@ function _rdRenderBonusPanel(c){
   function findDept(n){ var m = team.find(function(t){return t.name===n;}); return m?(m.dept||''):''; }
   var bonusPool = (selectedStage&&selectedStage.bonus_pool) || p.bonus_pool || '';
 
-  var h = '<div style="margin-top:20px;background:#fff;border:1px solid #E5E7EB;border-radius:12px;overflow:hidden">';
+  var h = '<div style="margin-top:20px;background:#fff;border:1px solid #E5E7EB;border-radius:12px;overflow:hidden;flex:1 1 100%;width:100%">';
   // 面板标题栏
   h += '<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:linear-gradient(135deg,#EFF6FF 0%,#F9FAFB 100%);border-bottom:1px solid #E5E7EB">';
   h += '<div style="display:flex;align-items:center;gap:10px">';
@@ -918,21 +918,34 @@ function _rdRenderBonusPanel(c){
   h += '<span style="font-size:12px;color:#6B7280">单位积分：<span id="rd-unit-bonus" style="font-weight:600;color:#059669;font-size:13px">—</span></span>';
   h += '</div>';
 
-  // 成员表格（明确列宽：姓名140px+其他列合理分配，总~950px，配合 table-layout:fixed）
+  // 成员表格（用 colgroup 锁死列宽，name 输入框固定 200px 不用 100%）
   h += '<div style="overflow-x:auto;max-width:100%">';
-  h += '<table style="width:100%;border-collapse:collapse;font-size:11px;table-layout:fixed;min-width:960px">';
+  h += '<table style="width:100%;border-collapse:collapse;font-size:11px;table-layout:fixed">';
+  h += '<colgroup>'
+     + '<col style="width:32px">'
+     + '<col style="width:160px">'
+     + '<col style="width:90px">'
+     + '<col style="width:80px">'
+     + '<col style="width:110px">'
+     + '<col style="width:110px">'
+     + '<col style="width:130px">'
+     + '<col style="width:76px">'
+     + '<col style="width:90px">'
+     + '<col style="width:90px">'
+     + '<col style="width:44px">'
+     + '</colgroup>';
   h += '<thead><tr style="background:#F9FAFB">';
-  h += '<th style="padding:6px 2px;border-bottom:1px solid #E5E7EB;width:32px;color:#6B7280;font-size:10px">#</th>';
-  h += '<th style="padding:6px 4px;border-bottom:1px solid #E5E7EB;width:140px;text-align:left;color:#374151;font-size:10px;font-weight:600">姓名</th>';
-  h += '<th style="padding:6px 4px;border-bottom:1px solid #E5E7EB;width:80px;color:#6B7280;font-size:10px">部门</th>';
-  h += '<th style="padding:6px 4px;border-bottom:1px solid #E5E7EB;width:80px;color:#6B7280;font-size:10px">职责</th>';
-  h += '<th style="padding:6px 4px;border-bottom:1px solid #E5E7EB;width:95px;color:#6B7280;font-size:10px">交付效率</th>';
-  h += '<th style="padding:6px 4px;border-bottom:1px solid #E5E7EB;width:95px;color:#6B7280;font-size:10px">交付质量</th>';
-  h += '<th style="padding:6px 4px;border-bottom:1px solid #E5E7EB;width:115px;color:#6B7280;font-size:10px">综合评价</th>';
-  h += '<th style="padding:6px 4px;border-bottom:1px solid #E5E7EB;width:72px;color:#6B7280;font-size:10px">分配比%</th>';
-  h += '<th style="padding:6px 4px;border-bottom:1px solid #E5E7EB;width:90px;color:#6B7280;font-size:10px">奖金基数</th>';
-  h += '<th style="padding:6px 4px;border-bottom:1px solid #E5E7EB;width:90px;color:#6B7280;font-size:10px">应发奖金</th>';
-  h += '<th style="padding:6px 2px;border-bottom:1px solid #E5E7EB;width:44px;color:#6B7280;font-size:10px">操作</th>';
+  h += '<th style="padding:6px 2px;border-bottom:1px solid #E5E7EB;color:#6B7280;font-size:10px;text-align:center">#</th>';
+  h += '<th style="padding:6px 4px;border-bottom:1px solid #E5E7EB;text-align:left;color:#374151;font-size:10px;font-weight:600">姓名</th>';
+  h += '<th style="padding:6px 4px;border-bottom:1px solid #E5E7EB;color:#6B7280;font-size:10px">部门</th>';
+  h += '<th style="padding:6px 4px;border-bottom:1px solid #E5E7EB;color:#6B7280;font-size:10px">职责</th>';
+  h += '<th style="padding:6px 4px;border-bottom:1px solid #E5E7EB;color:#6B7280;font-size:10px">交付效率</th>';
+  h += '<th style="padding:6px 4px;border-bottom:1px solid #E5E7EB;color:#6B7280;font-size:10px">交付质量</th>';
+  h += '<th style="padding:6px 4px;border-bottom:1px solid #E5E7EB;color:#6B7280;font-size:10px">综合评价</th>';
+  h += '<th style="padding:6px 4px;border-bottom:1px solid #E5E7EB;color:#6B7280;font-size:10px">分配比%</th>';
+  h += '<th style="padding:6px 4px;border-bottom:1px solid #E5E7EB;color:#6B7280;font-size:10px">奖金基数</th>';
+  h += '<th style="padding:6px 4px;border-bottom:1px solid #E5E7EB;color:#6B7280;font-size:10px">应发奖金</th>';
+  h += '<th style="padding:6px 2px;border-bottom:1px solid #E5E7EB;color:#6B7280;font-size:10px;text-align:center">操作</th>';
   h += '</tr></thead><tbody id="rd-mem-tbody">';
 
   function buildRow(idx, m){
