@@ -369,7 +369,7 @@ function renderPMSidebar(){
   [{v:1,l:'一级',c:'#B3382C'},{v:2,l:'二级',c:'#6E6A63'},{v:3,l:'三级',c:'#A8A29A'}].forEach(function(lv){
     var cnt = typed.filter(function(p){return String(p.level)===String(lv.v);}).length;
     var on = String(_pmFilter.level||'')===String(lv.v);
-    h += '<div class="pm-lvl-chip'+(on?' pm-lvl-on':'')+'" onclick="toggleLevelFilter('+lv.v+')" style="flex:1;padding:5px 4px;border-radius:7px;border:1px solid '+(on?'#1F1F1F':'#D8D3C8')+';font-size:11px;text-align:center;color:'+(on?'#F7F5F0':lv.c)+'">'+lv.l+' '+cnt+'</div>';
+    h += '<div class="pm-lvl-chip'+(on?' pm-lvl-on':'')+'" onclick="toggleLevelFilter('+lv.v+')" style="flex:1;padding:5px 4px;border-radius:7px;border:1px solid '+(on?'#1B6EC4':'#D8D3C8')+';font-size:11px;text-align:center;color:'+(on?'#F7F5F0':lv.c)+'">'+lv.l+' '+cnt+'</div>';
   });
   h += '</div></div>';
 
@@ -411,8 +411,11 @@ async function openPMDetail(pid){
   var p = all.find(function(x){return x.id===pid;});
   if(!p){ _showAlert('项目不存在'); return; }
   // ★ V0.6.6f: 进入项目详情时重置 Tab 状态，防止残留 'gantt' 导致错误进入甘特图
-  _pmDetailTab = 'board';
-  window._rdDetailTab = 'pipeline';
+  // ★ V0.6.6h: 但如果是由 openProjectGanttTab 显式设置的，保留不重置
+  if(!_pmTabExplicitlySet){
+    _pmDetailTab = 'board';
+    window._rdDetailTab = 'pipeline';
+  }
   // ★ V0.6.5m: 成员名单+密码门禁 — 成员需验证密码方可进入
   var _accessOk = await verifyProjectAccess(pid);
   if(!_accessOk) return;
@@ -1102,11 +1105,11 @@ function injectPMStyles(){
   +'.pm-card-anim{animation:pmCardIn .24s ease-out both}'
   +'.pm-nav-item{transition:background-color .16s ease-out,color .16s ease-out}'
   +'.pm-nav-item:hover{background:#EFEDE8}'
-  +'.pm-nav-sel{background:#1F1F1F!important;color:#F7F5F0!important;font-weight:600}'
-  +'.pm-nav-sel .pm-nav-cnt{color:#A8A29A!important}'
+  +'.pm-nav-sel{background:#1B6EC4!important;color:#F7F5F0!important;font-weight:600}'
+  +'.pm-nav-sel .pm-nav-cnt{color:#BFDBFE!important}'
   +'.pm-lvl-chip{transition:background-color .16s ease-out,color .16s ease-out,border-color .16s ease-out;cursor:pointer;user-select:none}'
-  +'.pm-lvl-chip:hover{border-color:#6E6A63}'
-  +'.pm-lvl-on{background:#1F1F1F!important;color:#F7F5F0!important;border-color:#1F1F1F!important}'
+  +'.pm-lvl-chip:hover{border-color:#1B6EC4}'
+  +'.pm-lvl-on{background:#1B6EC4!important;color:#F7F5F0!important;border-color:#1B6EC4!important}'
   +'.pm-card:hover{border-color:#A8A29A!important}'
   +'.pm-del-btn{opacity:0;transition:opacity .16s ease-out,color .16s ease-out}'
   +'.pm-card:hover .pm-del-btn{opacity:1}'
