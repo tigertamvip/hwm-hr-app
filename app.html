@@ -6,8 +6,8 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.7.1e">
-<!-- cache-bust: 2026-07-31-21-55 -->
+<meta name="version" content="V0.7.1f">
+<!-- cache-bust: 2026-07-31-22-00 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json?v=bc">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1085,7 +1085,7 @@ body{
   .toast{bottom:20px;font-size:12px;padding:8px 18px}
 }
 
-/* ===== 门户首页 · V0.7.1e Taste Redesign (sidebar + workspace) ===== */
+/* ===== 门户首页 · V0.7.1f Taste Redesign (sidebar + workspace) ===== */
 /* Design Read: B2B enterprise HR dashboard for medical-device managers.
    Precision-instrument visual language: structured data zones,
    restrained industrial palette, no decorative fluff.
@@ -1122,6 +1122,14 @@ body{
 .portal-panel{background:#fff;border:1px solid #dadce0;border-radius:6px;overflow:hidden}
 .portal-panel-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #dadce0;background:#f8f9fa;font-size:13px;font-weight:600}
 .portal-panel-body{padding:12px 16px}
+.portal-panel-body--scroll{max-height:280px;overflow-y:auto;padding:12px 16px}
+.portal-panel-body--scroll::-webkit-scrollbar{width:6px}
+.portal-panel-body--scroll::-webkit-scrollbar-thumb{background:#dadce0;border-radius:3px}
+.portal-panel-body--scroll::-webkit-scrollbar-thumb:hover{background:#5f6368}
+.portal-task-item{cursor:pointer;transition:background .12s}
+.portal-task-item:hover{background:#e8f0fe;color:var(--accent)}
+.portal-prio-head{cursor:pointer;display:flex;align-items:center;gap:4px}
+.portal-prio-head:hover{opacity:.8}
 .portal-task-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #e8eaed;font-size:13px}
 .portal-task-item:last-child{border-bottom:none}
 .portal-task-prio{width:8px;height:8px;border-radius:50%;flex-shrink:0}
@@ -2466,7 +2474,7 @@ function togglePortalTips(){
   </div><!-- /login-right -->
 </div>
 
-<!-- 门户首页 · V0.7.1e Taste Redesign -->
+<!-- 门户首页 · V0.7.1f Taste Redesign -->
 <div id="portalView" class="portal-view" style="display:none">
   <!-- Sidebar -->
   <aside class="portal-sidebar">
@@ -2512,7 +2520,7 @@ function togglePortalTips(){
       </div>
       <div class="portal-twocol">
         <div class="portal-panel">
-          <div class="portal-panel-header"><span>🔥 重要紧急 / 重要不急</span><span style="font-size:11px;color:#c5221f" id="portalPrioCount">0 条</span></div>
+          <div class="portal-panel-header"><span>🔥 重要紧急 / 重要不急</span><span class="portal-prio-head" id="portalPrioCount" title="点击跳转到本周工作计划">0 条 ↗</span></div>
           <div class="portal-panel-body" id="portalPrioBody">
             <div style="padding:16px 0;text-align:center;color:#9ca3af;font-size:12px">加载中…</div>
           </div>
@@ -2523,7 +2531,7 @@ function togglePortalTips(){
             <div class="portal-feed-item"><span class="portal-feed-dot"></span><span>谭晨航 提交了本周工作计划</span><span class="portal-feed-time">10:32</span></div>
             <div class="portal-feed-item"><span class="portal-feed-dot"></span><span>葛师师 更新了研发项目状态</span><span class="portal-feed-time">09:15</span></div>
             <div class="portal-feed-item"><span class="portal-feed-dot"></span><span>韩铁工 完成了 KPI 自评</span><span class="portal-feed-time">昨天</span></div>
-            <div class="portal-feed-item"><span class="portal-feed-dot"></span><span>系统更新至 V0.7.1e</span><span class="portal-feed-time">今天 08:00</span></div>
+            <div class="portal-feed-item"><span class="portal-feed-dot"></span><span>系统更新至 V0.7.1f</span><span class="portal-feed-time">今天 08:00</span></div>
           </div>
         </div>
       </div>
@@ -2546,7 +2554,7 @@ function togglePortalTips(){
           </div>
         </div>
       </div>
-      <div style="margin-top:16px;text-align:center;font-size:11px;color:#5f6368">Tiger-Buddy 虎伴科技 · MBO+AI V0.7.1e</div>
+      <div style="margin-top:16px;text-align:center;font-size:11px;color:#5f6368">Tiger-Buddy 虎伴科技 · MBO+AI V0.7.1f</div>
     </div>
   </main>
 </div>
@@ -3996,7 +4004,7 @@ function goHome(){
   if(btn)btn.classList.remove('show');
 }
 
-// ★ V0.7.1ea: 门户数据动态刷新 — 关联周行动计划和人员数据
+// ★ V0.7.1fa: 门户数据动态刷新 — 关联周行动计划和人员数据
 function _refreshPortalData(){
   var now = new Date();
   var yr = now.getFullYear(), mo = now.getMonth()+1;
@@ -4006,7 +4014,7 @@ function _refreshPortalData(){
   var wk = Math.ceil((now.getDate() + dayOfFirst - 1)/7);
   var weekId = yr+'-'+('0'+mo).slice(-2)+'-W'+wk;
 
-  // --- 团队总数 (V0.7.1e: 修复为显示当前在职人数) ---
+  // --- 团队总数 (V0.7.1f: 修复为显示当前在职人数) ---
   var empCount = (typeof allEmployees!=='undefined'&&allEmployees.length) ? allEmployees.length : 0;
   var activeCount = 0, resignedCount = 0;
   if(window.allEmployees){
@@ -4024,7 +4032,7 @@ function _refreshPortalData(){
   if(pdcTeam) pdcTeam.textContent = activeCount;
   if(pdcTeamSub) pdcTeamSub.textContent = '花名册 '+empCount+' 人 · 离职 '+resignedCount;
 
-  // --- 本月未完成任务统计 (V0.7.1e: 来源=当月所有周计划) ---
+  // --- 本月未完成任务统计 (V0.7.1f: 来源=当月所有周计划) ---
   try {
     var user = (typeof currentUser!=='undefined'&&currentUser&&currentUser.name)||'';
     var wpKey = 'hwm_workplans_'+user;
@@ -4089,7 +4097,7 @@ function _refreshPortalData(){
     if(pdcRate) pdcRate.textContent = rate!==null ? rate+'%' : '—%';
     if(pdcRateSub) pdcRateSub.textContent = thisMonthTasks.total>0 ? ('共 '+thisMonthTasks.total+' 项任务') : '暂无本月数据';
 
-    // --- V0.7.1e: 重要紧急/重要不急任务列表 （显示未完成 + 已逾期完成之外的） ---
+    // --- V0.7.1f: 重要紧急/重要不急任务列表 （显示未完成 + 已逾期完成之外的） ---
     var prioTasks = [];
     Object.keys(wpData).forEach(function(wid){
       var p2 = wpData[wid];
@@ -4109,7 +4117,10 @@ function _refreshPortalData(){
     prioTasks.sort(function(a,b){return (a.plannedDate||'9999').localeCompare(b.plannedDate||'9999');});
     var prioCountEl = document.getElementById('portalPrioCount');
     var prioBodyEl = document.getElementById('portalPrioBody');
-    if(prioCountEl) prioCountEl.textContent = prioTasks.length+' 条';
+    if(prioCountEl){
+      prioCountEl.textContent = prioTasks.length+' 条 ↗';
+      prioCountEl.onclick = function(){ if(typeof enterModule==='function') enterModule('workplan'); };
+    }
     if(prioBodyEl){
       if(prioTasks.length===0){
         prioBodyEl.innerHTML = '<div style="padding:20px 0;text-align:center;color:#9ca3af;font-size:12px">暂无重要紧急/重要不急的待办事项</div>';
@@ -4133,6 +4144,18 @@ function _refreshPortalData(){
           html += '<div class="portal-task-item"><span class="portal-task-prio" style="background:'+color+';position:relative" title="'+t.goal+'"><span style="font-size:8px;color:#fff;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-weight:700">'+goalLabel+'</span></span><span>'+t.work+'</span>'+dueText+'</div>';
         });
         prioBodyEl.innerHTML = html;
+        prioBodyEl.classList.add('portal-panel-body--scroll');
+        // 绑定任务点击 → 跳转周计划
+        prioBodyEl.querySelectorAll('.portal-task-item').forEach(function(el){
+          el.addEventListener('click', function(){
+            if(typeof enterModule==='function'){
+              enterModule('workplan');
+              setTimeout(function(){
+                if(typeof goHome==='function'){} // 不回首页
+              },100);
+            }
+          });
+        });
       }
     }
 
