@@ -391,56 +391,104 @@ function _rdMembersCount(raw){
 }
 
 // ★ V0.6.6l: 渲染项目成员管理弹窗（含表格+自动求和+100%校验）
+// ★ V0.6.6m: 奖金计算引擎 — 积分映射+四步算法+自动计算
+var BONUS_SCORE = {'+2':5,'+1':3,'0':2,'-1':1,'-2':0,'无法评估':0};
+var EFF_SCORE = {'按时交付':5,'延期交付':2,'逾期未交付':0};
+var EFF_OPTIONS = ['按时交付','延期交付','逾期未交付'];
+var QUAL_OPTIONS = ['+2','+1','0','-1','-2'];
+var OVERALL_OPTIONS = ['+2','+1','0','-1','-2','无法评估'];
+var QUAL_LABEL = {'+2':'+2级 优于预期','+1':'+1级 略优于预期','0':'0级 符合预期','-1':'-1级 有差距','-2':'-2级 严重差距'};
+var OVERALL_LABEL = {'+2':'+2级 优秀','+1':'+1级 良好','0':'0级 合格','-1':'-1级 基本合格','-2':'-2级 有较大差距','无法评估':'无法评估'};
+
 async function _rdOpenMembersModal(stageId){
   if(!_rdCurrent) return;
   var stage = _rdCurrent.stages.find(function(s){return s.id===stageId;});
   if(!stage) return;
   var me = (typeof currentUser!=='undefined'&&currentUser&&currentUser.name)||'';
   var isOwner = stage.owner === me || (typeof hasPermission==='function'&&hasPermission('maintenance'));
-  // 项目负责人才能编辑
   if(!isOwner){
     showToast('仅项目负责人可编辑项目成员');
     return;
   }
   var members = _rdParseMembers(stage.members||'');
-  var allEmps = (typeof allEmployees!=='undefined')?allEmployees:[];
-  // 尝试从项目团队中查找部门
   var team = _rdCurrent.project && _rdCurrent.project.team ? _rdCurrent.project.team : [];
   function findDept(n){ var m = team.find(function(t){return t.name===n;}); return m?(m.dept||''):''; }
 
+  // 总奖金池：优先取阶段已保存的，否则取项目奖金池
+  var bonusPool = stage.bonus_pool || _rdCurrent.project.bonus_pool || '';
+  var isReadOnly = !isOwner;
+
   var html = '';
-  html += '<div style="margin-bottom:8px;font-size:12px;color:#6B7280">本阶段项目成员（奖金分配比例总和需=100%）</div>';
+  html += '<style>#bonus-modal-wrap .bonus-select{width:100%;padding:4px 4px;border:1px solid #D0D5DD;border-radius:4px;font-size:11px;background:#fff;box-sizing:border-box}#bonus-modal-wrap .bonus-input{width:100%;padding:4px 6px;border:1px solid #D0D5DD;border-radius:4px;font-size:11px;box-sizing:border-box}#bonus-modal-wrap th{position:sticky;top:0;background:#F9FAFB;z-index:1;padding:6px 4px;border-bottom:1px solid #E5E7EB;font-size:10px;font-weight:600;color:#6B7280;white-space:nowrap}#bonus-modal-wrap td{padding:5px 3px;border-bottom:1px solid #F3F4F6;font-size:11px}</style>';
+  html += '<div id="bonus-modal-wrap" style="min-width:1100px">';
+  html += '<div style="margin-bottom:8px;font-size:12px;color:#6B7280">项目成员绩效评价与奖金分配</div>';
   html += '<div id="rd-mem-table" style="max-height:380px;overflow:auto;border:1px solid #E5E7EB;border-radius:6px">';
-  html += '<table style="width:100%;border-collapse:collapse;font-size:12px">';
-  html += '<thead style="position:sticky;top:0;background:#F9FAFB;z-index:1"><tr>';
-  html += '<th style="padding:8px 6px;border-bottom:1px solid #E5E7EB;width:36px">序号</th>';
-  html += '<th style="padding:8px 6px;border-bottom:1px solid #E5E7EB;text-align:left">姓名</th>';
-  html += '<th style="padding:8px 6px;border-bottom:1px solid #E5E7EB;text-align:left">来自部门</th>';
-  html += '<th style="padding:8px 6px;border-bottom:1px solid #E5E7EB;text-align:left">组内职责</th>';
-  html += '<th style="padding:8px 6px;border-bottom:1px solid #E5E7EB;width:80px">奖金分配%</th>';
-  html += '<th style="padding:8px 6px;border-bottom:1px solid #E5E7EB;width:48px">操作</th>';
+  html += '<table style="width:100%;border-collapse:collapse">';
+  html += '<thead><tr>';
+  html += '<th style="width:32px">#</th>';
+  html += '<th>姓名</th>';
+  html += '<th style="width:70px">部门</th>';
+  html += '<th style="width:70px">职责</th>';
+  html += '<th style="width:80px">交付效率</th>';
+  html += '<th style="width:80px">交付质量</th>';
+  html += '<th style="width:85px">综合评价</th>';
+  html += '<th style="width:72px">分配比%</th>';
+  html += '<th style="width:80px">预算基数</th>';
+  html += '<th style="width:85px">应发奖金</th>';
+  html += '<th style="width:40px">操作</th>';
   html += '</tr></thead><tbody id="rd-mem-tbody">';
+
   function buildRow(idx, m){
+    var eff = m.efficiency||'按时交付';
+    var qual = m.quality||'0';
+    var ovr = m.overall||'无法评估';
+    var ratio = m.ratio||0;
+    var base = _rdCalcBaseAmount(bonusPool, ratio);
+    var finalAmt = _rdCalcFinalAmount(m, bonusPool, members);
     var h = '<tr data-idx="'+idx+'">';
-    h += '<td style="padding:6px;border-bottom:1px solid #F3F4F6;text-align:center;color:#6B7280">'+(idx+1)+'</td>';
-    h += '<td style="padding:6px;border-bottom:1px solid #F3F4F6"><input class="rd-mem-name" data-fld="name" value="'+esc(m.name||'')+'" placeholder="点击选择" style="width:100%;padding:4px 6px;border:1px solid #D0D5DD;border-radius:4px;box-sizing:border-box"></td>';
-    h += '<td style="padding:6px;border-bottom:1px solid #F3F4F6"><input class="rd-mem-dept" data-fld="dept" value="'+esc(m.dept||findDept(m.name)||'')+'" style="width:100%;padding:4px 6px;border:1px solid #D0D5DD;border-radius:4px;box-sizing:border-box"></td>';
-    h += '<td style="padding:6px;border-bottom:1px solid #F3F4F6"><input class="rd-mem-role" data-fld="role" value="'+esc(m.role||'组员')+'" style="width:100%;padding:4px 6px;border:1px solid #D0D5DD;border-radius:4px;box-sizing:border-box"></td>';
-    h += '<td style="padding:6px;border-bottom:1px solid #F3F4F6"><input class="rd-mem-ratio" data-fld="ratio" type="number" min="0" max="100" step="1" value="'+(m.ratio||0)+'" style="width:100%;padding:4px 6px;border:1px solid #D0D5DD;border-radius:4px;box-sizing:border-box;text-align:center"></td>';
-    h += '<td style="padding:6px;border-bottom:1px solid #F3F4F6;text-align:center"><button type="button" class="rd-mem-del" data-idx="'+idx+'" style="padding:2px 8px;border:1px solid #FCA5A5;border-radius:4px;background:#FEF2F2;color:#DC2626;cursor:pointer;font-size:11px">删除</button></td>';
+    h += '<td style="text-align:center;color:#6B7280">'+(idx+1)+'</td>';
+    h += '<td><input class="bonus-input rd-mem-name" data-fld="name" value="'+esc(m.name||'')+'" placeholder="选择"></td>';
+    h += '<td><input class="bonus-input rd-mem-dept" data-fld="dept" value="'+esc(m.dept||findDept(m.name)||'')+'"></td>';
+    h += '<td><input class="bonus-input rd-mem-role" data-fld="role" value="'+esc(m.role||'组员')+'"></td>';
+    // 交付效率
+    h += '<td><select class="bonus-select rd-mem-eff" data-fld="efficiency">';
+    EFF_OPTIONS.forEach(function(e){ h += '<option value="'+e+'"'+(eff===e?' selected':'')+'>'+e+'</option>'; });
+    h += '</select></td>';
+    // 交付质量
+    h += '<td><select class="bonus-select rd-mem-qual" data-fld="quality">';
+    QUAL_OPTIONS.forEach(function(q){ h += '<option value="'+q+'"'+(qual===q?' selected':'')+'>'+QUAL_LABEL[q]+'</option>'; });
+    h += '</select></td>';
+    // 综合评价
+    h += '<td><select class="bonus-select rd-mem-ovr" data-fld="overall">';
+    OVERALL_OPTIONS.forEach(function(o){ h += '<option value="'+o+'"'+(ovr===o?' selected':'')+'>'+OVERALL_LABEL[o]+'</option>'; });
+    h += '</select></td>';
+    // 分配比
+    h += '<td><input class="bonus-input rd-mem-ratio" data-fld="ratio" type="number" min="0" max="100" step="0.1" value="'+ratio+'" style="text-align:center"></td>';
+    // 预算基数
+    h += '<td style="text-align:right;color:#6B7280;padding-right:8px" class="rd-mem-base">'+(base?base.toFixed(0):'—')+'</td>';
+    // 应发奖金
+    h += '<td style="text-align:right;color:#1B6EC4;font-weight:600;padding-right:8px" class="rd-mem-final">'+(finalAmt?finalAmt.toFixed(0):'—')+'</td>';
+    h += '<td style="text-align:center"><button type="button" class="rd-mem-del" style="padding:2px 6px;border:1px solid #FCA5A5;border-radius:4px;background:#FEF2F2;color:#DC2626;cursor:pointer;font-size:10px">×</button></td>';
     h += '</tr>';
     return h;
   }
-  if(!members.length){
-    members = [{name:'',dept:'',role:'组员',ratio:0}];
-  }
+  if(!members.length){ members = [{name:'',dept:'',role:'组员',ratio:0,efficiency:'按时交付',quality:'0',overall:'无法评估'}]; }
   members.forEach(function(m, i){ html += buildRow(i, m); });
-  html += '</tbody></table>';
-  html += '</div>';
-  html += '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px">';
+  html += '</tbody></table></div>';
+
+  // 底栏：总奖金池 + 比例合计 + 单位积分奖金 + 添加成员
+  var unitBonus = _rdCalcUnitBonus(members, bonusPool);
+  html += '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;flex-wrap:wrap;gap:8px">';
+  html += '<div style="display:flex;align-items:center;gap:12px">';
   html += '<button type="button" id="rd-mem-add" style="padding:6px 14px;border:1px solid #D0D5DD;border-radius:6px;background:#fff;color:#374151;cursor:pointer;font-size:12px">+ 添加成员</button>';
-  html += '<div id="rd-mem-sum-wrap" style="font-size:12px;color:#6B7280">合计：<span id="rd-mem-sum" style="font-weight:600;color:#1B6EC4;font-size:14px">0</span>% <span id="rd-mem-warn" style="color:#DC2626;margin-left:8px;display:none">⚠ 总和超过 100%，请调整</span></div>';
+  html += '<div style="display:flex;align-items:center;gap:6px"><span style="font-size:11px;color:#6B7280;white-space:nowrap">总奖金池</span><input type="number" id="rd-bonus-pool" value="'+bonusPool+'" placeholder="金额" style="width:110px;padding:4px 8px;border:1px solid #D0D5DD;border-radius:6px;font-size:12px;text-align:right" step="1" min="0"></div>';
   html += '</div>';
+  html += '<div style="display:flex;align-items:center;gap:16px">';
+  html += '<span style="font-size:11px;color:#6B7280">比例合计：<span id="rd-mem-sum" style="font-weight:600;color:#1B6EC4;font-size:13px">0</span>%</span>';
+  html += '<span id="rd-mem-warn" style="color:#DC2626;font-size:11px;display:none">⚠ 超过100%</span>';
+  html += '<span style="font-size:11px;color:#6B7280">单位积分奖金：<span id="rd-unit-bonus" style="font-weight:600;color:#059669;font-size:13px">—</span></span>';
+  html += '</div>';
+  html += '</div></div>';
 
   showFormModal(html, '项目组成员 / Members', '保存 / Save', '取消 / Cancel', function(close){
     var tbody = document.getElementById('rd-mem-tbody');
@@ -452,50 +500,89 @@ async function _rdOpenMembersModal(stageId){
       var dept = tr.querySelector('[data-fld="dept"]').value.trim();
       var role = tr.querySelector('[data-fld="role"]').value.trim();
       var ratio = parseFloat(tr.querySelector('[data-fld="ratio"]').value)||0;
-      arr.push({name:name,dept:dept,role:role||'组员',ratio:ratio});
+      var efficiency = tr.querySelector('[data-fld="efficiency"]').value;
+      var quality = tr.querySelector('[data-fld="quality"]').value;
+      var overall = tr.querySelector('[data-fld="overall"]').value;
+      arr.push({name:name,dept:dept,role:role||'组员',ratio:ratio,efficiency:efficiency,quality:quality,overall:overall});
     });
     var total = arr.reduce(function(s,m){return s+(+m.ratio||0);},0);
     if(total > 100.01){
       showAlert('奖金分配比例总和为 '+total.toFixed(1)+'%，超过 100%，请调整后保存。','比例超限');
-      return; // 不关闭，让用户继续改
+      return;
     }
+    var pool = parseFloat(document.getElementById('rd-bonus-pool').value)||0;
     var json = JSON.stringify(arr);
     close();
-    // 保存到云端+内存
     try{
-      supabase.from(RD_STAGE_TABLE).update({members:json}).eq('id',stageId).then(function(){
+      supabase.from(RD_STAGE_TABLE).update({members:json,bonus_pool:pool}).eq('id',stageId).then(function(){
         stage.members = json;
+        stage.bonus_pool = pool;
+        if(_rdCurrent.project) _rdCurrent.project.bonus_pool = pool;
         renderRdDetail();
         showToast('已保存');
       });
     }catch(e){ showToast('保存失败: '+e.message); }
   });
 
-  // 绑定交互：添加/删除/实时求和
-  function recalc(){
+  // 绑定交互
+  function recalcAll(){
     var tbody = document.getElementById('rd-mem-tbody');
+    var allMem = [];
     var sum = 0;
     if(tbody){
-      tbody.querySelectorAll('.rd-mem-ratio').forEach(function(inp){
-        sum += parseFloat(inp.value)||0;
+      tbody.querySelectorAll('tr').forEach(function(tr){
+        var name = tr.querySelector('[data-fld="name"]')?.value||'';
+        var ratio = parseFloat(tr.querySelector('[data-fld="ratio"]')?.value)||0;
+        var efficiency = tr.querySelector('[data-fld="efficiency"]')?.value||'';
+        var quality = tr.querySelector('[data-fld="quality"]')?.value||'0';
+        var overall = tr.querySelector('[data-fld="overall"]')?.value||'';
+        sum += ratio;
+        allMem.push({name:name,ratio:ratio,efficiency:efficiency,quality:quality,overall:overall});
       });
     }
+    var pool = parseFloat((document.getElementById('rd-bonus-pool')?.value))||0;
+    // 更新比例合计
     var sumEl = document.getElementById('rd-mem-sum');
     var warnEl = document.getElementById('rd-mem-warn');
     if(sumEl) sumEl.textContent = sum.toFixed(1);
     if(warnEl) warnEl.style.display = sum > 100.01 ? 'inline' : 'none';
+
+    // 计算所有成员的积分+奖金
+    var totalScore = 0;
+    allMem.forEach(function(m){
+      m.score = (EFF_SCORE[m.efficiency]||0) + (BONUS_SCORE[m.quality]||0) + (BONUS_SCORE[m.overall]||0);
+      totalScore += m.score;
+    });
+    var unitBonus = totalScore > 0 ? pool / totalScore : 0;
+    var unitEl = document.getElementById('rd-unit-bonus');
+    if(unitEl) unitEl.textContent = unitBonus > 0 ? (unitBonus.toFixed(0)+' 元/分') : '—';
+
+    // 更新预算基数和应发奖金
+    if(tbody){
+      tbody.querySelectorAll('tr').forEach(function(tr, i){
+        var baseEl = tr.querySelector('.rd-mem-base');
+        var finalEl = tr.querySelector('.rd-mem-final');
+        if(i < allMem.length && allMem[i].name){
+          var base = pool * (allMem[i].ratio / 100);
+          var final = allMem[i].score * unitBonus;
+          if(baseEl) baseEl.textContent = base ? base.toFixed(0) : '—';
+          if(finalEl) finalEl.textContent = final ? final.toFixed(0) : '—';
+        }
+      });
+    }
   }
+
   setTimeout(function(){
     var tbody = document.getElementById('rd-mem-tbody');
     function bindRow(tr){
-      tr.querySelectorAll('input').forEach(function(inp){
-        inp.addEventListener('input', recalc);
+      tr.querySelectorAll('input,select').forEach(function(inp){
+        inp.addEventListener('input', recalcAll);
+        inp.addEventListener('change', recalcAll);
       });
       var nameInp = tr.querySelector('[data-fld="name"]');
       if(nameInp && typeof attachEmpNameAutocomplete==='function'){
         attachEmpNameAutocomplete(nameInp, {multi:false});
         nameInp.addEventListener('input', function(){
-          // 选择员工后自动填部门
           var dep = findDept(nameInp.value.trim());
           if(dep) tr.querySelector('[data-fld="dept"]').value = dep;
         });
@@ -504,31 +591,50 @@ async function _rdOpenMembersModal(stageId){
       if(del) del.addEventListener('click', function(){
         tr.parentNode.removeChild(tr);
         renumberRows();
-        recalc();
+        recalcAll();
       });
     }
     function renumberRows(){
-      var rows = tbody.querySelectorAll('tr');
-      rows.forEach(function(tr, i){
+      tbody.querySelectorAll('tr').forEach(function(tr, i){
         tr.setAttribute('data-idx', i);
         var idxCell = tr.querySelector('td:first-child');
         if(idxCell) idxCell.textContent = i+1;
       });
     }
     tbody.querySelectorAll('tr').forEach(bindRow);
+    document.getElementById('rd-bonus-pool')?.addEventListener('input', recalcAll);
     var addBtn = document.getElementById('rd-mem-add');
     if(addBtn){
       addBtn.addEventListener('click', function(){
         var tmp = document.createElement('tbody');
-        tmp.innerHTML = buildRow(tbody.querySelectorAll('tr').length, {name:'',dept:'',role:'组员',ratio:0});
+        tmp.innerHTML = buildRow(tbody.querySelectorAll('tr').length, {name:'',dept:'',role:'组员',ratio:0,efficiency:'按时交付',quality:'0',overall:'无法评估'});
         var newRow = tmp.firstChild;
         tbody.appendChild(newRow);
         bindRow(newRow);
-        recalc();
+        recalcAll();
       });
     }
-    recalc();
+    recalcAll();
   }, 80);
+}
+
+// ★ V0.6.6m: 奖金计算辅助函数
+function _rdCalcBaseAmount(pool, ratio){ if(!pool||!ratio) return 0; return parseFloat(pool) * (parseFloat(ratio)/100); }
+function _rdCalcUnitBonus(members, pool){
+  if(!pool||!members.length) return 0;
+  var total = 0;
+  members.forEach(function(m){
+    if(!m.name) return;
+    total += (EFF_SCORE[m.efficiency||'按时交付']||0)+(BONUS_SCORE[m.quality||'0']||0)+(BONUS_SCORE[m.overall||'无法评估']||0);
+  });
+  return total > 0 ? parseFloat(pool) / total : 0;
+}
+function _rdCalcFinalAmount(m, pool, allMembers){
+  if(!pool||!m.name) return 0;
+  var score = (EFF_SCORE[m.efficiency||'按时交付']||0)+(BONUS_SCORE[m.quality||'0']||0)+(BONUS_SCORE[m.overall||'无法评估']||0);
+  var totalScore = 0;
+  allMembers.forEach(function(m2){ if(m2.name) totalScore += (EFF_SCORE[m2.efficiency||'按时交付']||0)+(BONUS_SCORE[m2.quality||'0']||0)+(BONUS_SCORE[m2.overall||'无法评估']||0); });
+  return totalScore > 0 ? (parseFloat(pool) * score / totalScore) : 0;
 }
 
 // ★ V0.6.5aa: 研发项目甘特图 — 用阶段数据渲染
