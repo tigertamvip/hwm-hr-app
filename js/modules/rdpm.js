@@ -437,7 +437,7 @@ async function _rdOpenMembersModal(stageId){
   html += '<th style="width:80px">交付质量</th>';
   html += '<th style="width:85px">综合评价</th>';
   html += '<th style="width:72px">分配比%</th>';
-  html += '<th style="width:80px">预算基数</th>';
+  html += '<th style="width:80px">奖金基数</th>';
   html += '<th style="width:85px">应发奖金</th>';
   html += '<th style="width:40px">操作</th>';
   html += '</tr></thead><tbody id="rd-mem-tbody">';
@@ -468,7 +468,7 @@ async function _rdOpenMembersModal(stageId){
     h += '</select></td>';
     // 分配比
     h += '<td><input class="bonus-input rd-mem-ratio" data-fld="ratio" type="number" min="0" max="100" step="0.1" value="'+ratio+'" style="text-align:center"></td>';
-    // 预算基数
+    // 奖金基数
     h += '<td style="text-align:right;color:#6B7280;padding-right:8px" class="rd-mem-base">'+(base?base.toFixed(0):'—')+'</td>';
     // 应发奖金
     h += '<td style="text-align:right;color:#1B6EC4;font-weight:600;padding-right:8px" class="rd-mem-final">'+(finalAmt?finalAmt.toFixed(0):'—')+'</td>';
@@ -561,7 +561,7 @@ async function _rdOpenMembersModal(stageId){
     var unitEl = document.getElementById('rd-unit-bonus');
     if(unitEl) unitEl.textContent = unitBonus > 0 ? (unitBonus.toFixed(0)+' 元/分') : '—';
 
-    // 更新预算基数和应发奖金
+    // 更新奖金基数和应发奖金
     if(tbody){
       tbody.querySelectorAll('tr').forEach(function(tr, i){
         var baseEl = tr.querySelector('.rd-mem-base');
@@ -920,19 +920,19 @@ function _rdRenderBonusPanel(c){
 
   // 成员表格
   h += '<div style="overflow-x:auto;max-width:100%">';
-  h += '<table style="width:100%;border-collapse:collapse;font-size:12px;min-width:1200px">';
+  h += '<table style="width:100%;border-collapse:collapse;font-size:11px;min-width:1100px;table-layout:fixed">';
   h += '<thead><tr style="background:#F9FAFB">';
-  h += '<th style="padding:8px 4px;border-bottom:1px solid #E5E7EB;width:32px;color:#6B7280;font-size:11px">#</th>';
-  h += '<th style="padding:8px 6px;border-bottom:1px solid #E5E7EB;text-align:left;color:#374151;font-size:11px;font-weight:600">姓名</th>';
-  h += '<th style="padding:8px 4px;border-bottom:1px solid #E5E7EB;width:70px;color:#6B7280;font-size:11px">部门</th>';
-  h += '<th style="padding:8px 4px;border-bottom:1px solid #E5E7EB;width:70px;color:#6B7280;font-size:11px">职责</th>';
-  h += '<th style="padding:8px 4px;border-bottom:1px solid #E5E7EB;width:90px;color:#6B7280;font-size:11px">交付效率</th>';
-  h += '<th style="padding:8px 4px;border-bottom:1px solid #E5E7EB;width:90px;color:#6B7280;font-size:11px">交付质量</th>';
-  h += '<th style="padding:8px 4px;border-bottom:1px solid #E5E7EB;width:100px;color:#6B7280;font-size:11px">综合评价</th>';
-  h += '<th style="padding:8px 4px;border-bottom:1px solid #E5E7EB;width:72px;color:#6B7280;font-size:11px">分配比%</th>';
-  h += '<th style="padding:8px 4px;border-bottom:1px solid #E5E7EB;width:90px;color:#6B7280;font-size:11px">预算基数</th>';
-  h += '<th style="padding:8px 4px;border-bottom:1px solid #E5E7EB;width:90px;color:#6B7280;font-size:11px">应发奖金</th>';
-  h += '<th style="padding:8px 4px;border-bottom:1px solid #E5E7EB;width:44px;color:#6B7280;font-size:11px">操作</th>';
+  h += '<th style="padding:6px 2px;border-bottom:1px solid #E5E7EB;width:30px;color:#6B7280;font-size:10px">#</th>';
+  h += '<th style="padding:6px 4px;border-bottom:1px solid #E5E7EB;text-align:left;color:#374151;font-size:10px;font-weight:600">姓名</th>';
+  h += '<th style="padding:6px 4px;border-bottom:1px solid #E5E7EB;width:72px;color:#6B7280;font-size:10px">部门</th>';
+  h += '<th style="padding:6px 4px;border-bottom:1px solid #E5E7EB;width:70px;color:#6B7280;font-size:10px">职责</th>';
+  h += '<th style="padding:6px 4px;border-bottom:1px solid #E5E7EB;width:88px;color:#6B7280;font-size:10px">交付效率</th>';
+  h += '<th style="padding:6px 4px;border-bottom:1px solid #E5E7EB;width:88px;color:#6B7280;font-size:10px">交付质量</th>';
+  h += '<th style="padding:6px 4px;border-bottom:1px solid #E5E7EB;width:100px;color:#6B7280;font-size:10px">综合评价</th>';
+  h += '<th style="padding:6px 4px;border-bottom:1px solid #E5E7EB;width:70px;color:#6B7280;font-size:10px">分配比%</th>';
+  h += '<th style="padding:6px 4px;border-bottom:1px solid #E5E7EB;width:86px;color:#6B7280;font-size:10px">奖金基数</th>';
+  h += '<th style="padding:6px 4px;border-bottom:1px solid #E5E7EB;width:88px;color:#6B7280;font-size:10px">应发奖金</th>';
+  h += '<th style="padding:6px 2px;border-bottom:1px solid #E5E7EB;width:40px;color:#6B7280;font-size:10px">操作</th>';
   h += '</tr></thead><tbody id="rd-mem-tbody">';
 
   function buildRow(idx, m){
@@ -940,24 +940,24 @@ function _rdRenderBonusPanel(c){
     var qual = m.quality||'0';
     var ovr = m.overall||'无法评估';
     var ratio = m.ratio||0;
-    var h2 = '<tr data-idx="'+idx+'">';
-    h2 += '<td style="padding:5px;border-bottom:1px solid #F3F4F6;text-align:center;color:#6B7280;font-size:11px">'+(idx+1)+'</td>';
-    h2 += '<td style="padding:4px;border-bottom:1px solid #F3F4F6"><input class="rd-mem-name" data-fld="name" value="'+esc(m.name||'')+'" '+(!isOwner?'disabled':'')+' placeholder="选择" style="width:100%;padding:4px 6px;border:1px solid #D0D5DD;border-radius:4px;font-size:11px;box-sizing:border-box"></td>';
-    h2 += '<td style="padding:4px;border-bottom:1px solid #F3F4F6"><input class="rd-mem-dept" data-fld="dept" value="'+esc(m.dept||findDept(m.name)||'')+'" '+(!isOwner?'disabled':'')+' style="width:100%;padding:4px 6px;border:1px solid #D0D5DD;border-radius:4px;font-size:11px;box-sizing:border-box"></td>';
-    h2 += '<td style="padding:4px;border-bottom:1px solid #F3F4F6"><input class="rd-mem-role" data-fld="role" value="'+esc(m.role||'组员')+'" '+(!isOwner?'disabled':'')+' style="width:100%;padding:4px 6px;border:1px solid #D0D5DD;border-radius:4px;font-size:11px;box-sizing:border-box"></td>';
-    h2 += '<td style="padding:4px;border-bottom:1px solid #F3F4F6"><select class="rd-mem-eff" data-fld="efficiency" '+(!isOwner?'disabled':'')+' style="width:100%;padding:3px 4px;border:1px solid #D0D5DD;border-radius:4px;font-size:11px;background:#fff;box-sizing:border-box">';
+    var h2 = '<tr data-idx="'+idx+'" style="height:38px">';
+    h2 += '<td style="padding:3px;border-bottom:1px solid #F3F4F6;text-align:center;color:#6B7280;font-size:10px;vertical-align:middle">'+(idx+1)+'</td>';
+    h2 += '<td style="padding:3px;border-bottom:1px solid #F3F4F6"><input class="rd-mem-name" data-fld="name" value="'+esc(m.name||'')+'" '+(!isOwner?'disabled':'')+' placeholder="选择" style="width:100%;height:26px;padding:2px 6px;border:1px solid #D0D5DD;border-radius:4px;font-size:11px;box-sizing:border-box"></td>';
+    h2 += '<td style="padding:3px;border-bottom:1px solid #F3F4F6"><input class="rd-mem-dept" data-fld="dept" value="'+esc(m.dept||findDept(m.name)||'')+'" '+(!isOwner?'disabled':'')+' style="width:100%;height:26px;padding:2px 6px;border:1px solid #D0D5DD;border-radius:4px;font-size:11px;box-sizing:border-box"></td>';
+    h2 += '<td style="padding:3px;border-bottom:1px solid #F3F4F6"><input class="rd-mem-role" data-fld="role" value="'+esc(m.role||'组员')+'" '+(!isOwner?'disabled':'')+' style="width:100%;height:26px;padding:2px 6px;border:1px solid #D0D5DD;border-radius:4px;font-size:11px;box-sizing:border-box"></td>';
+    h2 += '<td style="padding:3px;border-bottom:1px solid #F3F4F6"><select class="rd-mem-eff" data-fld="efficiency" '+(!isOwner?'disabled':'')+' style="width:100%;height:26px;padding:0 2px;border:1px solid #D0D5DD;border-radius:4px;font-size:10px;background:#fff;box-sizing:border-box">';
     EFF_OPTIONS.forEach(function(e){ h2 += '<option value="'+e+'"'+(eff===e?' selected':'')+'>'+e+'</option>'; });
     h2 += '</select></td>';
-    h2 += '<td style="padding:4px;border-bottom:1px solid #F3F4F6"><select class="rd-mem-qual" data-fld="quality" '+(!isOwner?'disabled':'')+' style="width:100%;padding:3px 4px;border:1px solid #D0D5DD;border-radius:4px;font-size:11px;background:#fff;box-sizing:border-box">';
+    h2 += '<td style="padding:3px;border-bottom:1px solid #F3F4F6"><select class="rd-mem-qual" data-fld="quality" '+(!isOwner?'disabled':'')+' style="width:100%;height:26px;padding:0 2px;border:1px solid #D0D5DD;border-radius:4px;font-size:10px;background:#fff;box-sizing:border-box">';
     QUAL_OPTIONS.forEach(function(q){ h2 += '<option value="'+q+'"'+(qual===q?' selected':'')+'>'+QUAL_LABEL[q]+'</option>'; });
     h2 += '</select></td>';
-    h2 += '<td style="padding:4px;border-bottom:1px solid #F3F4F6"><select class="rd-mem-ovr" data-fld="overall" '+(!isOwner?'disabled':'')+' style="width:100%;padding:3px 4px;border:1px solid #D0D5DD;border-radius:4px;font-size:11px;background:#fff;box-sizing:border-box">';
+    h2 += '<td style="padding:3px;border-bottom:1px solid #F3F4F6"><select class="rd-mem-ovr" data-fld="overall" '+(!isOwner?'disabled':'')+' style="width:100%;height:26px;padding:0 2px;border:1px solid #D0D5DD;border-radius:4px;font-size:10px;background:#fff;box-sizing:border-box">';
     OVERALL_OPTIONS.forEach(function(o){ h2 += '<option value="'+o+'"'+(ovr===o?' selected':'')+'>'+OVERALL_LABEL[o]+'</option>'; });
     h2 += '</select></td>';
-    h2 += '<td style="padding:4px;border-bottom:1px solid #F3F4F6"><input class="rd-mem-ratio" data-fld="ratio" type="number" min="0" max="100" step="0.1" value="'+ratio+'" '+(!isOwner?'disabled':'')+' style="width:100%;padding:4px 6px;border:1px solid #D0D5DD;border-radius:4px;font-size:11px;box-sizing:border-box;text-align:center"></td>';
-    h2 += '<td style="padding:4px;border-bottom:1px solid #F3F4F6;text-align:right;color:#6B7280;font-size:11px;padding-right:10px" class="rd-mem-base">—</td>';
-    h2 += '<td style="padding:4px;border-bottom:1px solid #F3F4F6;text-align:right;color:#1B6EC4;font-weight:600;font-size:11px;padding-right:10px" class="rd-mem-final">—</td>';
-    h2 += '<td style="padding:4px;border-bottom:1px solid #F3F4F6;text-align:center"><button type="button" class="rd-mem-del" '+(!isOwner?'disabled':'')+' style="padding:2px 6px;border:1px solid #FCA5A5;border-radius:4px;background:#FEF2F2;color:#DC2626;cursor:pointer;font-size:10px'+(isOwner?'':'disabled')+'>×</button></td>';
+    h2 += '<td style="padding:3px;border-bottom:1px solid #F3F4F6"><input class="rd-mem-ratio" data-fld="ratio" type="number" min="0" max="100" step="0.1" value="'+ratio+'" '+(!isOwner?'disabled':'')+' style="width:100%;height:26px;padding:2px 4px;border:1px solid #D0D5DD;border-radius:4px;font-size:11px;box-sizing:border-box;text-align:center"></td>';
+    h2 += '<td style="padding:3px;border-bottom:1px solid #F3F4F6;text-align:right;color:#6B7280;font-size:11px;padding-right:10px;vertical-align:middle" class="rd-mem-base">—</td>';
+    h2 += '<td style="padding:3px;border-bottom:1px solid #F3F4F6;text-align:right;color:#1B6EC4;font-weight:600;font-size:11px;padding-right:10px;vertical-align:middle" class="rd-mem-final">—</td>';
+    h2 += '<td style="padding:3px;border-bottom:1px solid #F3F4F6;text-align:center;vertical-align:middle"><button type="button" class="rd-mem-del" '+(!isOwner?'disabled':'')+' style="padding:2px 6px;border:1px solid #FCA5A5;border-radius:4px;background:#FEF2F2;color:#DC2626;cursor:pointer;font-size:10px'+(isOwner?'':'disabled')+'>×</button></td>';
     h2 += '</tr>';
     return h2;
   }
@@ -965,15 +965,17 @@ function _rdRenderBonusPanel(c){
   members.forEach(function(m, i){ h += buildRow(i, m); });
   h += '</tbody></table></div>';
 
-  // 底部工具栏
-  h += '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:#FAFBFC;border-top:1px solid #F3F4F6;flex-wrap:wrap;gap:8px">';
+  // 底部工具栏（按钮+提示分两行，确保按钮始终横向）
+  h += '<div style="padding:10px 16px;background:#FAFBFC;border-top:1px solid #F3F4F6">';
+  h += '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">';
   if(isOwner){
-    h += '<button type="button" id="rd-mem-add" style="padding:6px 14px;border:1px solid #D0D5DD;border-radius:6px;background:#fff;color:#374151;cursor:pointer;font-size:12px">+ 添加成员</button>';
-    h += '<button type="button" id="rd-bonus-save" style="padding:6px 16px;border:1px solid #1B6EC4;border-radius:6px;background:#1B6EC4;color:#fff;cursor:pointer;font-size:12px;font-weight:500">💾 保存</button>';
+    h += '<button type="button" id="rd-mem-add" style="padding:5px 14px;border:1px solid #D0D5DD;border-radius:6px;background:#fff;color:#374151;cursor:pointer;font-size:11px;font-weight:500">+ 添加成员</button>';
+    h += '<button type="button" id="rd-bonus-save" style="padding:5px 18px;border:1px solid #1B6EC4;border-radius:6px;background:#1B6EC4;color:#fff;cursor:pointer;font-size:11px;font-weight:500">💾 保存</button>';
   } else {
     h += '<span style="font-size:11px;color:#9CA3AF">提示：只有项目负责人可编辑本面板</span>';
   }
-  h += '<span style="margin-left:auto;font-size:11px;color:#9CA3AF">提示：先选左侧甘特图阶段行/或使用上方下拉切换</span>';
+  h += '</div>';
+  h += '<div style="font-size:10px;color:#9CA3AF;margin-top:6px">💡 点击甘特图"项目成员"列单元格可切换到该阶段</div>';
   h += '</div>';
 
   h += '</div>';
