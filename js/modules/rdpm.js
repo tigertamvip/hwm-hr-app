@@ -921,6 +921,8 @@ function _rdRenderBonusPanel(c){
   h += '<span style="margin-left:auto;font-size:12px;color:#6B7280">比例合计：<span id="rd-mem-sum" style="font-weight:600;color:#1B6EC4;font-size:13px">0</span>% <span id="rd-mem-warn" style="color:#DC2626;font-size:11px;display:none;margin-left:6px">⚠ 超过100%</span></span>';
   h += '<span style="font-size:12px;color:#6B7280">总积分：<span id="rd-total-score" style="font-weight:600;color:#059669;font-size:13px">—</span></span>';
   h += '<span style="font-size:12px;color:#6B7280">单位积分：<span id="rd-unit-bonus" style="font-weight:600;color:#059669;font-size:13px">—</span></span>';
+  h += '<span style="font-size:12px;color:#6B7280">奖金基数合计：<span id="rd-sum-base" style="font-weight:600;color:#1B6EC4;font-size:13px">0</span></span>';
+  h += '<span style="font-size:12px;color:#6B7280">应发合计：<span id="rd-sum-final" style="font-weight:600;color:#1B6EC4;font-size:13px">0</span></span>';
   h += '</div>';
 
   // 成员表格（用 colgroup 锁死列宽，name 输入框固定 200px 不用 100%）
@@ -1044,6 +1046,8 @@ function _rdBindBonusPanel(){
   function recalcPanel(){
     var rows = tbody.querySelectorAll('tr');
     var sum = 0;
+    var sumBase = 0;
+    var sumFinal = 0;
     var all = [];
     rows.forEach(function(tr){
       var name = tr.querySelector('[data-fld="name"]')?.value||'';
@@ -1064,17 +1068,23 @@ function _rdBindBonusPanel(){
       if(m.name){
         var baseScore = (EFF_SCORE[m.efficiency]||0)+(BONUS_SCORE[m.quality]||0)+(BONUS_SCORE[m.overall]||0);
         // ★ V0.6.8a: 个人总积分 = 基础积分 × 分配比例
-        var personalScore = baseScore * (m.ratio/100);
+        var personalScore = Math.round(baseScore * (m.ratio/100) * 100) / 100;
         m.personalScore = personalScore;
         totalScore += personalScore;
       }
     });
+    totalScore = Math.round(totalScore * 100) / 100;
     var unit = totalScore>0 ? pool/totalScore : 0;
     var unitEl = document.getElementById('rd-unit-bonus');
     if(unitEl) unitEl.textContent = unit>0 ? (unit.toFixed(2)+' 元/分') : '—';
     // ★ V0.6.6v: 更新总积分显示
     var totalScoreEl = document.getElementById('rd-total-score');
     if(totalScoreEl) totalScoreEl.textContent = totalScore>0 ? (totalScore+' 分') : '—';
+    // ★ V0.6.8b: 更新奖金基数合计和应发合计
+    var sumBaseEl = document.getElementById('rd-sum-base');
+    var sumFinalEl = document.getElementById('rd-sum-final');
+    if(sumBaseEl) sumBaseEl.textContent = sumBase>0 ? (Math.round(sumBase*100)/100+' 元') : '0';
+    if(sumFinalEl) sumFinalEl.textContent = sumFinal>0 ? (Math.round(sumFinal*100)/100+' 元') : '0';
     rows.forEach(function(tr, i){
       var baseEl = tr.querySelector('.rd-mem-base');
       var scoreEl = tr.querySelector('.rd-mem-score');
@@ -1085,6 +1095,8 @@ function _rdBindBonusPanel(){
         // ★ V0.6.6w: 逾期未交付 → 应发奖金直接归零
         // ★ V0.6.8a: 应发 = 个人总积分 × 单位积分奖金
         var final = (all[i].efficiency==='逾期未交付') ? 0 : (personalScore * unit);
+        sumBase += base;
+        sumFinal += final;
         if(baseEl) baseEl.textContent = base?base.toFixed(0):'—';
         if(scoreEl) scoreEl.textContent = personalScore?personalScore.toFixed(1):'—';
         if(finalEl) finalEl.textContent = (final||final===0)?final.toFixed(0):'—';
