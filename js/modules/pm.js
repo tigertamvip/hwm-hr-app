@@ -1356,10 +1356,15 @@ function showProjectTeam(pid){
 
 // ===== 项目甘特图 =====
 // ★ V0.6.5z: 甘特图按钮改为直接进入项目详情的甘特图 Tab（替代旧弹窗）
+// ★ V0.6.6f: 标记是否由 openProjectGanttTab 显式设置 Tab（防止 openPMDetail 重置覆盖）
+var _pmTabExplicitlySet = false;
+
 async function openProjectGanttTab(pid){
   _pmDetailTab = 'gantt';
   window._rdDetailTab = 'gantt'; // ★ V0.6.5aa: 研发项目也切到甘特图Tab
+  _pmTabExplicitlySet = true;
   await openPMDetail(pid);
+  _pmTabExplicitlySet = false;
 }
 
 function showProjectGantt(pid){
