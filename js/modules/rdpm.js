@@ -927,17 +927,17 @@ function _rdRenderBonusPanel(c){
   h += '<table style="width:100%;border-collapse:collapse;font-size:11px;table-layout:fixed">';
   h += '<colgroup>'
      + '<col style="width:30px">'
-     + '<col style="width:120px">'
-     + '<col style="width:90px">'
+     + '<col style="width:110px">'
      + '<col style="width:80px">'
+     + '<col style="width:70px">'
+     + '<col style="width:95px">'
+     + '<col style="width:95px">'
      + '<col style="width:110px">'
-     + '<col style="width:110px">'
-     + '<col style="width:130px">'
-     + '<col style="width:86px">'
+     + '<col style="width:80px">'
+     + '<col style="width:70px">'
+     + '<col style="width:68px">'
+     + '<col style="width:85px">'
      + '<col style="width:76px">'
-     + '<col style="width:72px">'
-     + '<col style="width:90px">'
-     + '<col style="width:80px">'
      + '</colgroup>';
   h += '<thead><tr style="background:#F9FAFB">';
   h += '<th style="padding:6px 2px;border-bottom:1px solid #E5E7EB;color:#6B7280;font-size:10px;text-align:center">#</th>';
