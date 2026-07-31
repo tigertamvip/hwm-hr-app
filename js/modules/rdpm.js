@@ -365,8 +365,23 @@ function renderRdDetail(){
 function _renderRdGantt(c){
   var p = c.project;
   var stages = c.stages||[];
-  var startD = p.start_date ? new Date(p.start_date) : new Date();
-  var endD = p.end_date ? new Date(p.end_date) : new Date(startD.getTime()+90*24*3600*1000);
+
+  // ★ V0.6.6j: 时间轴范围自动适配——以项目起止为锚，扩展到所有阶段的日期范围
+  var projStart = p.start_date ? new Date(p.start_date) : new Date();
+  var projEnd = p.end_date ? new Date(p.end_date) : new Date(projStart.getTime()+90*24*3600*1000);
+  var minMs = projStart.getTime(), maxMs = projEnd.getTime();
+  stages.forEach(function(s){
+    if(s.start_date){
+      var sd = new Date(s.start_date).getTime();
+      if(sd < minMs) minMs = sd;
+    }
+    if(s.end_date){
+      var ed = new Date(s.end_date).getTime();
+      if(ed > maxMs) maxMs = ed;
+    }
+  });
+  var startD = new Date(minMs);
+  var endD = new Date(maxMs);
   var today = new Date();
   today.setHours(0,0,0,0);
   var totalMs = endD - startD || 1;
@@ -447,7 +462,7 @@ function _renderRdGantt(c){
   });
   h += '</div>';
 
-  // 计算每个阶段的日期范围（按权重分配项目周期）
+  // 计算每个阶段的日期范围：优先用用户设置的 start_date/end_date，否则按权重分配
   var stageNames = {preresearch:'预研',initiation:'立项',input:'设计输入',output:'设计输出',verification:'设计验证',validation:'设计确认',transfer:'设计转化'};
   var stageColors = {passed:'#059669',active:'#3B82F6',locked:'#9CA3AF'};
   var totalWeight = 0;
@@ -460,9 +475,16 @@ function _renderRdGantt(c){
   stages.forEach(function(s, i){
     var tpl = (typeof RD_TEMPLATE!=='undefined') ? RD_TEMPLATE.find(function(t){return t.stage_key===s.stage_key;}) : null;
     var w = tpl ? tpl.weight : 0;
-    var stageMs = totalMs * (w / totalWeight);
-    var sStart = new Date(currentD);
-    var sEnd = new Date(currentD.getTime() + stageMs);
+    // ★ V0.6.6j: 优先用用户手动设置的日期，否则按权重分配
+    var sStart, sEnd;
+    if(s.start_date && s.end_date){
+      sStart = new Date(s.start_date);
+      sEnd = new Date(s.end_date);
+    }else{
+      var stageMs = totalMs * (w / totalWeight);
+      sStart = new Date(currentD);
+      sEnd = new Date(currentD.getTime() + stageMs);
+    }
     stageBars.push({
       name: stageNames[s.stage_key]||s.stage_name,
       status: s.status,
@@ -474,7 +496,7 @@ function _renderRdGantt(c){
       endDate: s.end_date||'',
       id: s.id
     });
-    currentD = sEnd;
+    if(!(s.start_date && s.end_date)) currentD = sEnd;
   });
 
   // 阶段条

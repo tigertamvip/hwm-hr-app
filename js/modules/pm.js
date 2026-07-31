@@ -532,8 +532,16 @@ function _pmGanttGranularityLabel(g){
 
 function renderPMGantt(p, tasks){
   var gran = _pmGanttGranularity || _pmGanttAutoGranularity(p);
-  var startD = p.start_date?new Date(p.start_date):new Date();
-  var endD = p.end_date?new Date(p.end_date):new Date(startD.getTime()+30*24*3600*1000);
+  // ★ V0.6.6j: 时间轴范围自动适配——以项目起止为锚，扩展到所有任务的日期范围
+  var projStart = p.start_date?new Date(p.start_date):new Date();
+  var projEnd = p.end_date?new Date(p.end_date):new Date(projStart.getTime()+30*24*3600*1000);
+  var minMs = projStart.getTime(), maxMs = projEnd.getTime();
+  (tasks||[]).forEach(function(t){
+    if(t.start_date){ var sd = new Date(t.start_date).getTime(); if(sd < minMs) minMs = sd; }
+    if(t.due_date){ var ed = new Date(t.due_date).getTime(); if(ed > maxMs) maxMs = ed; }
+  });
+  var startD = new Date(minMs);
+  var endD = new Date(maxMs);
   var today = new Date();
   today.setHours(0,0,0,0);
 
