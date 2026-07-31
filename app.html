@@ -7,7 +7,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <meta name="version" content="V0.7.1n">
-<!-- cache-bust: 2026-08-01-07-22 -->
+<!-- cache-bust: 2026-08-01-07-25 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json?v=bc">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2545,7 +2545,7 @@ function togglePortalTips(){
             <a class="portal-modchip" onclick="enterModule('kpi')"><span class="pmc-icon">🎯</span><span class="pmc-label">年度目标</span><span class="pmc-status pmc-live">运行中</span></a>
             <a class="portal-modchip" onclick="enterModule('workplan')"><span class="pmc-icon">📋</span><span class="pmc-label">本周任务</span><span class="pmc-status pmc-live">运行中</span></a>
             <a class="portal-modchip" onclick="moduleBuilding()"><span class="pmc-icon">📅</span><span class="pmc-label">本月计划</span><span class="pmc-status pmc-soon">即将推出</span></a>
-            <a class="portal-modchip" onclick="enterModule('hr')"><span class="pmc-icon">📁</span><span class="pmc-label">团队</span><span class="pmc-status pmc-live">运行中</span></a>
+            <a class="portal-modchip" onclick="enterModule('hr')"><span class="pmc-icon">📁</span><span class="pmc-label">员工档案</span><span class="pmc-status pmc-live">运行中</span></a>
             <a class="portal-modchip" onclick="enterModule('pm')"><span class="pmc-icon">🔬</span><span class="pmc-label">项目管理</span><span class="pmc-status pmc-beta">Beta</span></a>
             <a class="portal-modchip" onclick="moduleBuilding()"><span class="pmc-icon">👥</span><span class="pmc-label">人才盘点</span><span class="pmc-status pmc-soon">即将推出</span></a>
             <a class="portal-modchip" onclick="moduleBuilding()"><span class="pmc-icon">🎓</span><span class="pmc-label">岗位胜任力</span><span class="pmc-status pmc-soon">即将推出</span></a>
@@ -4208,7 +4208,7 @@ var ALL_MODULES = [
   {key:'kpi',     name:'年度目标', icon:'🎯', status:'live', handler:"enterModule('kpi')"},
   {key:'workplan',name:'本周任务', icon:'📋', status:'live', handler:"enterModule('workplan')"},
   {key:'month',   name:'本月计划', icon:'📅', status:'soon', handler:'moduleBuilding()'},
-  {key:'hr',      name:'团队',     icon:'📁', status:'live', handler:"enterModule('hr')"},
+  {key:'hr',      name:'员工档案', icon:'📁', status:'live', handler:"enterModule('hr')"},
   {key:'pm',      name:'项目管理', icon:'🔬', status:'beta', handler:"enterModule('pm')"},
   {key:'talent',  name:'人才盘点', icon:'👥', status:'soon', handler:'moduleBuilding()'},
   {key:'job',     name:'岗位胜任力', icon:'🎓', status:'soon', handler:'moduleBuilding()'},
