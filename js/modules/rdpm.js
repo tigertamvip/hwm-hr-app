@@ -922,8 +922,8 @@ function _rdRenderBonusPanel(c){
   h += '<div style="overflow-x:auto;max-width:100%">';
   h += '<table style="width:100%;border-collapse:collapse;font-size:11px;table-layout:fixed">';
   h += '<colgroup>'
-     + '<col style="width:32px">'
-     + '<col style="width:160px">'
+     + '<col style="width:30px">'
+     + '<col style="width:120px">'
      + '<col style="width:90px">'
      + '<col style="width:80px">'
      + '<col style="width:110px">'
@@ -932,7 +932,7 @@ function _rdRenderBonusPanel(c){
      + '<col style="width:76px">'
      + '<col style="width:90px">'
      + '<col style="width:90px">'
-     + '<col style="width:44px">'
+     + '<col style="width:80px">'
      + '</colgroup>';
   h += '<thead><tr style="background:#F9FAFB">';
   h += '<th style="padding:6px 2px;border-bottom:1px solid #E5E7EB;color:#6B7280;font-size:10px;text-align:center">#</th>';
@@ -978,17 +978,17 @@ function _rdRenderBonusPanel(c){
   members.forEach(function(m, i){ h += buildRow(i, m); });
   h += '</tbody></table></div>';
 
-  // 底部工具栏（按钮+提示分两行，确保按钮始终横向）
+  // 底部工具栏（明确分行：按钮一行+提示一行，强制按钮横向）
   h += '<div style="padding:10px 16px;background:#FAFBFC;border-top:1px solid #F3F4F6">';
-  h += '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">';
+  h += '<div style="display:flex;flex-direction:row;align-items:center;gap:8px;margin-bottom:6px">';
   if(isOwner){
-    h += '<button type="button" id="rd-mem-add" style="padding:5px 14px;border:1px solid #D0D5DD;border-radius:6px;background:#fff;color:#374151;cursor:pointer;font-size:11px;font-weight:500">+ 添加成员</button>';
-    h += '<button type="button" id="rd-bonus-save" style="padding:5px 18px;border:1px solid #1B6EC4;border-radius:6px;background:#1B6EC4;color:#fff;cursor:pointer;font-size:11px;font-weight:500">💾 保存</button>';
+    h += '<button type="button" id="rd-mem-add" style="display:inline-flex;align-items:center;padding:5px 14px;border:1px solid #D0D5DD;border-radius:6px;background:#fff;color:#374151;cursor:pointer;font-size:11px;font-weight:500;white-space:nowrap">+ 添加成员</button>';
+    h += '<button type="button" id="rd-bonus-save" style="display:inline-flex;align-items:center;padding:5px 18px;border:1px solid #1B6EC4;border-radius:6px;background:#1B6EC4;color:#fff;cursor:pointer;font-size:11px;font-weight:500;white-space:nowrap">💾 保存</button>';
   } else {
     h += '<span style="font-size:11px;color:#9CA3AF">提示：只有项目负责人可编辑本面板</span>';
   }
   h += '</div>';
-  h += '<div style="font-size:10px;color:#9CA3AF;margin-top:6px">💡 点击甘特图"项目成员"列单元格可切换到该阶段</div>';
+  h += '<div style="font-size:10px;color:#9CA3AF">💡 点击甘特图"项目成员"列单元格可切换到该阶段</div>';
   h += '</div>';
 
   h += '</div>';
