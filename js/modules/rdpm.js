@@ -472,7 +472,8 @@ async function _rdOpenMembersModal(stageId){
     h += '<td style="text-align:center;color:#6B7280;vertical-align:middle" class="rd-mem-base">'+(base?base.toFixed(0):'—')+'</td>';
     // 综合积分
     var effScore = (EFF_SCORE[m.efficiency||'按时交付']||0)+(BONUS_SCORE[m.quality||'0']||0)+(BONUS_SCORE[m.overall||'无法评估']||0);
-    h += '<td style="text-align:center;color:#059669;font-weight:600;vertical-align:middle" class="rd-mem-score">'+effScore+' 分</td>';
+    var personalScore = effScore * (m.ratio||0)/100;
+    h += '<td style="text-align:center;color:#059669;font-weight:600;vertical-align:middle" class="rd-mem-score">'+personalScore.toFixed(1)+' 分</td>';
     // 应发奖金
     h += '<td style="text-align:right;color:#1B6EC4;font-weight:600;padding-right:8px" class="rd-mem-final">'+(finalAmt?finalAmt.toFixed(0):'—')+'</td>';
     h += '<td style="text-align:center"><button type="button" class="rd-mem-del" style="padding:2px 6px;border:1px solid #FCA5A5;border-radius:4px;background:#FEF2F2;color:#DC2626;cursor:pointer;font-size:10px">×</button></td>';
@@ -1002,9 +1003,10 @@ function _rdRenderBonusPanel(c){
   h += '<div style="margin-top:8px;padding:10px 12px;background:#F0F9FF;border-left:3px solid #3B82F6;border-radius:6px;font-size:12px;color:#334155;line-height:1.7">';
   h += '<div style="font-weight:700;color:#1E40AF;margin-bottom:4px;font-size:13px">💡 奖金计算算法</div>';
   h += '<div><strong>积分映射</strong>：+2级=5分 / +1级=3分 / 0级=2分 / -1级=1分 / -2级=0分；交付效率：按时=5分 / 延期=2分</div>';
-  h += '<div><strong>综合积分</strong> = 交付效率分 + 交付质量分 + 综合评价分</div>';
-  h += '<div><strong>单位积分奖金</strong> = 总奖金池 ÷ 全体成员总积分</div>';
-  h += '<div><strong>应发奖金</strong> = 个人综合积分 × 分配比例% × 单位积分奖金；<span style="color:#DC2626;font-weight:600">⚠ 逾期未交付 → 应发奖金直接归零</span></div>';
+  h += '<div><strong>个人总积分</strong> = (交付效率分 + 交付质量分 + 综合评价分) × 分配比例%</div>';
+  h += '<div><strong>总积分</strong> = 全体成员个人总积分之和</div>';
+  h += '<div><strong>单位积分奖金</strong> = 总奖金池 ÷ 总积分</div>';
+  h += '<div><strong>应发奖金</strong> = 个人总积分 × 单位积分奖金；<span style="color:#DC2626;font-weight:600">⚠ 逾期未交付 → 应发奖金直接归零</span></div>';
   h += '</div>';
   h += '</div>';
 
@@ -1058,7 +1060,15 @@ function _rdBindBonusPanel(){
     if(sumEl) sumEl.textContent = sum.toFixed(1);
     if(warnEl) warnEl.style.display = sum > 100.01 ? 'inline' : 'none';
     var totalScore = 0;
-    all.forEach(function(m){ if(m.name) totalScore += (EFF_SCORE[m.efficiency]||0)+(BONUS_SCORE[m.quality]||0)+(BONUS_SCORE[m.overall]||0); });
+    all.forEach(function(m){
+      if(m.name){
+        var baseScore = (EFF_SCORE[m.efficiency]||0)+(BONUS_SCORE[m.quality]||0)+(BONUS_SCORE[m.overall]||0);
+        // ★ V0.6.8a: 个人总积分 = 基础积分 × 分配比例
+        var personalScore = baseScore * (m.ratio/100);
+        m.personalScore = personalScore;
+        totalScore += personalScore;
+      }
+    });
     var unit = totalScore>0 ? pool/totalScore : 0;
     var unitEl = document.getElementById('rd-unit-bonus');
     if(unitEl) unitEl.textContent = unit>0 ? (unit.toFixed(2)+' 元/分') : '—';
@@ -1071,13 +1081,13 @@ function _rdBindBonusPanel(){
       var finalEl = tr.querySelector('.rd-mem-final');
       if(i<all.length && all[i].name){
         var base = pool * (all[i].ratio/100);
-        var score = (EFF_SCORE[all[i].efficiency]||0)+(BONUS_SCORE[all[i].quality]||0)+(BONUS_SCORE[all[i].overall]||0);
+        var personalScore = all[i].personalScore||0;
         // ★ V0.6.6w: 逾期未交付 → 应发奖金直接归零
-        // ★ V0.6.8: 应发奖金 = 综合积分 × 分配比例% × 单位积分奖金
-        var final = (all[i].efficiency==='逾期未交付') ? 0 : (score * (all[i].ratio/100) * unit);
+        // ★ V0.6.8a: 应发 = 个人总积分 × 单位积分奖金
+        var final = (all[i].efficiency==='逾期未交付') ? 0 : (personalScore * unit);
         if(baseEl) baseEl.textContent = base?base.toFixed(0):'—';
-        if(scoreEl) scoreEl.textContent = score+' 分';
-        if(finalEl) finalEl.textContent = final?final.toFixed(0):'—';
+        if(scoreEl) scoreEl.textContent = personalScore?personalScore.toFixed(1):'—';
+        if(finalEl) finalEl.textContent = (final||final===0)?final.toFixed(0):'—';
       }
     });
   }
