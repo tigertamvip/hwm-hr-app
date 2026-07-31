@@ -981,17 +981,17 @@ function _rdRenderBonusPanel(c){
   members.forEach(function(m, i){ h += buildRow(i, m); });
   h += '</tbody></table></div>';
 
-  // 底部工具栏（明确分行：按钮一行+提示一行，强制按钮横向）
-  h += '<div style="padding:10px 16px;background:#FAFBFC;border-top:1px solid #F3F4F6">';
-  h += '<div style="display:flex;flex-direction:row;align-items:center;gap:8px;margin-bottom:6px">';
+  // 底部工具栏（明确分行：按钮一行+提示一行，强制按钮横向+Apple风格微质感）
+  h += '<div style="padding:12px 16px;background:linear-gradient(180deg,#FAFBFC 0%,#F3F4F6 100%);border-top:1px solid #E5E7EB;border-radius:0 0 12px 12px">';
+  h += '<div style="display:flex;flex-direction:row;align-items:center;gap:10px;margin-bottom:8px">';
   if(isOwner){
-    h += '<button type="button" id="rd-mem-add" style="display:inline-flex;align-items:center;padding:5px 14px;border:1px solid #D0D5DD;border-radius:6px;background:#fff;color:#374151;cursor:pointer;font-size:11px;font-weight:500;white-space:nowrap">+ 添加成员</button>';
-    h += '<button type="button" id="rd-bonus-save" style="display:inline-flex;align-items:center;padding:5px 18px;border:1px solid #1B6EC4;border-radius:6px;background:#1B6EC4;color:#fff;cursor:pointer;font-size:11px;font-weight:500;white-space:nowrap">💾 保存</button>';
+    h += '<button type="button" id="rd-mem-add" style="display:inline-flex;align-items:center;gap:4px;padding:6px 14px;border:1px solid #D1D5DB;border-radius:8px;background:linear-gradient(180deg,#FFFFFF 0%,#F9FAFB 100%);color:#374151;cursor:pointer;font-size:11px;font-weight:500;white-space:nowrap;box-shadow:0 1px 2px rgba(0,0,0,0.04);transition:all 0.15s ease" title="添加新成员" onmouseover="this.style.background=\'linear-gradient(180deg,#F9FAFB 0%,#F3F4F6 100%)\';this.style.borderColor=\'#9CA3AF\'" onmouseout="this.style.background=\'linear-gradient(180deg,#FFFFFF 0%,#F9FAFB 100%)\';this.style.borderColor=\'#D1D5DB\'"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>添加成员</button>';
+    h += '<button type="button" id="rd-bonus-save" style="display:inline-flex;align-items:center;gap:4px;padding:6px 18px;border:none;border-radius:8px;background:linear-gradient(180deg,#3B82F6 0%,#1B6EC4 100%);color:#FFFFFF;cursor:pointer;font-size:11px;font-weight:600;white-space:nowrap;box-shadow:0 2px 4px rgba(27,110,196,0.25);transition:all 0.15s ease;letter-spacing:0.3px" title="保存当前阶段的成员配置" onmouseover="this.style.background=\'linear-gradient(180deg,#2563EB 0%,#1B6EC4 100%)\';this.style.boxShadow=\'0 3px 6px rgba(27,110,196,0.35)\';this.style.transform=\'translateY(-1px)\'" onmouseout="this.style.background=\'linear-gradient(180deg,#3B82F6 0%,#1B6EC4 100%)\';this.style.boxShadow=\'0 2px 4px rgba(27,110,196,0.25)\';this.style.transform=\'translateY(0)\'"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>保存</button>';
   } else {
-    h += '<span style="font-size:11px;color:#9CA3AF">提示：只有项目负责人可编辑本面板</span>';
+    h += '<span style="font-size:11px;color:#9CA3AF;display:inline-flex;align-items:center;gap:4px"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>只读模式</span>';
   }
   h += '</div>';
-  h += '<div style="font-size:10px;color:#9CA3AF">💡 点击甘特图"项目成员"列单元格可切换到该阶段</div>';
+  h += '<div style="font-size:10px;color:#9CA3AF;display:flex;align-items:center;gap:4px"><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>点击甘特图"项目成员"列单元格可切换到该阶段</div>';
   h += '</div>';
 
   h += '</div>';
