@@ -1002,7 +1002,7 @@ function _rdRenderBonusPanel(c){
   h += '<div style="margin-top:8px;padding:10px 12px;background:#F0F9FF;border-left:3px solid #3B82F6;border-radius:6px;font-size:12px;color:#334155;line-height:1.7">';
   h += '<div style="font-weight:700;color:#1E40AF;margin-bottom:4px;font-size:13px">💡 奖金计算算法</div>';
   h += '<div><strong>积分映射</strong>：+2级=5分 / +1级=3分 / 0级=2分 / -1级=1分 / -2级=0分；交付效率：按时=5分 / 延期=2分</div>';
-  h += '<div><strong>综合积分</strong> = (交付效率分 + 交付质量分 + 综合评价分) × (100% + 分配比例%)</div>';
+  h += '<div><strong>综合积分</strong> = 交付效率分 + 交付质量分 + 综合评价分</div>';
   h += '<div><strong>单位积分奖金</strong> = 总奖金池 ÷ 全体成员总积分</div>';
   h += '<div><strong>应发奖金</strong> = 个人综合积分 × 单位积分奖金；<span style="color:#DC2626;font-weight:600">⚠ 逾期未交付 → 应发奖金直接归零</span></div>';
   h += '</div>';
@@ -1058,15 +1058,7 @@ function _rdBindBonusPanel(){
     if(sumEl) sumEl.textContent = sum.toFixed(1);
     if(warnEl) warnEl.style.display = sum > 100.01 ? 'inline' : 'none';
     var totalScore = 0;
-    all.forEach(function(m){
-      if(m.name){
-        var baseScore = (EFF_SCORE[m.efficiency]||0)+(BONUS_SCORE[m.quality]||0)+(BONUS_SCORE[m.overall]||0);
-        // ★ V0.6.6z: 个人综合积分 = 基础积分 × (100% + 分配比例%)
-        var weightedScore = baseScore * (1 + m.ratio/100);
-        m.weightedScore = weightedScore;
-        totalScore += weightedScore;
-      }
-    });
+    all.forEach(function(m){ if(m.name) totalScore += (EFF_SCORE[m.efficiency]||0)+(BONUS_SCORE[m.quality]||0)+(BONUS_SCORE[m.overall]||0); });
     var unit = totalScore>0 ? pool/totalScore : 0;
     var unitEl = document.getElementById('rd-unit-bonus');
     if(unitEl) unitEl.textContent = unit>0 ? (unit.toFixed(2)+' 元/分') : '—';
@@ -1079,7 +1071,7 @@ function _rdBindBonusPanel(){
       var finalEl = tr.querySelector('.rd-mem-final');
       if(i<all.length && all[i].name){
         var base = pool * (all[i].ratio/100);
-        var score = all[i].weightedScore||0;
+        var score = (EFF_SCORE[all[i].efficiency]||0)+(BONUS_SCORE[all[i].quality]||0)+(BONUS_SCORE[all[i].overall]||0);
         // ★ V0.6.6w: 逾期未交付 → 应发奖金直接归零
         var final = (all[i].efficiency==='逾期未交付') ? 0 : (score * unit);
         if(baseEl) baseEl.textContent = base?base.toFixed(0):'—';
