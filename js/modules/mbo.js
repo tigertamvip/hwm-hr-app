@@ -945,6 +945,8 @@ function _stripCarriedFromLabels(value){
   return String(value||'')
     // ★ V0.7.1v: 完整匹配"来源:"（中文+冒号），不是单字"源:"，避免误删
     .replace(/\s*来源[：:]\d{4}年\d{1,2}月第[1-5]周(?:来)?\s*/g,' ')
+    // ★ V0.7.1y: 清理末尾连续"来"字（"来来来"污染）
+    .replace(/来{2,}$/,'')
     .replace(/\n[ \t]*\n+/g,'\n')
     .trim();
 }
