@@ -1674,7 +1674,7 @@ async function _renderMergedUrgentView(){
   var tbody=document.createElement('tbody');
   for(var i=0;i<merged.length;i++){
     var t=merged[i];
-    var bg=t._isOverdue?'#FFF5F5':t._isDueToday?'#FFF8E1':'#FBF8F3';
+    var bg=t._isOverdue?'#FFF5F5':t._isDueToday?'#FFF8E1':'#f6f8fc';
     var tr2=document.createElement('tr');
     tr2.style.background=bg;
     // # 列
@@ -3453,17 +3453,17 @@ function renderWPTable(plan){
   }
 
   html+='<tr class="wp-total-row">';
-  html+='<td colspan="3" style="text-align:right;padding-right:12px;background:#FBF8F3">📊 本周合计</td>';
-  html+='<td style="background:#FBF8F3"></td>'; // 启动日期
+  html+='<td colspan="3" style="text-align:right;padding-right:12px;background:#f6f8fc">📊 本周合计</td>';
+  html+='<td style="background:#f6f8fc"></td>'; // 启动日期
   html+='<td class="wp-total-num">'+hasPlan+' 项排期</td>'; // 计划完成日期
-  html+='<td style="background:#FBF8F3"></td>'; // 剩余办结天数
+  html+='<td style="background:#f6f8fc"></td>'; // 剩余办结天数
   html+='<td class="wp-total-num">'+hasActual+' 项完成</td>'; // 实际完成日期
-  html+='<td style="background:#FBF8F3"></td>'; // 耗时
-  html+='<td style="text-align:center;background:#FBF8F3"></td>'; // 状态
-  html+='<td style="text-align:center;background:#FBF8F3;font-weight:600;font-size:12px;color:#2A476A">'+(taskScoreDisplay||'')+'</td>'; // 积分
-  html+='<td colspan="2" style="text-align:right;padding-right:12px;background:#FBF8F3">逾期任务</td>'; // 协同+问题
+  html+='<td style="background:#f6f8fc"></td>'; // 耗时
+  html+='<td style="text-align:center;background:#f6f8fc"></td>'; // 状态
+  html+='<td style="text-align:center;background:#f6f8fc;font-weight:600;font-size:12px;color:#2A476A">'+(taskScoreDisplay||'')+'</td>'; // 积分
+  html+='<td colspan="2" style="text-align:right;padding-right:12px;background:#f6f8fc">逾期任务</td>'; // 协同+问题
   html+='<td class="wp-total-num" style="color:'+(overdue>0?'var(--danger)':'var(--success)')+'">'+overdue+' 项</td>'; // 问题类型
-  html+='<td colspan="3" style="background:#FBF8F3"></td>'; // 需上级+备注+上级评价
+  html+='<td colspan="3" style="background:#f6f8fc"></td>'; // 需上级+备注+上级评价
   html+='</tr>';
   html+='</tbody></table></div></div></div>';
 
