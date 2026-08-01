@@ -3189,7 +3189,7 @@ function renderWPTable(plan){
   var html='';
   html+='<div class="wp-page-scroll">';
 
-  html+='<div class="wp-info-bar" style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;background:#F9FAFB;border:1px solid #e5e7eb;border-radius:8px;margin-bottom:8px;min-height:44px"><div style="display:flex;align-items:center;gap:10px;min-width:0"><div style="width:32px;height:32px;border-radius:50%;background:#3B7DB4;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700;flex-shrink:0">'+(_h(plan.name).charAt(0)||'?')+'</div><div style="min-width:0"><div style="font-size:15px;font-weight:700;color:#1F2937;line-height:1.3">'+_h(plan.name)+'</div><div style="font-size:12px;color:#6B7280">'+_h(plan.dept)+' &middot; '+_h(plan.position)+'</div></div></div><span style="font-size:11px;font-weight:600;color:#6B7280;padding:3px 8px;background:#F3F4F6;border-radius:4px;white-space:nowrap;flex-shrink:0">'+weekLabel+'</span></div>';
+  html+='<div class="wp-info-bar"><strong>当前员工：</strong><strong>'+_h(plan.name)+'</strong>&nbsp;'+_h(plan.dept)+' | '+_h(plan.position)+'<span class="sep">|</span>'+weekLabel;
   if(_wpViewingSubordinate)html+='<span style="color:#E8622A;font-weight:500;margin-left:8px">（查看直属下属周计划）</span>';
   else if(_wpViewingDeptMember)html+='<span style="color:#E8622A;font-weight:500;margin-left:8px">（查看更多下属周计划）</span>';
   if(plan.frozen && plan.frozenBy && plan.frozenBy !== myName && !_wpViewingShared && !_wpViewingSubordinate && !_wpViewingDeptMember){
@@ -3275,7 +3275,7 @@ function renderWPTable(plan){
   if(plan.bossEvaluated){
       html+='<button onclick="viewBossEval()"><span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;margin-right:4px"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span> 查看上级评价</button>';
     }
-    html+='<button id="wpAiAssessBtn" class="wp-ai-chip" onclick="aiAssessWP()" style="margin-left:auto" title="点击生成本周 AI 综合分析"><span style="font-size:13px;margin-right:3px">✨</span>AI 建议</button>';
+    html+='<button id="wpAiAssessBtn" class="wp-btn-ai" onclick="aiAssessWP()" style="margin-left:auto" title="点击生成本周 AI 综合分析"><span style="font-size:14px;font-weight:700">AI</span><span>建议</span></button>';
   }
   // 安全兜底
   if(html.indexOf('<button', html.lastIndexOf('wpToolbar')) < 0){
