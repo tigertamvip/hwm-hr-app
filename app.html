@@ -6,8 +6,8 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.7.1s">
-<!-- cache-bust: 2026-08-01-08-05 -->
+<meta name="version" content="V0.7.1t">
+<!-- cache-bust: 2026-08-01-08-15 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json?v=bc">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1085,7 +1085,7 @@ body{
   .toast{bottom:20px;font-size:12px;padding:8px 18px}
 }
 
-/* ===== 门户首页 · V0.7.1s Taste Redesign (sidebar + workspace) ===== */
+/* ===== 门户首页 · V0.7.1t Taste Redesign (sidebar + workspace) ===== */
 /* Design Read: B2B enterprise HR dashboard for medical-device managers.
    Precision-instrument visual language: structured data zones,
    restrained industrial palette, no decorative fluff.
@@ -1166,16 +1166,10 @@ body{
 .portal-feed-item:last-child{border-bottom:none}
 .portal-feed-dot{width:8px;height:8px;border-radius:50%;background:#1967d2;flex-shrink:0;margin-top:4px}
 .portal-feed-time{color:#5f6368;font-size:11px;white-space:nowrap}
-.portal-avatar-btn{position:relative}
-.portal-avatar{width:32px;height:32px;border-radius:50%;background:#1967d2;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;cursor:pointer;border:none;transition:transform .12s}
-.portal-avatar:hover{transform:scale(1.05)}
-.portal-avatar-dropdown{position:absolute;top:calc(100% + 6px);right:0;background:#fff;border:1px solid #dadce0;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.08);min-width:180px;padding:6px;z-index:1000;display:none}
-.portal-avatar-dropdown.open{display:block}
-.portal-avatar-dropdown .pad-head{padding:8px 10px;border-bottom:1px solid #e8eaed;font-size:11px;color:#5f6368;margin-bottom:4px}
-.portal-avatar-dropdown .pad-item{display:block;width:100%;padding:8px 10px;border:none;background:none;text-align:left;cursor:pointer;font-size:13px;color:#1a1c1e;border-radius:4px;font-family:inherit}
-.portal-avatar-dropdown .pad-item:hover{background:#f8f9fa}
-.portal-avatar-dropdown .pad-item.danger{color:#d93025}
-.portal-avatar-dropdown .pad-item.danger:hover{background:#fce8e6}
+.portal-avatar-show{width:24px;height:24px;border-radius:50%;background:#1967d2;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.portal-avatar-divider{width:1px;height:18px;background:#dadce0;flex-shrink:0}
+.portal-logout-btn{padding:6px 18px;border:1px solid #1967d2;border-radius:6px;background:#fff;color:#1967d2;font-size:12px;font-weight:500;cursor:pointer;transition:all .12s}
+.portal-logout-btn:hover{background:#1967d2;color:#fff;box-shadow:0 2px 4px rgba(25,103,210,.2)}
 @media(max-width:960px){.portal-view{flex-direction:column}.portal-sidebar{width:100%;flex-direction:row;overflow-x:auto;padding:8px 12px}.portal-sidebar-header,.portal-sidebar-footer{display:none}.portal-sidebar-nav{display:flex;flex-direction:row;gap:4px}.portal-nav-section{display:none}.portal-datastrip{grid-template-columns:repeat(2,1fr)}.portal-twocol{grid-template-columns:1fr}.portal-modgrid{grid-template-columns:repeat(2,1fr);gap:6px}}
 @media(max-width:640px){.portal-datastrip{grid-template-columns:1fr}.portal-modgrid{grid-template-columns:1fr}}
 
@@ -2438,7 +2432,7 @@ select.form-input{padding-right:28px;appearance:auto;-webkit-appearance:menulist
 </head>
 <body>
 
-<!-- ★ V0.7.1s: 去掉左下角版本号悬浮徽章（用户要求） -->
+<!-- ★ V0.7.1t: 去掉左下角版本号悬浮徽章（用户要求） -->
 
 <!-- ★ V0.6.1bd: 门户提示窗开关逻辑 -->
 <script>
@@ -2466,7 +2460,7 @@ function togglePortalTips(){
 
 <div class="password-overlay" id="passwordGate">
   <div class="login-topbar" id="login-topbar"></div>
-  <!-- ★ V0.7.1s: 登录页左下角版本号徽章（恢复之前设计） -->
+  <!-- ★ V0.7.1t: 登录页左下角版本号徽章（恢复之前设计） -->
   <div id="loginVersionBadge" style="position:fixed;left:24px;bottom:max(24px,env(safe-area-inset-bottom));z-index:10000;font-size:11px;color:#fff;font-family:'SF Mono',Menlo,Monaco,Consolas,monospace;pointer-events:none;user-select:none;line-height:1.4;text-shadow:0 1px 2px rgba(0,0,0,.4)">
     <span id="loginVersionBadgeText"></span>
   </div>
@@ -2500,7 +2494,7 @@ function togglePortalTips(){
   </div><!-- /login-right -->
 </div>
 
-<!-- 门户首页 · V0.7.1s Taste Redesign -->
+<!-- 门户首页 · V0.7.1t Taste Redesign -->
 <div id="portalView" class="portal-view" style="display:none">
   <!-- Sidebar -->
   <aside class="portal-sidebar">
@@ -2543,14 +2537,11 @@ function togglePortalTips(){
         </div>
         <script>
         function _initPortalAvatar(){
-          var btn = document.getElementById('portalAvatarBtn');
-          var drop = document.getElementById('portalAvatarDrop');
-          if(!btn || !drop) return;
+          var show = document.getElementById('portalAvatarShow');
+          if(!show) return;
           var me = (typeof currentUser!=='undefined'&&currentUser&&currentUser.name)||'U';
-          var role = (typeof currentUser!=='undefined'&&currentUser&&currentUser.role)||'用户';
-          btn.textContent = me.charAt(0).toUpperCase();
-          var head = drop.querySelector('.pad-head');
-          if(head) head.textContent = me + ' · ' + role;
+          show.textContent = me.charAt(0).toUpperCase();
+          show.title = me + ' · ' + ((typeof currentUser!=='undefined'&&currentUser&&currentUser.role)||'用户');
         }
         _initPortalAvatar();
         setTimeout(_initPortalAvatar, 500);
@@ -2578,7 +2569,7 @@ function togglePortalTips(){
             <div class="portal-feed-item"><span class="portal-feed-dot"></span><span>谭晨航 提交了本周工作计划</span><span class="portal-feed-time">10:32</span></div>
             <div class="portal-feed-item"><span class="portal-feed-dot"></span><span>葛师师 更新了研发项目状态</span><span class="portal-feed-time">09:15</span></div>
             <div class="portal-feed-item"><span class="portal-feed-dot"></span><span>韩铁工 完成了 KPI 自评</span><span class="portal-feed-time">昨天</span></div>
-            <div class="portal-feed-item"><span class="portal-feed-dot"></span><span>系统更新至 V0.7.1s</span><span class="portal-feed-time">今天 08:00</span></div>
+            <div class="portal-feed-item"><span class="portal-feed-dot"></span><span>系统更新至 V0.7.1t</span><span class="portal-feed-time">今天 08:00</span></div>
           </div>
         </div>
       </div>
@@ -2605,7 +2596,7 @@ function togglePortalTips(){
           </div>
         </div>
       </div>
-      <div style="margin-top:16px;text-align:center;font-size:11px;color:#5f6368">Tiger-Buddy 虎伴科技 · MBO+AI V0.7.1s</div>
+      <div style="margin-top:16px;text-align:center;font-size:11px;color:#5f6368">Tiger-Buddy 虎伴科技 · MBO+AI V0.7.1t</div>
     </div>
   </main>
 </div>
@@ -4034,7 +4025,7 @@ function goHome(){
   sysCloseModal(); // ★ 清理系统维护弹窗
   // ★ V0.6.1.hu: 清理所有残留 tooltip（防止耗时列 tooltip 跨页面残留）
   document.querySelectorAll('.wp-tooltip').forEach(function(t){t.remove();});
-  // ★ V0.7.1s: 切到门户前立即用最新的 localStorage 数据刷新（避免 5s 重试）
+  // ★ V0.7.1t: 切到门户前立即用最新的 localStorage 数据刷新（避免 5s 重试）
   if(typeof _refreshPortalData==='function'){
     _refreshPortalData();
   }
@@ -4059,7 +4050,7 @@ function goHome(){
   if(btn)btn.classList.remove('show');
 }
 
-// ★ V0.7.1sa: 门户数据动态刷新 — 关联周行动计划和人员数据
+// ★ V0.7.1ta: 门户数据动态刷新 — 关联周行动计划和人员数据
 function _refreshPortalData(){
   var now = new Date();
   var yr = now.getFullYear(), mo = now.getMonth()+1;
@@ -4069,7 +4060,7 @@ function _refreshPortalData(){
   var wk = Math.ceil((now.getDate() + dayOfFirst - 1)/7);
   var weekId = yr+'-'+('0'+mo).slice(-2)+'-W'+wk;
 
-  // --- 参与项目数 (V0.7.1s: 从项目管理模块读取+状态分布) ---
+  // --- 参与项目数 (V0.7.1t: 从项目管理模块读取+状态分布) ---
   var _myProjects = 0;
   var _myDoing = 0;        // 进行中（未完成）
   var _myDone = 0;         // 已完成
@@ -4097,7 +4088,7 @@ function _refreshPortalData(){
   var pdcTeam = document.getElementById('pdcTeam');
   var pdcTeamSub = document.getElementById('pdcTeamSub');
   if(pdcTeam) pdcTeam.textContent = _myProjects;
-    // ★ V0.7.1s: 同步更新侧边栏"周行动计划"badge
+    // ★ V0.7.1t: 同步更新侧边栏"周行动计划"badge
     var wpBadge = document.getElementById('portalNavWpBadge');
     if(wpBadge){
       if(monthUnfinished>0){
@@ -4111,12 +4102,12 @@ function _refreshPortalData(){
     if(_myProjects===0){
       pdcTeamSub.textContent = '当前你参与的项目数为：0';
     } else {
-      // V0.7.1s: 进行中/已完成 状态分布
+      // V0.7.1t: 进行中/已完成 状态分布
       pdcTeamSub.textContent = _myDoing+' 进行中 · '+_myDone+' 已完成';
     }
   }
 
-  // --- 本月未完成任务统计 (V0.7.1s: 来源=当月所有周计划) ---
+  // --- 本月未完成任务统计 (V0.7.1t: 来源=当月所有周计划) ---
   try {
     var user = (typeof currentUser!=='undefined'&&currentUser&&currentUser.name)||'';
     var wpKey = 'hwm_workplans_'+user;
@@ -4186,7 +4177,7 @@ function _refreshPortalData(){
     if(pdcRate) pdcRate.textContent = rate!==null ? rate+'%' : '—%';
     if(pdcRateSub) pdcRateSub.textContent = thisMonthTasks.total>0 ? ('共 '+thisMonthTasks.total+' 项任务') : '暂无本月数据';
 
-    // --- V0.7.1s: 重要紧急/重要不急任务列表 （显示未完成 + 已逾期完成之外的） ---
+    // --- V0.7.1t: 重要紧急/重要不急任务列表 （显示未完成 + 已逾期完成之外的） ---
     var prioTasks = [];
     Object.keys(wpData).forEach(function(wid){
       var p2 = wpData[wid];
@@ -4266,7 +4257,7 @@ function _refreshPortalData(){
   }
 }
 
-// ★ V0.7.1s: 渲染常用模块列表到侧边栏
+// ★ V0.7.1t: 渲染常用模块列表到侧边栏
 var ALL_MODULES = [
   {key:'13plus1', name:'13+1', icon:'🎯', status:'soon', handler:'moduleBuilding()'},
   {key:'kpi',     name:'年度目标', icon:'🎯', status:'live', handler:"enterModule('kpi')"},
@@ -4357,7 +4348,7 @@ function _showFavModulesModal(){
 }
 _renderFavModules();
 
-// ★ V0.7.1s: 全局事件 — 周计划保存后立即通知门户刷新（不需返回首页）
+// ★ V0.7.1t: 全局事件 — 周计划保存后立即通知门户刷新（不需返回首页）
 window.addEventListener('workplan-changed', function(){
   if(typeof _refreshPortalData==='function'){
     _refreshPortalData();
@@ -4371,7 +4362,7 @@ localStorage.setItem = function(k, v){
     try { window.dispatchEvent(new Event('workplan-changed')); } catch(e){}
   }
 };
-// V0.7.1s: 进入门户即刷新（goHome 调用 _refreshPortalData）
+// V0.7.1t: 进入门户即刷新（goHome 调用 _refreshPortalData）
 
 
 function enterModule(mod){
