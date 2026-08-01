@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.7.1an">
+<meta name="version" content="V0.7.1ao">
 <!-- cache-bust: 2026-08-01-12-34 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json?v=bc">
@@ -1085,7 +1085,7 @@ body{
   .toast{bottom:20px;font-size:12px;padding:8px 18px}
 }
 
-/* ===== 门户首页 · V0.7.1an Taste Redesign (sidebar + workspace) ===== */
+/* ===== 门户首页 · V0.7.1ao Taste Redesign (sidebar + workspace) ===== */
 /* Design Read: B2B enterprise HR dashboard for medical-device managers.
    Precision-instrument visual language: structured data zones,
    restrained industrial palette, no decorative fluff.
@@ -1896,8 +1896,8 @@ body{
 .wp-toolbar button:hover{transform:translateY(-1px);box-shadow:0 4px 10px rgba(15,44,75,.1)}
 .wp-toolbar button:active{transform:translateY(0) scale(.97);box-shadow:0 1px 2px rgba(15,44,75,.06)}
 /* 主操作：实心绿 — 提交周行动项 */
-.wp-toolbar button.wp-btn-primary{background:linear-gradient(135deg,#6D9D39 0%,#5A8530 100%);color:#fff;border-color:#5A8530;box-shadow:0 1px 3px rgba(109,157,57,.25)}
-.wp-toolbar button.wp-btn-primary:hover{background:linear-gradient(135deg,#7DAE45 0%,#6D9D39 100%);color:#fff;border-color:#4A7028;box-shadow:0 4px 12px rgba(109,157,57,.35)}
+.wp-toolbar button.wp-btn-primary{background:#3B7DB4;color:#fff;border-color:#3B7DB4;box-shadow:0 1px 3px rgba(59,125,180,.25)}
+.wp-toolbar button.wp-btn-primary:hover{background:#2E6A9C;color:#fff;border-color:#2E6A9C;box-shadow:0 4px 12px rgba(59,125,180,.35)}
 .wp-toolbar button.wp-btn-primary:active{background:linear-gradient(135deg,#5A8530 0%,#4A7028 100%)}
 /* 次操作：白底蓝边 — 提交周小结 */
 .wp-toolbar button.wp-btn-summary{background:#fff;color:#1B6EC4;border-color:#9BC4EC}
@@ -2440,7 +2440,7 @@ select.form-input{padding-right:28px;appearance:auto;-webkit-appearance:menulist
 </head>
 <body>
 
-<!-- ★ V0.7.1an: 去掉左下角版本号悬浮徽章（用户要求） -->
+<!-- ★ V0.7.1ao: 去掉左下角版本号悬浮徽章（用户要求） -->
 
 <!-- ★ V0.6.1bd: 门户提示窗开关逻辑 -->
 <script>
@@ -2468,7 +2468,7 @@ function togglePortalTips(){
 
 <div class="password-overlay" id="passwordGate">
   <div class="login-topbar" id="login-topbar"></div>
-  <!-- ★ V0.7.1an: 登录页左下角版本号徽章（恢复之前设计） -->
+  <!-- ★ V0.7.1ao: 登录页左下角版本号徽章（恢复之前设计） -->
   <div id="loginVersionBadge" style="position:fixed;left:24px;bottom:max(24px,env(safe-area-inset-bottom));z-index:10000;font-size:11px;color:#fff;font-family:'SF Mono',Menlo,Monaco,Consolas,monospace;pointer-events:none;user-select:none;line-height:1.4;text-shadow:0 1px 2px rgba(0,0,0,.4)">
     <span id="loginVersionBadgeText"></span>
   </div>
@@ -2502,7 +2502,7 @@ function togglePortalTips(){
   </div><!-- /login-right -->
 </div>
 
-<!-- 门户首页 · V0.7.1an Taste Redesign -->
+<!-- 门户首页 · V0.7.1ao Taste Redesign -->
 <div id="portalView" class="portal-view" style="display:none">
   <!-- Sidebar -->
   <aside class="portal-sidebar">
@@ -2545,7 +2545,7 @@ function togglePortalTips(){
       var show = document.getElementById('portalAvatarShow');
       if(!show) return;
       var me = (typeof currentUser!=='undefined'&&currentUser&&currentUser.name)||'U';
-      // ★ V0.7.1an: 中文姓的拼音首字母映射（用户指定）
+      // ★ V0.7.1ao: 中文姓的拼音首字母映射（用户指定）
       var pinyinMap = {
         '谭':'T','葛':'G','韩':'H','李':'L','刘':'L','杨':'Y','张':'Z','徐':'X','孙':'S','管':'G'
       };
@@ -2557,9 +2557,9 @@ function togglePortalTips(){
     _initPortalAvatar();
     setTimeout(_initPortalAvatar, 500);
 
-    // ★ V0.7.1an: 一次性自动清理 localStorage 中含"来"字的 work 字段
-    // 背景：V0.7.1an 修复了 strip 正则（改为完整匹配"来源:"），但历史数据已污染。
-    // 这里在每个用户首次加载 V0.7.1an 时，自动清理自己的 workplans。
+    // ★ V0.7.1ao: 一次性自动清理 localStorage 中含"来"字的 work 字段
+    // 背景：V0.7.1ao 修复了 strip 正则（改为完整匹配"来源:"），但历史数据已污染。
+    // 这里在每个用户首次加载 V0.7.1ao 时，自动清理自己的 workplans。
     (function _cleanLegacyLaiChars(){
       try {
         var me = (typeof currentUser!=='undefined'&&currentUser&&currentUser.name)||'';
@@ -2612,7 +2612,7 @@ function togglePortalTips(){
               var ver = (document.querySelector('meta[name="version"]')||{}).content||'';
               var el = document.getElementById('portalFeedVer');
               if(el && ver) el.textContent = '系统更新至 ' + ver;
-              // ★ V0.7.1an: 直接显示系统当前实际时间（用户要求——简单准确）
+              // ★ V0.7.1ao: 直接显示系统当前实际时间（用户要求——简单准确）
               var tm = document.getElementById('portalFeedVerTime');
               if(tm){
                 var d = new Date();
@@ -2647,7 +2647,7 @@ function togglePortalTips(){
           </div>
         </div>
       </div>
-      <div style="margin-top:16px;text-align:center;font-size:11px;color:#5f6368">Tiger-Buddy 虎伴科技 · MBO+AI V0.7.1an</div>
+      <div style="margin-top:16px;text-align:center;font-size:11px;color:#5f6368">Tiger-Buddy 虎伴科技 · MBO+AI V0.7.1ao</div>
     </div>
   </main>
 </div>
@@ -3885,7 +3885,7 @@ function doLogin(username, user, pwdInput, err){
     document.getElementById('hrPoliciesView').style.display='none';
     document.getElementById('portalView').style.display='flex';
     applyRoleUI();
-    // ★ V0.7.1an: 登录后立即初始化头像和门户数据（不只依赖goHome）
+    // ★ V0.7.1ao: 登录后立即初始化头像和门户数据（不只依赖goHome）
     if(typeof _initPortalAvatar==='function') _initPortalAvatar();
     if(typeof _refreshPortalData==='function') _refreshPortalData();
     loadJobDescsFromDB(function(){console.log('HWM: job descs reloaded after login');});
@@ -4079,7 +4079,7 @@ function goHome(){
   sysCloseModal(); // ★ 清理系统维护弹窗
   // ★ V0.6.1.hu: 清理所有残留 tooltip（防止耗时列 tooltip 跨页面残留）
   document.querySelectorAll('.wp-tooltip').forEach(function(t){t.remove();});
-  // ★ V0.7.1an: 切到门户前立即用最新的 localStorage 数据刷新（避免 5s 重试）
+  // ★ V0.7.1ao: 切到门户前立即用最新的 localStorage 数据刷新（避免 5s 重试）
   if(typeof _refreshPortalData==='function'){
     _refreshPortalData();
   }
@@ -4104,7 +4104,7 @@ function goHome(){
   if(btn)btn.classList.remove('show');
 }
 
-// ★ V0.7.1ana: 门户数据动态刷新 — 关联周行动计划和人员数据
+// ★ V0.7.1aoa: 门户数据动态刷新 — 关联周行动计划和人员数据
 function _refreshPortalData(){
   var now = new Date();
   var yr = now.getFullYear(), mo = now.getMonth()+1;
@@ -4114,7 +4114,7 @@ function _refreshPortalData(){
   var wk = Math.ceil((now.getDate() + dayOfFirst - 1)/7);
   var weekId = yr+'-'+('0'+mo).slice(-2)+'-W'+wk;
 
-  // ★ V0.7.1an: 渲染时兜底 strip（来源标签 + 末尾"来来来"）
+  // ★ V0.7.1ao: 渲染时兜底 strip（来源标签 + 末尾"来来来"）
   function _stripTaskText(s){
     return (s||'')
       .replace(/\s*来源[：:]\d{4}年\d{1,2}月第[1-5]周(?:来)?\s*/g,' ')
@@ -4122,7 +4122,7 @@ function _refreshPortalData(){
       .trim();
   }
 
-  // --- 参与项目数 (V0.7.1an: 从项目管理模块读取+状态分布) ---
+  // --- 参与项目数 (V0.7.1ao: 从项目管理模块读取+状态分布) ---
   var _myProjects = 0;
   var _myDoing = 0;        // 进行中（未完成）
   var _myDone = 0;         // 已完成
@@ -4150,7 +4150,7 @@ function _refreshPortalData(){
   var pdcTeam = document.getElementById('pdcTeam');
   var pdcTeamSub = document.getElementById('pdcTeamSub');
   if(pdcTeam) pdcTeam.textContent = _myProjects;
-    // ★ V0.7.1an: 同步更新侧边栏"周行动计划"badge
+    // ★ V0.7.1ao: 同步更新侧边栏"周行动计划"badge
     var wpBadge = document.getElementById('portalNavWpBadge');
     if(wpBadge){
       if(monthUnfinished>0){
@@ -4164,12 +4164,12 @@ function _refreshPortalData(){
     if(_myProjects===0){
       pdcTeamSub.textContent = '当前你参与的项目数为：0';
     } else {
-      // V0.7.1an: 进行中/已完成 状态分布
+      // V0.7.1ao: 进行中/已完成 状态分布
       pdcTeamSub.textContent = _myDoing+' 进行中 · '+_myDone+' 已完成';
     }
   }
 
-  // --- 本月未完成任务统计 (V0.7.1an: 来源=当月所有周计划) ---
+  // --- 本月未完成任务统计 (V0.7.1ao: 来源=当月所有周计划) ---
   try {
     var user = (typeof currentUser!=='undefined'&&currentUser&&currentUser.name)||'';
     var wpKey = 'hwm_workplans_'+user;
@@ -4239,7 +4239,7 @@ function _refreshPortalData(){
     if(pdcRate) pdcRate.textContent = rate!==null ? rate+'%' : '—%';
     if(pdcRateSub) pdcRateSub.textContent = thisMonthTasks.total>0 ? ('共 '+thisMonthTasks.total+' 项任务') : '暂无本月数据';
 
-    // --- V0.7.1an: 重要紧急/重要不急任务列表 （显示未完成 + 已逾期完成之外的） ---
+    // --- V0.7.1ao: 重要紧急/重要不急任务列表 （显示未完成 + 已逾期完成之外的） ---
     var prioTasks = [];
     Object.keys(wpData).forEach(function(wid){
       var p2 = wpData[wid];
@@ -4283,7 +4283,7 @@ function _refreshPortalData(){
           } else {
             dueText = '<span class="portal-task-due">'+t.status+'</span>';
           }
-          // ★ V0.7.1an: 渲染时兜底 strip "来"字（来源标签 + 末尾连续"来"污染）
+          // ★ V0.7.1ao: 渲染时兜底 strip "来"字（来源标签 + 末尾连续"来"污染）
           var workText = (t.work||'')
             .replace(/\s*来源[：:]\d{4}年\d{1,2}月第[1-5]周(?:来)?\s*/g,' ')
             .replace(/来{2,}$/,'')  // 末尾连续 2+ 个"来"（污染）
@@ -4324,7 +4324,7 @@ function _refreshPortalData(){
   }
 }
 
-// ★ V0.7.1an: 渲染常用模块列表到侧边栏
+// ★ V0.7.1ao: 渲染常用模块列表到侧边栏
 var PORTAL_ICONS = {
   '13plus1': '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></svg>',
   'kpi': '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>',
@@ -4429,7 +4429,7 @@ function _showFavModulesModal(){
 }
 _renderFavModules();
 
-// ★ V0.7.1an: 全局事件 — 周计划保存后立即通知门户刷新（不需返回首页）
+// ★ V0.7.1ao: 全局事件 — 周计划保存后立即通知门户刷新（不需返回首页）
 window.addEventListener('workplan-changed', function(){
   if(typeof _refreshPortalData==='function'){
     _refreshPortalData();
@@ -4443,7 +4443,7 @@ localStorage.setItem = function(k, v){
     try { window.dispatchEvent(new Event('workplan-changed')); } catch(e){}
   }
 };
-// V0.7.1an: 进入门户即刷新（goHome 调用 _refreshPortalData）
+// V0.7.1ao: 进入门户即刷新（goHome 调用 _refreshPortalData）
 
 
 function enterModule(mod){
