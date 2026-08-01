@@ -4092,12 +4092,16 @@ function _wpFlushVisibleEdits(){
 
 // 顶部“保存并返回首页”必须独立处理：心情操作会保留输入焦点，离开前由 DOM 级兜底提交所有可见编辑值。
 async function saveWPAndGoHome(){
+  // ★ V0.7.1ch: 立即 goHome + 后台保存 — 用户感知 < 100ms
+  // 旧版慢的原因：先等云端 PATCH 1-2s，用户感觉卡 2-3 秒
   try{
-    // ★ j79: 强制DOM扫描 — 不从 _wpCurrent.plan 读，直接从页面上所有 td[data-field] 读取
     var p=_wpCurrent&&_wpCurrent.plan;
-    if(!p||!_wpCurrent.year||_wpViewingShared)return goHome();
+    if(!p||!_wpCurrent.year||_wpViewingShared){
+      goHome();
+      return;
+    }
 
-    // ★ 直接扫描DOM — 无论 textarea 是否已提交，强制读取可见值
+    // ★ 强制 DOM 扫描 — 直接从页面上所有 td[data-field] 读取可见值
     var root=document.getElementById('wpContent');
     var scannedAny=false;
     if(root&&p.tasks){
@@ -4107,15 +4111,12 @@ async function saveWPAndGoHome(){
         if(field.indexOf('tasks.')!==0)continue;
         var parts=field.split('.'), ti=parseInt(parts[1]), prop=parts[2];
         if(isNaN(ti)||!prop||!p.tasks[ti])continue;
-        // 优先从textarea/input直接读，兜底读textContent
         var ctrl=cell.querySelector('input,textarea,select');
         var value=ctrl?ctrl.value:cell.textContent.replace(/点击填写|选择|点击选择日期|备注|上级建议/g,'').trim();
-        // 普通展示状态的工作单元格含来源徽章；该徽章只用于显示，绝不能被 DOM 扫描保存进 work。
         if(prop==='work')value=_stripCarriedFromLabels(value);
         if(prop==='supporters'){
           var chips=cell.querySelectorAll('.supporter-chip span:first-child');
           if(chips.length){var names=[];for(var cx=0;cx<chips.length;cx++){var n=chips[cx].textContent.trim();if(n)names.push(n);}value=names.join(',');}
-          // 扫描普通展示单元格时，必须过滤状态徽章，保留纯姓名列表。
           value=_normalizeSupportersValue(value);
         }
         if(value!==p.tasks[ti][prop]){
@@ -4125,28 +4126,38 @@ async function saveWPAndGoHome(){
       }
     }
 
-    // 也检查并提交当前编辑中的cell
-    _wpFlushVisibleEdits();
-    if(_wpEditCell)await commitEditCell();
+    // 也提交当前编辑中的 cell（与扫描合并，去除冗余 _wpFlushVisibleEdits 二次扫描）
+    if(_wpEditCell){await commitEditCell();}
 
     p.updatedAt=new Date().toISOString();
     _calcWeekScore(p);
     var id=makeWPId(p.year,p.month,p.week);
     _wpData[id]=p;
-    
-    // ★ j79 diagnostic: 保存前打印内容
-    var workPreview=p.tasks&&p.tasks[0]?p.tasks[0].work:'';
-    console.log('[J79 SAVE] '+id+' task0work="'+workPreview.substr(0,40)+'" scanned='+scannedAny+' totalTasks='+(p.tasks?p.tasks.length:0));
 
-    // 先写 localStorage，再写云端（只写当前周）
+    // 先写 localStorage（同步 IO 必须等），再触发跳转
     localStorage.setItem(getWPLocalStorageKey(),JSON.stringify(_wpData));
-    await saveWPData(id);
+
+    // ★ V0.7.1ch: 立即跳转，用户感知零延迟
+    goHome();
+
+    // 后台异步推云端（不再阻塞用户）
+    setTimeout(function(){
+      saveWPData(id).then(function(){
+        if(typeof showToast==='function'&&scannedAny){
+          showToast('💾 周计划已保存到云端','success');
+        }
+      }).catch(function(e){
+        console.error('[WP] 后台云端保存失败:',e);
+        if(typeof showToast==='function'){
+          showToast('⚠️ 本地已保存，云端同步失败','warning');
+        }
+      });
+    },0);
   }catch(e){
     console.error('[WP] 保存并返回首页失败:',e);
     if(typeof showToast==='function')showToast('⚠️ 周计划保存失败，请重试','warning');
-    return;
+    goHome();
   }
-  goHome();
 }
 
 // ★ V0.1.35: 「完成提交」按钮 — 记录首次提交时间并保存
