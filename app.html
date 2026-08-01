@@ -6,8 +6,8 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.7.1at">
-<!-- cache-bust: 2026-08-01-18-54 -->
+<meta name="version" content="V0.7.1au">
+<!-- cache-bust: 2026-08-01-19-03 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json?v=bc">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -664,22 +664,20 @@ body{
   justify-content:center;
 }
 .modal{
-  background:rgba(255,255,255,.82);
-  backdrop-filter:blur(12px);
-  -webkit-backdrop-filter:blur(12px);
   width:100%;
   max-width:64vw;
   min-width:340px;
   max-height:85vh;
-  border-radius:16px;
+  border-radius:10px;
   overflow-y:auto;
   padding:0 0 24px;
-  box-shadow:0 20px 60px rgba(0,0,0,.18);
+  box-shadow:0 12px 40px rgba(0,0,0,.15);
+  background:#fff;
   animation:modalFadeIn .25s cubic-bezier(.23,1,.32,1);
 }
 @keyframes modalFadeIn{from{opacity:0;transform:translateY(16px) scale(.95)}to{opacity:1;transform:translateY(0) scale(1)}}
 .modal-handle{width:36px;height:5px;background:var(--border);border-radius:3px;margin:12px auto 0}
-.modal-header{padding:16px 20px 16px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:rgba(255,255,255,.82);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);z-index:1;min-height:76px;box-sizing:border-box}
+.modal-header{padding:14px 20px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:#fff;z-index:1;min-height:64px;box-sizing:border-box;border-bottom:1px solid #eef1f5}
 .modal-header h2{font-size:17px;font-weight:600}
 .modal-header-actions{display:flex;align-items:center;gap:8px;margin-right:8px;margin-left:auto}
 .modal-header-btn{
@@ -696,8 +694,8 @@ body{
 .modal-header-btn--cancel{background:#fff;color:#5f6368;border:1px solid #D0D5DD;transition:all .2s cubic-bezier(.4,0,.2,1)}
 .modal-header-btn--cancel:hover{background:linear-gradient(135deg,#E2E8F0 0%,#CBD5E1 100%);color:#1E293B;border-color:#94A3B8;transform:translateY(-1px);box-shadow:0 4px 12px rgba(100,116,139,.25)}
 .modal-header-btn--cancel:active{transform:translateY(0);box-shadow:0 2px 4px rgba(100,116,139,.15)}
-.modal-header-btn--delete{background:#d93025;transition:all .2s cubic-bezier(.4,0,.2,1)}
-.modal-header-btn--delete:hover{background:#E55C56;transform:translateY(-1px);box-shadow:0 4px 12px rgba(245,119,112,.35)}
+.modal-header-btn--delete{background:#fff;color:#d93025;border:1px solid #d93025;transition:all .2s cubic-bezier(.4,0,.2,1)}
+.modal-header-btn--delete:hover{background:#d93025;color:#fff;box-shadow:0 2px 6px rgba(217,48,37,.25)}
 .modal-header-btn--delete:active{transform:translateY(0);box-shadow:0 2px 4px rgba(245,119,112,.2)}
 .modal-close{width:32px;height:32px;border-radius:50%;border:1px solid var(--border);background:var(--card);font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary)}
 .modal-body{padding:0 20px}
@@ -775,7 +773,7 @@ body{
 }
 .detail-successor-item span{color:var(--text-hint)}
 .detail-value-empty{color:var(--text-hint);font-style:italic}
-.detail-avatar{width:60px;height:60px;border-radius:50%;background:#3B7DB4;display:flex;align-items:center;justify-content:center;color:#fff;font-size:24px;font-weight:600;margin-bottom:12px;overflow:hidden;flex-shrink:0}
+.detail-avatar{width:48px;height:48px;border-radius:50%;background:#3B7DB4;display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;font-weight:600;overflow:hidden;flex-shrink:0}
 .list-avatar{width:36px;height:36px;border-radius:50%;overflow:hidden;flex-shrink:0;background:#3B7DB4;display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;font-weight:600}
 .list-avatar img{width:100%;height:100%;object-fit:cover}
 
@@ -1085,7 +1083,7 @@ body{
   .toast{bottom:20px;font-size:12px;padding:8px 18px}
 }
 
-/* ===== 门户首页 · V0.7.1at Taste Redesign (sidebar + workspace) ===== */
+/* ===== 门户首页 · V0.7.1au Taste Redesign (sidebar + workspace) ===== */
 /* Design Read: B2B enterprise HR dashboard for medical-device managers.
    Precision-instrument visual language: structured data zones,
    restrained industrial palette, no decorative fluff.
@@ -2440,7 +2438,7 @@ select.form-input{padding-right:28px;appearance:auto;-webkit-appearance:menulist
 </head>
 <body>
 
-<!-- ★ V0.7.1at: 去掉左下角版本号悬浮徽章（用户要求） -->
+<!-- ★ V0.7.1au: 去掉左下角版本号悬浮徽章（用户要求） -->
 
 <!-- ★ V0.6.1bd: 门户提示窗开关逻辑 -->
 <script>
@@ -2468,7 +2466,7 @@ function togglePortalTips(){
 
 <div class="password-overlay" id="passwordGate">
   <div class="login-topbar" id="login-topbar"></div>
-  <!-- ★ V0.7.1at: 登录页左下角版本号徽章（恢复之前设计） -->
+  <!-- ★ V0.7.1au: 登录页左下角版本号徽章（恢复之前设计） -->
   <div id="loginVersionBadge" style="position:fixed;left:24px;bottom:max(24px,env(safe-area-inset-bottom));z-index:10000;font-size:11px;color:#fff;font-family:'SF Mono',Menlo,Monaco,Consolas,monospace;pointer-events:none;user-select:none;line-height:1.4;text-shadow:0 1px 2px rgba(0,0,0,.4)">
     <span id="loginVersionBadgeText"></span>
   </div>
@@ -2502,7 +2500,7 @@ function togglePortalTips(){
   </div><!-- /login-right -->
 </div>
 
-<!-- 门户首页 · V0.7.1at Taste Redesign -->
+<!-- 门户首页 · V0.7.1au Taste Redesign -->
 <div id="portalView" class="portal-view" style="display:none">
   <!-- Sidebar -->
   <aside class="portal-sidebar">
@@ -2545,7 +2543,7 @@ function togglePortalTips(){
       var show = document.getElementById('portalAvatarShow');
       if(!show) return;
       var me = (typeof currentUser!=='undefined'&&currentUser&&currentUser.name)||'U';
-      // ★ V0.7.1at: 中文姓的拼音首字母映射（用户指定）
+      // ★ V0.7.1au: 中文姓的拼音首字母映射（用户指定）
       var pinyinMap = {
         '谭':'T','葛':'G','韩':'H','李':'L','刘':'L','杨':'Y','张':'Z','徐':'X','孙':'S','管':'G'
       };
@@ -2557,9 +2555,9 @@ function togglePortalTips(){
     _initPortalAvatar();
     setTimeout(_initPortalAvatar, 500);
 
-    // ★ V0.7.1at: 一次性自动清理 localStorage 中含"来"字的 work 字段
-    // 背景：V0.7.1at 修复了 strip 正则（改为完整匹配"来源:"），但历史数据已污染。
-    // 这里在每个用户首次加载 V0.7.1at 时，自动清理自己的 workplans。
+    // ★ V0.7.1au: 一次性自动清理 localStorage 中含"来"字的 work 字段
+    // 背景：V0.7.1au 修复了 strip 正则（改为完整匹配"来源:"），但历史数据已污染。
+    // 这里在每个用户首次加载 V0.7.1au 时，自动清理自己的 workplans。
     (function _cleanLegacyLaiChars(){
       try {
         var me = (typeof currentUser!=='undefined'&&currentUser&&currentUser.name)||'';
@@ -2612,7 +2610,7 @@ function togglePortalTips(){
               var ver = (document.querySelector('meta[name="version"]')||{}).content||'';
               var el = document.getElementById('portalFeedVer');
               if(el && ver) el.textContent = '系统更新至 ' + ver;
-              // ★ V0.7.1at: 直接显示系统当前实际时间（用户要求——简单准确）
+              // ★ V0.7.1au: 直接显示系统当前实际时间（用户要求——简单准确）
               var tm = document.getElementById('portalFeedVerTime');
               if(tm){
                 var d = new Date();
@@ -2647,7 +2645,7 @@ function togglePortalTips(){
           </div>
         </div>
       </div>
-      <div style="margin-top:16px;text-align:center;font-size:11px;color:#5f6368">Tiger-Buddy 虎伴科技 · MBO+AI V0.7.1at</div>
+      <div style="margin-top:16px;text-align:center;font-size:11px;color:#5f6368">Tiger-Buddy 虎伴科技 · MBO+AI V0.7.1au</div>
     </div>
   </main>
 </div>
@@ -3885,7 +3883,7 @@ function doLogin(username, user, pwdInput, err){
     document.getElementById('hrPoliciesView').style.display='none';
     document.getElementById('portalView').style.display='flex';
     applyRoleUI();
-    // ★ V0.7.1at: 登录后立即初始化头像和门户数据（不只依赖goHome）
+    // ★ V0.7.1au: 登录后立即初始化头像和门户数据（不只依赖goHome）
     if(typeof _initPortalAvatar==='function') _initPortalAvatar();
     if(typeof _refreshPortalData==='function') _refreshPortalData();
     loadJobDescsFromDB(function(){console.log('HWM: job descs reloaded after login');});
@@ -4079,7 +4077,7 @@ function goHome(){
   sysCloseModal(); // ★ 清理系统维护弹窗
   // ★ V0.6.1.hu: 清理所有残留 tooltip（防止耗时列 tooltip 跨页面残留）
   document.querySelectorAll('.wp-tooltip').forEach(function(t){t.remove();});
-  // ★ V0.7.1at: 切到门户前立即用最新的 localStorage 数据刷新（避免 5s 重试）
+  // ★ V0.7.1au: 切到门户前立即用最新的 localStorage 数据刷新（避免 5s 重试）
   if(typeof _refreshPortalData==='function'){
     _refreshPortalData();
   }
@@ -4104,7 +4102,7 @@ function goHome(){
   if(btn)btn.classList.remove('show');
 }
 
-// ★ V0.7.1ata: 门户数据动态刷新 — 关联周行动计划和人员数据
+// ★ V0.7.1aua: 门户数据动态刷新 — 关联周行动计划和人员数据
 function _refreshPortalData(){
   var now = new Date();
   var yr = now.getFullYear(), mo = now.getMonth()+1;
@@ -4114,7 +4112,7 @@ function _refreshPortalData(){
   var wk = Math.ceil((now.getDate() + dayOfFirst - 1)/7);
   var weekId = yr+'-'+('0'+mo).slice(-2)+'-W'+wk;
 
-  // ★ V0.7.1at: 渲染时兜底 strip（来源标签 + 末尾"来来来"）
+  // ★ V0.7.1au: 渲染时兜底 strip（来源标签 + 末尾"来来来"）
   function _stripTaskText(s){
     return (s||'')
       .replace(/\s*来源[：:]\d{4}年\d{1,2}月第[1-5]周(?:来)?\s*/g,' ')
@@ -4122,7 +4120,7 @@ function _refreshPortalData(){
       .trim();
   }
 
-  // --- 参与项目数 (V0.7.1at: 从项目管理模块读取+状态分布) ---
+  // --- 参与项目数 (V0.7.1au: 从项目管理模块读取+状态分布) ---
   var _myProjects = 0;
   var _myDoing = 0;        // 进行中（未完成）
   var _myDone = 0;         // 已完成
@@ -4150,7 +4148,7 @@ function _refreshPortalData(){
   var pdcTeam = document.getElementById('pdcTeam');
   var pdcTeamSub = document.getElementById('pdcTeamSub');
   if(pdcTeam) pdcTeam.textContent = _myProjects;
-    // ★ V0.7.1at: 同步更新侧边栏"周行动计划"badge
+    // ★ V0.7.1au: 同步更新侧边栏"周行动计划"badge
     var wpBadge = document.getElementById('portalNavWpBadge');
     if(wpBadge){
       if(monthUnfinished>0){
@@ -4164,12 +4162,12 @@ function _refreshPortalData(){
     if(_myProjects===0){
       pdcTeamSub.textContent = '当前你参与的项目数为：0';
     } else {
-      // V0.7.1at: 进行中/已完成 状态分布
+      // V0.7.1au: 进行中/已完成 状态分布
       pdcTeamSub.textContent = _myDoing+' 进行中 · '+_myDone+' 已完成';
     }
   }
 
-  // --- 本月未完成任务统计 (V0.7.1at: 来源=当月所有周计划) ---
+  // --- 本月未完成任务统计 (V0.7.1au: 来源=当月所有周计划) ---
   try {
     var user = (typeof currentUser!=='undefined'&&currentUser&&currentUser.name)||'';
     var wpKey = 'hwm_workplans_'+user;
@@ -4239,7 +4237,7 @@ function _refreshPortalData(){
     if(pdcRate) pdcRate.textContent = rate!==null ? rate+'%' : '—%';
     if(pdcRateSub) pdcRateSub.textContent = thisMonthTasks.total>0 ? ('共 '+thisMonthTasks.total+' 项任务') : '暂无本月数据';
 
-    // --- V0.7.1at: 重要紧急/重要不急任务列表 （显示未完成 + 已逾期完成之外的） ---
+    // --- V0.7.1au: 重要紧急/重要不急任务列表 （显示未完成 + 已逾期完成之外的） ---
     var prioTasks = [];
     Object.keys(wpData).forEach(function(wid){
       var p2 = wpData[wid];
@@ -4283,7 +4281,7 @@ function _refreshPortalData(){
           } else {
             dueText = '<span class="portal-task-due">'+t.status+'</span>';
           }
-          // ★ V0.7.1at: 渲染时兜底 strip "来"字（来源标签 + 末尾连续"来"污染）
+          // ★ V0.7.1au: 渲染时兜底 strip "来"字（来源标签 + 末尾连续"来"污染）
           var workText = (t.work||'')
             .replace(/\s*来源[：:]\d{4}年\d{1,2}月第[1-5]周(?:来)?\s*/g,' ')
             .replace(/来{2,}$/,'')  // 末尾连续 2+ 个"来"（污染）
@@ -4324,7 +4322,7 @@ function _refreshPortalData(){
   }
 }
 
-// ★ V0.7.1at: 渲染常用模块列表到侧边栏
+// ★ V0.7.1au: 渲染常用模块列表到侧边栏
 var PORTAL_ICONS = {
   '13plus1': '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></svg>',
   'kpi': '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>',
@@ -4429,7 +4427,7 @@ function _showFavModulesModal(){
 }
 _renderFavModules();
 
-// ★ V0.7.1at: 全局事件 — 周计划保存后立即通知门户刷新（不需返回首页）
+// ★ V0.7.1au: 全局事件 — 周计划保存后立即通知门户刷新（不需返回首页）
 window.addEventListener('workplan-changed', function(){
   if(typeof _refreshPortalData==='function'){
     _refreshPortalData();
@@ -4443,7 +4441,7 @@ localStorage.setItem = function(k, v){
     try { window.dispatchEvent(new Event('workplan-changed')); } catch(e){}
   }
 };
-// V0.7.1at: 进入门户即刷新（goHome 调用 _refreshPortalData）
+// V0.7.1au: 进入门户即刷新（goHome 调用 _refreshPortalData）
 
 
 function enterModule(mod){
@@ -5427,7 +5425,7 @@ var HR_FIELD_CONFIG=[
 ];
 
 function canEditField(cfg){
-  // ★ V0.7.1at: 100% 与 canEditBasic 同源——role(admin/data_admin) 或 USERS.permissions.editHr 任一通过即可
+  // ★ V0.7.1au: 100% 与 canEditBasic 同源——role(admin/data_admin) 或 USERS.permissions.editHr 任一通过即可
   if(!currentUser)return false;
   var usrObj=(typeof USERS!=='undefined'&&USERS[currentUser.name])||{};
   var role=currentUser.role||usrObj.role||'';
@@ -6338,7 +6336,7 @@ function showDetail(empId){
   var companyWY=calcWorkYears(e.entryDate);
   document.getElementById('modalHeaderContent').innerHTML=
     avatarHtml+
-    '<div><div style="font-size:19px;font-weight:600;color:var(--text)">'+esc(e.name)+'</div><div style="font-size:13px;color:var(--text-secondary)">'+esc(e.position||'')+(e.dept?' · '+esc(e.dept):'')+'</div><div style="font-size:12px;color:var(--text-hint);margin-top:2px">公司工龄：'+(companyWY||'—')+'</div></div>';
+    '<div><div style="font-size:19px;font-weight:600;color:var(--text)">'+esc(e.name)+'<span style="display:inline-block;font-size:10px;margin-left:8px;padding:1px 8px;border-radius:4px;font-weight:500;vertical-align:middle;'+(e.status==='已离职'?'background:#FCE8E6;color:#d93025':'background:#E6F4EA;color:#188038')+'">'+esc(e.status||'已转正')+'</span></div><div style="font-size:13px;color:var(--text-secondary)">'+esc(e.position||'')+(e.dept?' · '+esc(e.dept):'')+'</div><div style="font-size:12px;color:var(--text-hint);margin-top:2px">公司工龄：'+(companyWY||'—')+'</div></div>';
   const fields=[
     {label:'工号',value:e.empId},
     {label:'姓名',value:e.name},
@@ -6371,7 +6369,7 @@ function showDetail(empId){
   function _flushHRSection(){
     if(currentGridFields.length===0)return;
     hrRows+='<div class="detail-form-group">';
-    hrRows+='<div class="detail-form-group-title">'+esc(currentSection)+'</div>';
+    hrRows+='<div class="detail-form-group-title">'+esc(currentSection)+' <span style="font-size:10px;color:#9CA3AF;font-weight:400">· '+currentGridFields.length+'</span></div>';
     hrRows+='<div class="detail-form-grid">';
     for(var fi=0;fi<currentGridFields.length;fi++){
       var f=currentGridFields[fi];
@@ -6510,7 +6508,7 @@ function showDetail(empId){
       if(!grpHasAny)continue;
     }
     basicRows+='<div class="detail-form-group">';
-    basicRows+='<div class="detail-form-group-title">'+esc(grp.title)+'</div>';
+    basicRows+='<div class="detail-form-group-title">'+esc(grp.title)+' <span style="font-size:10px;color:#9CA3AF;font-weight:400">· '+grp.fields.length+'</span></div>';
     basicRows+='<div class="detail-form-grid">';
     for(var fi=0;fi<grp.fields.length;fi++){
       var f=grp.fields[fi];
