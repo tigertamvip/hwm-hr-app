@@ -296,7 +296,7 @@ function renderProjectCard(p, idx, anim){
   var sm = statusMeta[p.status]||statusMeta['草稿中'];
 
   var h = '';
-  h += '<div onclick="openPMDetail('+p.id+')" class="pm-card'+(anim?' pm-card-anim':'')+'" style="'+(anim?('animation-delay:'+((idx||0)*40)+'ms;'):'')+'position:relative;display:flex;background:#fff;border-radius:10px;border:1px solid #E3E0D9;overflow:hidden;cursor:pointer">';
+  h += '<div onclick="openPMDetail('+p.id+')" class="pm-card'+(anim?' pm-card-anim':'')+'" style="'+(anim?('animation-delay:'+((idx||0)*40)+'ms;'):'')+'position:relative;display:flex;background:#fff;border-radius:10px;border:1px solid #e3e8ef;overflow:hidden;cursor:pointer">';
   h += '<div style="width:2px;min-width:2px;background:'+lm.ink+'"></div>';
   h += '<div style="flex:1;padding:14px 16px">';
   h += '<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px">';
@@ -309,7 +309,7 @@ function renderProjectCard(p, idx, anim){
   if(_canDelete) h += '<button class="pm-del-btn" onclick="event.stopPropagation();deleteProject('+p.id+')" title="删除项目" style="padding:2px 8px;border:0;background:transparent;font-size:11px;color:#A8A29A;cursor:pointer">删除</button>';
   h += '</div></div>';
   h += '<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:11px;color:#6E6A63;margin-bottom:4px"><span>进度</span><span style="font-weight:600;color:'+(p.progress===-1?'#A8A29A':'#1F1F1F')+'">'+pmProgressLabel(p.progress)+'</span></div>';
-  h += '<div style="height:4px;background:#EFEDE8;border-radius:2px;overflow:hidden"><div style="height:100%;width:'+(p.progress===-1?0:(p.progress||0))+'%;background:'+(p.progress===-1?'#EFEDE8':'#1F1F1F')+';border-radius:2px"></div></div></div>';
+  h += '<div style="height:4px;background:#EFEDE8;border-radius:2px;overflow:hidden"><div style="height:100%;width:'+(p.progress===-1?0:(p.progress||0))+'%;background:'+(p.progress===-1?'#EFEDE8':'#3B7DB4')+';border-radius:2px"></div></div></div>';
   // ★ V1.0 RDPM: 研发项目卡片显示 7 段阶段条（数据来自 rdpm.js 缓存，不影响其他类型）
   if(p.type==='研发' && typeof rdStageBarHtml==='function') h += rdStageBarHtml(p.id);
   var teamCount = (p.team&&Array.isArray(p.team))?p.team.length:0;
@@ -320,8 +320,8 @@ function renderProjectCard(p, idx, anim){
   h += '</div>';
   h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid #EFEDE8">';
   h += '<div style="display:flex;gap:8px">';
-  h += '<button onclick="event.stopPropagation();showProjectTeam('+p.id+')" style="font-size:11px;padding:6px 14px;border-radius:6px;border:1px solid #BFDBFE;background:#EFF6FF;color:#1B6EC4;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-weight:500;transition:all 0.2s ease" title="查看项目组成员" onmouseover="this.style.background=\'#DBEAFE\'" onmouseout="this.style.background=\'#EFF6FF\'"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>项目团队 ('+teamCount+')</button>';
-  h += '<button onclick="event.stopPropagation();openProjectGanttTab('+p.id+')" style="font-size:11px;padding:6px 14px;border-radius:6px;border:1px solid #BFDBFE;background:#EFF6FF;color:#1B6EC4;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-weight:500;transition:all 0.2s ease" title="查看项目甘特图" onmouseover="this.style.background=\'#DBEAFE\'" onmouseout="this.style.background=\'#EFF6FF\'"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:block"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>项目甘特图</button>';
+  h += '<button onclick="event.stopPropagation();showProjectTeam('+p.id+')" style="font-size:11px;padding:6px 14px;border-radius:6px;border:1px solid #D9E6F2;background:#F0F5FA;color:#3B7DB4;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-weight:500;transition:all 0.2s ease" title="查看项目组成员" onmouseover="this.style.background=\'#DBEAFE\'" onmouseout="this.style.background=\'#EFF6FF\'"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>项目团队 ('+teamCount+')</button>';
+  h += '<button onclick="event.stopPropagation();openProjectGanttTab('+p.id+')" style="font-size:11px;padding:6px 14px;border-radius:6px;border:1px solid #D9E6F2;background:#F0F5FA;color:#3B7DB4;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-weight:500;transition:all 0.2s ease" title="查看项目甘特图" onmouseover="this.style.background=\'#DBEAFE\'" onmouseout="this.style.background=\'#EFF6FF\'"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:block"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>项目甘特图</button>';
   h += '</div>';
   h += '<span style="font-size:10px;color:#C9C4BA">'+(p.updated_at?formatDate(p.updated_at):'')+'</span>';
   h += '</div>';
@@ -349,7 +349,7 @@ function renderPMSidebar(){
   PM_TYPE_DEFS.forEach(function(td){
     var sel = td.key===_pmFilter.type && noQuick;
     var cnt = td.key==='全部' ? all.length : all.filter(function(p){return p.type===td.key;}).length;
-    h += '<div class="pm-nav-item'+animCls+(sel?' pm-nav-sel':'')+'" onclick="_pmFilter.type=\''+td.key+'\';_pmFilter.owner=\'\';_pmFilter._active=false;renderPMSidebar();renderPMList()" style="'+(_pmMotionPlayed?'':('animation-delay:'+(idx++*30)+'ms;'))+'display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-radius:8px;font-size:12px;cursor:pointer;margin-bottom:2px;color:'+(sel?'#F7F5F0':'#3A3835')+'">'
+    h += '<div class="pm-nav-item'+animCls+(sel?' pm-nav-sel':'')+'" onclick="_pmFilter.type=\''+td.key+'\';_pmFilter.owner=\'\';_pmFilter._active=false;renderPMSidebar();renderPMList()" style="'+(_pmMotionPlayed?'':('animation-delay:'+(idx++*30)+'ms;'))+'display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-radius:8px;font-size:12px;cursor:pointer;margin-bottom:2px;color:'+(sel?'#3B7DB4':'#3A3835')+'">'
       +'<span>'+td.label+'</span><span class="pm-nav-cnt" style="font-size:11px;color:#A8A29A;font-variant-numeric:tabular-nums">'+cnt+'</span></div>';
   });
   h += '</div>';
@@ -357,9 +357,9 @@ function renderPMSidebar(){
   h += '<div style="margin-bottom:22px">';
   h += '<div style="font-size:11px;font-weight:500;color:#A8A29A;margin-bottom:8px;letter-spacing:1px">快速筛选</div>';
   var mySel = !!_pmFilter.owner;
-  h += '<div class="pm-nav-item'+animCls+(mySel?' pm-nav-sel':'')+'" onclick="filterMyProjects()" style="'+(_pmMotionPlayed?'':('animation-delay:'+(idx++*30)+'ms;'))+'display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-radius:8px;font-size:12px;cursor:pointer;margin-bottom:2px;color:'+(mySel?'#F7F5F0':'#3A3835')+'"><span>我的项目</span><span class="pm-nav-cnt" style="font-size:11px;color:#A8A29A;font-variant-numeric:tabular-nums">'+myProjects+'</span></div>';
+  h += '<div class="pm-nav-item'+animCls+(mySel?' pm-nav-sel':'')+'" onclick="filterMyProjects()" style="'+(_pmMotionPlayed?'':('animation-delay:'+(idx++*30)+'ms;'))+'display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-radius:8px;font-size:12px;cursor:pointer;margin-bottom:2px;color:'+(mySel?'#3B7DB4':'#3A3835')+'"><span>我的项目</span><span class="pm-nav-cnt" style="font-size:11px;color:#A8A29A;font-variant-numeric:tabular-nums">'+myProjects+'</span></div>';
   var activeSel = !!_pmFilter._active;
-  h += '<div class="pm-nav-item'+animCls+(activeSel?' pm-nav-sel':'')+'" onclick="filterActiveProjects()" style="'+(_pmMotionPlayed?'':('animation-delay:'+(idx++*30)+'ms;'))+'display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-radius:8px;font-size:12px;cursor:pointer;margin-bottom:2px;color:'+(activeSel?'#F7F5F0':'#3A3835')+'"><span>进行中</span><span class="pm-nav-cnt" style="font-size:11px;color:#A8A29A;font-variant-numeric:tabular-nums">'+active+'</span></div>';
+  h += '<div class="pm-nav-item'+animCls+(activeSel?' pm-nav-sel':'')+'" onclick="filterActiveProjects()" style="'+(_pmMotionPlayed?'':('animation-delay:'+(idx++*30)+'ms;'))+'display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-radius:8px;font-size:12px;cursor:pointer;margin-bottom:2px;color:'+(activeSel?'#3B7DB4':'#3A3835')+'"><span>进行中</span><span class="pm-nav-cnt" style="font-size:11px;color:#A8A29A;font-variant-numeric:tabular-nums">'+active+'</span></div>';
   h += '</div>';
 
   // ★ V0.6.4L: 项目级别升级为可点击筛选器（单选切换，再次点击取消）
@@ -369,7 +369,7 @@ function renderPMSidebar(){
   [{v:1,l:'一级',c:'#B3382C'},{v:2,l:'二级',c:'#6E6A63'},{v:3,l:'三级',c:'#A8A29A'}].forEach(function(lv){
     var cnt = typed.filter(function(p){return String(p.level)===String(lv.v);}).length;
     var on = String(_pmFilter.level||'')===String(lv.v);
-    h += '<div class="pm-lvl-chip'+(on?' pm-lvl-on':'')+'" onclick="toggleLevelFilter('+lv.v+')" style="flex:1;padding:5px 4px;border-radius:7px;border:1px solid '+(on?'#1B6EC4':'#D8D3C8')+';font-size:11px;text-align:center;color:'+(on?'#F7F5F0':lv.c)+'">'+lv.l+' '+cnt+'</div>';
+    h += '<div class="pm-lvl-chip'+(on?' pm-lvl-on':'')+'" onclick="toggleLevelFilter('+lv.v+')" style="flex:1;padding:5px 4px;border-radius:7px;border:1px solid '+(on?'#3B7DB4':'#D8D3C8')+';font-size:11px;text-align:center;color:'+(on?'#3B7DB4':lv.c)+'">'+lv.l+' '+cnt+'</div>';
   });
   h += '</div></div>';
 
@@ -1104,7 +1104,7 @@ function injectPMStyles(){
   +'.pm-header h1{font-size:18px!important}'
   +'.pm-header .header-sub{font-size:11px!important}'
   // ★ V0.6.4L 水墨屏设计体系：纸底、发丝线、墨黑/朱砂/黛绿三色、静谧动效
-  +'#pmView{background:#F7F5F0}'
+  +'#pmView{background:#f6f8fc}'
   +'#pmView ::selection{background:#1F1F1F;color:#F7F5F0}'
   +'@keyframes pmFadeIn{from{opacity:0;transform:translateX(-4px)}to{opacity:1;transform:none}}'
   +'@keyframes pmCardIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}'
@@ -1113,20 +1113,20 @@ function injectPMStyles(){
   +'.pm-card-anim{animation:pmCardIn .24s ease-out both}'
   +'.pm-nav-item{transition:background-color .16s ease-out,color .16s ease-out}'
   +'.pm-nav-item:hover{background:#EFEDE8}'
-  +'.pm-nav-sel{background:rgba(27,110,196,0.5)!important;color:#F7F5F0!important;font-weight:600}'
-  +'.pm-nav-sel .pm-nav-cnt{color:#BFDBFE!important}'
+  +'.pm-nav-sel{background:#F0F5FA!important;color:#3B7DB4!important;font-weight:600}'
+  +'.pm-nav-sel .pm-nav-cnt{color:#3B7DB4!important}'
   +'.pm-lvl-chip{transition:background-color .16s ease-out,color .16s ease-out,border-color .16s ease-out;cursor:pointer;user-select:none}'
-  +'.pm-lvl-chip:hover{border-color:#1B6EC4}'
-  +'.pm-lvl-on{background:rgba(27,110,196,0.5)!important;color:#F7F5F0!important;border-color:#1B6EC4!important}'
+  +'.pm-lvl-chip:hover{border-color:#3B7DB4}'
+  +'.pm-lvl-on{background:#F0F5FA!important;color:#3B7DB4!important;border-color:#3B7DB4!important}'
   +'.pm-card:hover{border-color:#A8A29A!important}'
   +'.pm-del-btn{opacity:0;transition:opacity .16s ease-out,color .16s ease-out}'
   +'.pm-card:hover .pm-del-btn{opacity:1}'
   +'.pm-del-btn:hover{color:#B3382C!important}'
-  +'.pm-stat-card{background:#fff;border:1px solid #E3E0D9;border-radius:10px;padding:14px 16px;text-align:center}'
+  +'.pm-stat-card{background:#fff;border:1px solid #e3e8ef;border-radius:10px;padding:14px 16px;text-align:center}'
   +'.pm-btn-back:hover{background:#EFEDE8;color:#1F1F1F}'
   +'.pm-add-task-btn{width:100%;padding:8px;border:1px dashed #C9C4BA;border-radius:8px;background:transparent;font-size:11px;color:#A8A29A;cursor:pointer;margin-top:4px;transition:all .16s ease-out}'
   +'.pm-add-task-btn:hover{border-color:#1F1F1F;color:#1F1F1F;background:#fff}'
-  +'.pm-detail-mode{background:#F7F5F0}'
+  +'.pm-detail-mode{background:#f6f8fc}'
   +'#pmDetailView{display:none}'
   +'.pm-card{background:#fff}'
   ;
@@ -1170,7 +1170,7 @@ function _npInitMemberSelect(input, chipsEl){
   function _renderChips(){
     var h = '';
     _npSelectedMembers.forEach(function(n, i){
-      h += '<span style="display:inline-flex;align-items:center;background:#E8F0FE;color:#1B6EC4;font-size:11px;font-weight:500;padding:3px 10px;border-radius:12px;gap:4px">'+esc(n)+'<span onclick="_npRemoveMember('+i+')" style="cursor:pointer;opacity:.6;font-size:14px;line-height:1;margin-left:2px">&times;</span></span>';
+      h += '<span style="display:inline-flex;align-items:center;background:#F0F5FA;color:#3B7DB4;font-size:11px;font-weight:500;padding:3px 10px;border-radius:12px;gap:4px">'+esc(n)+'<span onclick="_npRemoveMember('+i+')" style="cursor:pointer;opacity:.6;font-size:14px;line-height:1;margin-left:2px">&times;</span></span>';
     });
     chipsEl.innerHTML = h;
   }
