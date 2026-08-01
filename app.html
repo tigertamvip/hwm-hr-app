@@ -7,7 +7,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <meta name="version" content="V0.7.1s">
-<!-- cache-bust: 2026-08-01-08-02 -->
+<!-- cache-bust: 2026-08-01-08-05 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json?v=bc">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2541,6 +2541,20 @@ function togglePortalTips(){
             <button class="pad-item danger" onclick="logout()">🚪 退出登录</button>
           </div>
         </div>
+        <script>
+        function _initPortalAvatar(){
+          var btn = document.getElementById('portalAvatarBtn');
+          var drop = document.getElementById('portalAvatarDrop');
+          if(!btn || !drop) return;
+          var me = (typeof currentUser!=='undefined'&&currentUser&&currentUser.name)||'U';
+          var role = (typeof currentUser!=='undefined'&&currentUser&&currentUser.role)||'用户';
+          btn.textContent = me.charAt(0).toUpperCase();
+          var head = drop.querySelector('.pad-head');
+          if(head) head.textContent = me + ' · ' + role;
+        }
+        _initPortalAvatar();
+        setTimeout(_initPortalAvatar, 500);
+        </script>
       </div>
     </div>
     <div class="portal-content">
