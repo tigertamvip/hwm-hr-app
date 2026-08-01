@@ -195,7 +195,7 @@ function _installWPDeferredRenderFlush(){
 // 下拉选项
 var WP_GOAL_OPTIONS=['重要紧急','重要不急','日常紧急','日常事项'];
 var WP_PRIORITY_ORDER={'重要紧急':1,'日常紧急':2,'重要不急':3,'日常事项':4};
-var WP_GOAL_COLORS={'重要紧急':'#FF3B30','重要不急':'#08739D','日常紧急':'#FF9500','日常事项':'#5E7080'};
+var WP_GOAL_COLORS={'重要紧急':'#FF3B30','重要不急':'#4984AC','日常紧急':'#FF9500','日常事项':'#5E7080'};
 var WP_STATUS_OPTIONS=['按时完成','进行中','逾期完成','暂停中','未做'];
 var WP_STATUS_COLORS={'按时完成':'#92D050','进行中':'#9FE7E7','逾期完成':'#FFCF66','暂停中':'#9ca3af','未做':'#FF4B4B'};
 var WP_PROBLEM_OPTIONS=['无','资源不足','跨部门协调','技术瓶颈','时间紧张','其他原因'];
@@ -2264,7 +2264,7 @@ function _renderCollabTasksSection(plan){
     html+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr style="background:#fff"><th style="padding:10px 8px;text-align:left;color:#92400e;border-bottom:1px solid #f59e0b">序号</th><th style="padding:10px 8px;text-align:left;color:#92400e;border-bottom:1px solid #f59e0b">来自</th><th style="padding:10px 8px;text-align:left;color:#92400e;border-bottom:1px solid #f59e0b">协同工作内容</th><th style="padding:10px 8px;text-align:left;color:#92400e;border-bottom:1px solid #f59e0b">优先级</th><th style="padding:10px 8px;text-align:left;color:#92400e;border-bottom:1px solid #f59e0b">计划完成日期</th><th style="padding:10px 8px;text-align:left;color:#92400e;border-bottom:1px solid #f59e0b">协同状态</th><th style="padding:10px 8px;text-align:left;color:#92400e;border-bottom:1px solid #f59e0b">操作</th></tr></thead><tbody>';
     for(var i=0;i<collabTasks.length;i++){
       var ct=collabTasks[i], snapshot=ct.task_snapshot||{}, pri=snapshot.goal||'';
-      var priStyle=pri==='重要紧急'?'#FF3B30':pri==='重要不急'?'#08739D':pri==='日常紧急'?'#FF9500':'#5E7080';
+      var priStyle=pri==='重要紧急'?'#FF3B30':pri==='重要不急'?'#4984AC':pri==='日常紧急'?'#FF9500':'#5E7080';
       var st=ct.status||'pending', stText=st==='accepted'?'已接受':st==='rejected'?'已拒绝':'待响应', stColor=st==='accepted'?'#16a34a':st==='rejected'?'#dc2626':'#6b7280';
       html+='<tr><td style="padding:10px 8px;border-bottom:1px solid #fef3c7">'+(i+1)+'</td><td style="padding:10px 8px;border-bottom:1px solid #fef3c7"><span style="padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;color:#fff;background:#6366f1">'+_h(ct.owner_name||'')+'</span></td><td style="padding:10px 8px;border-bottom:1px solid #fef3c7">'+_h(snapshot.work||'(无任务描述)')+'</td><td style="padding:10px 8px;border-bottom:1px solid #fef3c7">'+(pri?'<span style="background:'+priStyle+';color:#fff;padding:2px 8px;border-radius:3px;font-size:10px;font-weight:600">'+_h(pri)+'</span>':'')+'</td><td style="padding:10px 8px;border-bottom:1px solid #fef3c7;white-space:nowrap">'+_h(snapshot.plannedDate||'')+'</td><td style="padding:10px 8px;border-bottom:1px solid #fef3c7"><span style="color:'+stColor+';font-weight:600">'+stText+'</span></td><td style="padding:10px 8px;border-bottom:1px solid #fef3c7"><div style="display:flex;gap:4px;flex-wrap:wrap">';
       if(isPlanOwner){
