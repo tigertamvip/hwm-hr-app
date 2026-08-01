@@ -475,7 +475,7 @@ async function _rdOpenMembersModal(stageId){
     var personalScore = effScore * (m.ratio||0)/100;
     h += '<td style="text-align:center;color:#059669;font-weight:600;vertical-align:middle" class="rd-mem-score">'+personalScore.toFixed(1)+' 分</td>';
     // 应发奖金
-    h += '<td style="text-align:right;color:#1B6EC4;font-weight:600;padding-right:8px" class="rd-mem-final">'+(finalAmt?finalAmt.toFixed(0):'—')+'</td>';
+    h += '<td style="text-align:right;color:#3B7DB4;font-weight:600;padding-right:8px" class="rd-mem-final">'+(finalAmt?finalAmt.toFixed(0):'—')+'</td>';
     h += '<td style="text-align:center"><button type="button" class="rd-mem-del" style="padding:2px 6px;border:1px solid #FCA5A5;border-radius:4px;background:#FEF2F2;color:#DC2626;cursor:pointer;font-size:10px">×</button></td>';
     h += '</tr>';
     return h;
@@ -492,7 +492,7 @@ async function _rdOpenMembersModal(stageId){
   html += '<div style="display:flex;align-items:center;gap:6px"><span style="font-size:11px;color:#6B7280;white-space:nowrap">总奖金池</span><input type="number" id="rd-bonus-pool" value="'+bonusPool+'" placeholder="金额" style="width:110px;padding:4px 8px;border:1px solid #D0D5DD;border-radius:6px;font-size:12px;text-align:right" step="1" min="0"></div>';
   html += '</div>';
   html += '<div style="display:flex;align-items:center;gap:16px">';
-  html += '<span style="font-size:11px;color:#6B7280">比例合计：<span id="rd-mem-sum" style="font-weight:600;color:#1B6EC4;font-size:13px">0</span>%</span>';
+  html += '<span style="font-size:11px;color:#6B7280">比例合计：<span id="rd-mem-sum" style="font-weight:600;color:#3B7DB4;font-size:13px">0</span>%</span>';
   html += '<span id="rd-mem-warn" style="color:#DC2626;font-size:11px;display:none">⚠ 超过100%</span>';
   html += '<span style="font-size:11px;color:#6B7280">单位积分奖金：<span id="rd-unit-bonus" style="font-weight:600;color:#059669;font-size:13px">—</span></span>';
   html += '</div>';
@@ -884,12 +884,12 @@ function _rdRenderBonusPanel(c){
 
   var h = '<div style="margin-top:20px;background:#fff;border:1px solid #E5E7EB;border-radius:12px;overflow:hidden;flex:1 1 100%;width:100%">';
   // 面板标题栏
-  h += '<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:linear-gradient(135deg,#EFF6FF 0%,#F9FAFB 100%);border-bottom:1px solid #E5E7EB">';
+  h += '<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:#F0F5FA;border-bottom:1px solid #e3eaf2">';
   h += '<div style="display:flex;align-items:center;gap:10px">';
-  h += '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#1B6EC4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>';
+  h += '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#3B7DB4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>';
   h += '<span style="font-size:14px;font-weight:600;color:#1F2937">团队激励维护区</span>';
   // 阶段选择下拉
-  h += '<select id="rd-bonus-stage-sel" style="padding:5px 10px;border:1px solid #BFDBFE;border-radius:6px;font-size:12px;background:#fff;color:#1B6EC4;font-weight:500;cursor:pointer">';
+  h += '<select id="rd-bonus-stage-sel" style="padding:5px 10px;border:1px solid #BFDBFE;border-radius:6px;font-size:12px;background:#fff;color:#3B7DB4;font-weight:500;cursor:pointer">';
   c.stages.forEach(function(s){
     var stageNames = {preresearch:'预研',initiation:'立项',input:'设计输入',output:'设计输出',verification:'设计验证',validation:'设计确认',transfer:'设计转化'};
     var name = stageNames[s.stage_key]||s.stage_name;
@@ -918,11 +918,11 @@ function _rdRenderBonusPanel(c){
   h += '<div style="display:flex;align-items:center;gap:6px"><span style="font-size:12px;color:#6B7280">总奖金池</span>';
   h += '<input type="number" id="rd-bonus-pool" value="'+bonusPool+'" placeholder="0" '+(!isOwner?'disabled':'')+' style="width:130px;padding:4px 8px;border:1px solid #D0D5DD;border-radius:6px;font-size:12px;text-align:right" step="1" min="0"></div>';
   h += '<span style="font-size:11px;color:#9CA3AF">元</span>';
-  h += '<span style="margin-left:auto;font-size:12px;color:#6B7280">比例合计：<span id="rd-mem-sum" style="font-weight:600;color:#1B6EC4;font-size:13px">0</span>% <span id="rd-mem-warn" style="color:#DC2626;font-size:11px;display:none;margin-left:6px">⚠ 超过100%</span></span>';
+  h += '<span style="margin-left:auto;font-size:12px;color:#6B7280">比例合计：<span id="rd-mem-sum" style="font-weight:600;color:#3B7DB4;font-size:13px">0</span>% <span id="rd-mem-warn" style="color:#DC2626;font-size:11px;display:none;margin-left:6px">⚠ 超过100%</span></span>';
   h += '<span style="font-size:12px;color:#6B7280">总积分：<span id="rd-total-score" style="font-weight:600;color:#059669;font-size:13px">—</span></span>';
   h += '<span style="font-size:12px;color:#6B7280">单位积分：<span id="rd-unit-bonus" style="font-weight:600;color:#059669;font-size:13px">—</span></span>';
-  h += '<span style="font-size:12px;color:#6B7280">奖金基数合计：<span id="rd-sum-base" style="font-weight:600;color:#1B6EC4;font-size:13px">0</span></span>';
-  h += '<span style="font-size:12px;color:#6B7280">应发合计：<span id="rd-sum-final" style="font-weight:600;color:#1B6EC4;font-size:13px">0</span></span>';
+  h += '<span style="font-size:12px;color:#6B7280">奖金基数合计：<span id="rd-sum-base" style="font-weight:600;color:#3B7DB4;font-size:13px">0</span></span>';
+  h += '<span style="font-size:12px;color:#6B7280">应发合计：<span id="rd-sum-final" style="font-weight:600;color:#3B7DB4;font-size:13px">0</span></span>';
   h += '</div>';
 
   // 成员表格（用 colgroup 锁死列宽，name 输入框固定 200px 不用 100%）
@@ -979,9 +979,9 @@ function _rdRenderBonusPanel(c){
     h2 += '<td style="padding:3px;border-bottom:1px solid #F3F4F6"><input class="rd-mem-ratio" data-fld="ratio" type="number" min="0" max="100" step="0.1" value="'+ratio+'" '+(!isOwner?'disabled':'')+' style="width:100%;height:26px;padding:2px 4px;border:1px solid #D0D5DD;border-radius:4px;font-size:11px;box-sizing:border-box;text-align:center"></td>';
     h2 += '<td style="padding:3px;border-bottom:1px solid #F3F4F6;text-align:center;color:#6B7280;font-size:11px;vertical-align:middle" class="rd-mem-base">—</td>';
     h2 += '<td style="padding:3px;border-bottom:1px solid #F3F4F6;text-align:center;color:#059669;font-weight:600;font-size:11px;vertical-align:middle" class="rd-mem-score">—</td>';
-    h2 += '<td style="padding:3px;border-bottom:1px solid #F3F4F6;text-align:center;color:#1B6EC4;font-weight:600;font-size:11px;vertical-align:middle" class="rd-mem-final">—</td>';
+    h2 += '<td style="padding:3px;border-bottom:1px solid #F3F4F6;text-align:center;color:#3B7DB4;font-weight:600;font-size:11px;vertical-align:middle" class="rd-mem-final">—</td>';
     h2 += '<td style="padding:3px;border-bottom:1px solid #F3F4F6;text-align:center;vertical-align:middle;white-space:nowrap">'
-       + '<button type="button" class="rd-mem-addrow" '+(!isOwner?'disabled':'')+' style="width:20px;height:20px;line-height:1;border:1px solid #BFDBFE;border-radius:4px;background:#EFF6FF;color:#1B6EC4;cursor:pointer;font-size:12px;font-weight:600;display:inline-block;margin-right:3px" title="在下方添加成员">+</button>'
+       + '<button type="button" class="rd-mem-addrow" '+(!isOwner?'disabled':'')+' style="width:20px;height:20px;line-height:1;border:1px solid #D9E6F2;border-radius:4px;background:#F0F5FA;color:#3B7DB4;cursor:pointer;font-size:12px;font-weight:600;display:inline-block;margin-right:3px" title="在下方添加成员">+</button>'
        + '<button type="button" class="rd-mem-delrow" '+(!isOwner?'disabled':'')+' style="width:20px;height:20px;line-height:1;border:1px solid #FCA5A5;border-radius:4px;background:#FEF2F2;color:#DC2626;cursor:pointer;font-size:12px;font-weight:600;display:inline-block" title="删除本行">−</button>'
        + '</td>';
     h2 += '</tr>';
@@ -992,11 +992,11 @@ function _rdRenderBonusPanel(c){
   h += '</tbody></table></div>';
 
   // 底部工具栏（明确分行：按钮一行+提示一行，强制按钮横向+Apple风格微质感）
-  h += '<div style="padding:12px 16px;background:linear-gradient(180deg,#FAFBFC 0%,#F3F4F6 100%);border-top:1px solid #E5E7EB;border-radius:0 0 12px 12px">';
+  h += '<div style="padding:12px 16px;background:#F9FAFB;border-top:1px solid #eef1f5;border-radius:0 0 12px 12px">';
   h += '<div style="display:flex;flex-direction:row;align-items:center;gap:10px;margin-bottom:8px">';
   if(isOwner){
-    h += '<button type="button" id="rd-mem-add" style="display:inline-flex;align-items:center;gap:4px;padding:6px 14px;border:1px solid #D1D5DB;border-radius:8px;background:linear-gradient(180deg,#FFFFFF 0%,#F9FAFB 100%);color:#374151;cursor:pointer;font-size:11px;font-weight:500;white-space:nowrap;box-shadow:0 1px 2px rgba(0,0,0,0.04);transition:all 0.15s ease" title="添加新成员" onmouseover="this.style.background=\'linear-gradient(180deg,#F9FAFB 0%,#F3F4F6 100%)\';this.style.borderColor=\'#9CA3AF\'" onmouseout="this.style.background=\'linear-gradient(180deg,#FFFFFF 0%,#F9FAFB 100%)\';this.style.borderColor=\'#D1D5DB\'"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>添加成员</button>';
-    h += '<button type="button" id="rd-bonus-save" style="display:inline-flex;align-items:center;gap:4px;padding:6px 18px;border:none;border-radius:8px;background:linear-gradient(180deg,#3B82F6 0%,#1B6EC4 100%);color:#FFFFFF;cursor:pointer;font-size:11px;font-weight:600;white-space:nowrap;box-shadow:0 2px 4px rgba(27,110,196,0.25);transition:all 0.15s ease;letter-spacing:0.3px" title="保存当前阶段的成员配置" onmouseover="this.style.background=\'linear-gradient(180deg,#2563EB 0%,#1B6EC4 100%)\';this.style.boxShadow=\'0 3px 6px rgba(27,110,196,0.35)\';this.style.transform=\'translateY(-1px)\'" onmouseout="this.style.background=\'linear-gradient(180deg,#3B82F6 0%,#1B6EC4 100%)\';this.style.boxShadow=\'0 2px 4px rgba(27,110,196,0.25)\';this.style.transform=\'translateY(0)\'"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>保存</button>';
+    h += '<button type="button" id="rd-mem-add" style="display:inline-flex;align-items:center;gap:4px;padding:6px 14px;border:1px solid #D0D5DD;border-radius:6px;background:#fff;color:#374151;cursor:pointer;font-size:11px;font-weight:500;white-space:nowrap;transition:all 0.15s ease" title="添加新成员" onmouseover="this.style.background=\'#F9FAFB\';this.style.borderColor=\'#9CA3AF\'" onmouseout="this.style.background=\'#fff\';this.style.borderColor=\'#D0D5DD\'"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>添加成员</button>';
+    h += '<button type="button" id="rd-bonus-save" style="display:inline-flex;align-items:center;gap:4px;padding:6px 18px;border:none;border-radius:6px;background:#3B7DB4;color:#fff;cursor:pointer;font-size:11px;font-weight:600;white-space:nowrap;box-shadow:0 2px 4px rgba(59,125,180,.25);transition:all 0.15s ease;letter-spacing:0.3px" title="保存当前阶段的成员配置" onmouseover="this.style.background=\'#2E6A9C\';this.style.boxShadow=\'0 3px 6px rgba(59,125,180,.35)\';this.style.transform=\'translateY(-1px)\'" onmouseout="this.style.background=\'#3B7DB4\';this.style.boxShadow=\'0 2px 4px rgba(59,125,180,.25)\';this.style.transform=\'translateY(0)\'"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>保存</button>';
   } else {
     h += '<span style="font-size:11px;color:#9CA3AF;display:inline-flex;align-items:center;gap:4px"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>只读模式</span>';
   }
@@ -1131,9 +1131,9 @@ function _rdBindBonusPanel(){
         +'<td style="padding:3px;border-bottom:1px solid #F3F4F6"><input class="rd-mem-ratio" data-fld="ratio" type="number" min="0" max="100" step="0.1" value="0" style="width:100%;height:26px;padding:2px 4px;border:1px solid #D0D5DD;border-radius:4px;font-size:11px;box-sizing:border-box;text-align:center"></td>'
         +'<td style="padding:3px;border-bottom:1px solid #F3F4F6;text-align:center;color:#6B7280;font-size:11px;vertical-align:middle" class="rd-mem-base">—</td>'
         +'<td style="padding:3px;border-bottom:1px solid #F3F4F6;text-align:center;color:#059669;font-weight:600;font-size:11px;vertical-align:middle" class="rd-mem-score">—</td>'
-        +'<td style="padding:3px;border-bottom:1px solid #F3F4F6;text-align:center;color:#1B6EC4;font-weight:600;font-size:11px;vertical-align:middle" class="rd-mem-final">—</td>'
+        +'<td style="padding:3px;border-bottom:1px solid #F3F4F6;text-align:center;color:#3B7DB4;font-weight:600;font-size:11px;vertical-align:middle" class="rd-mem-final">—</td>'
         +'<td style="padding:3px;border-bottom:1px solid #F3F4F6;text-align:center;vertical-align:middle;white-space:nowrap">'
-        +'<button type="button" class="rd-mem-addrow" style="width:20px;height:20px;line-height:1;border:1px solid #BFDBFE;border-radius:4px;background:#EFF6FF;color:#1B6EC4;cursor:pointer;font-size:12px;font-weight:600;display:inline-block;margin-right:3px" title="在下方添加成员">+</button>'
+        +'<button type="button" class="rd-mem-addrow" style="width:20px;height:20px;line-height:1;border:1px solid #D9E6F2;border-radius:4px;background:#F0F5FA;color:#3B7DB4;cursor:pointer;font-size:12px;font-weight:600;display:inline-block;margin-right:3px" title="在下方添加成员">+</button>'
         +'<button type="button" class="rd-mem-delrow" style="width:20px;height:20px;line-height:1;border:1px solid #FCA5A5;border-radius:4px;background:#FEF2F2;color:#DC2626;cursor:pointer;font-size:12px;font-weight:600;display:inline-block" title="删除本行">−</button>'
         +'</td>';
       tr.parentNode.insertBefore(newTr, tr.nextSibling);
@@ -1184,9 +1184,9 @@ function _rdBindBonusPanel(){
         +'<td style="padding:3px;border-bottom:1px solid #F3F4F6"><input class="rd-mem-ratio" data-fld="ratio" type="number" min="0" max="100" step="0.1" value="0" style="width:100%;height:26px;padding:2px 4px;border:1px solid #D0D5DD;border-radius:4px;font-size:11px;box-sizing:border-box;text-align:center"></td>'
         +'<td style="padding:3px;border-bottom:1px solid #F3F4F6;text-align:center;color:#6B7280;font-size:11px;vertical-align:middle" class="rd-mem-base">—</td>'
         +'<td style="padding:3px;border-bottom:1px solid #F3F4F6;text-align:center;color:#059669;font-weight:600;font-size:11px;vertical-align:middle" class="rd-mem-score">—</td>'
-        +'<td style="padding:3px;border-bottom:1px solid #F3F4F6;text-align:center;color:#1B6EC4;font-weight:600;font-size:11px;vertical-align:middle" class="rd-mem-final">—</td>'
+        +'<td style="padding:3px;border-bottom:1px solid #F3F4F6;text-align:center;color:#3B7DB4;font-weight:600;font-size:11px;vertical-align:middle" class="rd-mem-final">—</td>'
         +'<td style="padding:3px;border-bottom:1px solid #F3F4F6;text-align:center;vertical-align:middle;white-space:nowrap">'
-        +'<button type="button" class="rd-mem-addrow" style="width:20px;height:20px;line-height:1;border:1px solid #BFDBFE;border-radius:4px;background:#EFF6FF;color:#1B6EC4;cursor:pointer;font-size:12px;font-weight:600;display:inline-block;margin-right:3px" title="在下方添加成员">+</button>'
+        +'<button type="button" class="rd-mem-addrow" style="width:20px;height:20px;line-height:1;border:1px solid #D9E6F2;border-radius:4px;background:#F0F5FA;color:#3B7DB4;cursor:pointer;font-size:12px;font-weight:600;display:inline-block;margin-right:3px" title="在下方添加成员">+</button>'
         +'<button type="button" class="rd-mem-delrow" style="width:20px;height:20px;line-height:1;border:1px solid #FCA5A5;border-radius:4px;background:#FEF2F2;color:#DC2626;cursor:pointer;font-size:12px;font-weight:600;display:inline-block" title="删除本行">−</button>'
         +'</td>';
       tbody.appendChild(tr);
