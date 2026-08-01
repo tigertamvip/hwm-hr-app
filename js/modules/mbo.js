@@ -3335,7 +3335,7 @@ function renderWPTable(plan){
   html+='<th class="col-hours wp-sortable" ondblclick="toggleWPSort(\'actualDate\')" title="双击排序" style="cursor:pointer">实际完成日期'+_sAd+'</th>';
   html+='<th class="col-hours dur-tooltip" style="min-width:80px">计划/实际耗时</th>';
   html+='<th class="col-status wp-sortable" ondblclick="toggleWPSort(\'status\')" title="双击排序" style="cursor:pointer">完成状态'+_sSt+'</th>';
-  html+='<th class="col-score">积分</th><th class="col-supporters">协同人</th><th class="col-wide">遇到的问题/挑战</th><th class="col-problemtype">问题类型</th><th class="col-needboss">需上级介入</th><th class="col-remarks">备注</th><th class="col-boss" style="white-space:normal;overflow:visible">主管点评</th>';
+  html+='<th class="col-score">积分</th><th class="col-supporters">协同人</th><th class="col-wide">遇到的问题/挑战</th><th class="col-remarks">备注</th><th class="col-boss" style="white-space:normal;overflow:visible">主管点评</th>';
   html+='</tr></thead><tbody>';
 
   var seq=0;
@@ -3383,8 +3383,7 @@ function renderWPTable(plan){
       // ★ j83: 清洗 col-problems 脏数据 — 历史数据可能有"填写"作为实际值
       var _cleanProblems=_cleanPlaceholderText(tt.problems);
       html+='<td class="'+edCls+' col-wide" data-field="tasks.'+jj+'.problems" data-type="textarea"'+edClick+'>'+(_cleanProblems?(plan._revisions&&plan._revisions['tasks.'+jj+'.problems']?renderWPCellValue(plan,'tasks.'+jj+'.problems',_cleanProblems):_h(_cleanProblems)):'<span style="color:#C0C0C0;font-style:italic;pointer-events:none;user-select:none">填写</span>')+'</td>';
-      html+='<td class="'+edCls+' col-problemtype" data-field="tasks.'+jj+'.problemType" data-type="select" data-opts="'+WP_PROBLEM_OPTIONS.join(',')+'"'+edClick+'>'+(tt.problemType||plan._revisions&&plan._revisions['tasks.'+jj+'.problemType']?renderWPCellValue(plan,'tasks.'+jj+'.problemType',tt.problemType):(tt.problemType?_h(tt.problemType):'<span style="color:#C0C0C0;font-style:italic;pointer-events:none;user-select:none">选择</span>'))+'</td>';
-      html+='<td class="'+edCls+' col-needboss" data-field="tasks.'+jj+'.needBoss" data-type="select" data-opts="'+WP_NEEDBOSS_OPTIONS.join(',')+'"'+edClick+'>'+renderWPCellValue(plan,'tasks.'+jj+'.needBoss',tt.needBoss||'')+'</td>';
+      // ★ V0.7.1bz: 问题类型 + 需上级介入 列已删除
       // ★ j83: 清洗 col-remarks 脏数据
       var _cleanRemarks=_cleanPlaceholderText(tt.remarks);
       html+='<td class="'+edCls+' col-remarks" data-field="tasks.'+jj+'.remarks" data-type="textarea"'+edClick+'>'+(_cleanRemarks?(plan._revisions&&plan._revisions['tasks.'+jj+'.remarks']?renderWPCellValue(plan,'tasks.'+jj+'.remarks',_cleanRemarks):_h(_cleanRemarks)):'<span style="color:#C0C0C0;font-style:italic;pointer-events:none;user-select:none">备注</span>')+'</td>';
@@ -3442,8 +3441,7 @@ function renderWPTable(plan){
     var _problemRevision=plan._revisions&&plan._revisions[_problemKey];
     var _problemDisplay=_normalizeProblemPlaceholder(_problemRevision?_problemRevision.value:t.problems);
     html+='<td class="editable col-wide" data-field="'+_problemKey+'" data-type="textarea" onclick="startEditCell(this)">'+(_problemDisplay?_h(_problemDisplay):'<span style="color:#C0C0C0;font-style:italic;pointer-events:none;user-select:none">填写</span>')+'</td>';
-    html+='<td class="editable col-problemtype" data-field="tasks.'+j+'.problemType" data-type="select" data-opts="'+WP_PROBLEM_OPTIONS.join(',')+'" onclick="startEditCell(this)">'+(t.problemType||plan._revisions&&plan._revisions['tasks.'+j+'.problemType']?renderWPCellValue(plan,'tasks.'+j+'.problemType',t.problemType):(t.problemType?_h(t.problemType):'<span style="color:#C0C0C0;font-style:italic;pointer-events:none;user-select:none">选择</span>'))+'</td>';
-    html+='<td class="editable col-needboss" data-field="tasks.'+j+'.needBoss" data-type="select" data-opts="'+WP_NEEDBOSS_OPTIONS.join(',')+'" onclick="startEditCell(this)">'+renderWPCellValue(plan,'tasks.'+j+'.needBoss',t.needBoss||'')+'</td>';
+    // ★ V0.7.1bz: 问题类型 + 需上级介入 列已删除
     // ★ V0.3.36: 备注说明(员工自填，新列)
     // ★ j83: 清洗脏数据
     var _cleanNewRemarks=_cleanPlaceholderText(t.remarks);
