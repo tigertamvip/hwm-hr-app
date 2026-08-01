@@ -1649,7 +1649,7 @@ async function _renderMergedUrgentView(){
   thEmp.textContent='员工';thEmp.style.cssText='position:sticky;left:56px;z-index:6;min-width:70px;background:#E8EAED';
   tr.appendChild(thEmp);
   var thWork=document.createElement('th');
-  thWork.textContent='本周重点行动项';thWork.style.cssText='position:sticky;left:126px;z-index:6;min-width:180px;background:#E8EAED';
+  thWork.textContent='本周事项';thWork.style.cssText='position:sticky;left:126px;z-index:6;min-width:180px;background:#E8EAED';
   tr.appendChild(thWork);
   // ★ V0.6.1fv: 可排序列加 ⇅ 提示图标 + title
   var headers=['优先级','启动日期','计划完成','剩余天数','实际完成','耗时','状态','协同','问题','需要上级','上级建议'];
@@ -3327,7 +3327,7 @@ function renderWPTable(plan){
     var _arr=_wpSort.dir==='asc'?' ↑':' ↓';
     switch(_wpSort.col){case'priority':_sPri=_arr;break;case'startDate':_sSd=_arr;break;case'plannedDate':_sPd=_arr;break;case'remainingDays':_sRd=_arr;break;case'actualDate':_sAd=_arr;break;case'status':_sSt=_arr;break;}
   }
-  html+='<th class="col-num">#</th><th class="col-work">本周重点行动项</th>';
+  html+='<th class="col-num">#</th><th class="col-work">本周事项</th>';
   html+='<th class="col-goal wp-sortable" ondblclick="toggleWPSort(\'priority\')" title="💡 双击表头切换排序" style="cursor:pointer">优先级 <span style="opacity:.75;font-size:9px;color:#3B7DB4">⇅</span>'+_sPri+'</th>';
   html+='<th class="col-hours wp-sortable" ondblclick="toggleWPSort(\'startDate\')" title="💡 双击表头切换排序" style="cursor:pointer">启动日期 <span style="opacity:.75;font-size:9px;color:#3B7DB4">⇅</span>'+_sSd+'</th>';
   html+='<th class="col-hours wp-sortable" ondblclick="toggleWPSort(\'plannedDate\')" title="💡 双击表头切换排序" style="cursor:pointer">计划完成日期 <span style="opacity:.75;font-size:9px;color:#3B7DB4">⇅</span>'+_sPd+'</th>';
