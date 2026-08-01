@@ -6,8 +6,8 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.7.1bl">
-<!-- cache-bust: 2026-08-01-21-15 -->
+<meta name="version" content="V0.7.1bm">
+<!-- cache-bust: 2026-08-01-21-20 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json?v=bc">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1085,7 +1085,7 @@ body{
   .toast{bottom:20px;font-size:12px;padding:8px 18px}
 }
 
-/* ===== 门户首页 · V0.7.1bl Taste Redesign (sidebar + workspace) ===== */
+/* ===== 门户首页 · V0.7.1bm Taste Redesign (sidebar + workspace) ===== */
 /* Design Read: B2B enterprise HR dashboard for medical-device managers.
    Precision-instrument visual language: structured data zones,
    restrained industrial palette, no decorative fluff.
@@ -1682,8 +1682,8 @@ body{
 .kpi-layout{display:flex;height:calc(100vh - 56px);overflow:hidden}
 .kpi-sidebar{width:200px;min-width:200px;height:calc(100vh - 56px);overflow-y:auto;background:#F0EDE6;border-right:1px solid var(--border);padding:14px 10px;display:flex;flex-direction:column;gap:10px}
 .kpi-sidebar-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:6px}
-.kpi-new-btn{width:100%;padding:10px 0;border:1px solid #1F2937;border-radius:8px;background:#1F2937;color:#fff;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s ease;margin-top:24px;margin-bottom:48px;display:inline-flex;align-items:center;justify-content:center;gap:6px;box-shadow:0 2px 6px rgba(0,0,0,.12)}
-.kpi-new-btn:hover{background:#0F172A;border-color:#0F172A;color:#fff;box-shadow:0 4px 12px rgba(0,0,0,.18);transform:translateY(-1px)}
+.kpi-new-btn{width:100%;padding:10px 0;border:1px solid #3B7DB4;border-radius:8px;background:#3B7DB4;color:#fff;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s ease;margin-top:24px;margin-bottom:48px;display:inline-flex;align-items:center;justify-content:center;gap:6px;box-shadow:0 2px 6px rgba(59,125,180,.25)}
+.kpi-new-btn:hover{background:#2E6A9A;border-color:#2E6A9A;color:#fff;box-shadow:0 4px 12px rgba(59,125,180,.35);transform:translateY(-1px)}
 .kpi-sidebar-divider{height:1px;background:linear-gradient(90deg,transparent,#D3D1C7,transparent);margin:8px 0}
 .kpi-btn-revise{background:var(--brand-accent)}.kpi-btn-revise:hover{background:#005BB5}
 .kpi-btn-myplan{padding:8px 0;border:none;border-radius:6px;background:var(--brand-accent);color:#fff;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;margin-top:8px}
@@ -1838,18 +1838,18 @@ body{
 .wp-yg-cell.active.current-week::after{background:#fff}
 .wp-yg-cell.has-data::before{content:'';position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:3px;height:3px;background:var(--brand-tech);border-radius:50%}
 .wp-yg-cell.active.has-data::before{background:#fff}
-.wp-sidebar-plan-item.active{color:#fff;font-weight:600;background:#1F2937;border-color:#1F2937}
+.wp-sidebar-plan-item.active{color:#007AFF;font-weight:600;background:#E3F2FD;border-color:#007AFF}
 .wp-sidebar-plan-item .wp-plan-meta{font-size:10px;color:#9ca3af;margin-top:2px;font-weight:400}
-.wp-sidebar-plan-item.active .wp-plan-meta{color:rgba(255,255,255,.8)}
+.wp-sidebar-plan-item.active .wp-plan-meta{color:rgba(0,122,255,.8)}
 .wp-sidebar-plan-item .week-label{font-size:12px;font-weight:600}
 .wp-sidebar-plan-item .task-count{font-size:10px;color:#9ca3af}
-.wp-sidebar-plan-item.active .task-count{color:rgba(255,255,255,.85)}
+.wp-sidebar-plan-item.active .task-count{color:rgba(0,122,255,.85)}
 .wp-sidebar-plan-delete{display:none;position:absolute;right:3px;top:3px;width:14px;height:14px;line-height:14px;text-align:center;border-radius:50%;font-size:9px;cursor:pointer;color:#fff;background:#D64352;z-index:2}
 .wp-sidebar-plan-item:hover .wp-sidebar-plan-delete{display:block}
 .wp-sidebar-plan-item.active .wp-sidebar-plan-delete{display:block;opacity:.6;background:rgba(214,67,82,.7)}
 .wp-sidebar-plan-delete:hover{background:#B91C1C;transform:scale(1.1)}
 .wp-sidebar-plan-delete.locked{background:rgba(214,67,82,.5);cursor:not-allowed;opacity:1}
-.wp-sidebar-plan-item.active .wp-sidebar-plan-delete.locked{background:rgba(255,120,120,.85);opacity:1}
+.wp-sidebar-plan-item.active .wp-sidebar-plan-delete.locked{background:rgba(214,67,82,.75);opacity:1}
 
 .wp-content{flex:1;height:100%;overflow:hidden;padding:0;min-width:0;background:#FBF8F3;display:flex;flex-direction:column}
 /* 周行动项：页面纵向滚动与表格横向滚动彻底分离，非表格区域不再跟随横滑。 */
@@ -2440,7 +2440,7 @@ select.form-input{padding-right:28px;appearance:auto;-webkit-appearance:menulist
 </head>
 <body>
 
-<!-- ★ V0.7.1bl: 去掉左下角版本号悬浮徽章（用户要求） -->
+<!-- ★ V0.7.1bm: 去掉左下角版本号悬浮徽章（用户要求） -->
 
 <!-- ★ V0.6.1bd: 门户提示窗开关逻辑 -->
 <script>
@@ -2468,7 +2468,7 @@ function togglePortalTips(){
 
 <div class="password-overlay" id="passwordGate">
   <div class="login-topbar" id="login-topbar"></div>
-  <!-- ★ V0.7.1bl: 登录页左下角版本号徽章（恢复之前设计） -->
+  <!-- ★ V0.7.1bm: 登录页左下角版本号徽章（恢复之前设计） -->
   <div id="loginVersionBadge" style="position:fixed;left:24px;bottom:max(24px,env(safe-area-inset-bottom));z-index:10000;font-size:11px;color:#fff;font-family:'SF Mono',Menlo,Monaco,Consolas,monospace;pointer-events:none;user-select:none;line-height:1.4;text-shadow:0 1px 2px rgba(0,0,0,.4)">
     <span id="loginVersionBadgeText"></span>
   </div>
@@ -2502,7 +2502,7 @@ function togglePortalTips(){
   </div><!-- /login-right -->
 </div>
 
-<!-- 门户首页 · V0.7.1bl Taste Redesign -->
+<!-- 门户首页 · V0.7.1bm Taste Redesign -->
 <div id="portalView" class="portal-view" style="display:none">
   <!-- Sidebar -->
   <aside class="portal-sidebar">
@@ -2545,7 +2545,7 @@ function togglePortalTips(){
       var show = document.getElementById('portalAvatarShow');
       if(!show) return;
       var me = (typeof currentUser!=='undefined'&&currentUser&&currentUser.name)||'U';
-      // ★ V0.7.1bl: 中文姓的拼音首字母映射（用户指定）
+      // ★ V0.7.1bm: 中文姓的拼音首字母映射（用户指定）
       var pinyinMap = {
         '谭':'T','葛':'G','韩':'H','李':'L','刘':'L','杨':'Y','张':'Z','徐':'X','孙':'S','管':'G'
       };
@@ -2557,9 +2557,9 @@ function togglePortalTips(){
     _initPortalAvatar();
     setTimeout(_initPortalAvatar, 500);
 
-    // ★ V0.7.1bl: 一次性自动清理 localStorage 中含"来"字的 work 字段
-    // 背景：V0.7.1bl 修复了 strip 正则（改为完整匹配"来源:"），但历史数据已污染。
-    // 这里在每个用户首次加载 V0.7.1bl 时，自动清理自己的 workplans。
+    // ★ V0.7.1bm: 一次性自动清理 localStorage 中含"来"字的 work 字段
+    // 背景：V0.7.1bm 修复了 strip 正则（改为完整匹配"来源:"），但历史数据已污染。
+    // 这里在每个用户首次加载 V0.7.1bm 时，自动清理自己的 workplans。
     (function _cleanLegacyLaiChars(){
       try {
         var me = (typeof currentUser!=='undefined'&&currentUser&&currentUser.name)||'';
@@ -2612,7 +2612,7 @@ function togglePortalTips(){
               var ver = (document.querySelector('meta[name="version"]')||{}).content||'';
               var el = document.getElementById('portalFeedVer');
               if(el && ver) el.textContent = '系统更新至 ' + ver;
-              // ★ V0.7.1bl: 直接显示系统当前实际时间（用户要求——简单准确）
+              // ★ V0.7.1bm: 直接显示系统当前实际时间（用户要求——简单准确）
               var tm = document.getElementById('portalFeedVerTime');
               if(tm){
                 var d = new Date();
@@ -2647,7 +2647,7 @@ function togglePortalTips(){
           </div>
         </div>
       </div>
-      <div style="margin-top:16px;text-align:center;font-size:11px;color:#5f6368">Tiger-Buddy 虎伴科技 · MBO+AI V0.7.1bl</div>
+      <div style="margin-top:16px;text-align:center;font-size:11px;color:#5f6368">Tiger-Buddy 虎伴科技 · MBO+AI V0.7.1bm</div>
     </div>
   </main>
 </div>
@@ -3885,7 +3885,7 @@ function doLogin(username, user, pwdInput, err){
     document.getElementById('hrPoliciesView').style.display='none';
     document.getElementById('portalView').style.display='flex';
     applyRoleUI();
-    // ★ V0.7.1bl: 登录后立即初始化头像和门户数据（不只依赖goHome）
+    // ★ V0.7.1bm: 登录后立即初始化头像和门户数据（不只依赖goHome）
     if(typeof _initPortalAvatar==='function') _initPortalAvatar();
     if(typeof _refreshPortalData==='function') _refreshPortalData();
     loadJobDescsFromDB(function(){console.log('HWM: job descs reloaded after login');});
@@ -4079,7 +4079,7 @@ function goHome(){
   sysCloseModal(); // ★ 清理系统维护弹窗
   // ★ V0.6.1.hu: 清理所有残留 tooltip（防止耗时列 tooltip 跨页面残留）
   document.querySelectorAll('.wp-tooltip').forEach(function(t){t.remove();});
-  // ★ V0.7.1bl: 切到门户前立即用最新的 localStorage 数据刷新（避免 5s 重试）
+  // ★ V0.7.1bm: 切到门户前立即用最新的 localStorage 数据刷新（避免 5s 重试）
   if(typeof _refreshPortalData==='function'){
     _refreshPortalData();
   }
@@ -4104,7 +4104,7 @@ function goHome(){
   if(btn)btn.classList.remove('show');
 }
 
-// ★ V0.7.1bla: 门户数据动态刷新 — 关联周行动计划和人员数据
+// ★ V0.7.1bma: 门户数据动态刷新 — 关联周行动计划和人员数据
 function _refreshPortalData(){
   var now = new Date();
   var yr = now.getFullYear(), mo = now.getMonth()+1;
@@ -4114,7 +4114,7 @@ function _refreshPortalData(){
   var wk = Math.ceil((now.getDate() + dayOfFirst - 1)/7);
   var weekId = yr+'-'+('0'+mo).slice(-2)+'-W'+wk;
 
-  // ★ V0.7.1bl: 渲染时兜底 strip（来源标签 + 末尾"来来来"）
+  // ★ V0.7.1bm: 渲染时兜底 strip（来源标签 + 末尾"来来来"）
   function _stripTaskText(s){
     return (s||'')
       .replace(/\s*来源[：:]\d{4}年\d{1,2}月第[1-5]周(?:来)?\s*/g,' ')
@@ -4122,7 +4122,7 @@ function _refreshPortalData(){
       .trim();
   }
 
-  // --- 参与项目数 (V0.7.1bl: 从项目管理模块读取+状态分布) ---
+  // --- 参与项目数 (V0.7.1bm: 从项目管理模块读取+状态分布) ---
   var _myProjects = 0;
   var _myDoing = 0;        // 进行中（未完成）
   var _myDone = 0;         // 已完成
@@ -4150,7 +4150,7 @@ function _refreshPortalData(){
   var pdcTeam = document.getElementById('pdcTeam');
   var pdcTeamSub = document.getElementById('pdcTeamSub');
   if(pdcTeam) pdcTeam.textContent = _myProjects;
-    // ★ V0.7.1bl: 同步更新侧边栏"周行动计划"badge
+    // ★ V0.7.1bm: 同步更新侧边栏"周行动计划"badge
     var wpBadge = document.getElementById('portalNavWpBadge');
     if(wpBadge){
       if(monthUnfinished>0){
@@ -4164,12 +4164,12 @@ function _refreshPortalData(){
     if(_myProjects===0){
       pdcTeamSub.textContent = '当前你参与的项目数为：0';
     } else {
-      // V0.7.1bl: 进行中/已完成 状态分布
+      // V0.7.1bm: 进行中/已完成 状态分布
       pdcTeamSub.textContent = _myDoing+' 进行中 · '+_myDone+' 已完成';
     }
   }
 
-  // --- 本月未完成任务统计 (V0.7.1bl: 来源=当月所有周计划) ---
+  // --- 本月未完成任务统计 (V0.7.1bm: 来源=当月所有周计划) ---
   try {
     var user = (typeof currentUser!=='undefined'&&currentUser&&currentUser.name)||'';
     var wpKey = 'hwm_workplans_'+user;
@@ -4239,7 +4239,7 @@ function _refreshPortalData(){
     if(pdcRate) pdcRate.textContent = rate!==null ? rate+'%' : '—%';
     if(pdcRateSub) pdcRateSub.textContent = thisMonthTasks.total>0 ? ('共 '+thisMonthTasks.total+' 项任务') : '暂无本月数据';
 
-    // --- V0.7.1bl: 重要紧急/重要不急任务列表 （显示未完成 + 已逾期完成之外的） ---
+    // --- V0.7.1bm: 重要紧急/重要不急任务列表 （显示未完成 + 已逾期完成之外的） ---
     var prioTasks = [];
     Object.keys(wpData).forEach(function(wid){
       var p2 = wpData[wid];
@@ -4283,7 +4283,7 @@ function _refreshPortalData(){
           } else {
             dueText = '<span class="portal-task-due">'+t.status+'</span>';
           }
-          // ★ V0.7.1bl: 渲染时兜底 strip "来"字（来源标签 + 末尾连续"来"污染）
+          // ★ V0.7.1bm: 渲染时兜底 strip "来"字（来源标签 + 末尾连续"来"污染）
           var workText = (t.work||'')
             .replace(/\s*来源[：:]\d{4}年\d{1,2}月第[1-5]周(?:来)?\s*/g,' ')
             .replace(/来{2,}$/,'')  // 末尾连续 2+ 个"来"（污染）
@@ -4324,7 +4324,7 @@ function _refreshPortalData(){
   }
 }
 
-// ★ V0.7.1bl: 渲染常用模块列表到侧边栏
+// ★ V0.7.1bm: 渲染常用模块列表到侧边栏
 var PORTAL_ICONS = {
   '13plus1': '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></svg>',
   'kpi': '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>',
@@ -4429,7 +4429,7 @@ function _showFavModulesModal(){
 }
 _renderFavModules();
 
-// ★ V0.7.1bl: 全局事件 — 周计划保存后立即通知门户刷新（不需返回首页）
+// ★ V0.7.1bm: 全局事件 — 周计划保存后立即通知门户刷新（不需返回首页）
 window.addEventListener('workplan-changed', function(){
   if(typeof _refreshPortalData==='function'){
     _refreshPortalData();
@@ -4443,7 +4443,7 @@ localStorage.setItem = function(k, v){
     try { window.dispatchEvent(new Event('workplan-changed')); } catch(e){}
   }
 };
-// V0.7.1bl: 进入门户即刷新（goHome 调用 _refreshPortalData）
+// V0.7.1bm: 进入门户即刷新（goHome 调用 _refreshPortalData）
 
 
 function enterModule(mod){
@@ -5427,7 +5427,7 @@ var HR_FIELD_CONFIG=[
 ];
 
 function canEditField(cfg){
-  // ★ V0.7.1bl: 100% 与 canEditBasic 同源——role(admin/data_admin) 或 USERS.permissions.editHr 任一通过即可
+  // ★ V0.7.1bm: 100% 与 canEditBasic 同源——role(admin/data_admin) 或 USERS.permissions.editHr 任一通过即可
   if(!currentUser)return false;
   var usrObj=(typeof USERS!=='undefined'&&USERS[currentUser.name])||{};
   var role=currentUser.role||usrObj.role||'';
