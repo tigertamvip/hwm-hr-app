@@ -3393,10 +3393,12 @@ function renderWPTable(plan){
       html+='<td class="col-boss'+(bossCanEdit?' editable':'')+'"'+(bossCanEdit?' data-field="tasks.'+jj+'.bossFeedback" data-type="textarea" onclick="startEditCell(this)"':'')+'>'+(_cleanBossFb?_h(_cleanBossFb):(plan._revisions&&plan._revisions['tasks.'+jj+'.bossFeedback']?renderWPCellValue(plan,'tasks.'+jj+'.bossFeedback',tt.bossFeedback):'<span style="color:#C0C0C0;font-style:italic;pointer-events:none;user-select:none">上级建议</span>'))+'</td>';
       html+='</tr>';
     }
-    html+='<tr class="wp-section-header" style="background:#F0F9FF"><td colspan="16" style="padding:6px 12px;font-size:12px;font-weight:600;color:#3B7DB4;border-bottom:2px solid #BAE6FD"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#3B7DB4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:4px"><path d="M12 5v14M5 12h14"/></svg>本周新增（'+newTasks.length+'项）</td></tr>';
   }
 
-  // 本周新增区块
+  // 本周新增区块（标题行总是渲染，"+新增"按钮始终可点）
+  // ★ V0.7.1cp: 计算 afterIdx — 在最后一行 carriedTask 后插入；若没 carriedTask 则插入到开头（-1）
+  var _addAfterIdx=carriedTasks.length>0?carriedTasks[carriedTasks.length-1]:-1;
+  html+='<tr class="wp-section-header" style="background:#F0F9FF"><td colspan="14" style="padding:6px 12px;font-size:12px;font-weight:600;color:#3B7DB4;border-bottom:2px solid #BAE6FD"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#3B7DB4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:4px"><path d="M12 5v14M5 12h14"/></svg>本周新增（'+newTasks.length+'项）</td><td colspan="2" style="padding:6px 12px;text-align:right;border-bottom:2px solid #BAE6FD;background:#F0F9FF"><span onclick="addTaskRow('+_addAfterIdx+')" style="display:inline-flex;align-items:center;gap:3px;padding:3px 10px;border-radius:4px;background:#3B7DB4;color:#fff;font-size:11px;font-weight:600;cursor:pointer;user-select:none;transition:all .15s" onmouseover="this.style.background=\'#2E6A9A\'" onmouseout="this.style.background=\'#3B7DB4\'" title="添加新任务行"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>新增任务</span></td></tr>';
   for(var ni=0;ni<newTasks.length;ni++){
     var j=newTasks[ni]; seq++;
     var t=plan.tasks[j];
