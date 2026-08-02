@@ -3335,7 +3335,7 @@ function renderWPTable(plan){
   html+='<th class="col-hours wp-sortable" ondblclick="toggleWPSort(\'actualDate\')" title="双击排序" style="cursor:pointer">实际完成日期'+_sAd+'</th>';
   html+='<th class="col-hours dur-tooltip" style="min-width:80px">用时(工作日)</th>';
   html+='<th class="col-status wp-sortable" ondblclick="toggleWPSort(\'status\')" title="双击排序" style="cursor:pointer">状态'+_sSt+'</th>';
-  html+='<th class="col-score">积分</th><th class="col-supporters">协同人</th><th class="col-wide">问题与挑战</th><th class="col-remarks">备注</th><th class="col-boss" style="white-space:normal;overflow:visible">上级意见与建议</th>';
+  html+='<th class="col-score">积分</th><th class="col-supporters">协同人 \| 状态</th><th class="col-wide">问题与挑战</th><th class="col-remarks">备注</th><th class="col-boss" style="white-space:normal;overflow:visible">上级意见与建议</th>';
   html+='</tr></thead><tbody>';
 
   var seq=0;
