@@ -2001,7 +2001,14 @@ function getISOWeek(date){
 function getCurrentISOWeek(){
   var d=new Date();
   var week=getISOWeek(d);
-  return{year:d.getFullYear(),week:Math.max(1,week-1)};
+  var dayOfWeek = d.getDay(); // 0=Sun, 1=Mon, ..., 6=Sat
+  // ★ V0.7.1ct: 周日凌晨 12:00 后自动默认为新的一周
+  // 周日(dayOfWeek=0)：当前周 = isoWeek（已进入新一周）
+  // 周一~周六(dayOfWeek=1-6)：当前周 = isoWeek-1
+  if (dayOfWeek === 0) {
+    return {year: d.getFullYear(), week: week};
+  }
+  return {year: d.getFullYear(), week: Math.max(1, week-1)};
 }
 
 // ★ V0.5.21: 月份切换时自动定位到该月1日对应的ISO周
