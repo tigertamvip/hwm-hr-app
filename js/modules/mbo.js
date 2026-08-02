@@ -3342,7 +3342,7 @@ function renderWPTable(plan){
 
   // 上周转入区块
   if(carriedTasks.length>0){
-    html+='<tr class="wp-section-header" style="background:#FFF8E7"><td colspan="16" style="padding:6px 12px;font-size:12px;font-weight:600;color:#8B6914;border-bottom:2px solid #F0E6C8">📥 上周转入（'+carriedTasks.length+'项）</td></tr>';
+    html+='<tr class="wp-section-header" style="background:#E8F4FE"><td colspan="16" style="padding:6px 12px;font-size:12px;font-weight:600;color:#3B7DB4;border-bottom:2px solid #B7D6F0"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#3B7DB4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:4px"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>上周转入（'+carriedTasks.length+'项）</td></tr>';
     for(var ci=0;ci<carriedTasks.length;ci++){
       var jj=carriedTasks[ci]; seq++;
       var tt=plan.tasks[jj];
@@ -3393,7 +3393,7 @@ function renderWPTable(plan){
       html+='<td class="col-boss'+(bossCanEdit?' editable':'')+'"'+(bossCanEdit?' data-field="tasks.'+jj+'.bossFeedback" data-type="textarea" onclick="startEditCell(this)"':'')+'>'+(_cleanBossFb?_h(_cleanBossFb):(plan._revisions&&plan._revisions['tasks.'+jj+'.bossFeedback']?renderWPCellValue(plan,'tasks.'+jj+'.bossFeedback',tt.bossFeedback):'<span style="color:#C0C0C0;font-style:italic;pointer-events:none;user-select:none">上级建议</span>'))+'</td>';
       html+='</tr>';
     }
-    html+='<tr class="wp-section-header" style="background:#F0F9FF"><td colspan="16" style="padding:6px 12px;font-size:12px;font-weight:600;color:#0369A1;border-bottom:2px solid #BAE6FD">📝 本周新增（'+newTasks.length+'项）</td></tr>';
+    html+='<tr class="wp-section-header" style="background:#F0F9FF"><td colspan="16" style="padding:6px 12px;font-size:12px;font-weight:600;color:#3B7DB4;border-bottom:2px solid #BAE6FD"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#3B7DB4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:4px"><path d="M12 5v14M5 12h14"/></svg>本周新增（'+newTasks.length+'项）</td></tr>';
   }
 
   // 本周新增区块
