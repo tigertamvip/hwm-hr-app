@@ -2514,8 +2514,10 @@ function togglePortalTips(){
     <nav class="portal-sidebar-nav">
       <div class="portal-nav-section">主要</div>
       <a class="portal-nav-item active" href="#"><span class="portal-nav-dot" style="background:#1967d2"></span>首页概览</a>
-      <a class="portal-nav-item" onclick="enterModule('workplan')"><span class="portal-nav-dot" style="background:#188038"></span>周行动计划 <span class="portal-nav-badge" id="portalNavWpBadge" style="display:none"></span></a>
+      <a class="portal-nav-item" onclick="enterModule('workplan')"><span class="portal-nav-dot" style="background:#188038"></span>本周任务 <span class="portal-nav-badge" id="portalNavWpBadge" style="display:none"></span></a>
       <a class="portal-nav-item" onclick="enterModule('mbo')"><span class="portal-nav-dot" style="background:#e37400"></span>月度目标</a>
+      <a class="portal-nav-item" onclick="enterModule('pm')"><span class="portal-nav-dot" style="background:#7B68EE"></span>项目管理</a>
+      <a class="portal-nav-item" onclick="enterModule('dashboard')"><span class="portal-nav-dot" style="background:#188038"></span>数据中心</a>
       <div class="portal-nav-section portal-nav-section--with-btn">常用模块 <a class="portal-nav-edit" onclick="_showFavModulesModal()" title="选择常用模块">编辑</a></div>
       <div id="portalFavList"></div>
       <div class="portal-nav-section">管理</div>
@@ -4371,7 +4373,7 @@ function _renderFavModules(){
   }
   var html = '';
   favs.forEach(function(key){
-    var m = ALL_MODULES.filter(function(x){return x.key===key;})[0];
+    var m = ALL_MODULES.filter(function(x){return x.key===key;})[0]; if(m && (m.key==='pm' || m.key==='dashboard')) return; // ★ V0.7.1cs: pm 和 dashboard 已移到"主要"section
     if(!m) return;
     var badge = m.status==='live' ? '' : '<span class="portal-nav-badge" style="background:'+(m.status==='beta'?'#e8f0fe;color:#1967d2':'#e8eaed;color:#5f6368')+'">'+({beta:'Beta',soon:'即将推出'}[m.status]||'')+'</span>';
     html += '<a class="portal-nav-item" onclick="'+m.handler+'"><span style="display:inline-flex;width:16px;height:16px;align-items:center;justify-content:center;flex-shrink:0">'+(PORTAL_ICONS[m.key]||'')+'</span>'+m.name+badge+'</a>';
