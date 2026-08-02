@@ -262,7 +262,7 @@ function renderPMList(){
   var html = '';
   html += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">';
   html += '<div style="font-size:12px;color:#6E6A63">'+esc(crumbs.join(' · '))+' <span style="color:#A8A29A">· '+projects.length+' 个项目</span></div>';
-  html += '<input placeholder="搜索项目…" value="'+esc(_pmFilter.search)+'" oninput="_pmFilter.search=this.value;renderPMList()" style="padding:6px 12px;border:1px solid #D8D3C8;border-radius:8px;font-size:12px;width:180px;background:#fff;outline:none">';
+  html += '<input placeholder="搜索项目…" value="'+esc(_pmFilter.search)+'" oninput="_pmFilter.search=this.value;renderPMList()" style="padding:6px 12px;border:1px solid #D8D3C8;border-radius:4px;font-size:12px;width:180px;background:#fff;outline:none">';
   html += '</div>';
 
   if(!projects.length){
@@ -296,14 +296,14 @@ function renderProjectCard(p, idx, anim){
   var sm = statusMeta[p.status]||statusMeta['草稿中'];
 
   var h = '';
-  h += '<div onclick="openPMDetail('+p.id+')" class="pm-card'+(anim?' pm-card-anim':'')+'" style="'+(anim?('animation-delay:'+((idx||0)*40)+'ms;'):'')+'position:relative;display:flex;background:#fff;border-radius:10px;border:1px solid #e3e8ef;overflow:hidden;cursor:pointer">';
+  h += '<div onclick="openPMDetail('+p.id+')" class="pm-card'+(anim?' pm-card-anim':'')+'" style="'+(anim?('animation-delay:'+((idx||0)*40)+'ms;'):'')+'position:relative;display:flex;background:#fff;border-radius:4px;border:1px solid #e3e8ef;overflow:hidden;cursor:pointer">';
   h += '<div style="width:2px;min-width:2px;background:'+lm.ink+'"></div>';
   h += '<div style="flex:1;padding:14px 16px">';
   h += '<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px">';
   h += '<div style="font-weight:600;font-size:15px;color:#1F1F1F;line-height:1.35">'+esc(p.name||'未命名')+'</div>';
   h += '<div style="display:flex;gap:4px;flex-shrink:0;align-items:center">';
-  h += '<span style="font-size:10px;padding:2px 8px;border-radius:9px;border:1px solid '+lm.ink+';color:'+lm.ink+'">'+lm.label+'</span>';
-  h += '<span style="font-size:10px;padding:2px 8px;border-radius:9px;border:1px solid #C9C4BA;color:#6E6A63">'+esc(pmTypeLabel(p.type))+'</span>';
+  h += '<span style="font-size:10px;padding:2px 8px;border-radius:4px;border:1px solid '+lm.ink+';color:'+lm.ink+'">'+lm.label+'</span>';
+  h += '<span style="font-size:10px;padding:2px 8px;border-radius:4px;border:1px solid #C9C4BA;color:#6E6A63">'+esc(pmTypeLabel(p.type))+'</span>';
   // ★ V0.6.5s: 删除按钮仅项目负责人/管理员可见
   var _canDelete = (currentUser&&currentUser.name)===p.owner || (typeof hasPermission==='function'&&hasPermission('maintenance'));
   if(_canDelete) h += '<button class="pm-del-btn" onclick="event.stopPropagation();deleteProject('+p.id+')" title="删除项目" style="padding:2px 8px;border:0;background:transparent;font-size:11px;color:#A8A29A;cursor:pointer">删除</button>';
@@ -320,8 +320,8 @@ function renderProjectCard(p, idx, anim){
   h += '</div>';
   h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid #EFEDE8">';
   h += '<div style="display:flex;gap:8px">';
-  h += '<button onclick="event.stopPropagation();showProjectTeam('+p.id+')" style="font-size:11px;padding:6px 14px;border-radius:6px;border:1px solid #D9E6F2;background:#F0F5FA;color:#3B7DB4;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-weight:500;transition:all 0.2s ease" title="查看项目组成员" onmouseover="this.style.background=\'#DBEAFE\'" onmouseout="this.style.background=\'#EFF6FF\'"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>项目团队 ('+teamCount+')</button>';
-  h += '<button onclick="event.stopPropagation();openProjectGanttTab('+p.id+')" style="font-size:11px;padding:6px 14px;border-radius:6px;border:1px solid #D9E6F2;background:#F0F5FA;color:#3B7DB4;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-weight:500;transition:all 0.2s ease" title="查看项目甘特图" onmouseover="this.style.background=\'#DBEAFE\'" onmouseout="this.style.background=\'#EFF6FF\'"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:block"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>项目甘特图</button>';
+  h += '<button onclick="event.stopPropagation();showProjectTeam('+p.id+')" style="font-size:11px;padding:6px 14px;border-radius:4px;border:1px solid #D9E6F2;background:#F0F5FA;color:#3B7DB4;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-weight:500;transition:all 0.2s ease" title="查看项目组成员" onmouseover="this.style.background=\'#DBEAFE\'" onmouseout="this.style.background=\'#EFF6FF\'"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:block"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>项目团队 ('+teamCount+')</button>';
+  h += '<button onclick="event.stopPropagation();openProjectGanttTab('+p.id+')" style="font-size:11px;padding:6px 14px;border-radius:4px;border:1px solid #D9E6F2;background:#F0F5FA;color:#3B7DB4;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-weight:500;transition:all 0.2s ease" title="查看项目甘特图" onmouseover="this.style.background=\'#DBEAFE\'" onmouseout="this.style.background=\'#EFF6FF\'"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:block"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>项目甘特图</button>';
   h += '</div>';
   h += '<span style="font-size:10px;color:#C9C4BA">'+(p.updated_at?formatDate(p.updated_at):'')+'</span>';
   h += '</div>';
@@ -349,7 +349,7 @@ function renderPMSidebar(){
   PM_TYPE_DEFS.forEach(function(td){
     var sel = td.key===_pmFilter.type && noQuick;
     var cnt = td.key==='全部' ? all.length : all.filter(function(p){return p.type===td.key;}).length;
-    h += '<div class="pm-nav-item'+animCls+(sel?' pm-nav-sel':'')+'" onclick="_pmFilter.type=\''+td.key+'\';_pmFilter.owner=\'\';_pmFilter._active=false;renderPMSidebar();renderPMList()" style="'+(_pmMotionPlayed?'':('animation-delay:'+(idx++*30)+'ms;'))+'display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-radius:8px;font-size:12px;cursor:pointer;margin-bottom:2px;color:'+(sel?'#3B7DB4':'#3A3835')+'">'
+    h += '<div class="pm-nav-item'+animCls+(sel?' pm-nav-sel':'')+'" onclick="_pmFilter.type=\''+td.key+'\';_pmFilter.owner=\'\';_pmFilter._active=false;renderPMSidebar();renderPMList()" style="'+(_pmMotionPlayed?'':('animation-delay:'+(idx++*30)+'ms;'))+'display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-radius:4px;font-size:12px;cursor:pointer;margin-bottom:2px;color:'+(sel?'#3B7DB4':'#3A3835')+'">'
       +'<span>'+td.label+'</span><span class="pm-nav-cnt" style="font-size:11px;color:#A8A29A;font-variant-numeric:tabular-nums">'+cnt+'</span></div>';
   });
   h += '</div>';
@@ -357,9 +357,9 @@ function renderPMSidebar(){
   h += '<div style="margin-bottom:22px">';
   h += '<div style="font-size:11px;font-weight:500;color:#A8A29A;margin-bottom:8px;letter-spacing:1px">快速筛选</div>';
   var mySel = !!_pmFilter.owner;
-  h += '<div class="pm-nav-item'+animCls+(mySel?' pm-nav-sel':'')+'" onclick="filterMyProjects()" style="'+(_pmMotionPlayed?'':('animation-delay:'+(idx++*30)+'ms;'))+'display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-radius:8px;font-size:12px;cursor:pointer;margin-bottom:2px;color:'+(mySel?'#3B7DB4':'#3A3835')+'"><span>我的项目</span><span class="pm-nav-cnt" style="font-size:11px;color:#A8A29A;font-variant-numeric:tabular-nums">'+myProjects+'</span></div>';
+  h += '<div class="pm-nav-item'+animCls+(mySel?' pm-nav-sel':'')+'" onclick="filterMyProjects()" style="'+(_pmMotionPlayed?'':('animation-delay:'+(idx++*30)+'ms;'))+'display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-radius:4px;font-size:12px;cursor:pointer;margin-bottom:2px;color:'+(mySel?'#3B7DB4':'#3A3835')+'"><span>我的项目</span><span class="pm-nav-cnt" style="font-size:11px;color:#A8A29A;font-variant-numeric:tabular-nums">'+myProjects+'</span></div>';
   var activeSel = !!_pmFilter._active;
-  h += '<div class="pm-nav-item'+animCls+(activeSel?' pm-nav-sel':'')+'" onclick="filterActiveProjects()" style="'+(_pmMotionPlayed?'':('animation-delay:'+(idx++*30)+'ms;'))+'display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-radius:8px;font-size:12px;cursor:pointer;margin-bottom:2px;color:'+(activeSel?'#3B7DB4':'#3A3835')+'"><span>进行中</span><span class="pm-nav-cnt" style="font-size:11px;color:#A8A29A;font-variant-numeric:tabular-nums">'+active+'</span></div>';
+  h += '<div class="pm-nav-item'+animCls+(activeSel?' pm-nav-sel':'')+'" onclick="filterActiveProjects()" style="'+(_pmMotionPlayed?'':('animation-delay:'+(idx++*30)+'ms;'))+'display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-radius:4px;font-size:12px;cursor:pointer;margin-bottom:2px;color:'+(activeSel?'#3B7DB4':'#3A3835')+'"><span>进行中</span><span class="pm-nav-cnt" style="font-size:11px;color:#A8A29A;font-variant-numeric:tabular-nums">'+active+'</span></div>';
   h += '</div>';
 
   // ★ V0.6.4L: 项目级别升级为可点击筛选器（单选切换，再次点击取消）
@@ -369,7 +369,7 @@ function renderPMSidebar(){
   [{v:1,l:'一级',c:'#B3382C'},{v:2,l:'二级',c:'#6E6A63'},{v:3,l:'三级',c:'#A8A29A'}].forEach(function(lv){
     var cnt = typed.filter(function(p){return String(p.level)===String(lv.v);}).length;
     var on = String(_pmFilter.level||'')===String(lv.v);
-    h += '<div class="pm-lvl-chip'+(on?' pm-lvl-on':'')+'" onclick="toggleLevelFilter('+lv.v+')" style="flex:1;padding:5px 4px;border-radius:7px;border:1px solid '+(on?'#3B7DB4':'#D8D3C8')+';font-size:11px;text-align:center;color:'+(on?'#3B7DB4':lv.c)+'">'+lv.l+' '+cnt+'</div>';
+    h += '<div class="pm-lvl-chip'+(on?' pm-lvl-on':'')+'" onclick="toggleLevelFilter('+lv.v+')" style="flex:1;padding:5px 4px;border-radius:4px;border:1px solid '+(on?'#3B7DB4':'#D8D3C8')+';font-size:11px;text-align:center;color:'+(on?'#3B7DB4':lv.c)+'">'+lv.l+' '+cnt+'</div>';
   });
   h += '</div></div>';
 
@@ -456,14 +456,14 @@ function renderPMToolbar(p){
   // ★ V0.6.4O: 「返回列表」已上移至页面 header（新建项目与返回首页之间），此处不再重复
   h += '<div style="display:flex;align-items:center;gap:10px;padding:10px 0;margin-bottom:8px;border-bottom:1px solid #E5E7EB">';
   h += '<span style="flex:1;font-size:13px;color:#374151">'+esc(p.name||'')+'</span>';
-  h += '<select onchange="updatePMStatus('+p.id+',this.value)" style="padding:4px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:12px">';
+  h += '<select onchange="updatePMStatus('+p.id+',this.value)" style="padding:4px 10px;border:1px solid #D0D5DD;border-radius:4px;font-size:12px">';
   ['草稿中','审批中','实施中','已完成','已中止'].forEach(function(s){
     h += '<option'+(s===p.status?' selected':'')+'>'+s+'</option>';
   });
   h += '</select>';
   // ★ V0.6.5s: 删除按钮仅项目负责人/管理员可见
   var _canDeleteToolbar = (currentUser&&currentUser.name)===p.owner || (typeof hasPermission==='function'&&hasPermission('maintenance'));
-  if(_canDeleteToolbar) h += '<button onclick="deleteProject('+p.id+')" style="padding:5px 12px;border:1px solid #FCA5A5;border-radius:6px;background:#FEF2F2;color:#DC2626;font-size:12px;cursor:pointer">删除</button>';
+  if(_canDeleteToolbar) h += '<button onclick="deleteProject('+p.id+')" style="padding:5px 12px;border:1px solid #FCA5A5;border-radius:4px;background:#FEF2F2;color:#DC2626;font-size:12px;cursor:pointer">删除</button>';
   h += '</div>';
   return h;
 }
@@ -551,7 +551,7 @@ function renderPMGantt(p, tasks){
   h += '<span style="font-size:12px;color:#6B7280">时间颗粒度：</span>';
   ['day','week','month','quarter','year'].forEach(function(g){
     var sel = gran===g;
-    h += '<button onclick="_pmGanttGranularity=\''+g+'\';renderPMDetail();" style="padding:4px 12px;font-size:11px;border:1px solid '+(sel?'#3B82F6':'#D0D5DD')+';border-radius:6px;background:'+(sel?'#3B82F6':'#fff')+';color:'+(sel?'#fff':'#6B7280')+';cursor:pointer">'+_pmGanttGranularityLabel(g)+'</button>';
+    h += '<button onclick="_pmGanttGranularity=\''+g+'\';renderPMDetail();" style="padding:4px 12px;font-size:11px;border:1px solid '+(sel?'#3B82F6':'#D0D5DD')+';border-radius:4px;background:'+(sel?'#3B82F6':'#fff')+';color:'+(sel?'#fff':'#6B7280')+';cursor:pointer">'+_pmGanttGranularityLabel(g)+'</button>';
   });
   h += '</div>';
 
@@ -601,7 +601,7 @@ function renderPMGantt(p, tasks){
 
   var chartW = cols.length * colW;
 
-  h += '<div style="overflow-x:auto;background:#fff;border:1px solid #E5E7EB;border-radius:10px">';
+  h += '<div style="overflow-x:auto;background:#fff;border:1px solid #E5E7EB;border-radius:4px">';
   h += '<div style="min-width:'+(chartW+340)+'px">';
 
   // 表头
@@ -704,13 +704,13 @@ function renderPMTaskBoard(){
   var h = '';
   Object.keys(cols).forEach(function(key){
     var col = cols[key];
-    h += '<div style="background:#F9FAFB;border-radius:10px;padding:12px;min-height:150px">';
+    h += '<div style="background:#F9FAFB;border-radius:4px;padding:12px;min-height:150px">';
     h += '<div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;padding-bottom:8px;border-bottom:2px solid '+col.color+'">';
     h += '<span style="font-weight:600;font-size:13px;color:'+col.color+'">'+col.title+'</span>';
     h += '<span style="font-size:11px;color:#9CA3AF">'+col.tasks.length+'</span>';
     h += '</div>';
     col.tasks.forEach(function(t){
-      h += '<div style="background:#fff;border:1px solid #E5E7EB;border-radius:8px;padding:10px 12px;margin-bottom:8px;cursor:pointer;transition:all .15s">';
+      h += '<div style="background:#fff;border:1px solid #E5E7EB;border-radius:4px;padding:10px 12px;margin-bottom:8px;cursor:pointer;transition:all .15s">';
       h += '<div onclick="openTaskEdit('+t.project_id+','+t.id+')" style="font-size:12px;font-weight:500;color:#374151;margin-bottom:4px">'+esc(t.title||'未命名任务')+'</div>';
       h += '<div style="display:flex;align-items:center;justify-content:space-between">';
       h += '<div style="display:flex;align-items:center;gap:8px;font-size:10px;color:#9CA3AF">';
@@ -748,7 +748,7 @@ function attachEmpNameAutocomplete(input, opts){
     input.parentElement.style.position = 'relative';
   }
   var dropdown = document.createElement('div');
-  dropdown.style.cssText = 'display:none;position:absolute;top:100%;left:0;right:0;margin-top:2px;z-index:5;background:#fff;border:1px solid #D0D5DD;border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,.14);max-height:180px;overflow-y:auto;font-size:12px';
+  dropdown.style.cssText = 'display:none;position:absolute;top:100%;left:0;right:0;margin-top:2px;z-index:5;background:#fff;border:1px solid #D0D5DD;border-radius:4px;box-shadow:0 6px 20px rgba(0,0,0,.14);max-height:180px;overflow-y:auto;font-size:12px';
   input.parentElement.appendChild(dropdown);
 
   function _parts(){ return input.value.split(/[,，、\s]+/); }
@@ -792,7 +792,7 @@ function showFormModal(html, title, okText, cancelText, onSubmit){
   var overlay = document.createElement('div');
   overlay.id = 'pm-form-modal';
   overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;z-index:10000;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;';
-  var modal = '<div style="background:#fff;border-radius:12px;padding:0;width:576px;max-width:92%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.2);">';
+  var modal = '<div style="background:#fff;border-radius:4px;padding:0;width:576px;max-width:92%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.2);">';
   modal += '<div style="display:flex;align-items:center;gap:10px;padding:20px 24px;border-bottom:1px solid #E5E7EB;">';
   modal += '<span style="font-size:18px">&#9888;</span>';
   modal += '<span style="font-weight:700;font-size:16px;color:#111827;">' + esc(title||'') + '</span>';
@@ -801,9 +801,9 @@ function showFormModal(html, title, okText, cancelText, onSubmit){
   modal += '<div style="display:flex;justify-content:flex-end;gap:10px;padding:16px 24px;border-top:1px solid #E5E7EB;">';
   // ★ V0.6.4R: cancelText===null 时不渲染取消按钮（只读弹窗单按钮场景）
   if(cancelText!==null){
-    modal += '<button id="pm-form-cancel" style="padding:8px 16px;border:1px solid #D0D5DD;border-radius:6px;background:#fff;font-size:13px;cursor:pointer">' + esc(cancelText||'取消') + '</button>';
+    modal += '<button id="pm-form-cancel" style="padding:8px 16px;border:1px solid #D0D5DD;border-radius:4px;background:#fff;font-size:13px;cursor:pointer">' + esc(cancelText||'取消') + '</button>';
   }
-  modal += '<button id="pm-form-ok" style="padding:8px 16px;border:none;border-radius:6px;background:#3B82F6;color:#fff;font-size:13px;cursor:pointer">' + esc(okText||'确定') + '</button>';
+  modal += '<button id="pm-form-ok" style="padding:8px 16px;border:none;border-radius:4px;background:#3B82F6;color:#fff;font-size:13px;cursor:pointer">' + esc(okText||'确定') + '</button>';
   modal += '</div></div>';
   overlay.innerHTML = modal;
   document.body.appendChild(overlay);
@@ -846,27 +846,27 @@ async function openTaskEdit(pid, tid){
   var h = '';
   h += '<div style="margin-bottom:12px">';
   h += '<label style="display:block;font-size:12px;color:#6B7280;margin-bottom:4px">任务名称</label>';
-  h += '<input id="te-title" value="'+esc(t.title||'')+'" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:13px;box-sizing:border-box">';
+  h += '<input id="te-title" value="'+esc(t.title||'')+'" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:4px;font-size:13px;box-sizing:border-box">';
   h += '</div>';
   h += '<div style="display:flex;gap:12px;margin-bottom:12px">';
   h += '<div style="flex:1">';
   h += '<label style="display:block;font-size:12px;color:#6B7280;margin-bottom:4px">状态</label>';
-  h += '<select id="te-status" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:13px">';
+  h += '<select id="te-status" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:4px;font-size:13px">';
   statuses.forEach(function(s){ h += '<option'+(s===t.status?' selected':'')+'>'+s+'</option>'; });
   h += '</select></div>';
   h += '<div style="flex:1">';
   h += '<label style="display:block;font-size:12px;color:#6B7280;margin-bottom:4px">优先级</label>';
-  h += '<select id="te-priority" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:13px">';
+  h += '<select id="te-priority" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:4px;font-size:13px">';
   priorities.forEach(function(s){ h += '<option'+(s===t.priority?' selected':'')+'>'+s+'</option>'; });
   h += '</select></div></div>';
   h += '<div style="display:flex;gap:12px;margin-bottom:12px">';
   h += '<div style="flex:1;position:relative">';
   h += '<label style="display:block;font-size:12px;color:#6B7280;margin-bottom:4px">负责人</label>';
-  h += '<input id="te-assignee" value="'+esc(t.assignee||'')+'" autocomplete="off" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:13px;box-sizing:border-box">';
+  h += '<input id="te-assignee" value="'+esc(t.assignee||'')+'" autocomplete="off" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:4px;font-size:13px;box-sizing:border-box">';
   h += '</div>';
   h += '<div style="flex:1">';
   h += '<label style="display:block;font-size:12px;color:#6B7280;margin-bottom:4px">截止日期</label>';
-  h += '<input id="te-due" type="date" value="'+esc(t.due_date||'')+'" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:13px;box-sizing:border-box">';
+  h += '<input id="te-due" type="date" value="'+esc(t.due_date||'')+'" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:4px;font-size:13px;box-sizing:border-box">';
   h += '</div></div>';
   h += '<div style="margin-bottom:12px">';
   h += '<label style="display:block;font-size:12px;color:#6B7280;margin-bottom:4px">进度 ('+(t.progress||0)+'%)</label>';
@@ -874,7 +874,7 @@ async function openTaskEdit(pid, tid){
   h += '</div>';
   h += '<div style="margin-bottom:12px">';
   h += '<label style="display:block;font-size:12px;color:#6B7280;margin-bottom:4px">任务描述</label>';
-  h += '<textarea id="te-desc" rows="3" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:13px;box-sizing:border-box;resize:vertical">'+esc(t.description||'')+'</textarea>';
+  h += '<textarea id="te-desc" rows="3" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:4px;font-size:13px;box-sizing:border-box;resize:vertical">'+esc(t.description||'')+'</textarea>';
   h += '</div>';
 
   showFormModal(h, '编辑任务 / Edit Task', '保存 / Save', '取消 / Cancel', async function(close){
@@ -935,27 +935,27 @@ async function showNewProjectForm(){
   var h = '';
   h += '<div style="margin-bottom:12px">';
   h += '<label style="display:block;font-size:12px;color:#6B7280;margin-bottom:4px">项目名称 <span style="color:#EF4444">*</span></label>';
-  h += '<input id="np-name" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:13px;box-sizing:border-box" placeholder="请输入项目名称">';
+  h += '<input id="np-name" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:4px;font-size:13px;box-sizing:border-box" placeholder="请输入项目名称">';
   h += '</div>';
   h += '<div style="display:flex;gap:12px;margin-bottom:12px">';
   h += '<div style="flex:1">';
   h += '<label style="display:block;font-size:12px;color:#6B7280;margin-bottom:4px">项目类型</label>';
-  h += '<select id="np-type" onchange="var w=document.getElementById(\'np-rdstart-wrap\');if(w)w.style.display=(this.value===\'研发\'?\'block\':\'none\')" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:13px">';
+  h += '<select id="np-type" onchange="var w=document.getElementById(\'np-rdstart-wrap\');if(w)w.style.display=(this.value===\'研发\'?\'block\':\'none\')" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:4px;font-size:13px">';
   PM_TYPE_DEFS.forEach(function(td){ if(td.key!=='全部') h += '<option value="'+td.key+'">'+td.label+'</option>'; });
   h += '</select></div>';
   h += '<div style="flex:1">';
   h += '<label style="display:block;font-size:12px;color:#6B7280;margin-bottom:4px">项目级别</label>';
-  h += '<select id="np-level" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:13px">';
+  h += '<select id="np-level" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:4px;font-size:13px">';
   levels.forEach(function(l){ h += '<option value="'+l.v+'">'+l.t+'</option>'; });
   h += '</select></div></div>';
   h += '<div style="margin-bottom:12px">';
   h += '<label style="display:block;font-size:12px;color:#6B7280;margin-bottom:4px">项目负责人</label>';
-  h += '<div style="position:relative"><input id="np-owner" value="'+esc(currentName)+'" autocomplete="off" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:13px;box-sizing:border-box"></div>';
+  h += '<div style="position:relative"><input id="np-owner" value="'+esc(currentName)+'" autocomplete="off" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:4px;font-size:13px;box-sizing:border-box"></div>';
   h += '</div>';
   // ★ V1.0 RDPM: 研发项目可选起始阶段（在研项目中间切入）
   h += '<div id="np-rdstart-wrap" style="display:none;margin-bottom:12px">';
   h += '<label style="display:block;font-size:12px;color:#6B7280;margin-bottom:4px">起始阶段（研发项目：之前阶段将补录为已通过）</label>';
-  h += '<select id="np-rdstart" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:13px">';
+  h += '<select id="np-rdstart" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:4px;font-size:13px">';
   h += '<option value="preresearch">预研（从头开始）</option>';
   h += '<option value="initiation">立项</option>';
   h += '<option value="input">设计输入</option>';
@@ -967,24 +967,24 @@ async function showNewProjectForm(){
   h += '<div style="display:flex;gap:12px;margin-bottom:12px">';
   h += '<div style="flex:1">';
   h += '<label style="display:block;font-size:12px;color:#6B7280;margin-bottom:4px">开始日期</label>';
-  h += '<input id="np-start" type="date" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:13px;box-sizing:border-box">';
+  h += '<input id="np-start" type="date" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:4px;font-size:13px;box-sizing:border-box">';
   h += '</div>';
   h += '<div style="flex:1">';
   h += '<label style="display:block;font-size:12px;color:#6B7280;margin-bottom:4px">结束日期</label>';
-  h += '<input id="np-end" type="date" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:13px;box-sizing:border-box">';
+  h += '<input id="np-end" type="date" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:4px;font-size:13px;box-sizing:border-box">';
   h += '</div></div>';
   h += '<div style="margin-bottom:12px">';
   h += '<label style="display:block;font-size:12px;color:#6B7280;margin-bottom:4px">奖金池 (元)</label>';
-  h += '<input id="np-budget" type="number" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:13px;box-sizing:border-box" placeholder="选填">';
+  h += '<input id="np-budget" type="number" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:4px;font-size:13px;box-sizing:border-box" placeholder="选填">';
   h += '</div>';
   h += '<div style="margin-bottom:12px">';
   h += '<label style="display:block;font-size:12px;color:#6B7280;margin-bottom:4px">项目组成员（可多选，按空格/逗号分隔添加）</label>';
-  h += '<div style="position:relative"><input id="np-members" autocomplete="off" placeholder="输入姓名后选择，按空格添加下一个" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:13px;box-sizing:border-box"></div>';
+  h += '<div style="position:relative"><input id="np-members" autocomplete="off" placeholder="输入姓名后选择，按空格添加下一个" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:4px;font-size:13px;box-sizing:border-box"></div>';
   h += '<div id="np-members-chips" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px"></div>';
   h += '</div>';
   h += '<div style="margin-bottom:12px">';
   h += '<label style="display:block;font-size:12px;color:#6B7280;margin-bottom:4px">项目描述</label>';
-  h += '<textarea id="np-desc" rows="3" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:13px;box-sizing:border-box;resize:vertical" placeholder="简要描述项目目标和范围"></textarea>';
+  h += '<textarea id="np-desc" rows="3" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:4px;font-size:13px;box-sizing:border-box;resize:vertical" placeholder="简要描述项目目标和范围"></textarea>';
   h += '</div>';
 
   showFormModal(h, '新建项目 / New Project', '创建 / Create', '取消 / Cancel', async function(close){
@@ -1032,7 +1032,7 @@ async function _pmEditTaskField(taskId, field, currentVal){
   var label = {assignee:'负责人',start_date:'启动日期',due_date:'完成截止日期'}[field]||field;
   var inputType = field==='assignee'?'text':'date';
   var h = '<div style="margin-bottom:12px"><label style="font-size:12px;color:#6B7280;display:block;margin-bottom:4px">'+label+'</label>';
-  h += '<input id="pmtf-in" type="'+inputType+'" value="'+(currentVal==='TBD'?'':currentVal)+'" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:13px;box-sizing:border-box">';
+  h += '<input id="pmtf-in" type="'+inputType+'" value="'+(currentVal==='TBD'?'':currentVal)+'" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:4px;font-size:13px;box-sizing:border-box">';
   h += '</div>';
   var nameLabel = {assignee:'负责人姓名',start_date:'启动日期（YYYY-MM-DD）',due_date:'完成截止日期（YYYY-MM-DD）'}[field]||'';
   var inputId = 'pmtf-in';
@@ -1122,9 +1122,9 @@ function injectPMStyles(){
   +'.pm-del-btn{opacity:0;transition:opacity .16s ease-out,color .16s ease-out}'
   +'.pm-card:hover .pm-del-btn{opacity:1}'
   +'.pm-del-btn:hover{color:#B3382C!important}'
-  +'.pm-stat-card{background:#fff;border:1px solid #e3e8ef;border-radius:10px;padding:14px 16px;text-align:center}'
+  +'.pm-stat-card{background:#fff;border:1px solid #e3e8ef;border-radius:4px;padding:14px 16px;text-align:center}'
   +'.pm-btn-back:hover{background:#EFEDE8;color:#1F1F1F}'
-  +'.pm-add-task-btn{width:100%;padding:8px;border:1px dashed #C9C4BA;border-radius:8px;background:transparent;font-size:11px;color:#A8A29A;cursor:pointer;margin-top:4px;transition:all .16s ease-out}'
+  +'.pm-add-task-btn{width:100%;padding:8px;border:1px dashed #C9C4BA;border-radius:4px;background:transparent;font-size:11px;color:#A8A29A;cursor:pointer;margin-top:4px;transition:all .16s ease-out}'
   +'.pm-add-task-btn:hover{border-color:#1F1F1F;color:#1F1F1F;background:#fff}'
   +'.pm-detail-mode{background:#f6f8fc}'
   +'#pmDetailView{display:none}'
@@ -1170,7 +1170,7 @@ function _npInitMemberSelect(input, chipsEl){
   function _renderChips(){
     var h = '';
     _npSelectedMembers.forEach(function(n, i){
-      h += '<span style="display:inline-flex;align-items:center;background:#F0F5FA;color:#3B7DB4;font-size:11px;font-weight:500;padding:3px 10px;border-radius:12px;gap:4px">'+esc(n)+'<span onclick="_npRemoveMember('+i+')" style="cursor:pointer;opacity:.6;font-size:14px;line-height:1;margin-left:2px">&times;</span></span>';
+      h += '<span style="display:inline-flex;align-items:center;background:#F0F5FA;color:#3B7DB4;font-size:11px;font-weight:500;padding:3px 10px;border-radius:4px;gap:4px">'+esc(n)+'<span onclick="_npRemoveMember('+i+')" style="cursor:pointer;opacity:.6;font-size:14px;line-height:1;margin-left:2px">&times;</span></span>';
     });
     chipsEl.innerHTML = h;
   }
@@ -1212,7 +1212,7 @@ function _npInitMemberSelect(input, chipsEl){
     if(!hits.length) return;
     // 使用 attachEmpNameAutocomplete 已有逻辑时，这里用简单下拉
     var dd = document.createElement('div');
-    dd.style.cssText = 'position:absolute;top:100%;left:0;right:0;margin-top:2px;z-index:5;background:#fff;border:1px solid #D0D5DD;border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,.14);max-height:180px;overflow-y:auto;font-size:12px';
+    dd.style.cssText = 'position:absolute;top:100%;left:0;right:0;margin-top:2px;z-index:5;background:#fff;border:1px solid #D0D5DD;border-radius:4px;box-shadow:0 6px 20px rgba(0,0,0,.14);max-height:180px;overflow-y:auto;font-size:12px';
     dd.id = 'np-members-dd';
     dd.innerHTML = hits.map(function(n){
       return '<div style="padding:7px 12px;cursor:pointer;color:#1F1F1F" onmouseover="this.style.background=\'#F3F4F6\'" onmouseout="this.style.background=\'\'" onmousedown="event.preventDefault();_npAddMemberFromDD(\''+esc(n)+'\')">'+esc(n)+'</div>';
@@ -1349,9 +1349,9 @@ function showProjectTeam(pid){
     h += '<div style="margin-top:16px;padding-top:16px;border-top:1px solid #E5E7EB">';
     h += '<div style="font-size:11px;color:#6B7280;margin-bottom:8px">添加成员</div>';
     h += '<div style="display:flex;gap:8px;flex-wrap:wrap">';
-    h += '<div style="flex:1;min-width:120px;position:relative"><input id="ptm-new-name" placeholder="姓名" autocomplete="off" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:13px;box-sizing:border-box"></div>';
-    h += '<input id="ptm-new-pwd" placeholder="密码（默认随机）" style="width:140px;padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:13px;box-sizing:border-box">';
-    h += '<button onclick="addProjectMember('+p.id+')" style="padding:8px 16px;background:#3B82F6;color:#fff;border:none;border-radius:6px;font-size:13px;cursor:pointer">添加</button>';
+    h += '<div style="flex:1;min-width:120px;position:relative"><input id="ptm-new-name" placeholder="姓名" autocomplete="off" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:4px;font-size:13px;box-sizing:border-box"></div>';
+    h += '<input id="ptm-new-pwd" placeholder="密码（默认随机）" style="width:140px;padding:8px 10px;border:1px solid #D0D5DD;border-radius:4px;font-size:13px;box-sizing:border-box">';
+    h += '<button onclick="addProjectMember('+p.id+')" style="padding:8px 16px;background:#3B82F6;color:#fff;border:none;border-radius:4px;font-size:13px;cursor:pointer">添加</button>';
     h += '</div>';
     h += '<div style="margin-top:8px;font-size:10px;color:#9CA3AF">勾选下方阶段以授权该成员查看对应里程碑信息</div>';
     h += '<div id="ptm-new-stages" style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap">';
@@ -1404,7 +1404,7 @@ function showProjectGantt(pid){
   var h = '';
   h += '<div style="font-size:13px;color:#1F1F1F;font-weight:600;margin-bottom:4px">'+esc(p.name||'')+'</div>';
   h += '<div style="font-size:11px;color:#6B7280;margin-bottom:16px">'+(p.start_date||'')+' ~ '+(p.end_date||'')+'</div>';
-  h += '<div style="overflow-x:auto;background:#fff;border:1px solid #E5E7EB;border-radius:8px;padding:12px">';
+  h += '<div style="overflow-x:auto;background:#fff;border:1px solid #E5E7EB;border-radius:4px;padding:12px">';
   h += '<div style="min-width:'+(chartW+140)+'px">';
 
   // 表头（日期）
@@ -1432,9 +1432,9 @@ function showProjectGantt(pid){
       h += '<div style="display:flex;align-items:center;height:28px;border-bottom:1px solid #F3F4F6">';
       h += '<div style="width:120px;flex-shrink:0;font-size:11px;color:#374151;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+esc(t.title||'')+'">'+esc(t.title||'未命名')+'</div>';
       h += '<div style="flex:1;position:relative;height:20px">';
-      h += '<div style="position:absolute;left:'+offset+'px;width:'+barW+'px;height:100%;background:'+statusColor+';border-radius:3px;opacity:'+(prog===0?'0.3':'0.8')+'"></div>';
+      h += '<div style="position:absolute;left:'+offset+'px;width:'+barW+'px;height:100%;background:'+statusColor+';border-radius:2px;opacity:'+(prog===0?'0.3':'0.8')+'"></div>';
       if(prog>0){
-        h += '<div style="position:absolute;left:'+offset+'px;width:'+Math.floor(barW*prog/100)+'px;height:100%;background:'+statusColor+';border-radius:3px"></div>';
+        h += '<div style="position:absolute;left:'+offset+'px;width:'+Math.floor(barW*prog/100)+'px;height:100%;background:'+statusColor+';border-radius:2px"></div>';
       }
       h += '</div>';
       h += '<div style="width:50px;flex-shrink:0;font-size:10px;color:#9CA3AF;text-align:right">'+prog+'%</div>';
@@ -1554,7 +1554,7 @@ async function verifyProjectAccess(pid){
     h += '<div style="font-size:24px;margin-bottom:8px">🔐</div>';
     h += '<div style="font-size:14px;color:#1F1F1F;font-weight:600;margin-bottom:4px">项目区门禁验证</div>';
     h += '<div style="font-size:12px;color:#6B7280;margin-bottom:16px">请输入您的项目区进入密码</div>';
-    h += '<input id="pv-pwd" type="password" maxlength="4" autocomplete="new-password" placeholder="4 位数字密码" style="width:180px;padding:10px 14px;border:1px solid #D0D5DD;border-radius:8px;font-size:16px;text-align:center;letter-spacing:4px;box-sizing:border-box" onkeydown="if(event.key===\'Enter\')document.getElementById(\'pm-form-ok\').click()">';
+    h += '<input id="pv-pwd" type="password" maxlength="4" autocomplete="new-password" placeholder="4 位数字密码" style="width:180px;padding:10px 14px;border:1px solid #D0D5DD;border-radius:4px;font-size:16px;text-align:center;letter-spacing:4px;box-sizing:border-box" onkeydown="if(event.key===\'Enter\')document.getElementById(\'pm-form-ok\').click()">';
     h += '</div>';
     h += '<div id="pv-err" style="display:none;text-align:center;color:#DC2626;font-size:12px;margin-bottom:12px">密码错误，请重试</div>';
     showFormModal(h, '项目区门禁 / Project Access', '进入 / Enter', '取消 / Cancel', function(close){

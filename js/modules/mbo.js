@@ -2254,9 +2254,9 @@ function _renderCollabTasksSection(plan){
     return r&&r.receiver_uid===planOwnerUid&&r.week_id===weekId&&!r.revoked_at&&r.status!=='revoked';
   });
   var html='';
-  html+='<table id="collabTaskArea" cellspacing="0" cellpadding="0" style="width:100%;margin:20px 0 0 0;border:2px solid #f59e0b;border-radius:8px;background:#fffbeb;border-spacing:0">';
+  html+='<table id="collabTaskArea" cellspacing="0" cellpadding="0" style="width:100%;margin:20px 0 0 0;border:2px solid #f59e0b;border-radius:4px;background:#fffbeb;border-spacing:0">';
   html+='<tr><td style="padding:12px 16px;background:#fef3c7;border-bottom:2px solid #f59e0b"><div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:14px;color:#0F2C4B;font-weight:600">🤝 协同任务</span>';
-  if(collabTasks.length)html+='<span style="font-size:12px;color:#b45309;background:#fde68a;padding:2px 8px;border-radius:10px;font-weight:600">'+collabTasks.length+' 项</span>';
+  if(collabTasks.length)html+='<span style="font-size:12px;color:#b45309;background:#fde68a;padding:2px 8px;border-radius:4px;font-weight:600">'+collabTasks.length+' 项</span>';
   html+='</div></td></tr><tr><td style="padding:0">';
   if(!collabTasks.length){
     html+='<div style="padding:28px;text-align:center;color:#9ca3af;font-size:14px;font-weight:500">📭 本周暂无协同任务</div>';
@@ -2266,7 +2266,7 @@ function _renderCollabTasksSection(plan){
       var ct=collabTasks[i], snapshot=ct.task_snapshot||{}, pri=snapshot.goal||'';
       var priStyle=pri==='重要紧急'?'#FF3B30':pri==='重要不急'?'#4984AC':pri==='日常紧急'?'#FF9500':'#5E7080';
       var st=ct.status||'pending', stText=st==='accepted'?'已接受':st==='rejected'?'已拒绝':'待响应', stColor=st==='accepted'?'#16a34a':st==='rejected'?'#dc2626':'#6b7280';
-      html+='<tr><td style="padding:10px 8px;border-bottom:1px solid #fef3c7">'+(i+1)+'</td><td style="padding:10px 8px;border-bottom:1px solid #fef3c7"><span style="padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;color:#fff;background:#6366f1">'+_h(ct.owner_name||'')+'</span></td><td style="padding:10px 8px;border-bottom:1px solid #fef3c7">'+_h(snapshot.work||'(无任务描述)')+'</td><td style="padding:10px 8px;border-bottom:1px solid #fef3c7">'+(pri?'<span style="background:'+priStyle+';color:#fff;padding:2px 8px;border-radius:3px;font-size:10px;font-weight:600">'+_h(pri)+'</span>':'')+'</td><td style="padding:10px 8px;border-bottom:1px solid #fef3c7;white-space:nowrap">'+_h(snapshot.plannedDate||'')+'</td><td style="padding:10px 8px;border-bottom:1px solid #fef3c7"><span style="color:'+stColor+';font-weight:600">'+stText+'</span></td><td style="padding:10px 8px;border-bottom:1px solid #fef3c7"><div style="display:flex;gap:4px;flex-wrap:wrap">';
+      html+='<tr><td style="padding:10px 8px;border-bottom:1px solid #fef3c7">'+(i+1)+'</td><td style="padding:10px 8px;border-bottom:1px solid #fef3c7"><span style="padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;color:#fff;background:#6366f1">'+_h(ct.owner_name||'')+'</span></td><td style="padding:10px 8px;border-bottom:1px solid #fef3c7">'+_h(snapshot.work||'(无任务描述)')+'</td><td style="padding:10px 8px;border-bottom:1px solid #fef3c7">'+(pri?'<span style="background:'+priStyle+';color:#fff;padding:2px 8px;border-radius:2px;font-size:10px;font-weight:600">'+_h(pri)+'</span>':'')+'</td><td style="padding:10px 8px;border-bottom:1px solid #fef3c7;white-space:nowrap">'+_h(snapshot.plannedDate||'')+'</td><td style="padding:10px 8px;border-bottom:1px solid #fef3c7"><span style="color:'+stColor+';font-weight:600">'+stText+'</span></td><td style="padding:10px 8px;border-bottom:1px solid #fef3c7"><div style="display:flex;gap:4px;flex-wrap:wrap">';
       if(isPlanOwner){
         if(st==='accepted'||st==='rejected')html+='<button onclick="_collabRespond(this)" data-request-id="'+_h(ct.request_id)+'" data-status="pending" style="padding:3px 8px;border:1px solid #ddd;border-radius:4px;font-size:11px;cursor:pointer;background:#fff;color:#555">'+(st==='accepted'?'撤销接受':'重新考虑')+'</button>';
         else html+='<button onclick="_collabRespond(this)" data-request-id="'+_h(ct.request_id)+'" data-status="accepted" style="padding:3px 8px;border:0;border-radius:4px;font-size:11px;cursor:pointer;background:#16a34a;color:#fff">接受</button><button onclick="_collabRespond(this)" data-request-id="'+_h(ct.request_id)+'" data-status="rejected" style="padding:3px 8px;border:0;border-radius:4px;font-size:11px;cursor:pointer;background:#dc2626;color:#fff">拒绝</button>';
@@ -2384,7 +2384,7 @@ function _legacyRenderSupportersCell(plan,taskIndex,rawSupporters){
     // ★ V0.6.1.gn: 姓名左对齐 + 徽章右对齐（flex space-between）
     html+='<div style="display:flex;align-items:center;justify-content:space-between;gap:4px">';
     html+='<span style="font-weight:500;text-align:left">'+_h(s.name)+'</span>';
-    html+='<span style="font-size:9px;padding:1px 5px;border-radius:3px;background:'+badgeColor+';color:#fff;font-weight:600;line-height:1.4;white-space:nowrap">'+badgeIcon+' '+badgeText+'</span>';
+    html+='<span style="font-size:9px;padding:1px 5px;border-radius:2px;background:'+badgeColor+';color:#fff;font-weight:600;line-height:1.4;white-space:nowrap">'+badgeIcon+' '+badgeText+'</span>';
     html+='</div>';
   }
   html+='</div>';
@@ -2862,7 +2862,7 @@ function _renderSupportersCell(plan,taskIndex,rawSupporters){
     var s=supporters[i], st=taskId?_collabStatusFor(ownerUid,weekId,taskId,s.uid):'pending';
     var color=st==='accepted'?'#16a34a':st==='rejected'?'#dc2626':'#9ca3af';
     var text=st==='accepted'?'已接受':st==='rejected'?'已拒绝':'待响应';
-    html+='<div style="display:flex;align-items:center;justify-content:space-between;gap:4px"><span style="font-weight:500;text-align:left">'+_h(s.name)+'</span><span style="font-size:9px;padding:1px 5px;border-radius:3px;background:'+color+';color:#fff;font-weight:600;line-height:1.4;white-space:nowrap">'+text+'</span></div>';
+    html+='<div style="display:flex;align-items:center;justify-content:space-between;gap:4px"><span style="font-weight:500;text-align:left">'+_h(s.name)+'</span><span style="font-size:9px;padding:1px 5px;border-radius:2px;background:'+color+';color:#fff;font-weight:600;line-height:1.4;white-space:nowrap">'+text+'</span></div>';
   }
   return html+'</div>';
 }
@@ -3347,7 +3347,7 @@ function renderWPTable(plan){
       var jj=carriedTasks[ci]; seq++;
       var tt=plan.tasks[jj];
       var cf=tt.carriedFrom;
-      var cfTag=cf?'<div style="font-size:9px;color:#8B6914;background:#FFF8E7;padding:1px 4px;border-radius:3px;display:block;margin-top:2px">来源:'+cf.year+'年'+cf.month+'月第'+cf.week+'周</div>':'';
+      var cfTag=cf?'<div style="font-size:9px;color:#8B6914;background:#FFF8E7;padding:1px 4px;border-radius:2px;display:block;margin-top:2px">来源:'+cf.year+'年'+cf.month+'月第'+cf.week+'周</div>':'';
       // ★ V0.1.88: 转入任务可编辑
       var edCls=(plan.bossEvaluated?'':' editable');
       var edClick=(plan.bossEvaluated?'':' onclick="startEditCell(this)"');
@@ -3482,7 +3482,7 @@ function renderWPTable(plan){
   html+='<div class="wp-feedback-section ai-section-collapsed" id="aiFeedbackSection">';
   html+='<div class="ai-header-bar" style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--card-alt);flex-wrap:wrap;gap:8px">';
     html+='<div style="display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:#0F2C4B">🤖 AI 综合分析</div>';
-    html+='<button type="button" onclick="toggleAIAnalysis()" id="aiAnalysisToggleBtn" style="padding:3px 12px;border:1px solid #d4c8f0;border-radius:8px;background:#fff;color:#6b5b95;font-size:11px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:3px;transition:all .25s ease;white-space:nowrap"><span id="aiToggleIcon">▼</span><span id="aiToggleText">展开</span></button>';
+    html+='<button type="button" onclick="toggleAIAnalysis()" id="aiAnalysisToggleBtn" style="padding:3px 12px;border:1px solid #d4c8f0;border-radius:4px;background:#fff;color:#6b5b95;font-size:11px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:3px;transition:all .25s ease;white-space:nowrap"><span id="aiToggleIcon">▼</span><span id="aiToggleText">展开</span></button>';
     html+='</div>';
   if(plan.aiAnalysis && plan.aiAnalysis.trim()){
     html+='<div class="wp-feedback-textarea" id="aiAnalysisContent" style="background:#F4F0FF;border:1px solid #d4c8f0;font-size:13px;line-height:1.8;white-space:pre-wrap;transition:max-height 0.6s cubic-bezier(.25,.1,.25,1),opacity 0.6s cubic-bezier(.25,.1,.25,1),padding 0.6s cubic-bezier(.25,.1,.25,1);overflow:hidden;max-height:0;opacity:0;padding:0;margin-top:0">'+_h(plan.aiAnalysis)+'</div>';
@@ -3756,12 +3756,12 @@ function startEditCell(cell){
       cell.innerHTML='<span style="color:'+((cur&&WP_STATUS_COLORS[cur])||'var(--text-hint)')+';font-size:11px">'+(cur||'--')+'</span>';
       var _dd=document.createElement('div');
       _dd.className='wp-custom-dropdown';
-      _dd.style.cssText='display:block;position:fixed;z-index:9999;padding:6px 4px;border-radius:8px;border:1px solid rgba(200,205,212,.4);background:rgba(252,252,253,.95);backdrop-filter:blur(20px) saturate(1.4);box-shadow:0 4px 6px rgba(0,0,0,.04),0 10px 24px rgba(0,0,0,.08)';
+      _dd.style.cssText='display:block;position:fixed;z-index:9999;padding:6px 4px;border-radius:4px;border:1px solid rgba(200,205,212,.4);background:rgba(252,252,253,.95);backdrop-filter:blur(20px) saturate(1.4);box-shadow:0 4px 6px rgba(0,0,0,.04),0 10px 24px rgba(0,0,0,.08)';
       for(var si=0;si<opts.length;si++){
         (function(opt,clr){
           var _optDiv=document.createElement('div');
           _optDiv.className='wp-custom-option'+(opt===cur?' active':'');
-          _optDiv.style.cssText='height:28px;font-size:12px;color:#0F2C4B;border-radius:6px;margin:1px 0;padding:0 10px;cursor:pointer;display:flex;align-items:center';
+          _optDiv.style.cssText='height:28px;font-size:12px;color:#0F2C4B;border-radius:4px;margin:1px 0;padding:0 10px;cursor:pointer;display:flex;align-items:center';
           _optDiv.innerHTML='<span style="color:'+clr+';margin-right:6px;font-size:12px">●</span>'+opt;
           _optDiv.onclick=function(){
             _dd.style.display='none';if(_dd.parentNode)_dd.parentNode.removeChild(_dd);
@@ -3786,12 +3786,12 @@ function startEditCell(cell){
       cell.innerHTML='<span style="color:'+(_goalColor||'var(--text-hint)')+';font-size:11px;font-weight:'+(cur?'500':'400')+'">'+(cur||'--')+'</span>';
       var _gdd=document.createElement('div');
       _gdd.className='wp-custom-dropdown';
-      _gdd.style.cssText='display:block;position:fixed;z-index:9999;padding:6px 4px;border-radius:8px;border:1px solid rgba(200,205,212,.4);background:rgba(252,252,253,.95);backdrop-filter:blur(20px) saturate(1.4);box-shadow:0 4px 6px rgba(0,0,0,.04),0 10px 24px rgba(0,0,0,.08);min-width:130px';
+      _gdd.style.cssText='display:block;position:fixed;z-index:9999;padding:6px 4px;border-radius:4px;border:1px solid rgba(200,205,212,.4);background:rgba(252,252,253,.95);backdrop-filter:blur(20px) saturate(1.4);box-shadow:0 4px 6px rgba(0,0,0,.04),0 10px 24px rgba(0,0,0,.08);min-width:130px';
       for(var gi=0;gi<opts.length;gi++){
         (function(opt,gclr){
           var _gOptDiv=document.createElement('div');
           _gOptDiv.className='wp-custom-option'+(opt===cur?' active':'');
-          _gOptDiv.style.cssText='height:28px;font-size:12px;color:#0F2C4B;border-radius:6px;margin:1px 0;padding:0 10px;cursor:pointer;display:flex;align-items:center';
+          _gOptDiv.style.cssText='height:28px;font-size:12px;color:#0F2C4B;border-radius:4px;margin:1px 0;padding:0 10px;cursor:pointer;display:flex;align-items:center';
           _gOptDiv.innerHTML='<span style="color:'+gclr+';margin-right:6px;font-size:12px">●</span>'+opt;
           _gOptDiv.onclick=function(){
             _gdd.style.display='none';if(_gdd.parentNode)_gdd.parentNode.removeChild(_gdd);
@@ -3850,7 +3850,7 @@ function startEditCell(cell){
           seen[nm]=true;
           var chip=document.createElement('span');
           chip.className='supporter-chip';
-          chip.style.cssText='display:inline-flex;align-items:center;background:#E8F0FE;color:#1B6EC4;font-size:11px;font-weight:500;padding:2px 6px;border-radius:12px;gap:4px;white-space:nowrap';
+          chip.style.cssText='display:inline-flex;align-items:center;background:#E8F0FE;color:#1B6EC4;font-size:11px;font-weight:500;padding:2px 6px;border-radius:4px;gap:4px;white-space:nowrap';
           chip.innerHTML='<span>'+_h(nm)+'</span><span class="chip-x" style="cursor:pointer;opacity:.6;font-size:13px;line-height:1" onclick="this.parentNode.remove()">&times;</span>';
           editor.appendChild(chip);
         }
@@ -3864,7 +3864,7 @@ function startEditCell(cell){
       // ★ V0.6.1.gv: 自定义下拉（portal 模式 - 挂 body 不被 td 截断）
       var dropdown=document.createElement('div');
       dropdown.className='supporter-dropdown';
-      dropdown.style.cssText='display:none;position:fixed;z-index:99999;background:rgba(255,255,255,.8);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid #d1d5db;border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,.12);max-height:200px;overflow-y:auto;min-width:160px;font-size:12px;line-height:1';
+      dropdown.style.cssText='display:none;position:fixed;z-index:99999;background:rgba(255,255,255,.8);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid #d1d5db;border-radius:4px;box-shadow:0 4px 12px rgba(0,0,0,.12);max-height:200px;overflow-y:auto;min-width:160px;font-size:12px;line-height:1';
       document.body.appendChild(dropdown);
 
       function positionDropdown(){
@@ -3879,7 +3879,7 @@ function startEditCell(cell){
         if(!v)return;
         var chip2=document.createElement('span');
         chip2.className='supporter-chip';
-        chip2.style.cssText='display:inline-flex;align-items:center;background:#E8F0FE;color:#1B6EC4;font-size:11px;font-weight:500;padding:2px 6px;border-radius:12px;gap:4px;white-space:nowrap';
+        chip2.style.cssText='display:inline-flex;align-items:center;background:#E8F0FE;color:#1B6EC4;font-size:11px;font-weight:500;padding:2px 6px;border-radius:4px;gap:4px;white-space:nowrap';
         chip2.innerHTML='<span>'+_h(v)+'</span><span class="chip-x" style="cursor:pointer;opacity:.6;font-size:13px;line-height:1" onclick="this.parentNode.remove()">&times;</span>';
         editor.insertBefore(chip2,inputEl);
         if(forcedVal!==undefined){inputEl.value='';inputEl.focus();}
@@ -4615,7 +4615,7 @@ function _renderEisenhowerMatrix(year){
   html+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:3px;font-size:8px;color:#6b7280;margin-top:2px;white-space:nowrap">';
   for(var qi=0;qi<allQuads.length;qi++){
     var lab=allQuads[qi].replace('重要紧急','⚡重急').replace('重要不急','📌重不急').replace('日常紧急','🔥日急').replace('日常事项','📋日常');
-    html+='<div style="padding:2px 4px;background:#F8FAFB;border-radius:3px">'+lab+' <b style="color:#374151">'+quads[allQuads[qi]].length+'</b></div>';
+    html+='<div style="padding:2px 4px;background:#F8FAFB;border-radius:2px">'+lab+' <b style="color:#374151">'+quads[allQuads[qi]].length+'</b></div>';
   }
   html+='</div>';
   html+='</div>';
@@ -4750,7 +4750,7 @@ function _renderTimeManagementPanel(plan){
   html+='<div class="wp-card-title">'+year+'年积分</div>';
   // ★ V0.6.2e: 试用期提示（8/1 12:00 前不计算提交评分）
   if(_isScoreTrialPeriod()){
-    html+='<div style="font-size:10px;color:#92400e;background:#FEF3C7;padding:6px 8px;border-radius:6px;margin-bottom:6px;line-height:1.4">⏳ 试用期（至 2026-08-01 12:00），提交评分暂停</div>';
+    html+='<div style="font-size:10px;color:#92400e;background:#FEF3C7;padding:6px 8px;border-radius:4px;margin-bottom:6px;line-height:1.4">⏳ 试用期（至 2026-08-01 12:00），提交评分暂停</div>';
   }
   html+='<div>';
   // 加分项
@@ -5024,12 +5024,12 @@ function viewBossEval(){
   html+='<div class="wp-eval-body" style="font-size:13px">';
   html+='<p style="color:var(--text-hint);margin-bottom:12px">「'+_h(p.name)+'」的「'+p.year+'年'+p.month+'月第'+p.week+'周」计划 - 上级评价</p>';
   if(p.bossEvaluatedBy)html+='<p style="color:var(--text-hint);margin-bottom:14px">评价人：'+_h(p.bossEvaluatedBy)+' | 评价时间：'+_h((p.bossEvaluatedAt||'').substring(0,10))+'</p>';
-  html+='<div class="wp-eval-row"><label>综合评价</label><div style="padding:10px 12px;background:var(--bg);border-radius:6px;min-height:60px;white-space:pre-wrap;font-size:13px;line-height:1.6">'+_h(p.bossOverallFeedback||'（无）')+'</div></div>';
+  html+='<div class="wp-eval-row"><label>综合评价</label><div style="padding:10px 12px;background:var(--bg);border-radius:4px;min-height:60px;white-space:pre-wrap;font-size:13px;line-height:1.6">'+_h(p.bossOverallFeedback||'（无）')+'</div></div>';
   html+='<div class="wp-eval-row"><label style="margin-top:14px">各事项评价</label>';
   for(var i=0;i<p.tasks.length;i++){
     var t=p.tasks[i];if(!t.work)continue;
     html+='<div style="margin-bottom:10px"><div style="font-weight:500;margin-bottom:3px;line-height:1.4">'+(i+1)+'. '+_h(t.work)+'</div>';
-    html+='<div style="padding:8px 12px;background:var(--bg);border-radius:6px;min-height:36px;white-space:pre-wrap;font-size:13px;line-height:1.6">'+(t.bossFeedback?_h(t.bossFeedback):'<span style="color:#C0C0C0;font-style:italic;pointer-events:none;user-select:none">（无）</span>')+'</div></div>';
+    html+='<div style="padding:8px 12px;background:var(--bg);border-radius:4px;min-height:36px;white-space:pre-wrap;font-size:13px;line-height:1.6">'+(t.bossFeedback?_h(t.bossFeedback):'<span style="color:#C0C0C0;font-style:italic;pointer-events:none;user-select:none">（无）</span>')+'</div></div>';
   }
   html+='</div>';
   html+='<div class="wp-eval-actions"><button class="wp-eval-submit" onclick="closeBossEval()">关闭</button></div>';
@@ -5667,7 +5667,7 @@ function renderWPVisGrantList(){
   if(sharedTo.length===0){list.innerHTML='<div style="text-align:center;padding:20px;color:#797973;font-size:13px">暂未授权任何同事</div>';return;}
   var html='';
   for(var i=0;i<sharedTo.length;i++){
-    html+='<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;margin-bottom:4px;background:#fff;border:1px solid var(--border);border-radius:6px">'+
+    html+='<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;margin-bottom:4px;background:#fff;border:1px solid var(--border);border-radius:4px">'+
       '<span style="font-size:13px">'+esc(sharedTo[i])+'</span>'+
       '<button class="btn btn-sm" onclick="wpVisRevoke(\''+esc(sharedTo[i])+'\')" style="background:#fef2f2;color:#dc2626;padding:4px 10px;font-size:11px">移除</button>'+
       '</div>';
@@ -5683,7 +5683,7 @@ function renderWPVisReceivedList(){
   var html='';
   for(var i=0;i<shared.length;i++){
     var s=shared[i];
-    html+='<div style="padding:10px 12px;margin-bottom:4px;background:#F0F5FF;border:1px solid #D0DDF5;border-radius:6px;font-size:13px">'+
+    html+='<div style="padding:10px 12px;margin-bottom:4px;background:#F0F5FF;border:1px solid #D0DDF5;border-radius:4px;font-size:13px">'+
       '📖 <strong>'+esc(s.name)+'</strong> 授权您阅览其周计划</div>';
   }
   list.innerHTML=html;
@@ -5709,7 +5709,7 @@ function wpVisSearchMember(){
   var html='';
   for(var i=0;i<matches.length;i++){
     var m=matches[i];
-    html+='<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;margin-bottom:4px;background:#fff;border:1px solid var(--border);border-radius:6px;cursor:pointer;'+(m.already?'opacity:.5':'')+'" onclick="'+(m.already?'':'wpVisGrant(\''+esc(m.name)+'\')')+'">'+
+    html+='<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;margin-bottom:4px;background:#fff;border:1px solid var(--border);border-radius:4px;cursor:pointer;'+(m.already?'opacity:.5':'')+'" onclick="'+(m.already?'':'wpVisGrant(\''+esc(m.name)+'\')')+'">'+
       '<div><span style="font-size:13px">'+esc(m.name)+'</span><span style="font-size:11px;color:#797973;margin-left:8px">'+esc(m.dept||'')+'</span></div>'+
       '<span style="font-size:11px;color:'+(m.already?'#9ca3af':'#3B7DB4')+'">'+(m.already?'已授权':'＋ 授权阅览')+'</span>'+
       '</div>';

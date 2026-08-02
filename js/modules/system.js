@@ -286,7 +286,7 @@ function sysOpenEditUser(uid){
         var phtml='';
         for(var si=0;si<subNames.length;si++){
           var sn=subNames[si],sr=subs[sn];
-          var badge=sr==='direct'?'<span style="display:inline-block;background:#dcfce7;color:#166534;padding:1px 6px;border-radius:3px;font-size:11px;margin-left:4px">直属</span>':'<span style="display:inline-block;background:#dbeafe;color:#1e40af;padding:1px 6px;border-radius:3px;font-size:11px;margin-left:4px">间接</span>';
+          var badge=sr==='direct'?'<span style="display:inline-block;background:#dcfce7;color:#166534;padding:1px 6px;border-radius:2px;font-size:11px;margin-left:4px">直属</span>':'<span style="display:inline-block;background:#dbeafe;color:#1e40af;padding:1px 6px;border-radius:2px;font-size:11px;margin-left:4px">间接</span>';
           phtml+='<span style="display:inline-block;background:#f1f5f9;padding:2px 8px;border-radius:4px;margin:2px 4px 2px 0">'+_h(sn)+badge+'</span>';
         }
         preview.innerHTML=phtml;
@@ -523,7 +523,7 @@ function sysSaveSubs(){
       var phtml='';
       for(var si=0;si<subNames.length;si++){
         var sn=subNames[si],sr=_sysEditingSubs[sn];
-        var badge=sr==='direct'?'<span style="display:inline-block;background:#dcfce7;color:#166534;padding:1px 6px;border-radius:3px;font-size:11px;margin-left:4px">直属</span>':'<span style="display:inline-block;background:#dbeafe;color:#1e40af;padding:1px 6px;border-radius:3px;font-size:11px;margin-left:4px">间接</span>';
+        var badge=sr==='direct'?'<span style="display:inline-block;background:#dcfce7;color:#166534;padding:1px 6px;border-radius:2px;font-size:11px;margin-left:4px">直属</span>':'<span style="display:inline-block;background:#dbeafe;color:#1e40af;padding:1px 6px;border-radius:2px;font-size:11px;margin-left:4px">间接</span>';
         phtml+='<span style="display:inline-block;background:#f1f5f9;padding:2px 8px;border-radius:4px;margin:2px 4px 2px 0">'+_h(sn)+badge+'</span>';
       }
       preview.innerHTML=phtml;
@@ -632,7 +632,7 @@ function showRosterSyncDialog(toAdd,toRemove,skipped,empTotal,userTotal){
   // 新增
   if(toAdd.length>0){
     html+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px"><span style="color:#2563EB;font-size:16px">➕</span><strong style="color:#2563EB">新增 '+toAdd.length+' 人</strong><span style="color:#9ca3af;font-size:11px">（默认关闭全部模块权限）</span></div>';
-    html+='<div style="background:#eff6ff;border-radius:6px;padding:6px 10px;margin-bottom:10px;max-height:140px;overflow-y:auto">';
+    html+='<div style="background:#eff6ff;border-radius:4px;padding:6px 10px;margin-bottom:10px;max-height:140px;overflow-y:auto">';
     for(var a=0;a<toAdd.length;a++){
       var ae=toAdd[a];
       html+='<div style="font-size:12px;padding:2px 0"><strong>'+esc(ae.name)+'</strong>';
@@ -646,7 +646,7 @@ function showRosterSyncDialog(toAdd,toRemove,skipped,empTotal,userTotal){
   // 离职清理
   if(toRemove.length>0){
     html+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px"><span style="color:#D64352;font-size:16px">🗑</span><strong style="color:#D64352">离职清理 '+toRemove.length+' 人</strong></div>';
-    html+='<div style="background:#fef2f2;border-radius:6px;padding:6px 10px;margin-bottom:10px;font-size:12px">';
+    html+='<div style="background:#fef2f2;border-radius:4px;padding:6px 10px;margin-bottom:10px;font-size:12px">';
     for(var r=0;r<toRemove.length;r++){html+=esc(toRemove[r])+(r<toRemove.length-1?'、':'');}
     html+='</div>';
   }
@@ -725,7 +725,7 @@ function sysCleanUnauthorized(){
   html+='<div class="_confirm-title" style="padding:18px 24px 12px">🧹 清理未授权用户</div>';
   html+='<div class="_confirm-body" style="padding:0 24px 12px;line-height:1.6">';
   html+='<div style="font-size:12px;color:#6b7280;margin-bottom:8px">以下 '+toClean.length+' 个用户没有任何模块权限，且不在默认名单中：</div>';
-  html+='<div style="background:#fef2f2;border-radius:6px;padding:6px 10px;margin-bottom:6px;max-height:180px;overflow-y:auto;font-size:12px">';
+  html+='<div style="background:#fef2f2;border-radius:4px;padding:6px 10px;margin-bottom:6px;max-height:180px;overflow-y:auto;font-size:12px">';
   for(var c=0;c<toClean.length;c++){
     var cu=USERS[toClean[c]];
     html+=esc(toClean[c])+(cu&&cu.dept?' <span style="color:#9ca3af">'+esc(cu.dept)+'</span>':'')+(c<toClean.length-1?'<br>':'');
@@ -811,17 +811,17 @@ function toggleSysHeaderFilter(type){
   }
   var dd=document.createElement("div");
   dd.className="sys-header-dd";
-  dd.style.cssText="position:fixed;z-index:9999;background:rgba(252,252,253,.92);backdrop-filter:blur(20px);border:1px solid rgba(200,205,212,.4);border-radius:8px;box-shadow:0 4px 6px rgba(0,0,0,.04),0 10px 24px rgba(0,0,0,.08);padding:4px;max-height:300px;overflow-y:auto;min-width:160px";
+  dd.style.cssText="position:fixed;z-index:9999;background:rgba(252,252,253,.92);backdrop-filter:blur(20px);border:1px solid rgba(200,205,212,.4);border-radius:4px;box-shadow:0 4px 6px rgba(0,0,0,.04),0 10px 24px rgba(0,0,0,.08);padding:4px;max-height:300px;overflow-y:auto;min-width:160px";
   var allItem=document.createElement("div");
   var allSel=(_sysHeaderFilter[type]==="");
-  allItem.style.cssText="padding:8px 10px;cursor:pointer;border-radius:6px;font-size:13px;background:"+(allSel?"#EEF2FF":"");
+  allItem.style.cssText="padding:8px 10px;cursor:pointer;border-radius:4px;font-size:13px;background:"+(allSel?"#EEF2FF":"");
   allItem.innerHTML=(allSel?"<span style=\"color:#3B7DB4\">✓ </span>":"")+"全部";
   allItem.onclick=function(e){e.stopPropagation();_sysHeaderFilter[type]="";dd.remove();applySysFilter();};
   dd.appendChild(allItem);
   Object.keys(values).sort().forEach(function(v){
     var isSel=(_sysHeaderFilter[type]===v);
     var item=document.createElement("div");
-    item.style.cssText="padding:8px 10px;cursor:pointer;border-radius:6px;font-size:13px;background:"+(isSel?"#EEF2FF":"");
+    item.style.cssText="padding:8px 10px;cursor:pointer;border-radius:4px;font-size:13px;background:"+(isSel?"#EEF2FF":"");
     item.onmouseover=function(){this.style.background="#F5F5F5"};
     item.onmouseout=function(){this.style.background='"'+(isSel?"#EEF2FF":"")+'"'};
     item.innerHTML=(isSel?"<span style=\"color:#3B7DB4\">✓</span>":"")+"<span style=\"overflow:hidden;text-overflow:ellipsis;white-space:nowrap\">"+v+"</span>";

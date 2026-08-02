@@ -318,13 +318,13 @@ function renderRdDetail(){
   h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">';
   h += '<div style="display:flex;align-items:center;gap:10px">';
   h += '<span style="font-weight:600;font-size:16px;color:#111827">'+_rdEsc(p.name)+'</span>';
-  h += '<span style="font-size:10px;padding:2px 8px;border-radius:10px;background:#EFF6FF;color:#3B82F6">新产品开发</span>';
+  h += '<span style="font-size:10px;padding:2px 8px;border-radius:4px;background:#EFF6FF;color:#3B82F6">新产品开发</span>';
   h += '<span style="font-size:11px;color:#6B7280">负责人：'+_rdEsc(p.owner||'')+'</span>';
   h += '</div>';
   h += '<div style="display:flex;align-items:center;gap:12px">';
   h += '<div style="font-size:12px;color:#6B7280">进度 <span style="font-weight:600;color:#111827">'+(p.progress||0)+'%</span></div>';
   if(canReview){
-    h += '<button onclick="if(typeof deleteProject===\'function\')deleteProject('+p.id+')" style="padding:4px 10px;border:1px solid #FCA5A5;border-radius:6px;background:#FEF2F2;color:#B3382C;font-size:11px;cursor:pointer">删除项目</button>';
+    h += '<button onclick="if(typeof deleteProject===\'function\')deleteProject('+p.id+')" style="padding:4px 10px;border:1px solid #FCA5A5;border-radius:4px;background:#FEF2F2;color:#B3382C;font-size:11px;cursor:pointer">删除项目</button>';
   }
   h += '</div>';
   h += '</div>';
@@ -426,7 +426,7 @@ async function _rdOpenMembersModal(stageId){
   html += '<style>#bonus-modal-wrap .bonus-select{width:100%;padding:4px 4px;border:1px solid #D0D5DD;border-radius:4px;font-size:11px;background:#fff;box-sizing:border-box}#bonus-modal-wrap .bonus-input{width:100%;padding:4px 6px;border:1px solid #D0D5DD;border-radius:4px;font-size:11px;box-sizing:border-box}#bonus-modal-wrap th{position:sticky;top:0;background:#F9FAFB;z-index:1;padding:6px 4px;border-bottom:1px solid #E5E7EB;font-size:10px;font-weight:600;color:#6B7280;white-space:nowrap}#bonus-modal-wrap td{padding:5px 3px;border-bottom:1px solid #F3F4F6;font-size:11px}</style>';
   html += '<div id="bonus-modal-wrap" style="min-width:1100px">';
   html += '<div style="margin-bottom:8px;font-size:12px;color:#6B7280">项目成员绩效评价与奖金分配</div>';
-  html += '<div id="rd-mem-table" style="max-height:380px;overflow:auto;border:1px solid #E5E7EB;border-radius:6px">';
+  html += '<div id="rd-mem-table" style="max-height:380px;overflow:auto;border:1px solid #E5E7EB;border-radius:4px">';
   html += '<table style="width:100%;border-collapse:collapse">';
   html += '<thead><tr>';
   html += '<th style="width:32px">#</th>';
@@ -488,8 +488,8 @@ async function _rdOpenMembersModal(stageId){
   var unitBonus = _rdCalcUnitBonus(members, bonusPool);
   html += '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;flex-wrap:wrap;gap:8px">';
   html += '<div style="display:flex;align-items:center;gap:12px">';
-  html += '<button type="button" id="rd-mem-add" style="padding:6px 14px;border:1px solid #D0D5DD;border-radius:6px;background:#fff;color:#374151;cursor:pointer;font-size:12px">+ 添加成员</button>';
-  html += '<div style="display:flex;align-items:center;gap:6px"><span style="font-size:11px;color:#6B7280;white-space:nowrap">总奖金池</span><input type="number" id="rd-bonus-pool" value="'+bonusPool+'" placeholder="金额" style="width:110px;padding:4px 8px;border:1px solid #D0D5DD;border-radius:6px;font-size:12px;text-align:right" step="1" min="0"></div>';
+  html += '<button type="button" id="rd-mem-add" style="padding:6px 14px;border:1px solid #D0D5DD;border-radius:4px;background:#fff;color:#374151;cursor:pointer;font-size:12px">+ 添加成员</button>';
+  html += '<div style="display:flex;align-items:center;gap:6px"><span style="font-size:11px;color:#6B7280;white-space:nowrap">总奖金池</span><input type="number" id="rd-bonus-pool" value="'+bonusPool+'" placeholder="金额" style="width:110px;padding:4px 8px;border:1px solid #D0D5DD;border-radius:4px;font-size:12px;text-align:right" step="1" min="0"></div>';
   html += '</div>';
   html += '<div style="display:flex;align-items:center;gap:16px">';
   html += '<span style="font-size:11px;color:#6B7280">比例合计：<span id="rd-mem-sum" style="font-weight:600;color:#3B7DB4;font-size:13px">0</span>%</span>';
@@ -683,7 +683,7 @@ function _renderRdGantt(c){
   h += '<span style="font-size:12px;color:#6B7280">时间颗粒度：</span>';
   ['day','week','month','quarter','year'].forEach(function(g){
     var sel = gran===g;
-    h += '<button onclick="window._rdGanttGranularity=\''+g+'\';renderRdDetail();" style="padding:4px 12px;font-size:11px;border:1px solid '+(sel?'#3B82F6':'#D0D5DD')+';border-radius:6px;background:'+(sel?'#3B82F6':'#fff')+';color:'+(sel?'#fff':'#6B7280')+';cursor:pointer">'+_rdGanttGranularityLabel(g)+'</button>';
+    h += '<button onclick="window._rdGanttGranularity=\''+g+'\';renderRdDetail();" style="padding:4px 12px;font-size:11px;border:1px solid '+(sel?'#3B82F6':'#D0D5DD')+';border-radius:4px;background:'+(sel?'#3B82F6':'#fff')+';color:'+(sel?'#fff':'#6B7280')+';cursor:pointer">'+_rdGanttGranularityLabel(g)+'</button>';
   });
   h += '</div>';
 
@@ -731,7 +731,7 @@ function _renderRdGantt(c){
   }
   var chartW = cols.length * colW;
 
-  h += '<div style="background:#fff;border:1px solid #E5E7EB;border-radius:10px;padding:16px">';
+  h += '<div style="background:#fff;border:1px solid #E5E7EB;border-radius:4px;padding:16px">';
   h += '<div style="overflow-x:auto">';
   h += '<div style="min-width:'+(chartW+520)+'px">';
 
@@ -882,14 +882,14 @@ function _rdRenderBonusPanel(c){
   function findDept(n){ var m = team.find(function(t){return t.name===n;}); return m?(m.dept||''):''; }
   var bonusPool = (selectedStage&&selectedStage.bonus_pool) || p.bonus_pool || '';
 
-  var h = '<div style="margin-top:20px;background:#fff;border:1px solid #E5E7EB;border-radius:12px;overflow:hidden;flex:1 1 100%;width:100%">';
+  var h = '<div style="margin-top:20px;background:#fff;border:1px solid #E5E7EB;border-radius:4px;overflow:hidden;flex:1 1 100%;width:100%">';
   // 面板标题栏
   h += '<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:#F0F5FA;border-bottom:1px solid #e3eaf2">';
   h += '<div style="display:flex;align-items:center;gap:10px">';
   h += '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#3B7DB4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>';
   h += '<span style="font-size:14px;font-weight:600;color:#1F2937">团队激励维护区</span>';
   // 阶段选择下拉
-  h += '<select id="rd-bonus-stage-sel" style="padding:5px 10px;border:1px solid #BFDBFE;border-radius:6px;font-size:12px;background:#fff;color:#3B7DB4;font-weight:500;cursor:pointer">';
+  h += '<select id="rd-bonus-stage-sel" style="padding:5px 10px;border:1px solid #BFDBFE;border-radius:4px;font-size:12px;background:#fff;color:#3B7DB4;font-weight:500;cursor:pointer">';
   c.stages.forEach(function(s){
     var stageNames = {preresearch:'预研',initiation:'立项',input:'设计输入',output:'设计输出',verification:'设计验证',validation:'设计确认',transfer:'设计转化'};
     var name = stageNames[s.stage_key]||s.stage_name;
@@ -900,7 +900,7 @@ function _rdRenderBonusPanel(c){
   h += '</select>';
   h += '</div>';
   if(!isOwner){
-    h += '<span style="font-size:11px;color:#A8A29A;background:#F3F4F6;padding:4px 10px;border-radius:12px">🔒 仅项目负责人可编辑</span>';
+    h += '<span style="font-size:11px;color:#A8A29A;background:#F3F4F6;padding:4px 10px;border-radius:4px">🔒 仅项目负责人可编辑</span>';
   }
   h += '</div>';
 
@@ -916,7 +916,7 @@ function _rdRenderBonusPanel(c){
   h += '<div style="display:flex;align-items:center;gap:16px;padding:10px 16px;border-bottom:1px solid #F3F4F6;background:#FAFBFC;flex-wrap:wrap">';
   h += '<span style="font-size:12px;color:#6B7280">阶段：<strong style="color:#1F2937">'+stageName+'</strong></span>';
   h += '<div style="display:flex;align-items:center;gap:6px"><span style="font-size:12px;color:#6B7280">总奖金池</span>';
-  h += '<input type="number" id="rd-bonus-pool" value="'+bonusPool+'" placeholder="0" '+(!isOwner?'disabled':'')+' style="width:130px;padding:4px 8px;border:1px solid #D0D5DD;border-radius:6px;font-size:12px;text-align:right" step="1" min="0"></div>';
+  h += '<input type="number" id="rd-bonus-pool" value="'+bonusPool+'" placeholder="0" '+(!isOwner?'disabled':'')+' style="width:130px;padding:4px 8px;border:1px solid #D0D5DD;border-radius:4px;font-size:12px;text-align:right" step="1" min="0"></div>';
   h += '<span style="font-size:11px;color:#9CA3AF">元</span>';
   h += '<span style="margin-left:auto;font-size:12px;color:#6B7280">比例合计：<span id="rd-mem-sum" style="font-weight:600;color:#3B7DB4;font-size:13px">0</span>% <span id="rd-mem-warn" style="color:#DC2626;font-size:11px;display:none;margin-left:6px">⚠ 超过100%</span></span>';
   h += '<span style="font-size:12px;color:#6B7280">总积分：<span id="rd-total-score" style="font-weight:600;color:#059669;font-size:13px">—</span></span>';
@@ -995,14 +995,14 @@ function _rdRenderBonusPanel(c){
   h += '<div style="padding:12px 16px;background:#F9FAFB;border-top:1px solid #eef1f5;border-radius:0 0 12px 12px">';
   h += '<div style="display:flex;flex-direction:row;align-items:center;gap:10px;margin-bottom:8px">';
   if(isOwner){
-    h += '<button type="button" id="rd-mem-add" style="display:inline-flex;align-items:center;gap:4px;padding:6px 14px;border:1px solid #D0D5DD;border-radius:6px;background:#fff;color:#374151;cursor:pointer;font-size:11px;font-weight:500;white-space:nowrap;transition:all 0.15s ease" title="添加新成员" onmouseover="this.style.background=\'#F9FAFB\';this.style.borderColor=\'#9CA3AF\'" onmouseout="this.style.background=\'#fff\';this.style.borderColor=\'#D0D5DD\'"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>添加成员</button>';
-    h += '<button type="button" id="rd-bonus-save" style="display:inline-flex;align-items:center;gap:4px;padding:6px 18px;border:none;border-radius:6px;background:#3B7DB4;color:#fff;cursor:pointer;font-size:11px;font-weight:600;white-space:nowrap;box-shadow:0 2px 4px rgba(59,125,180,.25);transition:all 0.15s ease;letter-spacing:0.3px" title="保存当前阶段的成员配置" onmouseover="this.style.background=\'#2E6A9C\';this.style.boxShadow=\'0 3px 6px rgba(59,125,180,.35)\';this.style.transform=\'translateY(-1px)\'" onmouseout="this.style.background=\'#3B7DB4\';this.style.boxShadow=\'0 2px 4px rgba(59,125,180,.25)\';this.style.transform=\'translateY(0)\'"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>保存</button>';
+    h += '<button type="button" id="rd-mem-add" style="display:inline-flex;align-items:center;gap:4px;padding:6px 14px;border:1px solid #D0D5DD;border-radius:4px;background:#fff;color:#374151;cursor:pointer;font-size:11px;font-weight:500;white-space:nowrap;transition:all 0.15s ease" title="添加新成员" onmouseover="this.style.background=\'#F9FAFB\';this.style.borderColor=\'#9CA3AF\'" onmouseout="this.style.background=\'#fff\';this.style.borderColor=\'#D0D5DD\'"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>添加成员</button>';
+    h += '<button type="button" id="rd-bonus-save" style="display:inline-flex;align-items:center;gap:4px;padding:6px 18px;border:none;border-radius:4px;background:#3B7DB4;color:#fff;cursor:pointer;font-size:11px;font-weight:600;white-space:nowrap;box-shadow:0 2px 4px rgba(59,125,180,.25);transition:all 0.15s ease;letter-spacing:0.3px" title="保存当前阶段的成员配置" onmouseover="this.style.background=\'#2E6A9C\';this.style.boxShadow=\'0 3px 6px rgba(59,125,180,.35)\';this.style.transform=\'translateY(-1px)\'" onmouseout="this.style.background=\'#3B7DB4\';this.style.boxShadow=\'0 2px 4px rgba(59,125,180,.25)\';this.style.transform=\'translateY(0)\'"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>保存</button>';
   } else {
     h += '<span style="font-size:11px;color:#9CA3AF;display:inline-flex;align-items:center;gap:4px"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>只读模式</span>';
   }
   h += '</div>';
   h += '<div style="font-size:10px;color:#9CA3AF;display:flex;align-items:center;gap:4px"><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>点击甘特图"项目成员"列单元格可切换到该阶段</div>';
-  h += '<div style="margin-top:8px;padding:10px 12px;background:#F0F9FF;border-left:3px solid #3B82F6;border-radius:6px;font-size:12px;color:#334155;line-height:1.7">';
+  h += '<div style="margin-top:8px;padding:10px 12px;background:#F0F9FF;border-left:3px solid #3B82F6;border-radius:4px;font-size:12px;color:#334155;line-height:1.7">';
   h += '<div style="font-weight:700;color:#1E40AF;margin-bottom:4px;font-size:13px">💡 奖金计算算法</div>';
   h += '<div><strong>积分映射</strong>：+2级=5分 / +1级=3分 / 0级=2分 / -1级=1分 / -2级=0分；交付效率：按时=5分 / 延期=2分</div>';
   h += '<div><strong>个人总积分</strong> = (交付效率分 + 交付质量分 + 综合评价分) × 分配比例%</div>';
@@ -1251,7 +1251,7 @@ async function _rdEditStageField(stageId, field, currentVal){
   var label = labelMap[field]||field;
   var inputType = (field==='owner'||field==='vice_leader'||field==='assistant'||field==='members')?'text':'date';
   var h = '<div style="margin-bottom:12px"><label style="font-size:12px;color:#6B7280;display:block;margin-bottom:4px">'+label+'</label>';
-  h += '<input id="rdsf-in" type="'+inputType+'" value="'+(currentVal==='TBD'?'':currentVal)+'" placeholder="'+(field==='members'?'多个成员用逗号分隔':'')+'" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:13px;box-sizing:border-box">';
+  h += '<input id="rdsf-in" type="'+inputType+'" value="'+(currentVal==='TBD'?'':currentVal)+'" placeholder="'+(field==='members'?'多个成员用逗号分隔':'')+'" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:4px;font-size:13px;box-sizing:border-box">';
   h += '</div>';
   var inputId = 'rdsf-in';
   var isNameField = (field==='owner'||field==='vice_leader'||field==='assistant'||field==='members');
@@ -1306,7 +1306,7 @@ async function _rdEditProjectDate(field){
   var currentVal = p[field]||'';
   var label = field==='start_date'?'项目启动日期':'项目完成截止日期';
   var h = '<div style="margin-bottom:12px"><label style="font-size:12px;color:#6B7280;display:block;margin-bottom:4px">'+label+'</label>';
-  h += '<input id="rdproj-in" type="date" value="'+currentVal+'" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:13px;box-sizing:border-box">';
+  h += '<input id="rdproj-in" type="date" value="'+currentVal+'" style="width:100%;padding:8px 10px;border:1px solid #D0D5DD;border-radius:4px;font-size:13px;box-sizing:border-box">';
   h += '</div>';
   showFormModal(h, '编辑'+label, '确定 / OK', '取消 / Cancel', function(close){
     var el = document.getElementById('rdproj-in');
@@ -1331,7 +1331,7 @@ async function _rdEditProjectDate(field){
 
 function renderRdPipeline(c){
   // ★ V0.6.5q: 阶段名称移到圆点上方，连接线简化，减少顶部留白
-  var h = '<div style="display:flex;align-items:flex-start;gap:0;margin-bottom:16px;background:#fff;border:1px solid #E5E7EB;border-radius:12px;padding:10px 12px 14px;overflow-x:auto">';
+  var h = '<div style="display:flex;align-items:flex-start;gap:0;margin-bottom:16px;background:#fff;border:1px solid #E5E7EB;border-radius:4px;padding:10px 12px 14px;overflow-x:auto">';
   c.stages.forEach(function(s, i){
     var st = RD_STAGE_STATUS[s.status]||RD_STAGE_STATUS.locked;
     var isView = c.viewStageKey===s.stage_key;
@@ -1426,12 +1426,12 @@ function renderRdStagePanel(c, stage, canReview){
   var dels = _rdStageDeliverables(c, stage.id);
   var gates = _rdStageGates(c, stage.id);
 
-  var h = '<div style="background:#fff;border:1px solid #E5E7EB;border-radius:12px;margin-bottom:14px;overflow:hidden">';
+  var h = '<div style="background:#fff;border:1px solid #E5E7EB;border-radius:4px;margin-bottom:14px;overflow:hidden">';
   // Stage header
   h += '<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid #F3F4F6;background:'+st.bg+'">';
   h += '<div style="display:flex;align-items:center;gap:8px">';
   h += '<span style="font-weight:600;font-size:14px;color:#111827">'+_rdEsc(stage.stage_name)+'</span>';
-  h += '<span style="font-size:10px;padding:2px 8px;border-radius:10px;background:#fff;color:'+st.color+';border:1px solid '+st.color+'">'+st.label+'</span>';
+  h += '<span style="font-size:10px;padding:2px 8px;border-radius:4px;background:#fff;color:'+st.color+';border:1px solid '+st.color+'">'+st.label+'</span>';
   h += '</div>';
   if(stage.status==='active'||stage.status==='returned'){
     h += '<div style="font-size:11px;color:#6B7280">完成关键交付物后，可启动各项评审</div>';
@@ -1451,12 +1451,12 @@ function renderRdStagePanel(c, stage, canReview){
   plain.forEach(function(d){ h += renderRdDeliverableRow(c, d); });
   iterations.forEach(function(it){
     var group = dels.filter(function(d){return d.iteration===it;});
-    h += '<div style="margin:10px 0 6px;padding:6px 10px;background:#F9FAFB;border-radius:8px;border:1px dashed #D1D5DB">';
+    h += '<div style="margin:10px 0 6px;padding:6px 10px;background:#F9FAFB;border-radius:4px;border:1px dashed #D1D5DB">';
     h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">';
     h += '<div style="font-size:11px;font-weight:600;color:#6B7280">DMR '+_rdEsc(it)+' 文件组（'+group.length+' 项）</div>';
     // ★ V0.6.4N: 误新增迭代可整组撤回（1.0 为模板初始组不可删；仅负责人；有进展则函数内拦截）
     if(it!=='1.0' && canReview){
-      h += '<button onclick="rdDeleteIteration(\''+_rdEsc(it)+'\')" style="padding:2px 8px;border:1px solid #E7C4C0;border-radius:5px;background:#fff;color:#B3382C;font-size:10px;cursor:pointer">删除本迭代</button>';
+      h += '<button onclick="rdDeleteIteration(\''+_rdEsc(it)+'\')" style="padding:2px 8px;border:1px solid #E7C4C0;border-radius:4px;background:#fff;color:#B3382C;font-size:10px;cursor:pointer">删除本迭代</button>';
     }
     h += '</div>';
     group.forEach(function(d){ h += renderRdDeliverableRow(c, d, true); });
@@ -1464,7 +1464,7 @@ function renderRdStagePanel(c, stage, canReview){
   });
 
   if(stage.stage_key==='output' && stage.status!=='locked'){
-    h += '<button onclick="rdAddIteration()" style="margin-top:8px;padding:5px 12px;border:1px dashed #3B82F6;border-radius:6px;background:#EFF6FF;color:#3B82F6;font-size:11px;cursor:pointer">+ 新增试产迭代</button>';
+    h += '<button onclick="rdAddIteration()" style="margin-top:8px;padding:5px 12px;border:1px dashed #3B82F6;border-radius:4px;background:#EFF6FF;color:#3B82F6;font-size:11px;cursor:pointer">+ 新增试产迭代</button>';
   }
   h += '</div>';
 
@@ -1473,7 +1473,7 @@ function renderRdStagePanel(c, stage, canReview){
   h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">';
   h += '<div style="font-size:12px;font-weight:600;color:#374151">评审入口（'+gates.filter(function(g){return !g.is_adhoc;}).length+'）</div>';
   if(stage.status!=='locked' && stage.status!=='passed'){
-    h += '<button onclick="rdAddAdhocGate(\''+stage.id+'\')" style="padding:3px 8px;border:1px dashed #D97706;border-radius:6px;background:#FFFBEB;color:#D97706;font-size:10px;cursor:pointer">+ 发起临时评审</button>';
+    h += '<button onclick="rdAddAdhocGate(\''+stage.id+'\')" style="padding:3px 8px;border:1px dashed #D97706;border-radius:4px;background:#FFFBEB;color:#D97706;font-size:10px;cursor:pointer">+ 发起临时评审</button>';
   }
   h += '</div>';
   h += '<div style="font-size:9px;color:#A8A29A;margin-bottom:10px;line-height:1.5">前置交付物全部就绪后，由评审人启动评审；临时评审用于过程中即时评估（如型检发现问题），不影响阶段推进。</div>';
@@ -1482,7 +1482,7 @@ function renderRdStagePanel(c, stage, canReview){
   if(stage.stage_key==='transfer'){
     var mainGate = gates.find(function(g){return g.gate_key==='transfer_review';});
     if(mainGate && mainGate.result==='passed' && c.project.status!=='已完成'){
-      h += '<button onclick="rdRegisterSubmit()" style="width:100%;margin-top:8px;padding:10px;border:0;border-radius:8px;background:#059669;color:#fff;font-size:13px;font-weight:600;cursor:pointer">注册提交（完成项目）</button>';
+      h += '<button onclick="rdRegisterSubmit()" style="width:100%;margin-top:8px;padding:10px;border:0;border-radius:4px;background:#059669;color:#fff;font-size:13px;font-weight:600;cursor:pointer">注册提交（完成项目）</button>';
     }
   }
   h += '</div>';
@@ -1493,7 +1493,7 @@ function renderRdStagePanel(c, stage, canReview){
 function renderRdDeliverableRow(c, d, inGroup){
   var st = RD_DELIVER_STATUS[d.status]||RD_DELIVER_STATUS.pending;
   var h = '<div style="display:flex;align-items:center;gap:8px;padding:'+(inGroup?'5px 6px':'7px 8px')+';border-bottom:1px solid #F9FAFB;font-size:12px">';
-  h += '<span style="flex-shrink:0;font-size:10px;padding:1px 7px;border-radius:9px;background:'+st.bg+';color:'+st.color+'">'+st.label+'</span>';
+  h += '<span style="flex-shrink:0;font-size:10px;padding:1px 7px;border-radius:4px;background:'+st.bg+';color:'+st.color+'">'+st.label+'</span>';
   h += '<span style="flex:1;min-width:0;color:#111827;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+_rdEsc(d.note||d.name)+'">'+_rdEsc(d.name)
      + (d.version?(' <span style="color:#9CA3AF;font-size:10px">v'+_rdEsc(d.version)+'</span>'):'') + '</span>';
   if(d.file_url){
@@ -1503,9 +1503,9 @@ function renderRdDeliverableRow(c, d, inGroup){
   if(d.status==='na' && d.na_reason){
     h += '<span style="flex-shrink:0;font-size:10px;color:#D97706" title="'+_rdEsc(d.na_reason+'（'+_rdEsc(d.na_by||'')+'）')+'">?</span>';
   }
-  h += '<button onclick="rdEditDeliverable(\''+d.id+'\')" style="flex-shrink:0;padding:2px 8px;border:1px solid #E5E7EB;border-radius:5px;background:#fff;font-size:10px;color:#6B7280;cursor:pointer">编辑</button>';
+  h += '<button onclick="rdEditDeliverable(\''+d.id+'\')" style="flex-shrink:0;padding:2px 8px;border:1px solid #E5E7EB;border-radius:4px;background:#fff;font-size:10px;color:#6B7280;cursor:pointer">编辑</button>';
   if(d.status!=='na'){
-    h += '<button onclick="rdMarkNA(\''+d.id+'\')" style="flex-shrink:0;padding:2px 8px;border:1px solid #FDE68A;border-radius:5px;background:#FFFBEB;font-size:10px;color:#D97706;cursor:pointer">N/A</button>';
+    h += '<button onclick="rdMarkNA(\''+d.id+'\')" style="flex-shrink:0;padding:2px 8px;border:1px solid #FDE68A;border-radius:4px;background:#FFFBEB;font-size:10px;color:#D97706;cursor:pointer">N/A</button>';
   }
   h += '</div>';
   return h;
@@ -1518,10 +1518,10 @@ function renderRdGateCard(c, g, canReview){
   var naItems = reqs.filter(function(d){return d.status==='na';});
   var ownerName = c.project.owner||'';
 
-  var h = '<div style="border:1px solid #E5E7EB;border-radius:10px;padding:12px 14px;margin-bottom:8px;'+(g.is_adhoc?'border-style:dashed;':'')+'">';
+  var h = '<div style="border:1px solid #E5E7EB;border-radius:4px;padding:12px 14px;margin-bottom:8px;'+(g.is_adhoc?'border-style:dashed;':'')+'">';
   h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">';
   h += '<span style="font-size:13px;font-weight:600;color:#111827">'+_rdEsc(g.gate_name)+(g.is_adhoc?' <span style="font-size:10px;color:#D97706">临时</span>':'')+'</span>';
-  h += '<span style="font-size:11px;padding:2px 10px;border-radius:10px;background:'+gr.bg+';color:'+gr.color+'">'+gr.label+'</span>';
+  h += '<span style="font-size:11px;padding:2px 10px;border-radius:4px;background:'+gr.bg+';color:'+gr.color+'">'+gr.label+'</span>';
   h += '</div>';
   if(g.result==='pending'){
     // ★ V0.6.4Q: 评审人规则透明化——谁有权启动评审一眼可见
@@ -1530,28 +1530,28 @@ function renderRdGateCard(c, g, canReview){
       h += '<div style="font-size:11px;color:#6B7280;margin-bottom:6px">前置交付物 '+rc.done+'/'+rc.total+' 就绪</div>';
     }
     if(naItems.length){
-      h += '<div style="font-size:11px;color:#D97706;background:#FFFBEB;border-radius:5px;padding:5px 8px;margin-bottom:6px">含 '+naItems.length+' 项 N/A（评审时请复核）：'+naItems.map(function(d){return _rdEsc(d.name);}).join('、')+'</div>';
+      h += '<div style="font-size:11px;color:#D97706;background:#FFFBEB;border-radius:4px;padding:5px 8px;margin-bottom:6px">含 '+naItems.length+' 项 N/A（评审时请复核）：'+naItems.map(function(d){return _rdEsc(d.name);}).join('、')+'</div>';
     }
     // ★ V0.6.4Q: 入口显性化——按钮始终可见，未就绪/无权限时禁用并说明原因
     if(rc.ready && canReview){
-      h += '<button onclick="rdOpenReviewForm(\''+g.id+'\')" style="width:100%;padding:8px;border:0;border-radius:6px;background:#3B82F6;color:#fff;font-size:12px;font-weight:600;cursor:pointer">启动评审</button>';
+      h += '<button onclick="rdOpenReviewForm(\''+g.id+'\')" style="width:100%;padding:8px;border:0;border-radius:4px;background:#3B82F6;color:#fff;font-size:12px;font-weight:600;cursor:pointer">启动评审</button>';
     }else{
-      h += '<button disabled style="width:100%;padding:8px;border:1px solid #E5E7EB;border-radius:6px;background:#F9FAFB;color:#B0B4BA;font-size:12px;cursor:not-allowed">启动评审</button>';
+      h += '<button disabled style="width:100%;padding:8px;border:1px solid #E5E7EB;border-radius:4px;background:#F9FAFB;color:#B0B4BA;font-size:12px;cursor:not-allowed">启动评审</button>';
       h += '<div style="font-size:10px;color:#A8A29A;text-align:center;margin-top:5px">'
          + (!canReview ? '仅评审人（'+_rdEsc(ownerName)+'）可启动' : '前置交付物全部就绪后可启动')
          + '</div>';
     }
   }else{
     h += '<div style="font-size:11px;color:#6B7280">评审人：'+_rdEsc(g.reviewed_by||'—')+'　日期：'+_rdEsc(g.review_date||'—')+'</div>';
-    if(g.conclusion){ h += '<div style="font-size:11px;color:#374151;margin-top:5px;background:#F9FAFB;border-radius:5px;padding:5px 8px">'+_rdEsc(g.conclusion)+'</div>'; }
+    if(g.conclusion){ h += '<div style="font-size:11px;color:#374151;margin-top:5px;background:#F9FAFB;border-radius:4px;padding:5px 8px">'+_rdEsc(g.conclusion)+'</div>'; }
     if(g.result==='conditional'){
       h += renderRdActionItems(c, g, canReview);
     }
     // ★ V0.6.4R: 查看记录（所有人）+ 撤回评审（仅评审人）
     h += '<div style="display:flex;gap:6px;margin-top:8px">';
-    h += '<button onclick="rdViewGateRecord(\''+g.id+'\')" style="flex:1;padding:5px;border:1px solid #E5E7EB;border-radius:5px;background:#fff;color:#6B7280;font-size:11px;cursor:pointer">查看记录</button>';
+    h += '<button onclick="rdViewGateRecord(\''+g.id+'\')" style="flex:1;padding:5px;border:1px solid #E5E7EB;border-radius:4px;background:#fff;color:#6B7280;font-size:11px;cursor:pointer">查看记录</button>';
     if(canReview){
-      h += '<button onclick="rdRevokeGate(\''+g.id+'\')" style="flex:1;padding:5px;border:1px solid #E7C4C0;border-radius:5px;background:#fff;color:#B3382C;font-size:11px;cursor:pointer">撤回评审</button>';
+      h += '<button onclick="rdRevokeGate(\''+g.id+'\')" style="flex:1;padding:5px;border:1px solid #E7C4C0;border-radius:4px;background:#fff;color:#B3382C;font-size:11px;cursor:pointer">撤回评审</button>';
     }
     h += '</div>';
   }
@@ -1577,7 +1577,7 @@ function renderRdActionItems(c, g, canReview){
     }
   });
   if(items.length && allDone && canReview){
-    h += '<button onclick="rdConfirmConditionalDone(\''+g.id+'\')" style="width:100%;margin-top:4px;padding:5px;border:0;border-radius:6px;background:#059669;color:#fff;font-size:10px;cursor:pointer">整改已全部完成，确认通过</button>';
+    h += '<button onclick="rdConfirmConditionalDone(\''+g.id+'\')" style="width:100%;margin-top:4px;padding:5px;border:0;border-radius:4px;background:#059669;color:#fff;font-size:10px;cursor:pointer">整改已全部完成，确认通过</button>';
   }else if(items.length && !allDone){
     h += '<div style="font-size:9px;color:#9CA3AF;margin-top:2px">点击整改项标记完成；全部完成后由评审人确认通过</div>';
   }
@@ -1589,14 +1589,14 @@ function renderRdHistory(c){
   var others = c.stages.filter(function(s){return s.stage_key!==c.viewStageKey;});
   // ★ V0.6.5m: 过滤未授权阶段
   others = others.filter(function(s){return _rdCanSeeStage(c.project, s.stage_key);});
-  var h = '<div style="background:#fff;border:1px solid #E5E7EB;border-radius:12px;padding:12px 16px">';
+  var h = '<div style="background:#fff;border:1px solid #E5E7EB;border-radius:4px;padding:12px 16px">';
   h += '<div style="font-size:12px;font-weight:600;color:#374151;margin-bottom:8px">其他阶段</div>';
   h += '<div style="display:flex;flex-wrap:wrap;gap:8px">';
   others.forEach(function(s){
     var st = RD_STAGE_STATUS[s.status]||RD_STAGE_STATUS.locked;
     var gates = c.gates.filter(function(g){return g.stage_id===s.id && !g.is_adhoc;});
     var passed = gates.filter(function(g){return g.result==='passed';}).length;
-    h += '<div onclick="'+(s.status!=='locked'?('rdSwitchStage(\''+s.stage_key+'\')'):'')+'" style="padding:8px 12px;border:1px solid #E5E7EB;border-radius:8px;font-size:11px;'+(s.status==='locked'?'opacity:.55':'cursor:pointer')+'">';
+    h += '<div onclick="'+(s.status!=='locked'?('rdSwitchStage(\''+s.stage_key+'\')'):'')+'" style="padding:8px 12px;border:1px solid #E5E7EB;border-radius:4px;font-size:11px;'+(s.status==='locked'?'opacity:.55':'cursor:pointer')+'">';
     h += '<span style="font-weight:600;color:#111827">'+_rdEsc(s.stage_name)+'</span> ';
     h += '<span style="color:'+st.color+'">'+st.label+'</span>';
     h += '<span style="color:#9CA3AF;margin-left:6px">评审 '+passed+'/'+gates.length+'</span>';
@@ -1614,21 +1614,21 @@ function rdEditDeliverable(did){
   var h = '';
   h += '<div style="margin-bottom:10px;font-size:13px;font-weight:600;color:#111827">'+_rdEsc(d.name)+'</div>';
   h += '<div style="margin-bottom:10px"><label style="display:block;font-size:11px;color:#6B7280;margin-bottom:3px">状态</label>';
-  h += '<select id="rd-d-status" style="width:100%;padding:7px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:12px">';
+  h += '<select id="rd-d-status" style="width:100%;padding:7px 10px;border:1px solid #D0D5DD;border-radius:4px;font-size:12px">';
   ['pending','in_progress','submitted','approved'].forEach(function(s){
     h += '<option value="'+s+'"'+(d.status===s?' selected':'')+'>'+RD_DELIVER_STATUS[s].label+'</option>';
   });
   h += '</select></div>';
   h += '<div style="display:flex;gap:10px;margin-bottom:10px">';
   h += '<div style="flex:1"><label style="display:block;font-size:11px;color:#6B7280;margin-bottom:3px">负责人</label>';
-  h += '<input id="rd-d-owner" value="'+_rdEsc(d.owner||'')+'" style="width:100%;padding:7px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:12px;box-sizing:border-box"></div>';
+  h += '<input id="rd-d-owner" value="'+_rdEsc(d.owner||'')+'" style="width:100%;padding:7px 10px;border:1px solid #D0D5DD;border-radius:4px;font-size:12px;box-sizing:border-box"></div>';
   h += '<div style="flex:1"><label style="display:block;font-size:11px;color:#6B7280;margin-bottom:3px">到期日</label>';
-  h += '<input id="rd-d-due" type="date" value="'+_rdEsc(d.due_date||'')+'" style="width:100%;padding:7px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:12px;box-sizing:border-box"></div>';
+  h += '<input id="rd-d-due" type="date" value="'+_rdEsc(d.due_date||'')+'" style="width:100%;padding:7px 10px;border:1px solid #D0D5DD;border-radius:4px;font-size:12px;box-sizing:border-box"></div>';
   h += '</div>';
   h += '<div style="margin-bottom:10px"><label style="display:block;font-size:11px;color:#6B7280;margin-bottom:3px">文件链接（NAS 路径）</label>';
-  h += '<input id="rd-d-url" value="'+_rdEsc(d.file_url||'')+'" placeholder="\\\\NAS\\... 或 https://..." style="width:100%;padding:7px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:12px;box-sizing:border-box"></div>';
+  h += '<input id="rd-d-url" value="'+_rdEsc(d.file_url||'')+'" placeholder="\\\\NAS\\... 或 https://..." style="width:100%;padding:7px 10px;border:1px solid #D0D5DD;border-radius:4px;font-size:12px;box-sizing:border-box"></div>';
   h += '<div><label style="display:block;font-size:11px;color:#6B7280;margin-bottom:3px">备注</label>';
-  h += '<textarea id="rd-d-note" rows="2" style="width:100%;padding:7px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:12px;box-sizing:border-box;resize:vertical">'+_rdEsc(d.note||'')+'</textarea></div>';
+  h += '<textarea id="rd-d-note" rows="2" style="width:100%;padding:7px 10px;border:1px solid #D0D5DD;border-radius:4px;font-size:12px;box-sizing:border-box;resize:vertical">'+_rdEsc(d.note||'')+'</textarea></div>';
 
   showFormModal(h, '编辑交付物', '保存', '取消', async function(close){
     var patch = {
@@ -1656,9 +1656,9 @@ function rdMarkNA(did){
   if(!d) return;
   var h = '';
   h += '<div style="margin-bottom:10px;font-size:13px;color:#111827">将「<b>'+_rdEsc(d.name)+'</b>」标记为不适用（N/A）</div>';
-  h += '<div style="margin-bottom:10px;font-size:11px;color:#D97706;background:#FFFBEB;border-radius:6px;padding:8px">N/A 不阻塞评审申请，但会在评审界面高亮供复核；操作人与时间将留痕。</div>';
+  h += '<div style="margin-bottom:10px;font-size:11px;color:#D97706;background:#FFFBEB;border-radius:4px;padding:8px">N/A 不阻塞评审申请，但会在评审界面高亮供复核；操作人与时间将留痕。</div>';
   h += '<label style="display:block;font-size:11px;color:#6B7280;margin-bottom:3px">不适用理由 <span style="color:#EF4444">*</span></label>';
-  h += '<textarea id="rd-na-reason" rows="3" placeholder="必填：说明此项为何不适用于本产品/项目" style="width:100%;padding:7px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:12px;box-sizing:border-box;resize:vertical"></textarea>';
+  h += '<textarea id="rd-na-reason" rows="3" placeholder="必填：说明此项为何不适用于本产品/项目" style="width:100%;padding:7px 10px;border:1px solid #D0D5DD;border-radius:4px;font-size:12px;box-sizing:border-box;resize:vertical"></textarea>';
 
   showFormModal(h, '标记不适用', '确认标记', '取消', async function(close){
     var reason = document.getElementById('rd-na-reason').value.trim();
@@ -1684,25 +1684,25 @@ function rdOpenReviewForm(gid){
   var h = '';
   h += '<div style="margin-bottom:10px;font-size:13px;font-weight:600;color:#111827">'+_rdEsc(g.gate_name)+'</div>';
   if(naItems.length){
-    h += '<div style="margin-bottom:10px;font-size:11px;color:#D97706;background:#FFFBEB;border-radius:6px;padding:8px">请复核 '+naItems.length+' 项 N/A：'+naItems.map(function(d){return _rdEsc(d.name)+'（'+_rdEsc(d.na_reason||'')+'）';}).join('；')+'</div>';
+    h += '<div style="margin-bottom:10px;font-size:11px;color:#D97706;background:#FFFBEB;border-radius:4px;padding:8px">请复核 '+naItems.length+' 项 N/A：'+naItems.map(function(d){return _rdEsc(d.name)+'（'+_rdEsc(d.na_reason||'')+'）';}).join('；')+'</div>';
   }
   h += '<div style="display:flex;gap:10px;margin-bottom:10px">';
   h += '<div style="flex:1"><label style="display:block;font-size:11px;color:#6B7280;margin-bottom:3px">评审日期</label>';
-  h += '<input id="rd-g-date" type="date" value="'+_rdToday()+'" style="width:100%;padding:7px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:12px;box-sizing:border-box"></div>';
+  h += '<input id="rd-g-date" type="date" value="'+_rdToday()+'" style="width:100%;padding:7px 10px;border:1px solid #D0D5DD;border-radius:4px;font-size:12px;box-sizing:border-box"></div>';
   h += '<div style="flex:1"><label style="display:block;font-size:11px;color:#6B7280;margin-bottom:3px">参会人（输入姓氏自动联想在职员工）</label>';
-  h += '<div style="position:relative"><input id="rd-g-att" placeholder="如：谭晨航 尤亚君" autocomplete="off" style="width:100%;padding:7px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:12px;box-sizing:border-box"></div></div>';
+  h += '<div style="position:relative"><input id="rd-g-att" placeholder="如：谭晨航 尤亚君" autocomplete="off" style="width:100%;padding:7px 10px;border:1px solid #D0D5DD;border-radius:4px;font-size:12px;box-sizing:border-box"></div></div>';
   h += '</div>';
   h += '<div style="margin-bottom:10px"><label style="display:block;font-size:11px;color:#6B7280;margin-bottom:3px">评审结论 <span style="color:#EF4444">*</span></label>';
   // ★ V0.6.4S: 语义化配色——通过=绿、有条件通过=黄、退回=红（选中态高亮，未选中灰）
   h += '<div style="display:flex;gap:8px" id="rd-g-result-wrap">';
-  h += '<label data-v="passed" style="flex:1;padding:8px;border:1px solid #059669;border-radius:6px;font-size:12px;cursor:pointer;text-align:center;background:#ECFDF5;color:#059669;font-weight:600"><input type="radio" name="rd-g-result" value="passed" checked> 通过</label>';
-  h += '<label data-v="conditional" style="flex:1;padding:8px;border:1px solid #D0D5DD;border-radius:6px;font-size:12px;cursor:pointer;text-align:center;background:#fff;color:#6B7280;font-weight:400"><input type="radio" name="rd-g-result" value="conditional"> 有条件通过</label>';
-  h += '<label data-v="rejected" style="flex:1;padding:8px;border:1px solid #D0D5DD;border-radius:6px;font-size:12px;cursor:pointer;text-align:center;background:#fff;color:#6B7280;font-weight:400"><input type="radio" name="rd-g-result" value="rejected"> 退回</label>';
+  h += '<label data-v="passed" style="flex:1;padding:8px;border:1px solid #059669;border-radius:4px;font-size:12px;cursor:pointer;text-align:center;background:#ECFDF5;color:#059669;font-weight:600"><input type="radio" name="rd-g-result" value="passed" checked> 通过</label>';
+  h += '<label data-v="conditional" style="flex:1;padding:8px;border:1px solid #D0D5DD;border-radius:4px;font-size:12px;cursor:pointer;text-align:center;background:#fff;color:#6B7280;font-weight:400"><input type="radio" name="rd-g-result" value="conditional"> 有条件通过</label>';
+  h += '<label data-v="rejected" style="flex:1;padding:8px;border:1px solid #D0D5DD;border-radius:4px;font-size:12px;cursor:pointer;text-align:center;background:#fff;color:#6B7280;font-weight:400"><input type="radio" name="rd-g-result" value="rejected"> 退回</label>';
   h += '</div></div>';
   h += '<div style="margin-bottom:10px"><label style="display:block;font-size:11px;color:#6B7280;margin-bottom:3px">评审意见</label>';
-  h += '<textarea id="rd-g-concl" rows="3" style="width:100%;padding:7px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:12px;box-sizing:border-box;resize:vertical"></textarea></div>';
+  h += '<textarea id="rd-g-concl" rows="3" style="width:100%;padding:7px 10px;border:1px solid #D0D5DD;border-radius:4px;font-size:12px;box-sizing:border-box;resize:vertical"></textarea></div>';
   h += '<div><label style="display:block;font-size:11px;color:#6B7280;margin-bottom:3px">整改项（有条件通过时必填，每行一条）</label>';
-  h += '<textarea id="rd-g-actions" rows="3" placeholder="例：补充 EMC 摸底测试数据&#10;修订 BOM 中供应商信息" style="width:100%;padding:7px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:12px;box-sizing:border-box;resize:vertical"></textarea>';
+  h += '<textarea id="rd-g-actions" rows="3" placeholder="例：补充 EMC 摸底测试数据&#10;修订 BOM 中供应商信息" style="width:100%;padding:7px 10px;border:1px solid #D0D5DD;border-radius:4px;font-size:12px;box-sizing:border-box;resize:vertical"></textarea>';
   h += '<div id="rd-g-err" style="display:none;color:#DC2626;font-size:11px;margin-top:4px"></div></div>';
 
   showFormModal(h, '提交评审结论', '提交', '取消', async function(close){
@@ -1975,9 +1975,9 @@ function rdViewGateRecord(gid){
 
 // ===== Adhoc Gate (临时评审) =====
 function rdAddAdhocGate(stageId){  var h = '';
-  h += '<div style="margin-bottom:10px;font-size:11px;color:#D97706;background:#FFFBEB;border-radius:6px;padding:8px">临时评审用于型检过程中发现问题等需要立即评估的场景，不影响主流程的门控判定。</div>';
+  h += '<div style="margin-bottom:10px;font-size:11px;color:#D97706;background:#FFFBEB;border-radius:4px;padding:8px">临时评审用于型检过程中发现问题等需要立即评估的场景，不影响主流程的门控判定。</div>';
   h += '<label style="display:block;font-size:11px;color:#6B7280;margin-bottom:3px">评审名称 <span style="color:#EF4444">*</span></label>';
-  h += '<input id="rd-adhoc-name" placeholder="例：型检问题临时评审-EMC辐射超标" style="width:100%;padding:7px 10px;border:1px solid #D0D5DD;border-radius:6px;font-size:12px;box-sizing:border-box">';
+  h += '<input id="rd-adhoc-name" placeholder="例：型检问题临时评审-EMC辐射超标" style="width:100%;padding:7px 10px;border:1px solid #D0D5DD;border-radius:4px;font-size:12px;box-sizing:border-box">';
   showFormModal(h, '新增临时评审', '创建', '取消', async function(close){
     var name = document.getElementById('rd-adhoc-name').value.trim();
     if(!name){ _showAlert('请输入评审名称'); return; }

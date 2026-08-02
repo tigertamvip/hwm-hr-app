@@ -637,7 +637,7 @@ function _dsRenderRankTable() {
   for (var i = 0; i < filtered.length; i++) {
     var r = filtered[i];
     var ts = r.trend > 0 ? '<span style="color:#059669">↗ +' + r.trend + '</span>' : r.trend < 0 ? '<span style="color:#dc2626">↘ ' + r.trend + '</span>' : '<span style="color:#9ca3af">→ 0</span>';
-    var rs = i === 0 ? 'background:#FFF8E1;font-weight:700;color:#B45309;border-radius:3px;padding:2px 6px' : i === 1 ? 'background:#F3F4F6;font-weight:700;color:#6B7280;border-radius:3px;padding:2px 6px' : i === 2 ? 'background:#FFF7ED;font-weight:700;color:#D97706;border-radius:3px;padding:2px 6px' : '';
+    var rs = i === 0 ? 'background:#FFF8E1;font-weight:700;color:#B45309;border-radius:2px;padding:2px 6px' : i === 1 ? 'background:#F3F4F6;font-weight:700;color:#6B7280;border-radius:2px;padding:2px 6px' : i === 2 ? 'background:#FFF7ED;font-weight:700;color:#D97706;border-radius:2px;padding:2px 6px' : '';
     html += '<tr><td style="text-align:center"><span style="font-size:12px;' + rs + '">' + (i + 1) + '</span></td>' +
       '<td><strong style="font-size:12px">' + _h(r.name) + '</strong></td>' +
       '<td style="font-size:12px;color:var(--text-secondary)">' + _h(r.center || r.dept) + '</td>' +
