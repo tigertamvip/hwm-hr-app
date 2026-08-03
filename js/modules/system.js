@@ -1005,13 +1005,11 @@ async function sysToggleEmailNotifications(){
 function _updateEmailToggleBtn(enabled){
   var btn=document.getElementById('sysEmailToggle');
   if(!btn)return;
-  if(enabled){
-    btn.textContent='🔔 邮件通知：已开启';
-    btn.style.borderColor='#059669';btn.style.color='#059669';
-  }else{
-    btn.textContent='🔕 邮件通知：已关闭';
-    btn.style.borderColor='#dc2626';btn.style.color='#dc2626';
+  var dot=document.getElementById('sysEmailStatusDot');
+  if(dot){
+    dot.className=enabled?'sys-status-dot sys-status-dot--on':'sys-status-dot sys-status-dot--off';
   }
+  btn.title=enabled?'邮件通知已开启，点击关闭':'邮件通知已关闭，点击开启';
   _refreshBulkEmailBtns(enabled);
 }
 
