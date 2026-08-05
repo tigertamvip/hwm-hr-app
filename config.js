@@ -91,6 +91,8 @@ var SUPABASE_RD_GATES_TABLE = 'rd_gates';
 var SUPABASE_USERS_TABLE = 'hwm_users';
 var SUPABASE_JD_TABLE = 'hwm_jobdesc';
 var SUPABASE_FAV_TABLE = 'hwm_favorites';
+// ★ V0.7.1dl: 公司要闻
+var SUPABASE_NEWS_TABLE = 'hwm_news';
 
 // ★ V0.6.1.j52: 管理员强制删除的历史周计划 tombstone
 // 用于阻止旧浏览器 localStorage / 备份在云端删除后再次恢复该记录。
