@@ -6,8 +6,8 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.7.1dy">
-<!-- cache-bust: 2026-08-05-21-56 -->
+<meta name="version" content="V0.7.1dz">
+<!-- cache-bust: 2026-08-05-22-11 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json?v=bc">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2457,7 +2457,7 @@ select.form-input{padding-right:28px;appearance:auto;-webkit-appearance:menulist
 #portalTipSlider.on #portalTipKnob{transform:translateX(16px)}
 </style>
 <style id="hwmNewsStyle">
-/* ===== V0.7.1dy 公司要闻 ===== */
+/* ===== V0.7.1dz 公司要闻 ===== */
 .portal-news-actions{display:flex;align-items:center;gap:6px;font-size:11px;color:#5f6368}
 .portal-news-publish{padding:3px 10px;border:1px solid #3B7DB4;background:rgba(59,125,180,.1);color:#3B7DB4;border-radius:4px;font-size:11px;cursor:pointer;white-space:nowrap;transition:all .2s}
 .portal-news-publish:hover{background:#3B7DB4;color:#fff}
@@ -2481,8 +2481,8 @@ select.form-input{padding-right:28px;appearance:auto;-webkit-appearance:menulist
 .news-detail-close{position:absolute;top:8px;right:8px;background:rgba(255,255,255,.85);border:1px solid #dadce0;color:#5f6368;padding:3px 10px;border-radius:4px;font-size:11px;cursor:pointer;transition:all .15s ease;display:inline-flex;align-items:center;font-family:inherit}
 .news-detail-close:hover{background:#fff;border-color:#3B7DB4;color:#3B7DB4}
 
-/* ★ V0.7.1dy 公司要闻：独立详情弹窗 */
-.news-view-modal{position:relative;max-width:720px;width:calc(100% - 48px);max-height:85vh;padding:0;animation:newsViewIn .38s cubic-bezier(.16,1,.3,1)}
+/* ★ V0.7.1dz 公司要闻：独立详情弹窗 */
+.news-view-modal{position:relative;max-width:720px;width:calc(100% - 48px);max-height:85vh;padding:0;background:rgba(255,255,255,.92);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);animation:newsViewIn .38s cubic-bezier(.16,1,.3,1)}
 @keyframes newsViewIn{from{opacity:0;transform:translateY(20px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
 .news-view-close{position:absolute;top:14px;right:14px;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.9);border:1px solid #e5e7eb;color:#5f6368;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .18s ease;z-index:2;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
 .news-view-close:hover{background:#fff;border-color:#3B7DB4;color:#3B7DB4;transform:rotate(90deg)}
@@ -2510,6 +2510,19 @@ body.news-view-open{overflow:hidden}
 .news-admin-btn.danger:hover{background:#d93025;color:#fff}
 .news-admin-btn.danger-ghost{border-color:rgba(217,48,37,.35);color:#d93025;background:transparent;font-weight:600}
 .news-admin-btn.danger-ghost:hover{background:rgba(217,48,37,.08);border-color:#d93025}
+
+/* ★ V0.7.1dz 公司要闻：列表 ⋯ 操作菜单 */
+.news-item-menu{position:relative;display:inline-flex;align-items:center;margin-left:6px}
+.news-menu-btn{width:30px;height:30px;border-radius:50%;border:1px solid transparent;background:transparent;color:#9aa0a6;font-size:18px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:all .15s ease;font-family:inherit;line-height:1}
+.news-menu-btn:hover,.news-menu-btn.active{background:#f1f3f4;border-color:#e5e7eb;color:#5f6368}
+.news-menu-dropdown{position:absolute;top:calc(100% + 6px);right:0;background:#fff;border:1px solid #e5e7eb;border-radius:8px;box-shadow:0 8px 24px rgba(15,23,42,.14),0 2px 4px rgba(15,23,42,.04);padding:4px;min-width:160px;display:none;z-index:10}
+.news-menu-dropdown.open{display:block;animation:newsMenuIn .18s cubic-bezier(.16,1,.3,1)}
+@keyframes newsMenuIn{from{opacity:0;transform:translateY(-6px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+.news-menu-dropdown button{display:flex;align-items:center;width:100%;padding:9px 14px;text-align:left;background:transparent;border:none;border-radius:6px;font-size:13px;color:#1F2937;cursor:pointer;transition:background .12s ease;font-family:inherit;gap:8px;line-height:1.4}
+.news-menu-dropdown button:hover{background:#f6f8fc}
+.news-menu-dropdown .menu-danger{color:#d93025}
+.news-menu-dropdown .menu-danger:hover{background:#fef7f6}
+.news-menu-dropdown svg{flex-shrink:0;opacity:.7}
 .news-system-foot{margin-top:10px;padding-top:8px;border-top:1px dashed #eef1f5;font-size:11px;color:#b8c0cc;text-align:center}
 .news-form-row{margin-bottom:14px}
 .news-form-label{display:block;font-size:12px;color:#5f6368;margin-bottom:6px;font-weight:500}
@@ -2612,7 +2625,7 @@ function togglePortalTips(){
       <a class="portal-nav-item" href="#">帮助文档</a>
     </nav>
     <div class="portal-sidebar-footer">
-      V0.7.1dy
+      V0.7.1dz
     </div>
   </aside>
   <!-- Main -->
@@ -3157,7 +3170,7 @@ function togglePortalTips(){
   </div>
 </div>
 
-<!-- ★ V0.7.1dy 公司要闻：发布 / 编辑弹窗 -->
+<!-- ★ V0.7.1dz 公司要闻：发布 / 编辑弹窗 -->
 <div id="newsComposeModal" class="modal-overlay" style="display:none;z-index:230" onclick="if(event.target===this)closeNewsCompose()">
   <div class="modal">
     <div class="modal-handle"></div>
@@ -3192,7 +3205,7 @@ function togglePortalTips(){
   </div>
 </div>
 
-<!-- ★ V0.7.1dy 公司要闻：独立详情弹窗 -->
+<!-- ★ V0.7.1dz 公司要闻：独立详情弹窗 -->
 <div id="newsViewModal" class="modal-overlay" style="display:none;z-index:240" onclick="if(event.target===this)closeNewsView()">
   <div class="modal news-view-modal" onclick="event.stopPropagation()">
     <button class="news-view-close" onclick="closeNewsView()" aria-label="关闭" title="关闭 (ESC)"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
@@ -3200,7 +3213,7 @@ function togglePortalTips(){
   </div>
 </div>
 
-<!-- ★ V0.7.1dy 公司要闻：草稿箱 -->
+<!-- ★ V0.7.1dz 公司要闻：草稿箱 -->
 <div id="newsDraftModal" class="modal-overlay" style="display:none;z-index:230" onclick="if(event.target===this)closeNewsDrafts()">
   <div class="modal" style="max-width:480px">
     <div class="modal-handle"></div>
@@ -3641,7 +3654,7 @@ var _DEFAULT_USERS={
 // ★ V0.6.1eg: 如果 localStorage 用户数 > 100（疑似异常），先清空让程序从云端重新拉取
 var USERS=loadUserSettings();
 
-// ★ V0.7.1dy: 一次性迁移 — 双管齐下
+// ★ V0.7.1dz: 一次性迁移 — 双管齐下
 //   (a) admin/data_admin：强制恢复 newsEditor=true（V0.7.1do 改默认导致存档 false 覆盖 true）
 //   (b) 其他角色：清理残留的 newsEditor=true（V0.7.1dm 期间 admin 默认含 true 误传播）
 (function(){
@@ -3667,12 +3680,12 @@ var USERS=loadUserSettings();
       }
     }
     if(fixed.length>0){
-      console.log('[V0.7.1dy] 已处理 '+fixed.length+' 个用户的 newsEditor →',fixed.join(','));
+      console.log('[V0.7.1dz] 已处理 '+fixed.length+' 个用户的 newsEditor →',fixed.join(','));
       saveUserSettings();
     }else{
-      console.log('[V0.7.1dy] newsEditor 状态检查通过');
+      console.log('[V0.7.1dz] newsEditor 状态检查通过');
     }
-  }catch(e){console.warn('[V0.7.1dy] 迁移失败',e);}
+  }catch(e){console.warn('[V0.7.1dz] 迁移失败',e);}
 })();
 
 // ===== 每次加载无条件强制清理旧代号影子用户 =====
@@ -4233,7 +4246,7 @@ function toggleEmpStats(){
   }
 }
 
-// ===== V0.7.1dy: 公司要闻模块 =====
+// ===== V0.7.1dz: 公司要闻模块 =====
 var _newsCache={};            // id -> 行数据（用于点赞/详情/编辑）
 var _newsComposeId=null;      // 正在编辑的新闻 id
 var _newsPendingImages=[];    // 待发布图片 base64（最多 2）
@@ -4266,7 +4279,7 @@ function _newsTimeLabel(ts){
 async function loadCompanyNews(){
   var body=document.getElementById('companyNewsBody');
   if(!body)return;
-  body.classList.add('portal-panel-body--scroll'); // ★ V0.7.1dy: 与左侧重要紧急/重要不急同高，超出滚动（弹窗式详情已独立，不再需要点击外部收起）
+  body.classList.add('portal-panel-body--scroll'); // ★ V0.7.1dz: 与左侧重要紧急/重要不急同高，超出滚动（弹窗式详情已独立，不再需要点击外部收起）
   var isEditor=(typeof hasPermission==='function') && hasPermission('newsEditor');
   try{
     var q=supabase.from(SUPABASE_NEWS_TABLE).select('*').eq('status','published').order('published_at',{ascending:false}).limit(30);
@@ -4313,16 +4326,17 @@ function renderCompanyNews(list,drafts,isEditor){
             +'<svg viewBox="0 0 24 24" fill="'+(liked?'#d93025':'none')+'" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>'
             +'<span id="likeCnt_'+it.id+'">'+(it.likes||0)+'</span>'
           +'</button>'
-        +'</div>'
-        +'<div class="news-item-meta">'+newsEsc(it.author_name)+' · '+_newsTimeLabel(it.published_at||it.created_at)+'</div>'
-        +'<div class="news-detail" id="newsDetail_'+it.id+'" style="display:none"></div>';
-      if(isEditor){
-        html+='<div class="news-item-admin">';
-        if(it.author_uid===me)html+='<button class="news-admin-btn" onclick="openNewsCompose(\''+it.id+'\')">编辑</button>';
-        html+='<button class="news-admin-btn danger" onclick="withdrawNewsById(\''+it.id+'\')">撤回发布</button>';
-        html+='<button class="news-admin-btn danger-ghost" onclick="deleteNewsById(\''+it.id+'\')">永久删除</button>';
-        html+='</div>';
-      }
+          +(isEditor?'<div class="news-item-menu">'
+            +'<button class="news-menu-btn" onclick="toggleNewsMenu(this,event)" title="更多操作">⋯</button>'
+            +'<div class="news-menu-dropdown">'
+              +(it.author_uid===me?'<button onclick="openNewsCompose(\''+it.id+'\');closeNewsMenu(this)">'
+                +'<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>编辑</button>':'')
+              +'<button class="menu-danger" onclick="withdrawNewsById(\''+it.id+'\');closeNewsMenu(this)">'
+                +'<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-15-6.7L3 8"/></svg>撤回发布</button>'
+              +'<button class="menu-danger" onclick="deleteNewsById(\''+it.id+'\');closeNewsMenu(this)">'
+                +'<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>永久删除</button>'
+            +'</div></div>':'')
+        +'</div>';
       html+='</div>';
     });
   }
@@ -4344,7 +4358,7 @@ function renderCompanyNews(list,drafts,isEditor){
   body.innerHTML=html;
 }
 
-// ★ V0.7.1dy: 公司要闻详情 → 弹窗式（保持列表结构稳定）
+// ★ V0.7.1dz: 公司要闻详情 → 弹窗式（保持列表结构稳定）
 var _newsViewId=null;
 var _newsViewPrevFocus=null;
 function openNewsView(id){
@@ -4396,7 +4410,39 @@ document.addEventListener('keydown',function(e){
   }
 });
 
-// ★ V0.7.1dy: 新闻详情动效函数（保留兼容旧引用，但实际不再调用）
+// ★ V0.7.1dz: 公司要闻 ⋯ 操作菜单 — 仅编辑者可见
+function toggleNewsMenu(btn,event){
+  event.stopPropagation();
+  var dd=btn.parentElement.querySelector('.news-menu-dropdown');
+  var willOpen=!dd.classList.contains('open');
+  // 关闭所有其他菜单
+  document.querySelectorAll('.news-menu-dropdown.open').forEach(function(d){
+    d.classList.remove('open');
+    var b=d.parentElement.querySelector('.news-menu-btn');
+    if(b)b.classList.remove('active');
+  });
+  if(willOpen){
+    dd.classList.add('open');
+    btn.classList.add('active');
+  }
+}
+function closeNewsMenu(btn){
+  var dd=btn.closest('.news-menu-dropdown')||btn;
+  if(dd)dd.classList.remove('open');
+  var b=(dd.parentElement||dd.closest('.news-item-menu')).querySelector('.news-menu-btn');
+  if(b)b.classList.remove('active');
+}
+// 点击其他位置关闭菜单
+document.addEventListener('click',function(e){
+  if(!e.target.closest||e.target.closest('.news-item-menu'))return;
+  document.querySelectorAll('.news-menu-dropdown.open').forEach(function(d){
+    d.classList.remove('open');
+    var b=d.parentElement.querySelector('.news-menu-btn');
+    if(b)b.classList.remove('active');
+  });
+});
+
+// ★ V0.7.1dz: 新闻详情动效函数（保留兼容旧引用，但实际不再调用）
 function _animateExpandNews(){}
 function _animateCollapseNews(){}
 
@@ -4410,7 +4456,7 @@ function updateLikeBtn(id){
   if(cnt)cnt.textContent=it.likes||0;
   var svg=btn?btn.querySelector('svg'):null;
   if(svg)svg.setAttribute('fill',liked?'#d93025':'none');
-  // ★ V0.7.1dy: 同步更新弹窗里的点赞按钮
+  // ★ V0.7.1dz: 同步更新弹窗里的点赞按钮
   var mBtn=document.getElementById('newsViewLikeBtn');
   var mCnt=document.getElementById('newsViewLikeCnt');
   if(mBtn){
@@ -4552,7 +4598,7 @@ async function withdrawNewsById(id){
   }catch(e){console.error(e);showToast('撤回失败');}
 }
 
-// ★ V0.7.1dy: 已发布要闻永久删除（hard delete，需授权用户）
+// ★ V0.7.1dz: 已发布要闻永久删除（hard delete，需授权用户）
 async function deleteNewsById(id){
   if(!confirm('确定永久删除该已发布要闻？此操作不可恢复，连同点赞数据一并清除。'))return;
   try{
@@ -4623,7 +4669,7 @@ function goHome(){
   document.getElementById('portalView').style.display='flex';
   // 刷新权限卡片显隐
   applyRoleUI();
-  // ★ V0.7.1dy: 公司要闻 — 加载列表并显示编辑入口
+  // ★ V0.7.1dz: 公司要闻 — 加载列表并显示编辑入口
   setupNewsHeaderStatic();
   loadCompanyNews();
   // 清理人力资源制度模块状态
