@@ -6,8 +6,8 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.7.1dv">
-<!-- cache-bust: 2026-08-05-21-11 -->
+<meta name="version" content="V0.7.1dw">
+<!-- cache-bust: 2026-08-05-21-27 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json?v=bc">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2457,7 +2457,7 @@ select.form-input{padding-right:28px;appearance:auto;-webkit-appearance:menulist
 #portalTipSlider.on #portalTipKnob{transform:translateX(16px)}
 </style>
 <style id="hwmNewsStyle">
-/* ===== V0.7.1dv 公司要闻 ===== */
+/* ===== V0.7.1dw 公司要闻 ===== */
 .portal-news-actions{display:flex;align-items:center;gap:6px;font-size:11px;color:#5f6368}
 .portal-news-publish{padding:3px 10px;border:1px solid #3B7DB4;background:rgba(59,125,180,.1);color:#3B7DB4;border-radius:4px;font-size:11px;cursor:pointer;white-space:nowrap;transition:all .2s}
 .portal-news-publish:hover{background:#3B7DB4;color:#fff}
@@ -2587,7 +2587,7 @@ function togglePortalTips(){
       <a class="portal-nav-item" href="#">帮助文档</a>
     </nav>
     <div class="portal-sidebar-footer">
-      V0.7.1dv
+      V0.7.1dw
     </div>
   </aside>
   <!-- Main -->
@@ -3132,7 +3132,7 @@ function togglePortalTips(){
   </div>
 </div>
 
-<!-- ★ V0.7.1dv 公司要闻：发布 / 编辑弹窗 -->
+<!-- ★ V0.7.1dw 公司要闻：发布 / 编辑弹窗 -->
 <div id="newsComposeModal" class="modal-overlay" style="display:none;z-index:230" onclick="if(event.target===this)closeNewsCompose()">
   <div class="modal">
     <div class="modal-handle"></div>
@@ -3167,7 +3167,7 @@ function togglePortalTips(){
   </div>
 </div>
 
-<!-- ★ V0.7.1dv 公司要闻：草稿箱 -->
+<!-- ★ V0.7.1dw 公司要闻：草稿箱 -->
 <div id="newsDraftModal" class="modal-overlay" style="display:none;z-index:230" onclick="if(event.target===this)closeNewsDrafts()">
   <div class="modal" style="max-width:480px">
     <div class="modal-handle"></div>
@@ -3608,7 +3608,7 @@ var _DEFAULT_USERS={
 // ★ V0.6.1eg: 如果 localStorage 用户数 > 100（疑似异常），先清空让程序从云端重新拉取
 var USERS=loadUserSettings();
 
-// ★ V0.7.1dv: 一次性迁移 — 双管齐下
+// ★ V0.7.1dw: 一次性迁移 — 双管齐下
 //   (a) admin/data_admin：强制恢复 newsEditor=true（V0.7.1do 改默认导致存档 false 覆盖 true）
 //   (b) 其他角色：清理残留的 newsEditor=true（V0.7.1dm 期间 admin 默认含 true 误传播）
 (function(){
@@ -3634,12 +3634,12 @@ var USERS=loadUserSettings();
       }
     }
     if(fixed.length>0){
-      console.log('[V0.7.1dv] 已处理 '+fixed.length+' 个用户的 newsEditor →',fixed.join(','));
+      console.log('[V0.7.1dw] 已处理 '+fixed.length+' 个用户的 newsEditor →',fixed.join(','));
       saveUserSettings();
     }else{
-      console.log('[V0.7.1dv] newsEditor 状态检查通过');
+      console.log('[V0.7.1dw] newsEditor 状态检查通过');
     }
-  }catch(e){console.warn('[V0.7.1dv] 迁移失败',e);}
+  }catch(e){console.warn('[V0.7.1dw] 迁移失败',e);}
 })();
 
 // ===== 每次加载无条件强制清理旧代号影子用户 =====
@@ -4200,7 +4200,7 @@ function toggleEmpStats(){
   }
 }
 
-// ===== V0.7.1dv: 公司要闻模块 =====
+// ===== V0.7.1dw: 公司要闻模块 =====
 var _newsCache={};            // id -> 行数据（用于点赞/详情/编辑）
 var _newsComposeId=null;      // 正在编辑的新闻 id
 var _newsPendingImages=[];    // 待发布图片 base64（最多 2）
@@ -4233,7 +4233,18 @@ function _newsTimeLabel(ts){
 async function loadCompanyNews(){
   var body=document.getElementById('companyNewsBody');
   if(!body)return;
-  body.classList.add('portal-panel-body--scroll'); // ★ V0.7.1dv: 与左侧重要紧急/重要不急同高，超出滚动
+  body.classList.add('portal-panel-body--scroll'); // ★ V0.7.1dw: 与左侧重要紧急/重要不急同高，超出滚动
+  // ★ V0.7.1dw: 注册一次性全局点击监听 — 点击 .news-item 外部时自动收起所有展开的新闻详情
+  if(!window._newsOutsideClickBound){
+    window._newsOutsideClickBound=true;
+    document.addEventListener('click',function(e){
+      if(e.target.closest&&e.target.closest('.news-item'))return; // 新闻项内（含详情/点赞/管理按钮）不收起
+      var open=document.querySelectorAll('.news-detail');
+      for(var i=0;i<open.length;i++){
+        if(open[i].style.display==='block')open[i].style.display='none';
+      }
+    },true);
+  }
   var isEditor=(typeof hasPermission==='function') && hasPermission('newsEditor');
   try{
     var q=supabase.from(SUPABASE_NEWS_TABLE).select('*').eq('status','published').order('published_at',{ascending:false}).limit(30);
@@ -4467,7 +4478,7 @@ async function withdrawNewsById(id){
   }catch(e){console.error(e);showToast('撤回失败');}
 }
 
-// ★ V0.7.1dv: 已发布要闻永久删除（hard delete，需授权用户）
+// ★ V0.7.1dw: 已发布要闻永久删除（hard delete，需授权用户）
 async function deleteNewsById(id){
   if(!confirm('确定永久删除该已发布要闻？此操作不可恢复，连同点赞数据一并清除。'))return;
   try{
@@ -4538,7 +4549,7 @@ function goHome(){
   document.getElementById('portalView').style.display='flex';
   // 刷新权限卡片显隐
   applyRoleUI();
-  // ★ V0.7.1dv: 公司要闻 — 加载列表并显示编辑入口
+  // ★ V0.7.1dw: 公司要闻 — 加载列表并显示编辑入口
   setupNewsHeaderStatic();
   loadCompanyNews();
   // 清理人力资源制度模块状态
