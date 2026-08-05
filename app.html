@@ -6,8 +6,8 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.7.1dr">
-<!-- cache-bust: 2026-08-05-19-11 -->
+<meta name="version" content="V0.7.1ds">
+<!-- cache-bust: 2026-08-05-19-20 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json?v=bc">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1139,12 +1139,12 @@ body{
 .portal-panel-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #e3eaf2;background:#F0F5FA;font-size:13px;font-weight:600;color:#3B7DB4}
 .portal-panel-body{padding:12px 16px}
 .portal-panel-body--scroll{max-height:280px;overflow-y:scroll;padding:12px 16px;scrollbar-gutter:stable}
-.portal-panel-body--scroll::-webkit-scrollbar{width:8px;height:8px}
-.portal-panel-body--scroll::-webkit-scrollbar-track{background:rgba(218,220,224,.35);border-radius:4px}
-.portal-panel-body--scroll::-webkit-scrollbar-thumb{background:#9aa0a6;border-radius:4px;border:1px solid rgba(255,255,255,.4)}
-.portal-panel-body--scroll::-webkit-scrollbar-thumb:hover{background:#5f6368}
+.portal-panel-body--scroll::-webkit-scrollbar{width:10px;height:10px;background:#f1f3f4}
+.portal-panel-body--scroll::-webkit-scrollbar-track{background:#dadce0;border-radius:5px;margin:2px 0}
+.portal-panel-body--scroll::-webkit-scrollbar-thumb{background:#5f6368;border-radius:5px;border:2px solid #dadce0}
+.portal-panel-body--scroll::-webkit-scrollbar-thumb:hover{background:#202124;border-color:#9aa0a6}
 /* Firefox */
-.portal-panel-body--scroll{scrollbar-width:thin;scrollbar-color:#9aa0a6 rgba(218,220,224,.35)}
+.portal-panel-body--scroll{scrollbar-width:auto;scrollbar-color:#5f6368 #dadce0}
 .portal-task-item{cursor:pointer;transition:background .12s}
 .portal-task-item:hover{background:#e8f0fe;color:var(--accent)}
 .portal-prio-head{cursor:pointer;display:flex;align-items:center;gap:4px}
@@ -2457,7 +2457,7 @@ select.form-input{padding-right:28px;appearance:auto;-webkit-appearance:menulist
 #portalTipSlider.on #portalTipKnob{transform:translateX(16px)}
 </style>
 <style id="hwmNewsStyle">
-/* ===== V0.7.1dr 公司要闻 ===== */
+/* ===== V0.7.1ds 公司要闻 ===== */
 .portal-news-actions{display:flex;align-items:center;gap:6px;font-size:11px;color:#5f6368}
 .portal-news-publish{padding:3px 10px;border:1px solid #3B7DB4;background:rgba(59,125,180,.1);color:#3B7DB4;border-radius:4px;font-size:11px;cursor:pointer;white-space:nowrap;transition:all .2s}
 .portal-news-publish:hover{background:#3B7DB4;color:#fff}
@@ -2696,7 +2696,7 @@ function togglePortalTips(){
           </div>
         </div>
       </div>
-      <div style="margin-top:16px;text-align:center;font-size:11px;color:#5f6368">Tiger-Buddy 虎伴科技 · MBO+AI V0.7.1dr</div>
+      <div style="margin-top:16px;text-align:center;font-size:11px;color:#5f6368">Tiger-Buddy 虎伴科技 · MBO+AI V0.7.1ds</div>
     </div>
   </main>
 </div>
@@ -3133,7 +3133,7 @@ function togglePortalTips(){
   </div>
 </div>
 
-<!-- ★ V0.7.1dr 公司要闻：发布 / 编辑弹窗 -->
+<!-- ★ V0.7.1ds 公司要闻：发布 / 编辑弹窗 -->
 <div id="newsComposeModal" class="modal-overlay" style="display:none;z-index:230" onclick="if(event.target===this)closeNewsCompose()">
   <div class="modal">
     <div class="modal-handle"></div>
@@ -3168,7 +3168,7 @@ function togglePortalTips(){
   </div>
 </div>
 
-<!-- ★ V0.7.1dr 公司要闻：草稿箱 -->
+<!-- ★ V0.7.1ds 公司要闻：草稿箱 -->
 <div id="newsDraftModal" class="modal-overlay" style="display:none;z-index:230" onclick="if(event.target===this)closeNewsDrafts()">
   <div class="modal" style="max-width:480px">
     <div class="modal-handle"></div>
@@ -3573,7 +3573,7 @@ var HWM_LIVE_MODULES={hr:true,editHr:true,mbo:true,talent:true,maintenance:true,
 // ★ V0.6.1.hs: 默认权限 — 仅 admin / data_admin 全开，其余角色全关，手动逐项开启
 function _defaultPerms(role){
   if(role==='admin'||role==='data_admin'){
-    return {hr:true,editHr:true,mbo:true,kpi:true,talent:true,learning:true,payroll:true,ideas:true,policies:true,maintenance:true,decision:true,dashboard:true,rd:true};
+    return {hr:true,editHr:true,mbo:true,kpi:true,talent:true,learning:true,payroll:true,ideas:true,policies:true,maintenance:true,decision:true,dashboard:true,rd:true,newsEditor:true};
   }
   if(role==='middle_manager'){
     // ★ V0.6.1.hs: 中层经理级 - 默认开放 MBO/KPI/Talent，关闭其他
@@ -3609,30 +3609,38 @@ var _DEFAULT_USERS={
 // ★ V0.6.1eg: 如果 localStorage 用户数 > 100（疑似异常），先清空让程序从云端重新拉取
 var USERS=loadUserSettings();
 
-// ★ V0.7.1dr: 一次性迁移 — 清理非 admin/data_admin 角色的残留 newsEditor:true
-// 背景：V0.7.1dm 期间 admin 默认含 newsEditor:true，曾通过误点击 / 旧 cloud 同步
-// 残留到非 admin 用户的 saved permissions，导致系统维护表显示—但发布按钮可见。
-// 此迁移把非 admin 角色的 newsEditor 强制重置为 false，需通过系统维护表重新授权。
+// ★ V0.7.1ds: 一次性迁移 — 双管齐下
+//   (a) admin/data_admin：强制恢复 newsEditor=true（V0.7.1do 改默认导致存档 false 覆盖 true）
+//   (b) 其他角色：清理残留的 newsEditor=true（V0.7.1dm 期间 admin 默认含 true 误传播）
 (function(){
   try{
-    var cleaned=[];
+    var fixed=[];
     for(var k in USERS){
       if(!USERS.hasOwnProperty(k))continue;
       var u=USERS[k];
       if(!u||!u.permissions)continue;
-      if(u.role==='admin'||u.role==='data_admin')continue;
+      var nm=u.name||k;
+      if(u.role==='admin'||u.role==='data_admin'){
+        // 管理员默认应当有发布权（超级用户），存档 false 也强制恢复
+        if(u.permissions.newsEditor!==true){
+          u.permissions.newsEditor=true;
+          fixed.push('ADMIN:'+nm);
+        }
+        continue;
+      }
+      // 非管理员：清理残留的 true（必须通过系统维护表显式授权）
       if(u.permissions.newsEditor===true){
         u.permissions.newsEditor=false;
-        cleaned.push((u.name||k)+'['+u.role+']');
+        fixed.push(nm+'['+u.role+']');
       }
     }
-    if(cleaned.length>0){
-      console.log('[V0.7.1dr] 已清理 '+cleaned.length+' 个非 admin 用户的残留 newsEditor:true →',cleaned.join(','));
+    if(fixed.length>0){
+      console.log('[V0.7.1ds] 已处理 '+fixed.length+' 个用户的 newsEditor →',fixed.join(','));
       saveUserSettings();
     }else{
-      console.log('[V0.7.1dr] newsEditor 残留检查通过，无需清理');
+      console.log('[V0.7.1ds] newsEditor 状态检查通过');
     }
-  }catch(e){console.warn('[V0.7.1dr] 迁移失败',e);}
+  }catch(e){console.warn('[V0.7.1ds] 迁移失败',e);}
 })();
 
 // ===== 每次加载无条件强制清理旧代号影子用户 =====
@@ -4193,7 +4201,7 @@ function toggleEmpStats(){
   }
 }
 
-// ===== V0.7.1dr: 公司要闻模块 =====
+// ===== V0.7.1ds: 公司要闻模块 =====
 var _newsCache={};            // id -> 行数据（用于点赞/详情/编辑）
 var _newsComposeId=null;      // 正在编辑的新闻 id
 var _newsPendingImages=[];    // 待发布图片 base64（最多 2）
@@ -4226,7 +4234,7 @@ function _newsTimeLabel(ts){
 async function loadCompanyNews(){
   var body=document.getElementById('companyNewsBody');
   if(!body)return;
-  body.classList.add('portal-panel-body--scroll'); // ★ V0.7.1dr: 与左侧重要紧急/重要不急同高，超出滚动
+  body.classList.add('portal-panel-body--scroll'); // ★ V0.7.1ds: 与左侧重要紧急/重要不急同高，超出滚动
   var isEditor=(typeof hasPermission==='function') && hasPermission('newsEditor');
   try{
     var q=supabase.from(SUPABASE_NEWS_TABLE).select('*').eq('status','published').order('published_at',{ascending:false}).limit(30);
@@ -4460,7 +4468,7 @@ async function withdrawNewsById(id){
   }catch(e){console.error(e);showToast('撤回失败');}
 }
 
-// ★ V0.7.1dr: 已发布要闻永久删除（hard delete，需授权用户）
+// ★ V0.7.1ds: 已发布要闻永久删除（hard delete，需授权用户）
 async function deleteNewsById(id){
   if(!confirm('确定永久删除该已发布要闻？此操作不可恢复，连同点赞数据一并清除。'))return;
   try{
@@ -4531,7 +4539,7 @@ function goHome(){
   document.getElementById('portalView').style.display='flex';
   // 刷新权限卡片显隐
   applyRoleUI();
-  // ★ V0.7.1dr: 公司要闻 — 加载列表并显示编辑入口
+  // ★ V0.7.1ds: 公司要闻 — 加载列表并显示编辑入口
   setupNewsHeaderStatic();
   loadCompanyNews();
   // 清理人力资源制度模块状态
