@@ -37,6 +37,19 @@ function _dsIsResigned(name) {
   try { return typeof _isResignedByName === 'function' && _isResignedByName(name); } catch (e) { return false; }
 }
 
+// ★ V0.7.1fm: 未注册账号的计划主人，须确有其人（在花名册中）才并入统计——Demo 程序污染主库事件
+function _dsInRoster(name) {
+  try {
+    if (typeof _getEmpDB !== 'function') return false;
+    var emps = _getEmpDB();
+    for (var i = 0; i < emps.length; i++) {
+      var e = emps[i];
+      if (e && (e.name || e['姓名']) === name) return true;
+    }
+  } catch (err) {}
+  return false;
+}
+
 function _dsBuildNav() {
   var nav = document.getElementById('dsNavItems');
   if (!nav) return;
@@ -143,11 +156,13 @@ function _dsRefreshData() {
   }
   // ★ V0.6.1.iw: 关键修复 — 把 allPlans 里的所有 user 也加入 users 字典
   // (避免 USERS 没注册该员工时,心情/评级数据被忽略)
+  // ★ V0.7.1fm: 并入规则收紧——必须在 USERS 或花名册中（Demo 程序 2026-07 污染主库事件：张玉基/华晨/赵建国/王鹏/王博），并排除管理员
   for (var _wka in allPlans) {
     for (var _uka in allPlans[_wka]) {
       if (!_dsIsValidPlanUserName(_uka)) continue;
+      if (_uka === '管理员') continue;
       if (_dsIsResigned(_uka)) continue; // ★ V0.7.1fi: 离职人员的残留周计划同样不计入
-      if (!users[_uka]) users[_uka] = { name: _uka, role: 'staff' };
+      if (!users[_uka]) { if (!_dsInRoster(_uka)) continue; users[_uka] = { name: _uka, role: 'staff' }; }
     }
   }
   var totalUsers = Object.keys(users).length;
