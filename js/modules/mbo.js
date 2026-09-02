@@ -2884,12 +2884,12 @@ function _renderSupportersCell(plan,taskIndex,rawSupporters){
   displayVal=_cleanPlaceholderText(displayVal);
   if(!displayVal)return '<span style="color:#C0C0C0;font-style:italic;pointer-events:none;user-select:none">协同人</span>';
   var supporters=_parseSupporters(displayVal), weekId=_collabWeekId(plan.year,plan.month,plan.week), ownerUid=_getWPPlanOwnerUid(plan), task=plan.tasks&&plan.tasks[taskIndex], taskId=task&&task.task_id;
-  var html='<div style="display:flex;flex-direction:column;gap:2px;width:100%">';
+  var html='<div style="display:flex;flex-direction:column;gap:2px;width:100%;min-width:0">';
   for(var i=0;i<supporters.length;i++){
     var s=supporters[i], st=taskId?_collabStatusFor(ownerUid,weekId,taskId,s.uid):'pending';
     var color=st==='accepted'?'#16a34a':st==='rejected'?'#dc2626':'#9ca3af';
     var text=st==='accepted'?'已接受':st==='rejected'?'已拒绝':'待响应';
-    html+='<div style="display:flex;align-items:center;justify-content:space-between;gap:4px"><span style="font-weight:500;text-align:left">'+_h(s.name)+'</span><span style="font-size:9px;padding:1px 5px;border-radius:2px;background:'+color+';color:#fff;font-weight:600;line-height:1.4;white-space:nowrap">'+text+'</span></div>';
+    html+='<div style="display:flex;align-items:center;gap:4px;flex-wrap:nowrap;min-width:0" title="'+_h(s.name)+' '+text+'"><span style="font-weight:500;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1 1 auto;min-width:0">'+_h(s.name)+'</span><span style="font-size:9px;padding:1px 5px;border-radius:4px;background:'+color+';color:#fff;font-weight:600;line-height:1.4;white-space:nowrap;flex-shrink:0">'+text+'</span></div>';
   }
   return html+'</div>';
 }
@@ -3370,7 +3370,7 @@ function renderWPTable(plan){
     else newTasks.push(j);
   }
 
-  html+='<div class="wp-table-x-scroll"><div class="wp-table-area"><div class="wp-table-wrap"><table class="wp-table wp-main-table"><colgroup><col style="width:56px"><col style="width:180px"><col style="width:80px"><col style="width:115px"><col style="width:115px"><col style="width:80px"><col style="width:115px"><col style="width:90px"><col style="width:48px"><col style="width:80px"><col style="width:90px"><col style="width:150px"></colgroup><thead><tr>';
+  html+='<div class="wp-table-x-scroll"><div class="wp-table-area"><div class="wp-table-wrap"><table class="wp-table wp-main-table"><colgroup><col style="width:56px"><col style="width:180px"><col style="width:80px"><col style="width:115px"><col style="width:115px"><col style="width:80px"><col style="width:115px"><col style="width:90px"><col style="width:48px"><col style="width:110px"><col style="width:90px"><col style="width:150px"></colgroup><thead><tr>';
   var _sPri='',_sSd='',_sPd='',_sRd='',_sAd='',_sSt='';
   if(_wpSort && _wpSort.col && _wpSort.dir){
     var _arr=_wpSort.dir==='asc'?' ↑':' ↓';
