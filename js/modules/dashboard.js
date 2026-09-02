@@ -503,10 +503,10 @@ function _dsBuildQuadDash() {
   }
   html += '</div>';
 
-  // ===== 分部门统计表 =====
+  // ===== 分部门统计表（★ V0.7.1fl: Excel 数据条式单元格 — 条长=任务量(全局归一)，实色段=按时完成） =====
   html += '<div class="ds-quad-dept">';
-  html += '<div class="ds-quad-sec-title" style="margin-bottom:2px">分部门统计 · 按时完成 / 合计（完成率）</div>';
-  html += '<table class="ds-quad-table"><thead><tr><th>部门</th>';
+  html += '<div class="ds-quad-sec-title" style="margin-bottom:2px">分部门统计 · 条长 = 任务量，实色 = 按时完成（d/t）</div>';
+  html += '<table class="ds-quad-table"><thead><tr><th style="width:128px">部门</th>';
   for (var hi = 0; hi < 4; hi++) {
     var hg = _DS_QUADS[hi];
     html += '<th><span style="color:' + (QC[hg] || '#5E7080') + ';font-size:8px">●</span> ' + hg + '</th>';
@@ -514,6 +514,13 @@ function _dsBuildQuadDash() {
   html += '</tr></thead><tbody>';
   var order = _DS_DEPT_ORDER.slice();
   if (q.depts['其他']) order.push('其他');
+  // 全局最大任务量（条长归一基准）
+  var maxT = 0;
+  for (var mi = 0; mi < order.length; mi++) {
+    var md = q.depts[order[mi]];
+    if (!md) continue;
+    for (var mq = 0; mq < 4; mq++) { var mt = (md[_DS_QUADS[mq]] || {}).t || 0; if (mt > maxT) maxT = mt; }
+  }
   for (var di = 0; di < order.length; di++) {
     var dn = order[di], dd = q.depts[dn];
     if (!dd) continue;
@@ -524,8 +531,9 @@ function _dsBuildQuadDash() {
     for (var ci = 0; ci < 4; ci++) {
       var cg = _DS_QUADS[ci], cd = dd[cg] || { t: 0, d: 0 };
       if (cd.t === 0) { html += '<td style="color:#C9CED4">—</td>'; continue; }
-      var cp = pct(cd.d, cd.t);
-      html += '<td>' + cd.d + '/' + cd.t + ' <span class="ds-quad-cell-rate" style="color:' + rateCls(cp) + '">' + cp + '%</span></td>';
+      var bw = maxT > 0 ? Math.max(4, Math.round(cd.t / maxT * 100)) : 4;
+      var dr = Math.round(cd.d / cd.t * 100);
+      html += '<td><span class="ds-qbar" style="width:' + bw + '%"><span class="ds-qbar-done" style="width:' + dr + '%;background:' + (QC[cg] || '#5E7080') + '"></span></span><span class="ds-qbar-num">' + cd.d + '/' + cd.t + '</span></td>';
     }
     html += '</tr>';
   }
