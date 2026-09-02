@@ -4662,8 +4662,8 @@ function _renderAnnualProgress(year){
   }
   var allQuads=['重要紧急','重要不急','日常紧急','日常事项'];
   var totalCount=0,totalDone=0;
-  // ★ V0.7.1es: 标题改"本年周行动项目整体完成情况概览"+简约线性图标；整体字体加大一号（标题13px/行12px）
-  var html='<div class="wp-card wp-progress-card"><div class="wp-card-title" style="font-size:13px"><span style="display:inline-flex;align-items:center;gap:5px"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15v3"/><path d="M12 10v8"/><path d="M17 5v12"/></svg>本年周行动项目整体完成情况概览</span></div>';
+  // ★ V0.7.1et: 标题改"本年周行动完成概览"；进度条改细（3px/合计4px）
+  var html='<div class="wp-card wp-progress-card"><div class="wp-card-title" style="font-size:13px"><span style="display:inline-flex;align-items:center;gap:5px"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15v3"/><path d="M12 10v8"/><path d="M17 5v12"/></svg>本年周行动完成概览</span></div>';
   html+='<div>';
   for(var qi=0;qi<allQuads.length;qi++){
     var q=allQuads[qi];
@@ -4677,12 +4677,12 @@ function _renderAnnualProgress(year){
     var pct=total>0?Math.round(done/total*100):0;
     var dotColor=WP_GOAL_COLORS[q]||'#9ca3af';
     var labelHtml='<span style="color:'+dotColor+';font-size:10px;line-height:1">●</span><span>'+q+'</span>';
-    html+='<div class="wp-progress-row"><span class="wp-progress-label" style="font-size:12px">'+labelHtml+'</span><div class="wp-progress-bar-wrap" style="height:7px"><div class="wp-progress-bar-fill" style="width:'+pct+'%"></div></div><span class="wp-progress-num" style="font-size:12px;width:84px">'+done+'/'+total+' ('+pct+'%)</span></div>';
+    html+='<div class="wp-progress-row"><span class="wp-progress-label" style="font-size:12px">'+labelHtml+'</span><div class="wp-progress-bar-wrap" style="height:3px"><div class="wp-progress-bar-fill" style="width:'+pct+'%"></div></div><span class="wp-progress-num" style="font-size:12px;width:84px">'+done+'/'+total+' ('+pct+'%)</span></div>';
   }
   // 合计行
   var overallPct=totalCount>0?Math.round(totalDone/totalCount*100):0;
   html+='<div style="margin-top:6px;padding-top:6px;border-top:1px solid #e5e7eb">';
-  html+='<div class="wp-progress-row"><span class="wp-progress-label" style="font-weight:600;color:#1E3A5F;font-size:13px">合计</span><div class="wp-progress-bar-wrap" style="height:8px"><div class="wp-progress-bar-fill" style="width:'+overallPct+'%;height:8px"></div></div><span class="wp-progress-num" style="font-weight:600;color:#1E3A5F;font-size:13px;width:90px">'+totalDone+'/'+totalCount+' ('+overallPct+'%)</span></div>';
+  html+='<div class="wp-progress-row"><span class="wp-progress-label" style="font-weight:600;color:#1E3A5F;font-size:13px">合计</span><div class="wp-progress-bar-wrap" style="height:4px"><div class="wp-progress-bar-fill" style="width:'+overallPct+'%;height:4px"></div></div><span class="wp-progress-num" style="font-weight:600;color:#1E3A5F;font-size:13px;width:90px">'+totalDone+'/'+totalCount+' ('+overallPct+'%)</span></div>';
   html+='</div>';
   html+='</div>';
   html+='</div>';
@@ -4782,19 +4782,14 @@ function _renderTimeManagementPanel(plan){
   html+='</div>';
   html+='</div>';
 
-  // ★ Card 3: 完成状态
+  // ★ Card 3: 小便签（V0.7.1et 取代原"完成状态"卡 — 随手备忘，输入即自动保存到本周计划，跟随云端同步）
+  var _memoVal=plan.memo||'';
+  var _memoEditable=!!(currentUser&&currentUser.name&&plan.name===currentUser.name);
   html+='<div class="wp-card">';
-  html+='<div class="wp-card-title">完成状态</div>';
+  html+='<div class="wp-card-title"><span style="display:inline-flex;align-items:center;gap:5px"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>小便签</span></div>';
   html+='<div>';
-  html+='<table class="wp-card-table">';
-  html+='<tr><td style="color:#6b7280;width:32px">提交</td><td style="color:#0F2C4B">'+subTime+'</td></tr>';
-  html+='</table>';
-  html+='<div style="margin:6px 0 10px 0"><span class="wp-card-tag '+subTagClass+'">'+subText+'</span></div>';
-  html+='<table class="wp-card-table">';
-  html+='<tr><td style="color:#6b7280;width:32px">评价</td><td style="color:#6b7280">—</td></tr>';
-  html+='</table>';
-  html+='<div style="margin-top:6px"><span class="wp-card-tag '+revTagClass+'">'+revText+'</span></div>';
-  html+=exemptionBtn;
+  html+='<textarea id="wpMemoPad" oninput="wpMemoInput(this)"'+(_memoEditable?'':' readonly')+' placeholder="'+(_memoEditable?'随手记一笔：待办提醒、临时想法、要跟进的小事…':'（本周暂无便签）')+'" style="width:100%;min-height:118px;box-sizing:border-box;border:1px dashed #D8C97A;background:#FFFBEA;border-radius:4px;padding:8px 10px;font-size:12px;line-height:1.7;color:#5B5340;resize:vertical;outline:none;font-family:inherit">'+_h(_memoVal)+'</textarea>';
+  if(_memoEditable)html+='<div style="font-size:9px;color:#B5A76A;margin-top:3px;text-align:right">输入即自动保存</div>';
   html+='</div>';
   html+='</div>';
   // ★ V0.5.0: 艾森豪威尔矩阵卡片
@@ -5134,10 +5129,22 @@ function saveWPFeedback(field, value) {
     p.skipLevelSuggestion.content = value;
     p.skipLevelSuggestion.reviewerName = (currentUser && currentUser.name) || '未知';
     p.skipLevelSuggestion.updatedAt = new Date().toISOString().split('T')[0];
+  } else if (field === 'memo') {
+    // ★ V0.7.1et: 小便签内容（存本周计划内，随 saveWP 云端同步）
+    p.memo = value;
   }
   
   p.updatedAt = new Date().toISOString();
   saveWP(p.year, p.month, p.week, p);
+}
+
+// ★ V0.7.1et: 小便签输入 — 600ms 防抖实时保存（输入停顿后自动落盘+云端同步）
+var _wpMemoTimer=null;
+function wpMemoInput(el){
+  if(_wpMemoTimer)clearTimeout(_wpMemoTimer);
+  _wpMemoTimer=setTimeout(function(){
+    saveWPFeedback('memo', el.value);
+  },600);
 }
 
 // ★ V0.6.1.hd / iq: 保存本周心情 — 最多选 2 种，点击同一表情可取消
