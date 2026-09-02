@@ -4527,6 +4527,40 @@ function _collectYearTasks(year){
   return tasks;
 }
 
+// ★ V0.7.1eq: 按优先级分类统计本年度（YTD）任务得分 — 供"本年度（YTD）MBO绩效得分"卡使用
+// 计分规则与 _calcWeekScore 一致：按时 onTime / 逾期(≤5工作日) overdue / 未做(>5工作日) notDone；暂停中/手动未做/进行中=0；豁免周跳过
+function _calcYTDScoreByCategory(year){
+  var totals={'重要紧急':0,'重要不急':0,'日常紧急':0,'日常事项':0};
+  var today=_getTodayStr();
+  for(var m=1;m<=12;m++){
+    for(var w=1;w<=4;w++){
+      var plan=getWP(year,m,w);
+      if(!plan||!plan.tasks||plan.exempted)continue;
+      for(var ti=0;ti<plan.tasks.length;ti++){
+        var t=plan.tasks[ti];
+        if(!t||!t.work||!t.work.trim())continue;
+        if(t.collab_from)continue;
+        if(!t.goal||!t.plannedDate)continue;
+        var sc=_TASK_SCORE_MAP[t.goal];
+        if(!sc)continue;
+        var pts=0;
+        if(t.status==='暂停中'){pts=0;}
+        else if(t.status==='未做'&&t._manualNotDone){pts=0;}
+        else if(t.actualDate){
+          if(t.actualDate<=t.plannedDate)pts=sc.onTime;
+          else pts=(_countWorkdays(t.plannedDate,t.actualDate)>5)?sc.notDone:sc.overdue;
+        }else{
+          // 无实际完成日期：仅当逾期超5个工作日时判定未做，否则进行中=0
+          if(today>t.plannedDate&&_countWorkdays(t.plannedDate,today)>5)pts=sc.notDone;
+        }
+        if(totals[t.goal]===undefined)totals[t.goal]=0;
+        totals[t.goal]+=pts;
+      }
+    }
+  }
+  return totals;
+}
+
 // ★ V0.5.0: 艾森豪威尔矩阵 — 渲染SVG象限卡片
 var _EM_POS_MAP={'重要紧急':{x:'right',y:'top'},'重要不急':{x:'left',y:'top'},'日常紧急':{x:'right',y:'bottom'},'日常事项':{x:'left',y:'bottom'}};
 
@@ -4708,7 +4742,7 @@ function _renderTimeManagementPanel(plan){
 
   // ★ Card 2: 评分标准（V0.4.91 新分值）
   html+='<div class="wp-card">';
-  html+='<div class="wp-card-title">评分标准</div>';
+  html+='<div class="wp-card-title">任务完成计分规则</div>';
   html+='<div>';
   html+='<table class="wp-card-table">';
   html+='<tr><td></td><td class="td-val" style="color:#6b7280;font-weight:400;font-size:10px">按时</td><td class="td-val" style="color:#6b7280;font-weight:400;font-size:10px">逾期</td><td class="td-val" style="color:#6b7280;font-weight:400;font-size:10px">未做</td></tr>';
@@ -4718,6 +4752,23 @@ function _renderTimeManagementPanel(plan){
   html+='<tr><td>日常事项</td><td class="td-val td-pos">+1</td><td class="td-val td-neg">−0.5</td><td class="td-val td-neg">−2</td></tr>';
   html+='<tr><td style="font-size:9px;color:#9ca3af;padding-top:6px;border-top:1px solid #e5e7eb;white-space:pre-line" colspan="4">注：\n手动选择"暂停中"→终止计算，积分=0\n逾期未超 5 个工作日→逾期完成；超 5 个工作日→自动判定未做</td></tr>';
   html+='</table>';
+  html+='</div>';
+  html+='</div>';
+
+  // ★ Card 4: 本年度（YTD）MBO绩效得分（V0.7.1eq：改为按优先级分类统计任务得分，与完成状态卡对调位置）
+  var _ytdCats=_calcYTDScoreByCategory(year);
+  var _ytdNet=(_ytdCats['重要紧急']||0)+(_ytdCats['重要不急']||0)+(_ytdCats['日常紧急']||0)+(_ytdCats['日常事项']||0);
+  html+='<div class="wp-card">';
+  html+='<div class="wp-card-title">本年度（YTD）MBO绩效得分</div>';
+  html+='<div>';
+  var _ytdCatNames=['重要紧急','重要不急','日常紧急','日常事项'];
+  for(var _yci=0;_yci<_ytdCatNames.length;_yci++){
+    var _ycn=_ytdCatNames[_yci];
+    var _yv=_ytdCats[_ycn]||0;
+    var _ylabel=_ycn+(_ycn==='日常事项'?'得分':'事项得分');
+    html+='<div class="wp-card-score-row"><span class="wp-card-score-label"><span style="color:'+(WP_GOAL_COLORS[_ycn]||'#6b7280')+';margin-right:4px">●</span>'+_ylabel+'</span><span class="wp-card-score-val" style="color:'+(_yv>=0?'#059669':'#dc2626')+'">'+(_yv>0?'+':'')+_yv+' 分</span></div>';
+  }
+  html+='<div class="wp-card-divider"><div style="display:flex;justify-content:space-between"><span style="color:#0F2C4B;font-size:12px;font-weight:500">净积分</span><span class="wp-card-score-bold">'+(_ytdNet>=0?'+':'')+_ytdNet+'</span></div></div>';
   html+='</div>';
   html+='</div>';
 
@@ -4734,45 +4785,6 @@ function _renderTimeManagementPanel(plan){
   html+='</table>';
   html+='<div style="margin-top:6px"><span class="wp-card-tag '+revTagClass+'">'+revText+'</span></div>';
   html+=exemptionBtn;
-  html+='</div>';
-  html+='</div>';
-
-  // ★ Card 4: 年度积分（明细版）
-  var netVal=scores.net||0;
-  html+='<div class="wp-card">';
-  html+='<div class="wp-card-title">'+year+'年积分</div>';
-  html+='<div>';
-  // 加分项
-  var tos=scores.totalOnTime||0;
-  if(tos>0)html+='<div class="wp-card-score-row"><span class="wp-card-score-label">按时完成</span><span class="wp-card-score-val" style="color:#059669">+'+tos+'</span></div>';
-  var trs=scores.totalReview||0;
-  if(trs>0)html+='<div class="wp-card-score-row"><span class="wp-card-score-label">上级评价</span><span class="wp-card-score-val" style="color:#059669">+'+trs+'</span></div>';
-  // ★ V0.6.1.hh: 奖牌评级分
-  var rtg=scores.totalRating||0;
-  if(rtg!==0)html+='<div class="wp-card-score-row"><span class="wp-card-score-label">🏅 评级</span><span class="wp-card-score-val" style="color:'+(rtg>0?'#059669':'#dc2626')+'">'+(rtg>0?'+':'')+rtg+'</span></div>';
-  // ★ V0.6.1.hh: 奖牌战绩
-  var mc=scores.medalCounts||{};
-  var medalBadges=[];
-  if(mc.gold)medalBadges.push('🥇×'+mc.gold);
-  if(mc.silver)medalBadges.push('🥈×'+mc.silver);
-  if(mc.bronze)medalBadges.push('🥉×'+mc.bronze);
-  if(mc.warn)medalBadges.push('⚠️×'+mc.warn);
-  if(mc.danger)medalBadges.push('⛔×'+mc.danger);
-  if(medalBadges.length>0)html+='<div class="wp-card-score-row" style="color:#6b7280;font-size:11px;justify-content:flex-start;gap:6px">'+medalBadges.join(' ')+'</div>';
-  // 扣分项
-  var tds=scores.totalOverdue||0;
-  if(tds<0)html+='<div class="wp-card-score-row"><span class="wp-card-score-label">逾期完成</span><span class="wp-card-score-val" style="color:#dc2626">'+tds+'</span></div>';
-  var tns=scores.totalNotDone||0;
-  if(tns<0)html+='<div class="wp-card-score-row"><span class="wp-card-score-label">未做</span><span class="wp-card-score-val" style="color:#dc2626">'+tns+'</span></div>';
-  // ★ V0.7.1ep: "提交按时"/"延迟提交"积分行已删除（按时提交不再积分，仅统计）
-  // 旧数据（兼容）
-  var leg=scores.legacyScore||0;
-  if(leg!==0)html+='<div class="wp-card-score-row"><span class="wp-card-score-label">其他</span><span class="wp-card-score-val" style="color:'+(leg>0?'#059669':'#dc2626')+'">'+(leg>0?'+':'')+leg+'</span></div>';
-  // 净积分
-  html+='<div class="wp-card-divider"><div style="display:flex;justify-content:space-between"><span style="color:#0F2C4B;font-size:12px;font-weight:500">净积分</span><span class="wp-card-score-bold">'+(netVal>=0?'+':'')+netVal+'</span></div></div>';
-  if((scores.net||0)<=-20){
-    html+='<div style="color:#6b7280;font-size:11px;margin-top:4px">⚠️ 不能胜任</div>';
-  }
   html+='</div>';
   html+='</div>';
   // ★ V0.5.0: 艾森豪威尔矩阵卡片
