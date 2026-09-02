@@ -1159,6 +1159,7 @@ function getAllIndirectSubordinates(uid){
     if(subs)for(var i=0;i<subs.length;i++){
       if(allDirect[subs[i]])continue; // 排除直属下属
       if(!seen[subs[i]]){
+        seen[subs[i]]=true; // ★ V0.7.1eo: 入队即标记去重（原在出队时标记，被多个下属同时引用的人会重复入队，如宋珊珊出现两次）
         indirect.push(subs[i]);
         queue.push(subs[i]);
       }
@@ -3346,7 +3347,7 @@ function renderWPTable(plan){
     else newTasks.push(j);
   }
 
-  html+='<div class="wp-table-x-scroll"><div class="wp-table-area"><div class="wp-table-wrap"><table class="wp-table"><colgroup><col style="width:56px"><col style="width:180px"><col style="width:80px"><col style="width:115px"><col style="width:115px"><col style="width:80px"><col style="width:115px"><col style="width:56px"><col style="width:90px"><col style="width:48px"><col style="width:80px"><col style="width:150px"><col style="width:90px"><col style="width:56px"><col style="width:150px"><col style="width:150px"></colgroup><thead><tr>';
+  html+='<div class="wp-table-x-scroll"><div class="wp-table-area"><div class="wp-table-wrap"><table class="wp-table"><colgroup><col style="width:56px"><col style="width:180px"><col style="width:80px"><col style="width:115px"><col style="width:115px"><col style="width:80px"><col style="width:115px"><col style="width:90px"><col style="width:48px"><col style="width:80px"><col style="width:150px"><col style="width:90px"><col style="width:56px"><col style="width:150px"><col style="width:150px"></colgroup><thead><tr>';
   var _sPri='',_sSd='',_sPd='',_sRd='',_sAd='',_sSt='';
   if(_wpSort && _wpSort.col && _wpSort.dir){
     var _arr=_wpSort.dir==='asc'?' ↑':' ↓';
@@ -3358,7 +3359,7 @@ function renderWPTable(plan){
   html+='<th class="col-hours wp-sortable" ondblclick="toggleWPSort(\'plannedDate\')" title="💡 双击表头切换排序" style="cursor:pointer">计划完成日期 <span style="opacity:.75;font-size:9px;color:#3B7DB4">⇅</span>'+_sPd+'</th>';
   html+='<th class="col-remaining wp-sortable" ondblclick="toggleWPSort(\'remainingDays\')" title="💡 双击表头切换排序" style="cursor:pointer;min-width:80px">剩余工作日 <span style="opacity:.75;font-size:9px;color:#3B7DB4">⇅</span>'+_sRd+'</th>';
   html+='<th class="col-hours wp-sortable" ondblclick="toggleWPSort(\'actualDate\')" title="双击排序" style="cursor:pointer">实际完成日期'+_sAd+'</th>';
-  html+='<th class="col-hours dur-tooltip" style="min-width:80px">用时(工作日)</th>';
+  // ★ V0.7.1eo: "用时(工作日)"列已删除（Tiger 2026-09-02 指令）
   html+='<th class="col-status wp-sortable" ondblclick="toggleWPSort(\'status\')" title="双击排序" style="cursor:pointer">状态'+_sSt+'</th>';
   html+='<th class="col-score">积分</th><th class="col-supporters">协同人 \| 状态</th><th class="col-wide">问题与挑战</th><th class="col-remarks">备注</th><th class="col-boss" style="white-space:normal;overflow:visible">上级意见与建议</th>';
   html+='</tr></thead><tbody>';
@@ -3367,7 +3368,7 @@ function renderWPTable(plan){
 
   // 上周转入区块
   if(carriedTasks.length>0){
-    html+='<tr class="wp-section-header" style="background:#E8F4FE"><td colspan="16" style="padding:6px 12px;font-size:12px;font-weight:600;color:#3B7DB4;border-bottom:2px solid #B7D6F0"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#3B7DB4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:4px"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>上周转入（'+carriedTasks.length+'项）</td></tr>';
+    html+='<tr class="wp-section-header" style="background:#E8F4FE"><td colspan="15" style="padding:6px 12px;font-size:12px;font-weight:600;color:#3B7DB4;border-bottom:2px solid #B7D6F0"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#3B7DB4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:4px"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>上周转入（'+carriedTasks.length+'项）</td></tr>';
     for(var ci=0;ci<carriedTasks.length;ci++){
       var jj=carriedTasks[ci]; seq++;
       var tt=plan.tasks[jj];
@@ -3391,16 +3392,7 @@ function renderWPTable(plan){
       html+='<td class="col-remaining" style="text-align:center;font-size:12px">'+_calcRemainingDays(tt.plannedDate||'',tt.actualDate||'')+'</td>';
       var _ad=renderWPCellValue(plan,'tasks.'+jj+'.actualDate',tt.actualDate||'');
       html+='<td class="'+edCls+' col-hours" data-field="tasks.'+jj+'.actualDate" data-type="date"'+edClick+'>'+(_ad?_ad:'<span style="color:#C0C0C0;font-style:italic;pointer-events:none;user-select:none">点击选择日期</span>')+'</td>';
-      // ★ V0.4.91d/Q: 耗时列（自动计算，只读）+ 蓝色角标 + tooltip数据
-      var _dur=_calcTaskDuration(tt);
-      var _durTip='';
-      if(_dur){
-        _durTip='启动: '+tt.startDate+'&#10;';
-        if(tt.actualDate)_durTip+='实际完成: '+tt.actualDate+'&#10;实际耗时: '+_dur+'个工作日';
-        else if(tt.status==='暂停中')_durTip+='暂停: '+(tt._pausedAt||'—')+'&#10;已锁定: '+_dur+'个工作日';
-        else _durTip+='计划完成: '+(tt.plannedDate||'—')+'&#10;预计耗时: '+_dur+'个工作日';
-      }
-      html+='<td class="col-duration' + (_dur?' has-duration':'') + '"' + (_durTip?' data-dur-tip="'+_durTip+'"':'') + ' style="text-align:center;font-variant-numeric:tabular-nums;color:#6b7280;font-size:12px">'+(_dur?_dur+'天':'—')+'</td>';
+      // ★ V0.7.1eo: "用时(工作日)"列已删除
       // ★ V0.1.49: 每行任务得分 — 完成状态在前，积分在后(与表头一致)
       html+='<td class="'+edCls+' col-status" data-field="tasks.'+jj+'.status" data-type="select" data-opts="'+WP_STATUS_OPTIONS.join(',')+'"'+edClick+'>'+(tt.status?_renderStatusDot(tt.status):'<span style="color:#C0C0C0;font-style:italic;pointer-events:none;user-select:none">选择</span>')+'</td>';
       html+=_renderTaskScoreCell(plan,jj);
@@ -3423,7 +3415,7 @@ function renderWPTable(plan){
   // 本周新增区块（标题行总是渲染）
   // ★ V0.7.1cq: 计算 afterIdx — 在最后一行 carriedTask 后插入；若没 carriedTask 则插入到开头（-1）
   var _addAfterIdx=carriedTasks.length>0?carriedTasks[carriedTasks.length-1]:-1;
-  html+='<tr class="wp-section-header" style="background:#F0F9FF"><td colspan="16" style="padding:6px 12px;font-size:12px;font-weight:600;color:#3B7DB4;border-bottom:2px solid #BAE6FD"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#3B7DB4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:4px"><path d="M12 5v14M5 12h14"/></svg>本周新增（'+newTasks.length+'项）</td></tr>';
+  html+='<tr class="wp-section-header" style="background:#F0F9FF"><td colspan="15" style="padding:6px 12px;font-size:12px;font-weight:600;color:#3B7DB4;border-bottom:2px solid #BAE6FD"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#3B7DB4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:4px"><path d="M12 5v14M5 12h14"/></svg>本周新增（'+newTasks.length+'项）</td></tr>';
   for(var ni=0;ni<newTasks.length;ni++){
     var j=newTasks[ni]; seq++;
     var t=plan.tasks[j];
@@ -3450,16 +3442,7 @@ function renderWPTable(plan){
     }else{
       html+='<td class="editable col-hours'+_summaryFrozenCls+'" data-field="tasks.'+j+'.actualDate" data-type="date" onclick="startEditCell(this)">'+(actualDateDisplay?actualDateDisplay:'<span style="color:#C0C0C0;font-style:italic;pointer-events:none;user-select:none">点击选择日期</span>')+'</td>';
     }
-    // ★ V0.4.91d/Q: 耗时列（自动计算，只读）+ 蓝色角标 + tooltip数据
-    var _durNew=_calcTaskDuration(t);
-    var _durTip='';
-    if(_durNew){
-      _durTip='启动: '+t.startDate+'&#10;';
-      if(t.actualDate)_durTip+='实际完成: '+t.actualDate+'&#10;实际耗时: '+_durNew+'个工作日';
-      else if(t.status==='暂停中')_durTip+='暂停: '+(t._pausedAt||'—')+'&#10;已锁定: '+_durNew+'个工作日';
-      else _durTip+='计划完成: '+(t.plannedDate||'—')+'&#10;预计耗时: '+_durNew+'个工作日';
-    }
-    html+='<td class="col-duration' + (_durNew?' has-duration':'') + '"' + (_durTip?' data-dur-tip="'+_durTip+'"':'') + ' style="text-align:center;font-variant-numeric:tabular-nums;color:#6b7280;font-size:12px">'+(_durNew?_durNew+'天':'—')+'</td>';
+    // ★ V0.7.1eo: "用时(工作日)"列已删除
     // ★ V0.1.49: 每行任务积分
     html+='<td class="editable col-status" data-field="tasks.'+j+'.status" data-type="select" data-opts="'+WP_STATUS_OPTIONS.join(',')+'" onclick="startEditCell(this)">'+(t.status?_renderStatusDot(t.status):'<span style="color:#C0C0C0;font-style:italic;pointer-events:none;user-select:none">选择</span>')+'</td>';
     html+=_renderTaskScoreCell(plan,j);
@@ -3490,7 +3473,6 @@ function renderWPTable(plan){
   _blankAddHtml+='<td class="col-hours" style="color:#C0C0C0;text-align:center;cursor:pointer" '+_blankRowClick+'>点击选择日期</td>';
   _blankAddHtml+='<td class="col-remaining" style="color:#C0C0C0;text-align:center">—</td>';
   _blankAddHtml+='<td class="col-hours" style="color:#C0C0C0;text-align:center;cursor:pointer" '+_blankRowClick+'>点击选择日期</td>';
-  _blankAddHtml+='<td class="col-duration" style="color:#C0C0C0;text-align:center">—</td>';
   _blankAddHtml+='<td class="col-status" style="color:#C0C0C0;text-align:center;cursor:pointer" '+_blankRowClick+'>选择</td>';
   _blankAddHtml+='<td style="text-align:center;color:#9CA3AF">—</td>';
   _blankAddHtml+='<td class="col-supporters" style="color:#C0C0C0;cursor:pointer" '+_blankRowClick+'>协同人</td>';
@@ -3506,7 +3488,6 @@ function renderWPTable(plan){
   html+='<td class="wp-total-num">'+hasPlan+' 项排期</td>'; // 计划完成日期
   html+='<td style="background:#f6f8fc"></td>'; // 剩余办结天数
   html+='<td class="wp-total-num">'+hasActual+' 项完成</td>'; // 实际完成日期
-  html+='<td style="background:#f6f8fc"></td>'; // 耗时
   html+='<td style="text-align:center;background:#f6f8fc"></td>'; // 状态
   html+='<td style="text-align:center;background:#f6f8fc;font-weight:600;font-size:12px;color:#2A476A">'+(taskScoreDisplay||'')+'</td>'; // 积分
   html+='<td colspan="2" style="text-align:right;padding-right:12px;background:#f6f8fc">逾期任务</td>'; // 协同+问题
