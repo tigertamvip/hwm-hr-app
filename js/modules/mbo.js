@@ -4529,11 +4529,13 @@ function _collectYearTasks(year){
 
 // ★ V0.7.1eq: 按优先级分类统计本年度（YTD）任务得分 — 供"本年度（YTD）MBO绩效得分"卡使用
 // 计分规则与 _calcWeekScore 一致：按时 onTime / 逾期(≤5工作日) overdue / 未做(>5工作日) notDone；暂停中/手动未做/进行中=0；豁免周跳过
+// ★ V0.7.1er: 同一任务（含上周转入链）年度只计一次分，以其最新一周的状态为准（Tiger 2026-09-02 确认：转入任务未按时完成不得重复扣分）
 function _calcYTDScoreByCategory(year){
-  var totals={'重要紧急':0,'重要不急':0,'日常紧急':0,'日常事项':0};
   var today=_getTodayStr();
+  // 按周序遍历，后出现的同工作内容任务覆盖先出现的（转入副本在后面的周，天然"最新状态赢"）
+  var latest={}; // work -> {goal, pts}
   for(var m=1;m<=12;m++){
-    for(var w=1;w<=4;w++){
+    for(var w=1;w<=5;w++){
       var plan=getWP(year,m,w);
       if(!plan||!plan.tasks||plan.exempted)continue;
       for(var ti=0;ti<plan.tasks.length;ti++){
@@ -4553,10 +4555,16 @@ function _calcYTDScoreByCategory(year){
           // 无实际完成日期：仅当逾期超5个工作日时判定未做，否则进行中=0
           if(today>t.plannedDate&&_countWorkdays(t.plannedDate,today)>5)pts=sc.notDone;
         }
-        if(totals[t.goal]===undefined)totals[t.goal]=0;
-        totals[t.goal]+=pts;
+        latest[t.work.trim()]={goal:t.goal,pts:pts};
       }
     }
+  }
+  var totals={'重要紧急':0,'重要不急':0,'日常紧急':0,'日常事项':0};
+  for(var k in latest){
+    if(!latest.hasOwnProperty(k))continue;
+    var e=latest[k];
+    if(totals[e.goal]===undefined)totals[e.goal]=0;
+    totals[e.goal]+=e.pts;
   }
   return totals;
 }
@@ -4769,6 +4777,7 @@ function _renderTimeManagementPanel(plan){
     html+='<div class="wp-card-score-row"><span class="wp-card-score-label"><span style="color:'+(WP_GOAL_COLORS[_ycn]||'#6b7280')+';margin-right:4px">●</span>'+_ylabel+'</span><span class="wp-card-score-val" style="color:'+(_yv>=0?'#059669':'#dc2626')+'">'+(_yv>0?'+':'')+_yv+' 分</span></div>';
   }
   html+='<div class="wp-card-divider"><div style="display:flex;justify-content:space-between"><span style="color:#0F2C4B;font-size:12px;font-weight:500">净积分</span><span class="wp-card-score-bold">'+(_ytdNet>=0?'+':'')+_ytdNet+'</span></div></div>';
+  html+='<div style="font-size:9px;color:#9ca3af;margin-top:4px;line-height:1.4">注：同一任务（含上周转入）仅按最新完成状态计一次分，不重复奖罚</div>';
   html+='</div>';
   html+='</div>';
 
