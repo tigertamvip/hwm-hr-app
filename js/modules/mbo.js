@@ -3361,7 +3361,7 @@ function renderWPTable(plan){
   html+='<th class="col-hours wp-sortable" ondblclick="toggleWPSort(\'actualDate\')" title="双击排序" style="cursor:pointer">实际完成日期'+_sAd+'</th>';
   // ★ V0.7.1eo: "用时(工作日)"列已删除（Tiger 2026-09-02 指令）
   html+='<th class="col-status wp-sortable" ondblclick="toggleWPSort(\'status\')" title="双击排序" style="cursor:pointer">状态'+_sSt+'</th>';
-  html+='<th class="col-score">积分</th><th class="col-supporters">协同人 \| 状态</th><th class="col-wide">问题与挑战</th><th class="col-remarks">备注</th><th class="col-boss" style="white-space:normal;overflow:visible">上级意见与建议</th>';
+  html+='<th class="col-score">积分</th><th class="col-supporters">协同人 \| 状态</th><th class="col-wide">问题与挑战</th><th class="col-remarks">需要支持</th><th class="col-boss" style="white-space:normal;overflow:visible">上级意见与建议</th>';
   html+='</tr></thead><tbody>';
 
   var seq=0;
@@ -3403,7 +3403,7 @@ function renderWPTable(plan){
       // ★ V0.7.1bz: 问题类型 + 需上级介入 列已删除
       // ★ j83: 清洗 col-remarks 脏数据
       var _cleanRemarks=_cleanPlaceholderText(tt.remarks);
-      html+='<td class="'+edCls+' col-remarks" data-field="tasks.'+jj+'.remarks" data-type="textarea"'+edClick+'>'+(_cleanRemarks?(plan._revisions&&plan._revisions['tasks.'+jj+'.remarks']?renderWPCellValue(plan,'tasks.'+jj+'.remarks',_cleanRemarks):_h(_cleanRemarks)):'<span style="color:#C0C0C0;font-style:italic;pointer-events:none;user-select:none">备注</span>')+'</td>';
+      html+='<td class="'+edCls+' col-remarks" data-field="tasks.'+jj+'.remarks" data-type="textarea"'+edClick+'>'+(_cleanRemarks?(plan._revisions&&plan._revisions['tasks.'+jj+'.remarks']?renderWPCellValue(plan,'tasks.'+jj+'.remarks',_cleanRemarks):_h(_cleanRemarks)):'<span style="color:#C0C0C0;font-style:italic;pointer-events:none;user-select:none">需要支持</span>')+'</td>';
       var bossCanEdit=isMySubordinate(plan.name) || !!_wpViewingDeptMember;
       // ★ j83: 清洗 col-bossFeedback 脏数据
       var _cleanBossFb=_cleanPlaceholderText(tt.bossFeedback);
@@ -3455,7 +3455,7 @@ function renderWPTable(plan){
     // ★ V0.3.36: 备注说明(员工自填，新列)
     // ★ j83: 清洗脏数据
     var _cleanNewRemarks=_cleanPlaceholderText(t.remarks);
-    html+='<td class="editable col-remarks" data-field="tasks.'+j+'.remarks" data-type="textarea" onclick="startEditCell(this)">'+(_cleanNewRemarks?(plan._revisions&&plan._revisions['tasks.'+j+'.remarks']?renderWPCellValue(plan,'tasks.'+j+'.remarks',_cleanNewRemarks):_h(_cleanNewRemarks)):'<span style="color:#C0C0C0;font-style:italic;pointer-events:none;user-select:none">备注</span>')+'</td>';
+    html+='<td class="editable col-remarks" data-field="tasks.'+j+'.remarks" data-type="textarea" onclick="startEditCell(this)">'+(_cleanNewRemarks?(plan._revisions&&plan._revisions['tasks.'+j+'.remarks']?renderWPCellValue(plan,'tasks.'+j+'.remarks',_cleanNewRemarks):_h(_cleanNewRemarks)):'<span style="color:#C0C0C0;font-style:italic;pointer-events:none;user-select:none">需要支持</span>')+'</td>';
     var bossCanEdit=isMySubordinate(plan.name) || !!_wpViewingDeptMember;
     var _cleanNewBossFb=_cleanPlaceholderText(t.bossFeedback);
     html+='<td class="col-boss'+(bossCanEdit?' editable':'')+'"'+(bossCanEdit?' data-field="tasks.'+j+'.bossFeedback" data-type="textarea" onclick="startEditCell(this)"':'')+'>'+(_cleanNewBossFb?_h(_cleanNewBossFb):(plan._revisions&&plan._revisions['tasks.'+j+'.bossFeedback']?renderWPCellValue(plan,'tasks.'+j+'.bossFeedback',t.bossFeedback):'<span style="color:#C0C0C0;font-style:italic;pointer-events:none;user-select:none">上级建议</span>'))+'</td>';
@@ -3477,7 +3477,7 @@ function renderWPTable(plan){
   _blankAddHtml+='<td style="text-align:center;color:#9CA3AF">—</td>';
   _blankAddHtml+='<td class="col-supporters" style="color:#C0C0C0;cursor:pointer" '+_blankRowClick+'>协同人</td>';
   _blankAddHtml+='<td class="col-wide" style="color:#C0C0C0;cursor:pointer" '+_blankRowClick+'>问题与挑战</td>';
-  _blankAddHtml+='<td class="col-remarks" style="color:#C0C0C0;cursor:pointer" '+_blankRowClick+'>备注</td>';
+  _blankAddHtml+='<td class="col-remarks" style="color:#C0C0C0;cursor:pointer" '+_blankRowClick+'>需要支持</td>';
   _blankAddHtml+='<td class="col-boss" style="color:#C0C0C0;cursor:pointer" '+_blankRowClick+'>上级建议</td>';
   _blankAddHtml+='</tr>';
   html+=_blankAddHtml;
@@ -3653,18 +3653,7 @@ function renderWPTable(plan){
   },10);
 
   // ★ V0.6.2d: 取消耗时单元格悬停弹窗（用户反馈无实际意义）
-  // （保留 wp-grace-tip 计分规则宽限期 tooltip）
-
-  // 计分规则提示复用同一生命周期，避免两类动态提示互相叠加或在重绘后残留。
-  setTimeout(function(){
-    var graceEl=content.querySelector('.wp-grace-tip');
-    if(!graceEl)return;
-    graceEl.addEventListener('mouseenter',function(){
-      _showWPTooltip(graceEl,'当工作逾期未完成，逾期未到5个工作日时 → 系统状态标注为「逾期完成」，超过5个工作日 → 系统自动判定为「未做」并扣较高分值。具体分值参见右侧「评分标准」。\n\n【试用期提示】2026-08-01 12:00 前为员工试用期，提交评分（按时奖/延迟扣分）暂停计算；任务完成评分不受影响。');
-    });
-    graceEl.addEventListener('mouseleave',_clearWPTooltips);
-    graceEl.style.cursor='help';
-  },10);
+  // ★ V0.7.1ep: wp-grace-tip 宽限期 tooltip 已随"计分规则"卡一并删除（5工作日宽限期说明迁入"评分标准"卡注释）
 
   // ★ V0.5.0: 艾森豪威尔矩阵圆点点击跳转
   setTimeout(function(){
@@ -3766,7 +3755,7 @@ function startEditCell(cell){
     var sfParts=field.split('.');
     cur=(_wpCurrent.plan.tasks[parseInt(sfParts[1])]&&_wpCurrent.plan.tasks[parseInt(sfParts[1])].supporters)||'';
   }else{
-    cur=cell.textContent.replace(/来源[：:]\d{4}年\d{1,2}月第[1-4]周|点击填写|填写|选择|上级建议|备注|●/g,'').trim();
+    cur=cell.textContent.replace(/来源[：:]\d{4}年\d{1,2}月第[1-4]周|点击填写|填写|选择|上级建议|备注|需要支持|●/g,'').trim();
     // ★ V0.4.46: 旧状态值映射
     var _oldStatusMap={'✓完成':'按时完成','⚙推进中':'进行中','⏸暂停':'逾期完成','❌未完成':'暂停中'};
     if(_oldStatusMap[cur])cur=_oldStatusMap[cur];
@@ -4141,7 +4130,7 @@ async function saveWPAndGoHome(){
         var parts=field.split('.'), ti=parseInt(parts[1]), prop=parts[2];
         if(isNaN(ti)||!prop||!p.tasks[ti])continue;
         var ctrl=cell.querySelector('input,textarea,select');
-        var value=ctrl?ctrl.value:cell.textContent.replace(/点击填写|选择|点击选择日期|备注|上级建议/g,'').trim();
+        var value=ctrl?ctrl.value:cell.textContent.replace(/点击填写|选择|点击选择日期|备注|需要支持|上级建议/g,'').trim();
         if(prop==='work')value=_stripCarriedFromLabels(value);
         if(prop==='supporters'){
           var chips=cell.querySelectorAll('.supporter-chip span:first-child');
@@ -4362,10 +4351,7 @@ function _saveAnnualScores(uid,year,scores){
 }
 
 // ★ V0.1.35: 计算本周得分
-// ★ V0.6.2f: 试用期豁免 — 2026-08-01 12:00 前不计提交评分（不奖不扣）
-// 必须声明在函数外（模块作用域），_calcWeekScore 与 _renderTimeManagementPanel 都要用
-var _SCORE_TRIAL_CUTOFF=new Date('2026-08-01T12:00:00').getTime();
-function _isScoreTrialPeriod(){return Date.now()<_SCORE_TRIAL_CUTOFF;}
+// ★ V0.7.1ep: 试用期豁免（_isScoreTrialPeriod）已随提交积分机制一并删除
 
 function _calcWeekScore(plan){
   if(!plan||!plan.year)return;
@@ -4382,41 +4368,12 @@ function _calcWeekScore(plan){
   var weekScore=0;
 
   // ★ 分类统计（用于明细面板）
-  var onTimeScore=0,overdueScore=0,notDoneScore=0,lateSubmitScore=0,reviewScore=0,onTimeSubmitScore=0;
+  var onTimeScore=0,overdueScore=0,notDoneScore=0,reviewScore=0;
 
-  // ★ V0.6.1ac: 统计之前已有的累计延迟次数（排除当前周，因为当前周数据可能不完整）
-  var existingLateCount=0;
-  for(var wid in scores.weeks){
-    if(wid===weekId)continue;
-    var ews=scores.weeks[wid];
-    if(ews.submittedStatus==='late')existingLateCount++;
-    if(ews.summaryStatus==='late')existingLateCount++;
-  }
-
-  // ★ V0.6.2e: 试用期豁免（_isScoreTrialPeriod 已声明为模块级函数）
-
-  // ★ V0.6.1.iy: 法定节假日豁免 — 周六截止日恰逢法定节假日，免除扣分
+  // ★ V0.6.1.iy: 法定节假日豁免 — 周六截止日恰逢法定节假日，提交状态标记为豁免（仅影响统计，不影响积分）
   if(_isDeadlineHoliday(plan.year,plan.month,plan.week))plan.exempted=true;
 
-  // ★ V0.6.1.iy: 提交评分（对齐制度 — 按时+0.5，未按时-1，第4次起-2）
-  if(subStatus==='exempted'||_isScoreTrialPeriod()){
-    // 试用期 / 法定节假日豁免，不加分也不扣分
-  }else if(subStatus==='on_time'){weekScore+=0.5;onTimeSubmitScore=0.5;}
-  else if(subStatus==='late'&&plan.firstSubmittedAt){
-    existingLateCount++;
-    var penalty=(existingLateCount>3)?-2:-1;
-    lateSubmitScore+=penalty;weekScore+=penalty;
-  }
-
-  // ★ V0.6.1.iy: 小结提交评分（按时+0.5，未按时同规则）
-  if(sumStatus==='exempted'||_isScoreTrialPeriod()){
-    // 试用期 / 法定节假日豁免
-  }else if(sumStatus==='on_time'){weekScore+=0.5;/* 小结按时得分已在制度统一合并为+0.5 */}
-  else if(sumStatus==='late'&&plan.summarySubmittedAt){
-    existingLateCount++;
-    var spenalty=(existingLateCount>3)?-2:-1;
-    lateSubmitScore+=spenalty;weekScore+=spenalty;
-  }
+  // ★ V0.7.1ep: 计划/小结按时提交的积分机制已取消（Tiger 2026-09-02 指令）——仅保留 submittedStatus/summaryStatus 状态记录，供统计面板计数
 
   // 评价奖励（仅上级按时完成时给下属加分）
   if(revStatus==='on_time'){weekScore+=2;reviewScore=2;}
@@ -4490,19 +4447,19 @@ function _calcWeekScore(plan){
   // 豁免时归零
   if(plan.exempted)weekScore=0;
 
-  // 记录本周（含明细）
+  // 记录本周（含明细）— ★ V0.7.1ep: 保留 submittedStatus/summaryStatus 供统计；不再记录提交积分字段
   scores.weeks[weekId]={
     submittedStatus:subStatus, summaryStatus:sumStatus, reviewedStatus:revStatus,
     exempted:!!plan.exempted, score:weekScore,
     taskScore:taskScore,
     onTimeScore:onTimeScore, overdueScore:overdueScore,
-    notDoneScore:notDoneScore, lateSubmitScore:lateSubmitScore,
-    reviewScore:reviewScore, onTimeSubmitScore:onTimeSubmitScore,
+    notDoneScore:notDoneScore,
+    reviewScore:reviewScore,
     ratingScore:ratingScore, weeklyRating:effectiveRating
   };
 
-  // 重新汇总（含明细 + 兼容旧数据）
-  var totalOnTime=0,totalOverdue=0,totalNotDone=0,totalLateSubmit=0,totalReview=0,totalOnTimeSubmit=0,totalRating=0,legacyScore=0;
+  // 重新汇总（含明细 + 兼容旧数据）— ★ V0.7.1ep: 提交按时/延迟积分不再计入净积分
+  var totalOnTime=0,totalOverdue=0,totalNotDone=0,totalReview=0,totalRating=0,legacyScore=0;
   var medalCounts={gold:0,silver:0,bronze:0,warn:0,danger:0};
   for(var wid in scores.weeks){
     var ws=scores.weeks[wid];
@@ -4511,9 +4468,7 @@ function _calcWeekScore(plan){
       totalOnTime+=ws.onTimeScore||0;
       totalOverdue+=ws.overdueScore||0;
       totalNotDone+=ws.notDoneScore||0;
-      totalLateSubmit+=ws.lateSubmitScore||0;
       totalReview+=ws.reviewScore||0;
-      totalOnTimeSubmit+=ws.onTimeSubmitScore||0;
       totalRating+=ws.ratingScore||0;
       if(ws.weeklyRating&&medalCounts[ws.weeklyRating]!==undefined)medalCounts[ws.weeklyRating]++;
     }else{
@@ -4521,11 +4476,13 @@ function _calcWeekScore(plan){
     }
   }
   scores.totalOnTime=totalOnTime; scores.totalOverdue=totalOverdue;
-  scores.totalNotDone=totalNotDone; scores.totalLateSubmit=totalLateSubmit;
-  scores.totalReview=totalReview; scores.totalOnTimeSubmit=totalOnTimeSubmit;
+  scores.totalNotDone=totalNotDone;
+  scores.totalReview=totalReview;
   scores.totalRating=totalRating; scores.medalCounts=medalCounts;
   scores.legacyScore=legacyScore;
-  scores.net=totalOnTime+totalOverdue+totalNotDone+totalLateSubmit+totalReview+totalOnTimeSubmit+totalRating+legacyScore;
+  // ★ V0.7.1ep: 清除历史提交积分汇总字段（防止旧数据残留显示）
+  delete scores.totalLateSubmit; delete scores.totalOnTimeSubmit;
+  scores.net=totalOnTime+totalOverdue+totalNotDone+totalReview+totalRating+legacyScore;
   _saveAnnualScores(uid,year,scores);
   return scores;
 }
@@ -4726,18 +4683,25 @@ function _renderTimeManagementPanel(plan){
   html+='<div class="wp-overview-content" id="wpOverviewContent" style="'+(_wpOverviewExpanded?'max-height:1600px;opacity:1':'max-height:0;opacity:0')+'">';
   html+='<div class="wp-cards-grid">';
 
-  // ★ Card 1: 计分规则（V0.4.91 新规则）
+  // ★ Card 1: 周计划/小结按时提交情况统计（V0.7.1ep 取代原"计分规则"卡 — 按时提交不再积分，仅统计）
+  var _statPlanOn=0,_statPlanLate=0,_statSumOn=0,_statSumLate=0;
+  for(var _swid in scores.weeks){
+    var _sws=scores.weeks[_swid];
+    if(_sws.submittedStatus==='on_time')_statPlanOn++;
+    else if(_sws.submittedStatus==='late')_statPlanLate++;
+    if(_sws.summaryStatus==='on_time')_statSumOn++;
+    else if(_sws.summaryStatus==='late')_statSumLate++;
+  }
+  var _statOwner=(uid===((currentUser&&currentUser.name)||''))?'我':uid;
   html+='<div class="wp-card">';
-  html+='<div class="wp-card-title">计分规则</div>';
+  html+='<div class="wp-card-title">'+_statOwner+'的周计划/小结按时提交情况</div>';
   html+='<div>';
   html+='<table class="wp-card-table">';
-  html+='<tr><td><span style="color:#059669;margin-right:6px">✓</span>周六12:00前提交上周小结</td><td class="td-val td-pos" style="color:#059669;font-weight:600">+0.5</td></tr>';
-  html+='<tr><td><span style="color:#059669;margin-right:6px">✓</span>周六12:00前提交下周计划</td><td class="td-val td-pos" style="color:#059669;font-weight:600">+0.5</td></tr>';
-  html+='<tr><td style="color:#6b7280"><span style="margin-right:6px">—</span>法定节假日顺延</td><td class="td-val" style="color:#6b7280">免扣</td></tr>';
-  html+='<tr><td style="color:#6b7280"><span style="margin-right:6px">○</span>未按时提交计划</td><td class="td-val" style="color:#dc2626;font-weight:500">−1</td></tr>';
-  html+='<tr><td style="color:#6b7280"><span style="margin-right:6px">○</span>未按时提交小结</td><td class="td-val" style="color:#dc2626;font-weight:500">−1</td></tr>';
-  html+='<tr><td style="color:#6b7280"><span style="margin-right:6px">⚠</span>累计>3次加倍扣</td><td class="td-val" style="color:#dc2626;font-weight:600">−2</td></tr>';
-  html+='<tr><td class="wp-grace-tip" style="font-size:9px;color:#6b7280;padding-top:6px;border-top:1px solid #e5e7eb;white-space:pre-line;cursor:help" colspan="2">注：\n延迟次数=计划+小结延迟合计（当年累计）<span style="color:#9ca3af">，超过 3 次加倍扣分</span></td></tr>';
+  html+='<tr><td><span style="color:#059669;margin-right:6px">✓</span>计划按时提交次数</td><td class="td-val" style="color:#059669;font-weight:600">'+_statPlanOn+' 次</td></tr>';
+  html+='<tr><td><span style="color:#dc2626;margin-right:6px">○</span>计划延迟提交次数</td><td class="td-val" style="color:#dc2626;font-weight:600">'+_statPlanLate+' 次</td></tr>';
+  html+='<tr><td><span style="color:#059669;margin-right:6px">✓</span>小结按时提交次数</td><td class="td-val" style="color:#059669;font-weight:600">'+_statSumOn+' 次</td></tr>';
+  html+='<tr><td><span style="color:#dc2626;margin-right:6px">○</span>小结延迟提交次数</td><td class="td-val" style="color:#dc2626;font-weight:600">'+_statSumLate+' 次</td></tr>';
+  html+='<tr><td style="font-size:9px;color:#9ca3af;padding-top:6px;border-top:1px solid #e5e7eb;white-space:pre-line" colspan="2">注：\n按时提交不再奖励/扣分，仅作统计（当年累计）。截止时间：每周六 12:00，法定节假日顺延。</td></tr>';
   html+='</table>';
   html+='</div>';
   html+='</div>';
@@ -4752,7 +4716,7 @@ function _renderTimeManagementPanel(plan){
   html+='<tr><td>重要不急</td><td class="td-val td-pos">+2</td><td class="td-val td-neg">−1</td><td class="td-val td-neg">−4</td></tr>';
   html+='<tr><td>日常紧急</td><td class="td-val td-pos">+1.5</td><td class="td-val td-neg">−1</td><td class="td-val td-neg">−3</td></tr>';
   html+='<tr><td>日常事项</td><td class="td-val td-pos">+1</td><td class="td-val td-neg">−0.5</td><td class="td-val td-neg">−2</td></tr>';
-  html+='<tr><td style="font-size:9px;color:#9ca3af;padding-top:6px;border-top:1px solid #e5e7eb;white-space:pre-line" colspan="4">注：\n手动选择"暂停中"→终止计算，积分=0</td></tr>';
+  html+='<tr><td style="font-size:9px;color:#9ca3af;padding-top:6px;border-top:1px solid #e5e7eb;white-space:pre-line" colspan="4">注：\n手动选择"暂停中"→终止计算，积分=0\n逾期未超 5 个工作日→逾期完成；超 5 个工作日→自动判定未做</td></tr>';
   html+='</table>';
   html+='</div>';
   html+='</div>';
@@ -4777,16 +4741,10 @@ function _renderTimeManagementPanel(plan){
   var netVal=scores.net||0;
   html+='<div class="wp-card">';
   html+='<div class="wp-card-title">'+year+'年积分</div>';
-  // ★ V0.6.2e: 试用期提示（8/1 12:00 前不计算提交评分）
-  if(_isScoreTrialPeriod()){
-    html+='<div style="font-size:10px;color:#92400e;background:#FEF3C7;padding:6px 8px;border-radius:4px;margin-bottom:6px;line-height:1.4">⏳ 试用期（至 2026-08-01 12:00），提交评分暂停</div>';
-  }
   html+='<div>';
   // 加分项
   var tos=scores.totalOnTime||0;
   if(tos>0)html+='<div class="wp-card-score-row"><span class="wp-card-score-label">按时完成</span><span class="wp-card-score-val" style="color:#059669">+'+tos+'</span></div>';
-  var tosSub=scores.totalOnTimeSubmit||0;
-  if(tosSub>0)html+='<div class="wp-card-score-row"><span class="wp-card-score-label">提交按时</span><span class="wp-card-score-val" style="color:#059669">+'+tosSub+'</span></div>';
   var trs=scores.totalReview||0;
   if(trs>0)html+='<div class="wp-card-score-row"><span class="wp-card-score-label">上级评价</span><span class="wp-card-score-val" style="color:#059669">+'+trs+'</span></div>';
   // ★ V0.6.1.hh: 奖牌评级分
@@ -4806,8 +4764,7 @@ function _renderTimeManagementPanel(plan){
   if(tds<0)html+='<div class="wp-card-score-row"><span class="wp-card-score-label">逾期完成</span><span class="wp-card-score-val" style="color:#dc2626">'+tds+'</span></div>';
   var tns=scores.totalNotDone||0;
   if(tns<0)html+='<div class="wp-card-score-row"><span class="wp-card-score-label">未做</span><span class="wp-card-score-val" style="color:#dc2626">'+tns+'</span></div>';
-  var tls=scores.totalLateSubmit||0;
-  if(tls<0)html+='<div class="wp-card-score-row"><span class="wp-card-score-label">延迟提交</span><span class="wp-card-score-val" style="color:#dc2626">'+tls+'</span></div>';
+  // ★ V0.7.1ep: "提交按时"/"延迟提交"积分行已删除（按时提交不再积分，仅统计）
   // 旧数据（兼容）
   var leg=scores.legacyScore||0;
   if(leg!==0)html+='<div class="wp-card-score-row"><span class="wp-card-score-label">其他</span><span class="wp-card-score-val" style="color:'+(leg>0?'#059669':'#dc2626')+'">'+(leg>0?'+':'')+leg+'</span></div>';
