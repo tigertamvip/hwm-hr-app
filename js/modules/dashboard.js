@@ -292,6 +292,7 @@ function _dsRefreshData() {
     ytdSumSub: ytdSum,
     ratings: ratings, ratingDetails: ratingDetails, totalRatings: ratings.gold + ratings.silver + ratings.bronze + ratings.warn + ratings.danger,
     moods: moods, totalMoods: moodPlanCount,
+    quad: _dsCalcQuadStats(users, allPlans),
     lastUpdate: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
   };
 
@@ -316,9 +317,18 @@ function _dsSyncFromCloud() {
         // 同步关键状态字段，避免本地旧缓存导致统计错位
         var localKey = 'hwm_workplans_' + un;
         try {
-          var local = JSON.parse(localStorage.getItem(localKey) || '{}');
-          var localPlan = local[wk] || {};
-          var localRating = localPlan.weeklyRating || '';
+        var local = JSON.parse(localStorage.getItem(localKey) || '{}');
+        var localPlan = local[wk] || {};
+        // ★ V0.7.1fj: 本地无内容但云端有 → 云端完整计划无条件写入（四象限统计依赖 tasks；与"云端空壳不覆盖本地"规则对称）
+        var _localHasWork = !!(localPlan.tasks && localPlan.tasks.length > 0);
+        var _cloudHasWork = !!(pd.tasks && pd.tasks.length > 0);
+        if (!_localHasWork && _cloudHasWork) {
+          local[wk] = pd;
+          localStorage.setItem(localKey, JSON.stringify(local));
+          merged = true;
+          continue;
+        }
+        var localRating = localPlan.weeklyRating || '';
           var cloudRating = pd.weeklyRating || '';
           var localEvaluated = !!localPlan.bossEvaluated;
           var cloudEvaluated = !!pd.bossEvaluated;
@@ -404,10 +414,59 @@ function _getISOWeek(d) {
 }
 
 // ===== 驾驶舱 =====
+// ★ V0.7.1fj: 部门归并 — 按关键词映射到 Tiger 指定的 7 大部门桶（顺序即优先级：注册>财务>质量>研发>人力行政>营销>制造）
+function _dsDeptBucket(u) {
+  var s = (String((u && u.dept) || '') + ' ' + String((u && u.centerKeyword) || ''));
+  if (/注册/.test(s)) return '注册部';
+  if (/财务/.test(s)) return '财务部';
+  if (/质量/.test(s)) return '质量中心';
+  if (/研发/.test(s)) return '研发中心';
+  if (/人力|行政|总经办/.test(s)) return '人力资源行政部';
+  if (/营销|销售|商务|市场/.test(s)) return '营销中心';
+  if (/生产|制造|供应链|摩祖|仓管/.test(s)) return '制造中心';
+  return '其他';
+}
+var _DS_QUADS = ['重要紧急', '重要不急', '日常紧急', '日常事项'];
+var _DS_DEPT_ORDER = ['研发中心', '制造中心', '营销中心', '质量中心', '人力资源行政部', '财务部', '注册部'];
+// ★ V0.7.1fj: 四象限任务完成统计 — 公司整体 + 分部门；同一用户年度任务按清洗后正文去重（后周覆盖前周，与 V0.7.1ff 同口径）
+function _dsCalcQuadStats(users, allPlans) {
+  var year = new Date().getFullYear();
+  var company = {}, depts = {};
+  for (var qi = 0; qi < 4; qi++) company[_DS_QUADS[qi]] = { t: 0, d: 0 };
+  for (var uname in users) {
+    var bucket = _dsDeptBucket(users[uname]);
+    if (!depts[bucket]) { depts[bucket] = {}; for (var q2 = 0; q2 < 4; q2++) depts[bucket][_DS_QUADS[q2]] = { t: 0, d: 0 }; }
+    var latest = {};
+    for (var wkId in allPlans) {
+      var parts = wkId.split('-W');
+      if (parseInt(parts[0]) !== year) continue;
+      var pp = allPlans[wkId][uname];
+      if (!pp || !pp.tasks) continue;
+      for (var ti = 0; ti < pp.tasks.length; ti++) {
+        var t = pp.tasks[ti];
+        if (!t || !t.work || !String(t.work).trim()) continue;
+        if (t.collab_from) continue;
+        var key = (typeof _stripCarriedFromLabels === 'function' ? _stripCarriedFromLabels(t.work) : String(t.work)).trim();
+        if (!key) continue;
+        latest[key] = { goal: t.goal || '日常事项', status: t.status || '' };
+      }
+    }
+    for (var k in latest) {
+      if (!latest.hasOwnProperty(k)) continue;
+      var g = latest[k].goal;
+      if (_DS_QUADS.indexOf(g) < 0) g = '日常事项';
+      var onTime = (latest[k].status === '按时完成') ? 1 : 0;
+      company[g].t++; company[g].d += onTime;
+      depts[bucket][g].t++; depts[bucket][g].d += onTime;
+    }
+  }
+  return { company: company, depts: depts };
+}
+
 function _dsBuildCockpit() {
   try {
     return '<div class="ds-grid">' +
-      _dsBuildHeroStats() +
+      _dsBuildQuadDash() +
       // ★ V0.6.1.im: 左右50/50 两栏布局（评价分布 + 心情统计）
       '<div class="ds-halves-row">' +
       _dsBuildRatingPanel() +
@@ -422,28 +481,58 @@ function _dsBuildCockpit() {
   }
 }
 
-// ★ V0.6.1.hx: 全员 4 大提交率卡片（年度×计划/小结 + 上周×计划/小结）
-function _dsBuildHeroStats() {
-  var dd = _dsData || {};
-  var cards = [
-    { title: '📋 全员年度周计划及时提交率', num: dd.ytdPlanRate || 0, sub: (dd.ytdPlanSub || 0) + ' 次 / ' + ((dd.ytdWeeks || 0) * (dd.totalUsers || 0)) + ' 人周', color: '#EF4444' },
-    { title: '📝 全员年度周小结及时提交率', num: dd.ytdSumRate || 0, sub: (dd.ytdSumSub || 0) + ' 次 / ' + ((dd.ytdWeeks || 0) * (dd.totalUsers || 0)) + ' 人周', color: '#3B82F6' },
-    { title: '📋 上周周计划及时提交率', num: dd.prevPlanRate || 0, sub: (dd.prevPlanSub || 0) + ' / ' + (dd.totalUsers || 0) + ' 人', color: '#10B981' },
-    { title: '📝 上周周小结及时提交率', num: dd.prevSumRate || 0, sub: (dd.prevSumSub || 0) + ' / ' + (dd.totalUsers || 0) + ' 人', color: '#F59E0B' }
-  ];
-  var html = '<div class="ds-hero-row">';
-  for (var i = 0; i < cards.length; i++) {
-    var c = cards[i];
-    html += '<div class="ds-hero-card" style="border-top:4px solid ' + c.color + '">' +
-      '<div class="ds-hero-title">' + c.title + '</div>' +
-      '<div class="ds-hero-num" style="color:' + c.color + '">' + c.num + '<span class="ds-hero-pct">%</span></div>' +
-      '<div class="ds-hero-sub">' + c.sub + '</div>' +
-      '<div class="ds-hero-bar"><div style="width:' + c.num + '%;background:' + c.color + '"></div></div>' +
+// ★ V0.7.1fj: 周行动完成情况仪表盘（取代原 4 大提交率卡片）— 公司整体四象限卡 + 分部门统计表
+function _dsBuildQuadDash() {
+  var q = (_dsData && _dsData.quad) || null;
+  if (!q) return '';
+  var QC = (typeof WP_GOAL_COLORS !== 'undefined') ? WP_GOAL_COLORS : { '重要紧急': '#FF3B30', '重要不急': '#4984AC', '日常紧急': '#FF9500', '日常事项': '#5E7080' };
+  function pct(d, t) { return t > 0 ? Math.round(d / t * 100) : 0; }
+  function rateCls(p) { return p >= 80 ? '#188038' : (p >= 50 ? '#2E6A9A' : '#D64541'); }
+
+  // ===== 公司整体 · 四象限卡 =====
+  var html = '<div class="ds-quad-sec">';
+  html += '<div class="ds-quad-sec-title">公司整体 · 本年度周行动完成情况</div>';
+  html += '<div class="ds-quad-row">';
+  for (var i = 0; i < 4; i++) {
+    var g = _DS_QUADS[i], c = q.company[g] || { t: 0, d: 0 }, col = QC[g] || '#5E7080', p = pct(c.d, c.t);
+    html += '<div class="ds-quad-card">' +
+      '<div class="ds-quad-head"><span class="ds-quad-dot" style="background:' + col + '"></span>' + g + '<span class="ds-quad-rate" style="color:' + col + '">' + p + '%</span></div>' +
+      '<div class="ds-quad-nums"><b style="color:' + col + '">' + c.d + '</b><span>/ ' + c.t + ' 项按时完成</span></div>' +
+      '<div class="ds-quad-bar"><div style="width:' + p + '%;background:' + col + '"></div></div>' +
       '</div>';
   }
   html += '</div>';
+
+  // ===== 分部门统计表 =====
+  html += '<div class="ds-quad-dept">';
+  html += '<div class="ds-quad-sec-title" style="margin-bottom:2px">分部门统计 · 按时完成 / 合计（完成率）</div>';
+  html += '<table class="ds-quad-table"><thead><tr><th>部门</th>';
+  for (var hi = 0; hi < 4; hi++) {
+    var hg = _DS_QUADS[hi];
+    html += '<th><span style="color:' + (QC[hg] || '#5E7080') + ';font-size:8px">●</span> ' + hg + '</th>';
+  }
+  html += '</tr></thead><tbody>';
+  var order = _DS_DEPT_ORDER.slice();
+  if (q.depts['其他']) order.push('其他');
+  for (var di = 0; di < order.length; di++) {
+    var dn = order[di], dd = q.depts[dn];
+    if (!dd) continue;
+    var hasAny = false;
+    for (var q3 = 0; q3 < 4; q3++) { if ((dd[_DS_QUADS[q3]] || {}).t > 0) { hasAny = true; break; } }
+    if (!hasAny) continue;
+    html += '<tr><td>' + dn + '</td>';
+    for (var ci = 0; ci < 4; ci++) {
+      var cg = _DS_QUADS[ci], cd = dd[cg] || { t: 0, d: 0 };
+      if (cd.t === 0) { html += '<td style="color:#C9CED4">—</td>'; continue; }
+      var cp = pct(cd.d, cd.t);
+      html += '<td>' + cd.d + '/' + cd.t + ' <span class="ds-quad-cell-rate" style="color:' + rateCls(cp) + '">' + cp + '%</span></td>';
+    }
+    html += '</tr>';
+  }
+  html += '</tbody></table></div></div>';
   return html;
 }
+
 
 // ★ V0.7.1fh: 线性 SVG 图标助手（Lucide 风格描边图标，颜色随评级/语义）
 function _dsSI(color, path) {

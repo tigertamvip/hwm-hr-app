@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.7.1fi">
+<meta name="version" content="V0.7.1fj">
 <!-- cache-bust: 2026-09-02-15-19 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json?v=bc">
@@ -2161,6 +2161,30 @@ table.collab-table tbody tr:hover{background:#fffdf5}
 .ds-hero-pct{font-size:20px;font-weight:600;opacity:.7;margin-left:2px}
 .ds-hero-sub{font-size:12px;color:var(--text-hint);margin-bottom:12px}
 .ds-hero-bar{height:6px;border-radius:2px;background:#F3F4F6;overflow:hidden;margin-top:8px}
+
+/* ★ V0.7.1fj: 周行动完成情况仪表盘（公司整体四象限 + 分部门统计） */
+.ds-quad-sec{margin-bottom:14px}
+.ds-quad-sec-title{font-size:12px;font-weight:600;color:#1F2937;margin:0 0 8px;display:flex;align-items:center;gap:6px;letter-spacing:.2px}
+.ds-quad-sec-title:before{content:'';width:3px;height:12px;background:#3B7DB4;border-radius:2px}
+.ds-quad-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.ds-quad-card{background:var(--card);border:1px solid #E5EAF0;border-radius:4px;padding:14px 16px 12px;box-shadow:var(--shadow-sm)}
+.ds-quad-head{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#1F2937}
+.ds-quad-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.ds-quad-rate{margin-left:auto;font-size:18px;font-weight:700;font-variant-numeric:tabular-nums}
+.ds-quad-nums{margin:8px 0 2px;font-size:12px;color:#6b7280;display:flex;align-items:baseline;gap:2px}
+.ds-quad-nums b{font-size:24px;font-weight:700;font-variant-numeric:tabular-nums}
+.ds-quad-bar{height:3px;background:#F1F4F9;border-radius:2px;overflow:hidden;margin-top:8px}
+.ds-quad-bar div{height:100%;border-radius:2px;transition:width .4s ease}
+.ds-quad-dept{margin-top:12px;background:var(--card);border:1px solid #E5EAF0;border-radius:4px;padding:12px 16px;box-shadow:var(--shadow-sm)}
+.ds-quad-table{width:100%;border-collapse:collapse;font-size:12px}
+.ds-quad-table th{font-size:11px;color:#6b7280;font-weight:600;text-align:right;padding:6px 10px;border-bottom:1px solid #EDF1F7;white-space:nowrap}
+.ds-quad-table th:first-child{text-align:left}
+.ds-quad-table td{padding:8px 10px;text-align:right;border-bottom:1px solid #F1F4F9;font-variant-numeric:tabular-nums;white-space:nowrap;color:#0F2C4B}
+.ds-quad-table td:first-child{text-align:left;font-weight:600;color:#1F2937}
+.ds-quad-table tr:last-child td{border-bottom:0}
+.ds-quad-cell-rate{font-size:10px;margin-left:4px;font-weight:600}
+@media(max-width:1024px){.ds-quad-row{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:640px){.ds-quad-row{grid-template-columns:1fr}.ds-quad-dept{overflow-x:auto}}
 .ds-hero-bar>div{height:100%;border-radius:2px;transition:width .8s ease}
 /* ★ V0.6.1.im: 左右50/50两栏（评价分布 + 心情统计） */
 .ds-halves-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:4px 0}
@@ -2655,7 +2679,7 @@ function togglePortalTips(){
       </div>
     </nav>
     <div class="portal-sidebar-footer">
-      V0.7.1fi
+      V0.7.1fj
     </div>
   </aside>
   <!-- Main -->
