@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.7.1ey">
+<meta name="version" content="V0.7.1ez">
 <!-- cache-bust: 2026-08-06-07-12 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json?v=bc">
@@ -1958,7 +1958,8 @@ body{
 .wp-toolbar-sep{width:1px;background:var(--border);margin:0 4px;display:inline-block}
 
 .wp-table-wrap{width:100%;background:#f6f8fc;border-radius:0;border:none;border-right:1px solid var(--border)}
-.wp-table{width:100%;border-collapse:separate;border-spacing:0;font-size:12px;min-width:1200px;table-layout:auto;background:#f6f8fc}
+.wp-table{width:100%;border-collapse:separate;border-spacing:0;font-size:12px;min-width:1200px;table-layout:fixed;background:#f6f8fc}
+/* ★ V0.7.1ez: table-layout 改 fixed — colgroup 宽度变为等比比例，任何屏宽下列宽自适应填满（修复 Safari/大屏下表格定格不伸展）；前6列冻结偏移由 JS 实测同步（wpFrozenColStyle） */
 .wp-table tbody tr{min-height:38px}
 .wp-table th{background:#E8EAED;color:#1F2937;font-weight:600;padding:8px 6px;border-top:1px solid var(--border);border-bottom:2px solid #C5C9CE;white-space:nowrap;position:sticky;top:0;z-index:5;font-size:11px;text-align:center;line-height:1;letter-spacing:0.3px}
 .wp-table th.col-fixed{background:#d5d8db}
@@ -1967,8 +1968,8 @@ body{
 .wp-table thead th:nth-child(6){background:#E8EAED;z-index:6}
 .wp-table td{padding:6px 6px;border-bottom:1px solid #E2E4E7;vertical-align:middle;text-align:center;color:#0F2C4B;min-height:36px;height:36px;background:#f6f8fc}
 .wp-table td.editable{cursor:pointer;transition:background .15s;position:relative}
-.wp-table td.editable:hover{background:#F5EDE0}
-.wp-table td.editable:nth-child(-n+6):hover{background:#F5EDE0}
+.wp-table td.editable:hover{background:#EAF3FC}
+.wp-table td.editable:nth-child(-n+6):hover{background:#EAF3FC}
 .wp-table td.editable.editing{background:#F8F9FA;box-shadow:inset 0 0 0 2px rgba(15,123,225,.25);padding:3px}
 .wp-table th,.wp-table td{overflow:hidden;text-overflow:ellipsis}
 .wp-table td.col-num{color:#5B6B7B;font-size:11px;min-width:56px}
@@ -2654,7 +2655,7 @@ function togglePortalTips(){
       </div>
     </nav>
     <div class="portal-sidebar-footer">
-      V0.7.1ey
+      V0.7.1ez
     </div>
   </aside>
   <!-- Main -->

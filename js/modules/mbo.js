@@ -3121,6 +3121,24 @@ async function clearTaskRow(idx){
 }
 
 // 在任务表原表头离开可视区后显示克隆表头，避免纵向浏览时丢失字段语义。
+// ★ V0.7.1ez: table-layout:fixed 后，前6列冻结 left 偏移必须等于实际渲染宽度的累计值
+// 实测表头各列宽度，注入动态 <style> 覆盖静态写死的 left:56px/236px...（作用域限 .wp-main-table，不影响合并视图）
+function _syncWPFrozenColOffsets(table){
+  var st=document.getElementById('wpFrozenColStyle');
+  if(!st){st=document.createElement('style');st.id='wpFrozenColStyle';document.head.appendChild(st);}
+  if(!table||!table.classList||!table.classList.contains('wp-main-table')){return;}
+  var headRow=table.querySelector('thead tr');
+  if(!headRow){return;}
+  var ths=headRow.children;
+  var css='';
+  var acc=0;
+  for(var i=0;i<6&&i<ths.length;i++){
+    css+='#workPlanView .wp-main-table th:nth-child('+(i+1)+'),#workPlanView .wp-main-table td:nth-child('+(i+1)+'){left:'+Math.round(acc)+'px}';
+    acc+=ths[i].getBoundingClientRect().width;
+  }
+  st.textContent=css;
+}
+
 function _bindWPStickyTableHeader(content){
   if(!content)return;
   if(content._wpStickyHeaderCleanup)content._wpStickyHeaderCleanup();
@@ -3147,6 +3165,8 @@ function _bindWPStickyTableHeader(content){
     stickyCells[i].style.minWidth=w+'px';
     stickyCells[i].style.maxWidth=w+'px';
   }
+  // ★ V0.7.1ez: 实测同步冻结列 left 偏移（fixed 布局下列宽随容器等比变化）
+  _syncWPFrozenColOffsets(sourceTable);
 
   var ticking=false;
   function sync(){
@@ -3173,13 +3193,15 @@ function _bindWPStickyTableHeader(content){
     if(sticky.scrollLeft!==tableScroll.scrollLeft)sticky.scrollLeft=tableScroll.scrollLeft;
     requestSync();
   }
+  // ★ V0.7.1ez: 窗口尺寸变化时重新实测冻结列偏移（fixed 布局列宽随容器变化）
+  function onWinResize(){_syncWPFrozenColOffsets(sourceTable);requestSync();}
   pageScroll.addEventListener('scroll',requestSync,{passive:true});
   tableScroll.addEventListener('scroll',onTableScroll,{passive:true});
-  window.addEventListener('resize',requestSync,{passive:true});
+  window.addEventListener('resize',onWinResize,{passive:true});
   content._wpStickyHeaderCleanup=function(){
     pageScroll.removeEventListener('scroll',requestSync);
     tableScroll.removeEventListener('scroll',onTableScroll);
-    window.removeEventListener('resize',requestSync);
+    window.removeEventListener('resize',onWinResize);
     content._wpStickyHeaderCleanup=null;
   };
   requestSync();
@@ -3348,7 +3370,7 @@ function renderWPTable(plan){
     else newTasks.push(j);
   }
 
-  html+='<div class="wp-table-x-scroll"><div class="wp-table-area"><div class="wp-table-wrap"><table class="wp-table"><colgroup><col style="width:56px"><col style="width:180px"><col style="width:80px"><col style="width:115px"><col style="width:115px"><col style="width:80px"><col style="width:115px"><col style="width:90px"><col style="width:48px"><col style="width:80px"><col style="width:90px"><col style="width:56px"><col style="width:150px"><col style="width:150px"></colgroup><thead><tr>';
+  html+='<div class="wp-table-x-scroll"><div class="wp-table-area"><div class="wp-table-wrap"><table class="wp-table wp-main-table"><colgroup><col style="width:56px"><col style="width:180px"><col style="width:80px"><col style="width:115px"><col style="width:115px"><col style="width:80px"><col style="width:115px"><col style="width:90px"><col style="width:48px"><col style="width:80px"><col style="width:90px"><col style="width:56px"><col style="width:150px"><col style="width:150px"></colgroup><thead><tr>';
   var _sPri='',_sSd='',_sPd='',_sRd='',_sAd='',_sSt='';
   if(_wpSort && _wpSort.col && _wpSort.dir){
     var _arr=_wpSort.dir==='asc'?' ↑':' ↓';
