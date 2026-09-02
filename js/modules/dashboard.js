@@ -26,9 +26,15 @@ function dashboardInit() {
 function _h(v) { return String(v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 // ★ V0.6.1.j50: 过滤历史脏数据产生的伪用户，避免“未知”进入排名
+// ★ V0.7.1fi: 加入"人资负责人"——2026-06-28 赵小姣测试计划误以角色名为 username 写入云端的残留（云端行已删，本地 localStorage 残留靠此过滤）
 function _dsIsValidPlanUserName(name) {
   var n = String(name || '').trim();
-  return n !== '' && n !== '未知' && n !== '未设置' && n !== 'undefined' && n !== 'null' && n !== 'me';
+  return n !== '' && n !== '未知' && n !== '未设置' && n !== 'undefined' && n !== 'null' && n !== 'me' && n !== '人资负责人';
+}
+
+// ★ V0.7.1fi: 离职过滤 — 与 MBO 模块同一口径（花名册查得到且已离职才隐藏，查不到保守保留）
+function _dsIsResigned(name) {
+  try { return typeof _isResignedByName === 'function' && _isResignedByName(name); } catch (e) { return false; }
 }
 
 function _dsBuildNav() {
@@ -131,13 +137,16 @@ function _dsRefreshData() {
   var users = {};
   for (var uid in USERS) {
     if (uid === '管理员' || USERS[uid].role === 'admin') continue;
-    users[USERS[uid].name || uid] = USERS[uid];
+    var _uName = USERS[uid].name || uid;
+    if (_dsIsResigned(_uName)) continue; // ★ V0.7.1fi: 离职人员不进数据中心（洪传跃事件）
+    users[_uName] = USERS[uid];
   }
   // ★ V0.6.1.iw: 关键修复 — 把 allPlans 里的所有 user 也加入 users 字典
   // (避免 USERS 没注册该员工时,心情/评级数据被忽略)
   for (var _wka in allPlans) {
     for (var _uka in allPlans[_wka]) {
       if (!_dsIsValidPlanUserName(_uka)) continue;
+      if (_dsIsResigned(_uka)) continue; // ★ V0.7.1fi: 离职人员的残留周计划同样不计入
       if (!users[_uka]) users[_uka] = { name: _uka, role: 'staff' };
     }
   }
@@ -236,6 +245,7 @@ function _dsRefreshData() {
   _dsRankData = [];
   for (var uname2 in users) {
     if (!_dsIsValidPlanUserName(uname2)) continue;
+    if (_dsIsResigned(uname2)) continue; // ★ V0.7.1fi: 排名表同步过滤离职
     var u = users[uname2];
     var sc = _dsCalcUserScore(uname2, allPlans, _dsFilter.period);
     // ★ V0.6.1.iu: 排名表"积分"列固定显示年度累计(不受 _dsFilter.period 影响)
