@@ -34,23 +34,25 @@ function _dsIsValidPlanUserName(name) {
 function _dsBuildNav() {
   var nav = document.getElementById('dsNavItems');
   if (!nav) return;
-  var html = '<div class="ds-nav-section-title">📊 数据驾驶舱</div>';
+  // ★ V0.7.1fh: 导航 emoji 全线性 SVG 图标（Lucide 风格，currentColor 继承）
+  var _ic = function (p) { return '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="display:block">' + p + '</svg>'; };
+  var html = '<div class="ds-nav-section-title">' + _ic('<line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/>') + ' 数据驾驶舱</div>';
   var items = [
-    { icon: '📋', label: '本周行动', tab: 'cockpit' },
-    { icon: '📅', label: '月度计划', tab: 'monthly' },
-    { icon: '🎯', label: '年度目标', tab: 'annual' },
-    { icon: '🏆', label: '三年规划', tab: 'plan3y', disabled: true },
+    { icon: _ic('<rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M9 12h6"/><path d="M9 16h6"/>'), label: '本周行动', tab: 'cockpit' },
+    { icon: _ic('<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>'), label: '月度计划', tab: 'monthly' },
+    { icon: _ic('<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>'), label: '年度目标', tab: 'annual' },
+    { icon: _ic('<path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v6a5 5 0 0 1-10 0V4z"/><path d="M7 6H4a2 2 0 0 0 0 4h3"/><path d="M17 6h3a2 2 0 0 1 0 4h-3"/>'), label: '三年规划', tab: 'plan3y', disabled: true },
     '<sep>',
     '<group>数据报告</group>',
-    { icon: '🔬', label: '研发数据', tab: 'data_report' },
-    { icon: '🏭', label: '制造数据', tab: 'data_report' },
-    { icon: '📦', label: '采购数据', tab: 'data_report' },
-    { icon: '✅', label: '质量数据', tab: 'data_report' },
-    { icon: '📣', label: '营销数据', tab: 'data_report' },
-    { icon: '👥', label: '人力数据', tab: 'data_report' },
-    { icon: '💰', label: '财务数据', tab: 'data_report' },
-    { icon: '📋', label: '注册数据', tab: 'data_report' },
-    { icon: '📑', label: '其他数据', tab: 'data_report' }
+    { icon: _ic('<path d="M9 3h6"/><path d="M10 3v6L4.5 19a2 2 0 0 0 1.8 3h11.4a2 2 0 0 0 1.8-3L14 9V3"/><path d="M7 15h10"/>'), label: '研发数据', tab: 'data_report' },
+    { icon: _ic('<path d="M2 20h20"/><path d="M4 20V8l6 4V8l6 4V4h4v16"/>'), label: '制造数据', tab: 'data_report' },
+    { icon: _ic('<path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.3 7 12 12 20.7 7"/><line x1="12" y1="22" x2="12" y2="12"/>'), label: '采购数据', tab: 'data_report' },
+    { icon: _ic('<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>'), label: '质量数据', tab: 'data_report' },
+    { icon: _ic('<path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/>'), label: '营销数据', tab: 'data_report' },
+    { icon: _ic('<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>'), label: '人力数据', tab: 'data_report' },
+    { icon: _ic('<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/>'), label: '财务数据', tab: 'data_report' },
+    { icon: _ic('<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/>'), label: '注册数据', tab: 'data_report' },
+    { icon: _ic('<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>'), label: '其他数据', tab: 'data_report' }
   ];
   for (var i = 0; i < items.length; i++) {
     var it = items[i];
@@ -433,6 +435,11 @@ function _dsBuildHeroStats() {
   return html;
 }
 
+// ★ V0.7.1fh: 线性 SVG 图标助手（Lucide 风格描边图标，颜色随评级/语义）
+function _dsSI(color, path) {
+  return '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="' + color + '" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-3px">' + path + '</svg>';
+}
+
 // ★ V0.6.1.hx: 全员上级评价分布（独立面板）
 function _dsBuildRatingPanel() {
   var dd = _dsData, rt = dd.ratings || {}, tr = dd.totalRatings || 0;
@@ -440,21 +447,21 @@ function _dsBuildRatingPanel() {
   // ★ V0.6.1.iq: 评价分布面板默认展开
   var collapsed = '';
   var rItems = [
-    { label: '🥇 金牌', key: 'gold', color: '#FFD700' },
-    { label: '🥈 银牌', key: 'silver', color: '#C0C0C0' },
-    { label: '🥉 铜牌', key: 'bronze', color: '#CD7F32' },
-    { label: '⚠️ 待改进', key: 'warn', color: '#F59E0B' },
-    { label: '⛔ 严重偏离', key: 'danger', color: '#EF4444' }
+    { label: '金牌', icon: _dsSI('#B7791F', '<circle cx="12" cy="8" r="6"/><path d="M15.5 13 17 22l-5-3-5 3 1.5-9"/>'), key: 'gold', color: '#FFD700' },
+    { label: '银牌', icon: _dsSI('#64748B', '<circle cx="12" cy="8" r="6"/><path d="M15.5 13 17 22l-5-3-5 3 1.5-9"/>'), key: 'silver', color: '#C0C0C0' },
+    { label: '铜牌', icon: _dsSI('#9A5B24', '<circle cx="12" cy="8" r="6"/><path d="M15.5 13 17 22l-5-3-5 3 1.5-9"/>'), key: 'bronze', color: '#CD7F32' },
+    { label: '待改进', icon: _dsSI('#B45309', '<path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>'), key: 'warn', color: '#F59E0B' },
+    { label: '严重偏离', icon: _dsSI('#C2413B', '<circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>'), key: 'danger', color: '#EF4444' }
   ];
   var rhtml = '<div class="ds-rating-bars">';
   for (var i = 0; i < rItems.length; i++) {
     var ri = rItems[i], v = rt[ri.key] || 0, w = tr ? Math.round(v / tr * 100) : 0;
-    rhtml += '<button type="button" class="ds-rating-row ds-rating-row-action" onclick="_dsShowRatingDetails(\'' + ri.key + '\')" aria-label="查看' + ri.label.split(' ')[1] + '的 ' + v + ' 条评价记录" title="查看 ' + v + ' 条评价记录"><span class="ds-r-label" style="width:28px;text-align:center;font-size:18px">' + ri.label.split(' ')[0] + '</span><span class="ds-r-label" style="width:48px;text-align:left;font-size:12px;margin-left:4px;white-space:nowrap">' + ri.label.split(' ')[1] + '</span><span class="ds-r-bar"><span style="width:' + w + '%;background:' + ri.color + '"></span></span><span class="ds-r-count" style="width:76px">' + v + ' 次 <small>查看</small></span></button>';
+    rhtml += '<button type="button" class="ds-rating-row ds-rating-row-action" onclick="_dsShowRatingDetails(\'' + ri.key + '\')" aria-label="查看' + ri.label + '的 ' + v + ' 条评价记录" title="查看 ' + v + ' 条评价记录"><span class="ds-r-label" style="width:28px;text-align:center;display:inline-flex;justify-content:center">' + ri.icon + '</span><span class="ds-r-label" style="width:48px;text-align:left;font-size:12px;margin-left:4px;white-space:nowrap">' + ri.label + '</span><span class="ds-r-bar"><span style="width:' + w + '%;background:' + ri.color + '"></span></span><span class="ds-r-count" style="width:76px">' + v + ' 次 <small>查看</small></span></button>';
   }
   rhtml += '</div>';
   return '<div class="ds-rating-panel' + collapsed + '">' +
     '<div class="ds-rating-panel-head" onclick="_dsToggleRatingPanel(this)" style="cursor:pointer;user-select:none">' +
-    '<span>🏅 全员上级评价分布 <span class="ds-rating-panel-sub">（年度累计）</span></span>' +
+    '<span style="display:inline-flex;align-items:center;gap:5px">' + _dsSI('#3B7DB4', '<circle cx="12" cy="8" r="6"/><path d="M15.5 13 17 22l-5-3-5 3 1.5-9"/>') + ' 全员上级评价分布 <span class="ds-rating-panel-sub">（年度累计）</span></span>' +
     '<span class="ds-rating-panel-toggle">▼ 收起</span>' +
     '</div>' +
     '<div class="ds-rating-panel-body">' + rhtml +
@@ -474,11 +481,11 @@ function _dsToggleRatingPanel(head) {
 
 function _dsShowRatingDetails(ratingKey) {
   var meta = {
-    gold: { icon: '🥇', label: '金牌', color: '#B7791F' },
-    silver: { icon: '🥈', label: '银牌', color: '#64748B' },
-    bronze: { icon: '🥉', label: '铜牌', color: '#9A5B24' },
-    warn: { icon: '⚠️', label: '待改进', color: '#B45309' },
-    danger: { icon: '⛔', label: '严重偏离', color: '#C2413B' }
+    gold: { icon: _dsSI('#B7791F', '<circle cx="12" cy="8" r="6"/><path d="M15.5 13 17 22l-5-3-5 3 1.5-9"/>'), label: '金牌', color: '#B7791F' },
+    silver: { icon: _dsSI('#64748B', '<circle cx="12" cy="8" r="6"/><path d="M15.5 13 17 22l-5-3-5 3 1.5-9"/>'), label: '银牌', color: '#64748B' },
+    bronze: { icon: _dsSI('#9A5B24', '<circle cx="12" cy="8" r="6"/><path d="M15.5 13 17 22l-5-3-5 3 1.5-9"/>'), label: '铜牌', color: '#9A5B24' },
+    warn: { icon: _dsSI('#B45309', '<path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>'), label: '待改进', color: '#B45309' },
+    danger: { icon: _dsSI('#C2413B', '<circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>'), label: '严重偏离', color: '#C2413B' }
   };
   var item = meta[ratingKey];
   if (!item) return;
@@ -526,12 +533,13 @@ function _dsBuildMoodPanel() {
   var dd = _dsData, mt = dd.moods || {}, tr = dd.totalMoods || 0;
   // ★ V0.6.1.iq: 评价分布面板默认展开
   var collapsed = '';
+  // ★ V0.7.1fh: 状态标签与计划页对齐（V0.7.1fe）；表情保留（与计划页心情选择器一致）
   var mItems = [
-    { label: '😊 成就', key: 'happy', color: '#FFD700' },
-    { label: '😌 平静', key: 'calm', color: '#94A3B8' },
-    { label: '😩 困顿', key: 'tired', color: '#CD7F32' },
+    { label: '😊 开心', key: 'happy', color: '#FFD700' },
+    { label: '😌 还好', key: 'calm', color: '#94A3B8' },
+    { label: '😩 难过', key: 'tired', color: '#CD7F32' },
     { label: '😢 委屈', key: 'aggrieved', color: '#F59E0B' },
-    { label: '😶 难言', key: 'silent', color: '#9CA3AF' }
+    { label: '😶 沉默', key: 'silent', color: '#9CA3AF' }
   ];
   var mhtml = '<div class="ds-rating-bars">';
   for (var i = 0; i < mItems.length; i++) {
@@ -541,12 +549,12 @@ function _dsBuildMoodPanel() {
   mhtml += '</div>';
   return '<div class="ds-rating-panel' + collapsed + '">' +
     '<div class="ds-rating-panel-head">' +
-    '<span onclick="_dsToggleRatingPanel(this)" style="cursor:pointer;flex:1">🎭 员工本周状态统计 <span class="ds-rating-panel-sub">（近 2 周）</span></span>' +
-    '<a href="#" onclick="event.preventDefault();event.stopPropagation();_dsRefreshMood()" title="刷新数据" style="font-size:14px;text-decoration:none;margin-right:4px;opacity:.6">🔄</a>' +
+    '<span onclick="_dsToggleRatingPanel(this)" style="cursor:pointer;flex:1;display:inline-flex;align-items:center;gap:5px">' + _dsSI('#3B7DB4', '<circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/>') + ' 员工本周状态统计 <span class="ds-rating-panel-sub">（近 2 周）</span></span>' +
+    '<a href="#" onclick="event.preventDefault();event.stopPropagation();_dsRefreshMood()" title="刷新数据" style="font-size:14px;text-decoration:none;margin-right:4px;opacity:.6;display:inline-flex;align-items:center">' + _dsSI('#5f6368', '<polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>') + '</a>' +
     '<span class="ds-rating-panel-toggle" onclick="_dsToggleRatingPanel(this.parentElement)" style="cursor:pointer">▼ 收起</span>' +
     '</div>' +
     '<div class="ds-rating-panel-body">' + mhtml +
-    '<div class="ds-rating-panel-foot">共 <strong>' + tr + '</strong> 人次填写近 2 周心情</div>' +
+    '<div class="ds-rating-panel-foot">共 <strong>' + tr + '</strong> 人次填写近 2 周状态</div>' +
     '</div>' +
     '</div>';
 }
