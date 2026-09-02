@@ -4662,7 +4662,8 @@ function _renderAnnualProgress(year){
   }
   var allQuads=['重要紧急','重要不急','日常紧急','日常事项'];
   var totalCount=0,totalDone=0;
-  var html='<div class="wp-card wp-progress-card"><div class="wp-card-title">⏰ '+year+'年年度计划完成率</div>';
+  // ★ V0.7.1es: 标题改"本年周行动项目整体完成情况概览"+简约线性图标；整体字体加大一号（标题13px/行12px）
+  var html='<div class="wp-card wp-progress-card"><div class="wp-card-title" style="font-size:13px"><span style="display:inline-flex;align-items:center;gap:5px"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15v3"/><path d="M12 10v8"/><path d="M17 5v12"/></svg>本年周行动项目整体完成情况概览</span></div>';
   html+='<div>';
   for(var qi=0;qi<allQuads.length;qi++){
     var q=allQuads[qi];
@@ -4675,13 +4676,13 @@ function _renderAnnualProgress(year){
     totalCount+=total;totalDone+=done;
     var pct=total>0?Math.round(done/total*100):0;
     var dotColor=WP_GOAL_COLORS[q]||'#9ca3af';
-    var labelHtml='<span style="color:'+dotColor+';font-size:8px;line-height:1">●</span><span>'+q+'</span>';
-    html+='<div class="wp-progress-row"><span class="wp-progress-label">'+labelHtml+'</span><div class="wp-progress-bar-wrap"><div class="wp-progress-bar-fill" style="width:'+pct+'%"></div></div><span class="wp-progress-num">'+done+'/'+total+' ('+pct+'%)</span></div>';
+    var labelHtml='<span style="color:'+dotColor+';font-size:10px;line-height:1">●</span><span>'+q+'</span>';
+    html+='<div class="wp-progress-row"><span class="wp-progress-label" style="font-size:12px">'+labelHtml+'</span><div class="wp-progress-bar-wrap" style="height:7px"><div class="wp-progress-bar-fill" style="width:'+pct+'%"></div></div><span class="wp-progress-num" style="font-size:12px;width:84px">'+done+'/'+total+' ('+pct+'%)</span></div>';
   }
   // 合计行
   var overallPct=totalCount>0?Math.round(totalDone/totalCount*100):0;
   html+='<div style="margin-top:6px;padding-top:6px;border-top:1px solid #e5e7eb">';
-  html+='<div class="wp-progress-row"><span class="wp-progress-label" style="font-weight:600;color:#1E3A5F">合计</span><div class="wp-progress-bar-wrap" style="height:6px"><div class="wp-progress-bar-fill" style="width:'+overallPct+'%;height:6px"></div></div><span class="wp-progress-num" style="font-weight:600;color:#1E3A5F">'+totalDone+'/'+totalCount+' ('+overallPct+'%)</span></div>';
+  html+='<div class="wp-progress-row"><span class="wp-progress-label" style="font-weight:600;color:#1E3A5F;font-size:13px">合计</span><div class="wp-progress-bar-wrap" style="height:8px"><div class="wp-progress-bar-fill" style="width:'+overallPct+'%;height:8px"></div></div><span class="wp-progress-num" style="font-weight:600;color:#1E3A5F;font-size:13px;width:90px">'+totalDone+'/'+totalCount+' ('+overallPct+'%)</span></div>';
   html+='</div>';
   html+='</div>';
   html+='</div>';
