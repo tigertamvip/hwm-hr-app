@@ -1,5 +1,5 @@
 // 数据版本号：每次更新花名册需递增，触发浏览器重新下载并清空 IndexedDB 旧数据
-window.__DATA_VERSION__ = '2026-07-21-v17';
+window.__DATA_VERSION__ = '2026-09-02-v18';
 var __PRELOADED_EMPLOYEES__ = [
   {
     "seq": 1,
@@ -1192,7 +1192,7 @@ var __PRELOADED_EMPLOYEES__ = [
   },
   {
     "seq": 42,
-    "status": "已转正",
+    "status": "已离职",
     "name": "洪传跃",
     "center": "人力资源部",
     "dept": "人力资源部",
