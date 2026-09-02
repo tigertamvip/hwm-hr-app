@@ -3370,7 +3370,7 @@ function renderWPTable(plan){
     else newTasks.push(j);
   }
 
-  html+='<div class="wp-table-x-scroll"><div class="wp-table-area"><div class="wp-table-wrap"><table class="wp-table wp-main-table"><colgroup><col style="width:56px"><col style="width:180px"><col style="width:80px"><col style="width:115px"><col style="width:115px"><col style="width:80px"><col style="width:115px"><col style="width:90px"><col style="width:48px"><col style="width:80px"><col style="width:90px"><col style="width:56px"><col style="width:150px"><col style="width:150px"></colgroup><thead><tr>';
+  html+='<div class="wp-table-x-scroll"><div class="wp-table-area"><div class="wp-table-wrap"><table class="wp-table wp-main-table"><colgroup><col style="width:56px"><col style="width:180px"><col style="width:80px"><col style="width:115px"><col style="width:115px"><col style="width:80px"><col style="width:115px"><col style="width:90px"><col style="width:48px"><col style="width:80px"><col style="width:90px"><col style="width:150px"></colgroup><thead><tr>';
   var _sPri='',_sSd='',_sPd='',_sRd='',_sAd='',_sSt='';
   if(_wpSort && _wpSort.col && _wpSort.dir){
     var _arr=_wpSort.dir==='asc'?' ↑':' ↓';
@@ -3391,7 +3391,7 @@ function renderWPTable(plan){
 
   // 上周转入区块
   if(carriedTasks.length>0){
-    html+='<tr class="wp-section-header" style="background:#E8F4FE"><td colspan="14" style="padding:6px 12px;font-size:12px;font-weight:600;color:#3B7DB4;border-bottom:2px solid #B7D6F0"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#3B7DB4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:4px"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>上周转入（'+carriedTasks.length+'项）</td></tr>';
+    html+='<tr class="wp-section-header" style="background:#E8F4FE"><td colspan="12" style="padding:6px 12px;font-size:12px;font-weight:600;color:#3B7DB4;border-bottom:2px solid #B7D6F0"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#3B7DB4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:4px"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>上周转入（'+carriedTasks.length+'项）</td></tr>';
     for(var ci=0;ci<carriedTasks.length;ci++){
       var jj=carriedTasks[ci]; seq++;
       var tt=plan.tasks[jj];
@@ -3436,7 +3436,7 @@ function renderWPTable(plan){
   // 本周新增区块（标题行总是渲染）
   // ★ V0.7.1cq: 计算 afterIdx — 在最后一行 carriedTask 后插入；若没 carriedTask 则插入到开头（-1）
   var _addAfterIdx=carriedTasks.length>0?carriedTasks[carriedTasks.length-1]:-1;
-  html+='<tr class="wp-section-header" style="background:#F0F9FF"><td colspan="14" style="padding:6px 12px;font-size:12px;font-weight:600;color:#3B7DB4;border-bottom:2px solid #BAE6FD"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#3B7DB4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:4px"><path d="M12 5v14M5 12h14"/></svg>本周新增（'+newTasks.length+'项）</td></tr>';
+  html+='<tr class="wp-section-header" style="background:#F0F9FF"><td colspan="12" style="padding:6px 12px;font-size:12px;font-weight:600;color:#3B7DB4;border-bottom:2px solid #BAE6FD"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#3B7DB4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:4px"><path d="M12 5v14M5 12h14"/></svg>本周新增（'+newTasks.length+'项）</td></tr>';
   for(var ni=0;ni<newTasks.length;ni++){
     var j=newTasks[ni]; seq++;
     var t=plan.tasks[j];
@@ -3509,7 +3509,7 @@ function renderWPTable(plan){
   html+='<td style="text-align:center;background:#f6f8fc;font-weight:600;font-size:12px;color:#2A476A">'+(taskScoreDisplay||'')+'</td>'; // 积分
   html+='<td colspan="1" style="text-align:right;padding-right:12px;background:#f6f8fc">逾期任务</td>'; // 协同（★ V0.7.1ew: 问题列已删，colspan 2→1）
   html+='<td class="wp-total-num" style="color:'+(overdue>0?'var(--danger)':'var(--success)')+'">'+overdue+' 项</td>'; // 问题类型
-  html+='<td colspan="3" style="background:#f6f8fc"></td>'; // 需上级+备注+上级评价
+  html+='<td colspan="1" style="background:#f6f8fc"></td>'; // 备注+上级评价（★ V0.7.1fa: 12列对齐）
   html+='</tr>';
   html+='</tbody></table></div></div></div>';
 
