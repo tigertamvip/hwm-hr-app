@@ -944,7 +944,9 @@ async function forceDeleteViewedWP(){
 function _stripCarriedFromLabels(value){
   return String(value||'')
     // ★ V0.7.1v: 完整匹配"来源:"（中文+冒号），不是单字"源:"，避免误删
-    .replace(/\s*来源[：:]\d{4}年\d{1,2}月第[1-5]周(?:来)?\s*/g,' ')
+    // ★ V0.7.1ff: 同时匹配无冒号的空格格式（"来源 2026年8月第4周"，V0.7.1fd chip 新格式曾被 DOM 扫描写回正文）
+    // 注意：不带 (?:来)? 后缀——连续标签时会吃掉下一个标签的"来"字留下" 源 "残渣
+    .replace(/\s*来源[：:]?\s*\d{4}年\d{1,2}月第[1-5]周\s*/g,' ')
     // ★ V0.7.1y: 清理末尾连续"来"字（"来来来"污染）
     .replace(/来{2,}$/,'')
     .replace(/\n[ \t]*\n+/g,'\n')
@@ -3154,19 +3156,12 @@ function _bindWPStickyTableHeader(content){
   sticky.id='wpStickyTableHeader';
   sticky.className='wp-sticky-table-header';
   sticky.setAttribute('aria-hidden','true');
-  sticky.innerHTML='<div class="wp-table-wrap"><table class="wp-table">'+(sourceTable.querySelector('colgroup')?sourceTable.querySelector('colgroup').outerHTML:'')+'<thead>'+sourceHead.innerHTML+'</thead></table></div>';
+  // ★ V0.7.1fd: clone 也加 wp-main-table，使动态冻结列 left 偏移同步生效
+  sticky.innerHTML='<div class="wp-table-wrap"><table class="wp-table wp-main-table">'+(sourceTable.querySelector('colgroup')?sourceTable.querySelector('colgroup').outerHTML:'')+'<thead>'+sourceHead.innerHTML+'</thead></table></div>';
   content.appendChild(sticky);
 
-  var sourceCells=sourceHead.querySelectorAll('th');
-  var stickyCells=sticky.querySelectorAll('th');
-  for(var i=0;i<sourceCells.length&&i<stickyCells.length;i++){
-    var w=Math.ceil(sourceCells[i].getBoundingClientRect().width);
-    stickyCells[i].style.width=w+'px';
-    stickyCells[i].style.minWidth=w+'px';
-    stickyCells[i].style.maxWidth=w+'px';
-  }
-  // ★ V0.7.1ez: 实测同步冻结列 left 偏移（fixed 布局下列宽随容器等比变化）
-  _syncWPFrozenColOffsets(sourceTable);
+  // table-layout:fixed + colgroup 已能保证列宽比例一致；
+  // 这里不再逐个 th 同步 px 宽度，避免初始布局未稳定时读到异常大值（如 45565px）导致吸顶条撑爆。
 
   var ticking=false;
   function sync(){
@@ -3772,7 +3767,7 @@ function startEditCell(cell){
     var sfParts=field.split('.');
     cur=(_wpCurrent.plan.tasks[parseInt(sfParts[1])]&&_wpCurrent.plan.tasks[parseInt(sfParts[1])].supporters)||'';
   }else{
-    cur=cell.textContent.replace(/来源[：:]\d{4}年\d{1,2}月第[1-4]周|点击填写|填写|选择|上级建议|备注|需要支持|●/g,'').trim();
+    cur=cell.textContent.replace(/来源[：:]?\s*\d{4}年\d{1,2}月第[1-5]周|点击填写|填写|选择|上级建议|备注|需要支持|●/g,'').trim();
     // ★ V0.4.46: 旧状态值映射
     var _oldStatusMap={'✓完成':'按时完成','⚙推进中':'进行中','⏸暂停':'逾期完成','❌未完成':'暂停中'};
     if(_oldStatusMap[cur])cur=_oldStatusMap[cur];
@@ -4525,7 +4520,9 @@ function toggleWPExemption(){
 
 // ★ V0.5.0: 艾森豪威尔矩阵 — 收集全年任务数据
 function _collectYearTasks(year){
-  var tasks=[];
+  // ★ V0.7.1ff: 同一任务（含上周转入链）只算一次——后周覆盖前周，转入副本天然"最新状态赢"
+  // key 用清洗后的正文（去掉"来源"标签污染），否则同一任务因污染文本不同被判为不同任务
+  var latest={}; // normalizedWork -> task
   for(var m=1;m<=12;m++){
     for(var w=1;w<=4;w++){
       var plan=getWP(year,m,w);
@@ -4533,14 +4530,18 @@ function _collectYearTasks(year){
       for(var ti=0;ti<plan.tasks.length;ti++){
         var t=plan.tasks[ti];
         if(!t||!t.work)continue;
-        tasks.push({
-          work:t.work, goal:t.goal||'', status:t.status||'',
+        var key=_stripCarriedFromLabels(t.work);
+        if(!key)continue;
+        latest[key]={
+          work:key, goal:t.goal||'', status:t.status||'',
           year:year, month:m, week:w,
           startDate:t.startDate||'', actualDate:t.actualDate||''
-        });
+        };
       }
     }
   }
+  var tasks=[];
+  for(var k in latest){if(latest.hasOwnProperty(k))tasks.push(latest[k]);}
   return tasks;
 }
 
@@ -4572,7 +4573,10 @@ function _calcYTDScoreByCategory(year){
           // 无实际完成日期：仅当逾期超5个工作日时判定未做，否则进行中=0
           if(today>t.plannedDate&&_countWorkdays(t.plannedDate,today)>5)pts=sc.notDone;
         }
-        latest[t.work.trim()]={goal:t.goal,pts:pts};
+        // ★ V0.7.1ff: key 用清洗后的正文，防止"来源"标签污染导致同一任务被判为多个
+        var _yKey=_stripCarriedFromLabels(t.work);
+        if(!_yKey)continue;
+        latest[_yKey]={goal:t.goal,pts:pts};
       }
     }
   }
