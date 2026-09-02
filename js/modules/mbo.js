@@ -2261,25 +2261,26 @@ function _renderCollabTasksSection(plan){
   var collabTasks=_wpCollabRequests.filter(function(r){
     return r&&r.receiver_uid===planOwnerUid&&r.week_id===weekId&&!r.revoked_at&&r.status!=='revoked';
   });
+  // ★ V0.7.1ey: 配色优化 — 亮黄警示系 → 品牌蓝静谧系（与本周概览卡片同一设计语言）
   var html='';
-  html+='<table id="collabTaskArea" cellspacing="0" cellpadding="0" style="width:100%;margin:20px 0 0 0;border:2px solid #f59e0b;border-radius:4px;background:#fffbeb;border-spacing:0">';
-  html+='<tr><td style="padding:12px 16px;background:#fef3c7;border-bottom:2px solid #f59e0b"><div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:14px;color:#0F2C4B;font-weight:600">🤝 协同任务</span>';
-  if(collabTasks.length)html+='<span style="font-size:12px;color:#b45309;background:#fde68a;padding:2px 8px;border-radius:4px;font-weight:600">'+collabTasks.length+' 项</span>';
+  html+='<table id="collabTaskArea" cellspacing="0" cellpadding="0" style="width:100%;margin:20px 0 0 0;border:1px solid #E5EAF0;border-radius:4px;background:#fff;border-spacing:0">';
+  html+='<tr><td style="padding:12px 16px;background:#FBFCFE;border-bottom:1px solid #EDF1F7"><div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:13px;color:#1F2937;font-weight:600;display:inline-flex;align-items:center;gap:6px"><span style="display:inline-flex;color:#3B7DB4"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>协同任务</span>';
+  if(collabTasks.length)html+='<span style="font-size:12px;color:#2E6A9A;background:#E8F4FE;padding:2px 8px;border-radius:4px;font-weight:600">'+collabTasks.length+' 项</span>';
   html+='</div></td></tr><tr><td style="padding:0">';
   if(!collabTasks.length){
-    html+='<div style="padding:28px;text-align:center;color:#9ca3af;font-size:14px;font-weight:500">📭 本周暂无协同任务</div>';
+    html+='<div style="padding:28px;text-align:center;color:#9ca3af;font-size:13px;font-weight:500"><span style="display:inline-flex;vertical-align:-3px;margin-right:5px;color:#B0B8C1"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg></span>本周暂无协同任务</div>';
   }else{
-    html+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr style="background:#fff"><th style="padding:10px 8px;text-align:left;color:#92400e;border-bottom:1px solid #f59e0b">序号</th><th style="padding:10px 8px;text-align:left;color:#92400e;border-bottom:1px solid #f59e0b">来自</th><th style="padding:10px 8px;text-align:left;color:#92400e;border-bottom:1px solid #f59e0b">协同工作内容</th><th style="padding:10px 8px;text-align:left;color:#92400e;border-bottom:1px solid #f59e0b">优先级</th><th style="padding:10px 8px;text-align:left;color:#92400e;border-bottom:1px solid #f59e0b">计划完成日期</th><th style="padding:10px 8px;text-align:left;color:#92400e;border-bottom:1px solid #f59e0b">协同状态</th><th style="padding:10px 8px;text-align:left;color:#92400e;border-bottom:1px solid #f59e0b">操作</th></tr></thead><tbody>';
+    html+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr style="background:#fff"><th style="padding:10px 8px;text-align:left;color:#6b7280;border-bottom:1px solid #EDF1F7">序号</th><th style="padding:10px 8px;text-align:left;color:#6b7280;border-bottom:1px solid #EDF1F7">来自</th><th style="padding:10px 8px;text-align:left;color:#6b7280;border-bottom:1px solid #EDF1F7">协同工作内容</th><th style="padding:10px 8px;text-align:left;color:#6b7280;border-bottom:1px solid #EDF1F7">优先级</th><th style="padding:10px 8px;text-align:left;color:#6b7280;border-bottom:1px solid #EDF1F7">计划完成日期</th><th style="padding:10px 8px;text-align:left;color:#6b7280;border-bottom:1px solid #EDF1F7">协同状态</th><th style="padding:10px 8px;text-align:left;color:#6b7280;border-bottom:1px solid #EDF1F7">操作</th></tr></thead><tbody>';
     for(var i=0;i<collabTasks.length;i++){
       var ct=collabTasks[i], snapshot=ct.task_snapshot||{}, pri=snapshot.goal||'';
       var priStyle=pri==='重要紧急'?'#FF3B30':pri==='重要不急'?'#4984AC':pri==='日常紧急'?'#FF9500':'#5E7080';
       var st=ct.status||'pending', stText=st==='accepted'?'已接受':st==='rejected'?'已拒绝':'待响应', stColor=st==='accepted'?'#16a34a':st==='rejected'?'#dc2626':'#6b7280';
-      html+='<tr><td style="padding:10px 8px;border-bottom:1px solid #fef3c7">'+(i+1)+'</td><td style="padding:10px 8px;border-bottom:1px solid #fef3c7"><span style="padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;color:#fff;background:#6366f1">'+_h(ct.owner_name||'')+'</span></td><td style="padding:10px 8px;border-bottom:1px solid #fef3c7">'+_h(snapshot.work||'(无任务描述)')+'</td><td style="padding:10px 8px;border-bottom:1px solid #fef3c7">'+(pri?'<span style="background:'+priStyle+';color:#fff;padding:2px 8px;border-radius:2px;font-size:10px;font-weight:600">'+_h(pri)+'</span>':'')+'</td><td style="padding:10px 8px;border-bottom:1px solid #fef3c7;white-space:nowrap">'+_h(snapshot.plannedDate||'')+'</td><td style="padding:10px 8px;border-bottom:1px solid #fef3c7"><span style="color:'+stColor+';font-weight:600">'+stText+'</span></td><td style="padding:10px 8px;border-bottom:1px solid #fef3c7"><div style="display:flex;gap:4px;flex-wrap:wrap">';
+      html+='<tr><td style="padding:10px 8px;border-bottom:1px solid #F1F4F9">'+(i+1)+'</td><td style="padding:10px 8px;border-bottom:1px solid #F1F4F9"><span style="padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;color:#fff;background:#3B7DB4">'+_h(ct.owner_name||'')+'</span></td><td style="padding:10px 8px;border-bottom:1px solid #F1F4F9">'+_h(snapshot.work||'(无任务描述)')+'</td><td style="padding:10px 8px;border-bottom:1px solid #F1F4F9">'+(pri?'<span style="background:'+priStyle+';color:#fff;padding:2px 8px;border-radius:2px;font-size:10px;font-weight:600">'+_h(pri)+'</span>':'')+'</td><td style="padding:10px 8px;border-bottom:1px solid #F1F4F9;white-space:nowrap">'+_h(snapshot.plannedDate||'')+'</td><td style="padding:10px 8px;border-bottom:1px solid #F1F4F9"><span style="color:'+stColor+';font-weight:600">'+stText+'</span></td><td style="padding:10px 8px;border-bottom:1px solid #F1F4F9"><div style="display:flex;gap:4px;flex-wrap:wrap">';
       if(isPlanOwner){
         if(st==='accepted'||st==='rejected')html+='<button onclick="_collabRespond(this)" data-request-id="'+_h(ct.request_id)+'" data-status="pending" style="padding:3px 8px;border:1px solid #ddd;border-radius:4px;font-size:11px;cursor:pointer;background:#fff;color:#555">'+(st==='accepted'?'撤销接受':'重新考虑')+'</button>';
         else html+='<button onclick="_collabRespond(this)" data-request-id="'+_h(ct.request_id)+'" data-status="accepted" style="padding:3px 8px;border:0;border-radius:4px;font-size:11px;cursor:pointer;background:#16a34a;color:#fff">接受</button><button onclick="_collabRespond(this)" data-request-id="'+_h(ct.request_id)+'" data-status="rejected" style="padding:3px 8px;border:0;border-radius:4px;font-size:11px;cursor:pointer;background:#dc2626;color:#fff">拒绝</button>';
       }else{
-        html+='<span style="font-size:11px;color:#92400e">审阅中</span>';
+        html+='<span style="font-size:11px;color:#6b7280">审阅中</span>';
       }
       html+='</div></td></tr>';
     }
@@ -3504,7 +3505,7 @@ function renderWPTable(plan){
   
   html+='<div class="wp-feedback-section ai-section-collapsed" id="aiFeedbackSection">';
   html+='<div class="ai-header-bar" style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--card-alt);flex-wrap:wrap;gap:8px">';
-    html+='<div style="display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:#0F2C4B">🤖 AI 综合分析</div>';
+    html+='<div style="display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:#0F2C4B"><span style="display:inline-flex;color:#3B7DB4"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9L12 3z"/></svg></span>AI 建议</div>';
     html+='<button type="button" onclick="toggleAIAnalysis()" id="aiAnalysisToggleBtn" style="padding:3px 12px;border:1px solid #d4c8f0;border-radius:4px;background:#fff;color:#6b5b95;font-size:11px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:3px;transition:all .25s ease;white-space:nowrap"><span id="aiToggleIcon">▼</span><span id="aiToggleText">展开</span></button>';
     html+='</div>';
   if(plan.aiAnalysis && plan.aiAnalysis.trim()){
@@ -3516,7 +3517,7 @@ function renderWPTable(plan){
 
   html+='<div class="wp-feedback-section">';
   html+='<div class="wp-feedback-header">';
-  html+='<span class="wp-feedback-title">📝 一周工作小结</span>';
+  html+='<span class="wp-feedback-title"><span style="display:inline-flex;vertical-align:-2px;margin-right:4px;color:#3B7DB4"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg></span>本周小结</span>';
   html+='<span class="wp-feedback-meta">（必填，员工填写）</span>';
   if(summaryUpdatedAt) html+='<span class="wp-feedback-reviewer">更新于：'+summaryUpdatedAt+'</span>';
   html+='</div>';
@@ -3555,7 +3556,7 @@ function renderWPTable(plan){
   
   html+='<div class="wp-feedback-section">';
   html+='<div class="wp-feedback-header">';
-  html+='<span class="wp-feedback-title">⭐ 一周工作评价</span>';
+  html+='<span class="wp-feedback-title"><span style="display:inline-flex;vertical-align:-2px;margin-right:4px;color:#3B7DB4"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>直属上级建议</span>';
   html+='<span class="wp-feedback-meta">（必填，直属上级填写）</span>';
   if(reviewReviewer) html+='<span class="wp-feedback-reviewer">评价人：'+_h(reviewReviewer)+'</span>';
   else if(isSupervisor&&!isEmployee) html+='<span class="wp-feedback-reviewer">（您可在此填写评价）</span>';
@@ -3581,7 +3582,7 @@ function renderWPTable(plan){
       if(rd) html+='<div class="wp-rating-display"><span class="wp-rating-display-emoji">'+rd.emoji+'</span> '+rd.label+'</div>';
     }
   }else{
-    html+='<div class="wp-feedback-empty">领导暂未评价</div>';
+    html+='<div class="wp-feedback-empty">暂未评价</div>';
   }
   html+='</div>';
   
@@ -3592,7 +3593,7 @@ function renderWPTable(plan){
   
   html+='<div class="wp-feedback-section">';
   html+='<div class="wp-feedback-header">';
-  html+='<span class="wp-feedback-title">💡 一周工作评价与建议</span>';
+  html+='<span class="wp-feedback-title"><span style="display:inline-flex;vertical-align:-2px;margin-right:4px;color:#3B7DB4"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>隔级上级建议</span>';
   html+='<span class="wp-feedback-meta">（选填，上级填写）</span>';
   if(suggestionReviewer) html+='<span class="wp-feedback-reviewer">建议人：'+_h(suggestionReviewer)+'</span>';
   else if(isSupervisor&&!isEmployee) html+='<span class="wp-feedback-reviewer">（您可在此填写建议）</span>';
@@ -4231,7 +4232,7 @@ async function submitWPWeekSummary(){
   var p=_wpCurrent.plan;if(!p){_showAlert('请先选择一个周计划');return;}
   // 检查是否已填写小结
   if(!p.weekSummary||!p.weekSummary.trim()){
-    _showAlert('请先在下方「一周工作小结」区域填写本周工作总结后再点击「完成小结」。');
+    _showAlert('请先在下方「本周小结」区域填写本周工作总结后再点击「完成小结」。');
     return;
   }
   var confirmed=await _showConfirm('确认完成本周工作小结？<br><br>提交后将记录完成时间用于考勤积分计算，同时锁定工作内容/优先级/计划完成日期。<br><br>—<br><br>Confirm completion of this week\'s work summary?<br><br>After submission, the completion time will be recorded for attendance score calculation, and the work content/priority/planned completion date will be locked.','工作小结确认 / Work Summary Confirmation');
@@ -5632,7 +5633,7 @@ async function aiAssessWP() {
       if(fb) fb.classList.add('wp-feedback-box--ai-fadein');
     }, 100);
 
-    _showAlert('AI 综合分析已生成，请查看下方「🤖 AI 综合分析」区域。');
+    _showAlert('AI 建议已生成，请查看下方「AI 建议」区域。');
   } catch (e) {
     console.error('[AI] 分析失败:', e);
     if (prog) prog.classList.remove('wp-ai-progress--visible');
