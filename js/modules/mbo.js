@@ -4737,7 +4737,7 @@ function _renderTimeManagementPanel(plan){
   }
   var _statOwner=(uid===((currentUser&&currentUser.name)||''))?'我':uid;
   html+='<div class="wp-card">';
-  html+='<div class="wp-card-title">'+_statOwner+'的周计划/小结按时提交情况</div>';
+  html+='<div class="wp-card-title">计划与小结按时提交情况</div>';
   html+='<div>';
   html+='<table class="wp-card-table">';
   html+='<tr><td><span style="color:#059669;margin-right:6px">✓</span>计划按时提交次数</td><td class="td-val" style="color:#059669;font-weight:600">'+_statPlanOn+' 次</td></tr>';
@@ -4751,7 +4751,7 @@ function _renderTimeManagementPanel(plan){
 
   // ★ Card 2: 评分标准（V0.4.91 新分值）
   html+='<div class="wp-card">';
-  html+='<div class="wp-card-title">任务完成计分规则</div>';
+  html+='<div class="wp-card-title">MBO计分规则</div>';
   html+='<div>';
   html+='<table class="wp-card-table">';
   html+='<tr><td></td><td class="td-val" style="color:#6b7280;font-weight:400;font-size:10px">按时</td><td class="td-val" style="color:#6b7280;font-weight:400;font-size:10px">逾期</td><td class="td-val" style="color:#6b7280;font-weight:400;font-size:10px">未做</td></tr>';
@@ -4768,7 +4768,7 @@ function _renderTimeManagementPanel(plan){
   var _ytdCats=_calcYTDScoreByCategory(year);
   var _ytdNet=(_ytdCats['重要紧急']||0)+(_ytdCats['重要不急']||0)+(_ytdCats['日常紧急']||0)+(_ytdCats['日常事项']||0);
   html+='<div class="wp-card">';
-  html+='<div class="wp-card-title">本年度（YTD）MBO绩效得分</div>';
+  html+='<div class="wp-card-title">YTD-MBO得分（本年度）</div>';
   html+='<div>';
   var _ytdCatNames=['重要紧急','重要不急','日常紧急','日常事项'];
   for(var _yci=0;_yci<_ytdCatNames.length;_yci++){
