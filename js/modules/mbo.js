@@ -3396,7 +3396,7 @@ function renderWPTable(plan){
       var jj=carriedTasks[ci]; seq++;
       var tt=plan.tasks[jj];
       var cf=tt.carriedFrom;
-      var cfTag=cf?'<div style="font-size:9px;color:#8B6914;background:#FFF8E7;padding:1px 4px;border-radius:2px;display:block;margin-top:2px">来源:'+cf.year+'年'+cf.month+'月第'+cf.week+'周</div>':'';
+      var cfTag=cf?'<div style="font-size:9px;color:#6b7280;background:#F1F4F9;padding:1px 6px;border-radius:2px;display:inline-block;margin-top:2px">来源 '+cf.year+'年'+cf.month+'月第'+cf.week+'周</div>':'';
       // ★ V0.1.88: 转入任务可编辑
       var edCls=(plan.bossEvaluated?'':' editable');
       var edClick=(plan.bossEvaluated?'':' onclick="startEditCell(this)"');

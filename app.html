@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.7.1fc">
+<meta name="version" content="V0.7.1fd">
 <!-- cache-bust: 2026-09-02-15-19 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json?v=bc">
@@ -2058,8 +2058,8 @@ body{
 /* ★ V0.6.1.j90: 占位符 — 比正文更浅，避免误以为是已填写内容（之前 j82 只加了 class 未加 CSS，导致仍是黑色） */
 /* ★ V0.6.1.j90: 去除 ::before + 合并冲突规则，实际占位符已改用内联 style 防 CDN 缓存 */
 
-.wp-total-row td{background:#f6f8fc;font-weight:600;padding:14px 6px;font-size:12px}
-.wp-total-row td.wp-total-num{color:#AFAFAF;font-size:13px}
+.wp-total-row td{background:#f6f8fc;font-weight:600;padding:14px 6px;font-size:12px;border-top:2px solid #C5C9CE}
+.wp-total-row td.wp-total-num{color:#6b7280;font-size:13px;font-variant-numeric:tabular-nums}
 
 /* ===== 协同任务表格 ===== */
 .collab-section{margin-top:20px;margin-bottom:20px;border:1px solid #e5e7eb;border-radius:4px;background:#fafafa;flex-shrink:0;min-height:60px;display:block;box-sizing:border-box}
@@ -2655,7 +2655,7 @@ function togglePortalTips(){
       </div>
     </nav>
     <div class="portal-sidebar-footer">
-      V0.7.1fa
+      V0.7.1fd
     </div>
   </aside>
   <!-- Main -->
