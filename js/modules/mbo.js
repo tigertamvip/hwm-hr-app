@@ -3528,12 +3528,12 @@ function renderWPTable(plan){
   html+='<div class="wp-feedback-section ai-section-collapsed" id="aiFeedbackSection">';
   html+='<div class="ai-header-bar" style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--card-alt);flex-wrap:wrap;gap:8px">';
     html+='<div style="display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:#0F2C4B"><span style="display:inline-flex;color:#3B7DB4"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9L12 3z"/></svg></span>AI 建议</div>';
-    html+='<button type="button" onclick="toggleAIAnalysis()" id="aiAnalysisToggleBtn" style="padding:3px 12px;border:1px solid #d4c8f0;border-radius:4px;background:#fff;color:#6b5b95;font-size:11px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:3px;transition:all .25s ease;white-space:nowrap"><span id="aiToggleIcon">▼</span><span id="aiToggleText">展开</span></button>';
+    html+='<button type="button" onclick="toggleAIAnalysis()" id="aiAnalysisToggleBtn" style="padding:3px 12px;border:1px solid var(--border);border-radius:4px;background:#fff;color:#3B7DB4;font-size:11px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:3px;transition:all .25s ease;white-space:nowrap"><span id="aiToggleIcon">▼</span><span id="aiToggleText">展开</span></button>';
     html+='</div>';
   if(plan.aiAnalysis && plan.aiAnalysis.trim()){
-    html+='<div class="wp-feedback-textarea" id="aiAnalysisContent" style="background:#F4F0FF;border:1px solid #d4c8f0;font-size:13px;line-height:1.8;white-space:pre-wrap;transition:max-height 0.6s cubic-bezier(.25,.1,.25,1),opacity 0.6s cubic-bezier(.25,.1,.25,1),padding 0.6s cubic-bezier(.25,.1,.25,1);overflow:hidden;max-height:0;opacity:0;padding:0;margin-top:0">'+_h(plan.aiAnalysis)+'</div>';
+    html+='<div class="wp-feedback-textarea" id="aiAnalysisContent" style="background:var(--card);border:1px solid var(--border);font-size:13px;line-height:1.8;white-space:pre-wrap;transition:max-height 0.6s cubic-bezier(.25,.1,.25,1),opacity 0.6s cubic-bezier(.25,.1,.25,1),padding 0.6s cubic-bezier(.25,.1,.25,1);overflow:hidden;max-height:0;opacity:0;padding:0;margin-top:0">'+_h(plan.aiAnalysis)+'</div>';
   }else{
-    html+='<div class="wp-feedback-empty" id="aiAnalysisContent" style="background:#F4F0FF;border:1px dashed #d4c8f0;transition:max-height 0.6s cubic-bezier(.25,.1,.25,1),opacity 0.6s cubic-bezier(.25,.1,.25,1),padding 0.6s cubic-bezier(.25,.1,.25,1);max-height:0;opacity:0;padding:0">点击上方「AI 建议」按钮，生成本周整体分析报告</div>';
+    html+='<div class="wp-feedback-empty" id="aiAnalysisContent" style="background:var(--card-alt);border:1px dashed var(--border);transition:max-height 0.6s cubic-bezier(.25,.1,.25,1),opacity 0.6s cubic-bezier(.25,.1,.25,1),padding 0.6s cubic-bezier(.25,.1,.25,1);max-height:0;opacity:0;padding:0">点击上方「AI 建议」按钮，生成本周整体分析报告</div>';
   }
   html+='</div>';
 
