@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.7.1eu">
+<meta name="version" content="V0.7.1ev">
 <!-- cache-bust: 2026-08-06-07-12 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json?v=bc">
@@ -2261,42 +2261,45 @@ table.collab-table tbody tr:hover{background:#fffdf5}
 
 /* ★ V0.3.74: 卡片仪表盘 */
 /* 首屏概览：默认收起，仅在需要规则、积分或年度进度时展开。 */
-.wp-overview{margin:6px 0 4px;border:1px solid #E7E2DA;border-radius:4px;background:#FFFDF9}
+/* ★ V0.7.1ev: 静谧仪表盘重设计 — 全面回归品牌蓝体系（去米色），发丝线边框，标题蓝竖条，数字等宽对齐 */
+.wp-overview{margin:6px 0 4px;border:1px solid #E5EAF0;border-radius:4px;background:#FBFCFE}
 .wp-overview-toggle{width:100%;display:flex;align-items:center;gap:8px;padding:8px 12px;border:0;background:transparent;color:#2A476A;text-align:left;cursor:pointer;font:inherit}
 .wp-overview-title{font-size:12px;font-weight:700}
 .wp-overview-hint{font-size:11px;color:#8A9499}
 .wp-overview-icon{margin-left:auto;font-size:11px;color:#718096;font-weight:600}
 .wp-overview-content{overflow:hidden;transition:max-height .25s ease,opacity .2s ease;padding:0 12px}
-.wp-cards-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:0 0 10px}
-.wp-card{background:#f6f8fc;border-radius:4px;padding:0 10px 8px;border:1px solid #E8E4DE;box-shadow:none}
-.wp-card-title{width:100%;padding:8px 0 6px;margin:0;border:0;border-bottom:1px solid #E8E4DE;background:transparent;font:inherit;font-size:11px;font-weight:700;color:#4B5F73;display:flex;align-items:center;justify-content:space-between;gap:5px;cursor:pointer;text-align:left}
+.wp-cards-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin:0 0 10px}
+.wp-card{background:#fff;border-radius:4px;padding:0 12px 10px;border:1px solid #E5EAF0;box-shadow:none}
+.wp-card-title{width:100%;padding:9px 0 8px 8px;margin:0;border:0;border-bottom:1px solid #EDF1F7;border-left:3px solid #3B7DB4;background:transparent;font:inherit;font-size:12px;font-weight:600;color:#1F2937;display:flex;align-items:center;justify-content:space-between;gap:5px;cursor:pointer;text-align:left}
 .wp-card-table{width:100%;border-collapse:collapse;font-size:11px;line-height:1.7}
-.wp-card-table tr:nth-child(odd){background:#F3EDE2}
+.wp-card-table tr:nth-child(odd){background:transparent}
+.wp-card-table tr+tr td{border-top:1px solid #F1F4F9}
 .wp-card-table td{padding:2px 4px;color:#0F2C4B}
-.wp-card-table .td-val{text-align:center;font-weight:600;color:#2A476A}
-.wp-card-table .td-pos,.wp-card-table .td-neg{color:#2A476A}
+.wp-card-table .td-val{text-align:center;font-weight:600;color:#2A476A;font-variant-numeric:tabular-nums}
+.wp-card-table .td-pos{color:#2E6A9A}
+.wp-card-table .td-neg{color:#D64541}
 /* ★ V0.5.23: 年度计划完成率进度条 */
 .wp-progress-card{grid-column:1/-1}
 .wp-progress-row{display:flex;align-items:center;gap:6px;margin:3px 0}
 .wp-progress-label{font-size:10px;color:#4b5563;width:64px;flex-shrink:0;text-align:right;display:flex;align-items:center;justify-content:flex-end;gap:4px}
 .wp-progress-bar-wrap{flex:1;height:5px;background:#e5e7eb;border-radius:2.5px;overflow:hidden;position:relative}
 .wp-progress-bar-fill{height:100%;background:linear-gradient(90deg,#4DD1FF,#9DDEF7);border-radius:0 2.5px 2.5px 0;transition:width .4s ease}
-.wp-progress-num{font-size:10px;color:#6b7280;width:64px;flex-shrink:0;white-space:nowrap}
+.wp-progress-num{font-size:10px;color:#6b7280;width:64px;flex-shrink:0;white-space:nowrap;font-variant-numeric:tabular-nums}
 .wp-card-tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:500;background:#EEF1F5;color:#2A476A}
 .wp-card-tag.green,.wp-card-tag.blue,.wp-card-tag.red,.wp-card-tag.gray{background:#EEF1F5;color:#2A476A}
 .wp-card-score-row{display:flex;justify-content:space-between;align-items:center;padding:3px 0}
 .wp-card-score-label{color:#6b7280;font-size:11px}
-.wp-card-score-val{color:#2A476A;font-family:system-ui;font-size:16px}
-.wp-card-score-bold{font-weight:700;font-size:16px;color:#2A476A}
+.wp-card-score-val{color:#2A476A;font-family:system-ui;font-size:16px;font-variant-numeric:tabular-nums}
+.wp-card-score-bold{font-weight:700;font-size:16px;color:#2A476A;font-variant-numeric:tabular-nums}
 .wp-card-divider{border-top:1px solid #e5e7eb;margin:5px 0;padding-top:5px}
 /* ★ V0.5.0: 艾森豪威尔矩阵 */
 .wp-eisenhower{position:relative;min-height:210px;overflow:hidden}
 .wp-em-axes{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none}
 .wp-em-axis-line{stroke:#cbd5e1;stroke-width:1}
-.wp-em-axis-text{fill:#9ca3af;font-size:9px;font-family:system-ui,-apple-system,sans-serif}
+.wp-em-axis-text{fill:#9ca3af;font-size:10px;font-family:system-ui,-apple-system,sans-serif}
 .wp-em-dot{cursor:pointer;transition:opacity .15s;stroke:rgba(255,255,255,.7);stroke-width:.5}
 .wp-em-dot:hover{opacity:.85;stroke:#fff;stroke-width:1}
-.wp-em-legend{display:flex;gap:3px;flex-wrap:nowrap;font-size:8px;color:#6b7280;padding:2px 0;align-items:center;white-space:nowrap}
+.wp-em-legend{display:flex;gap:4px;flex-wrap:nowrap;font-size:10px;color:#6b7280;padding:2px 0;align-items:center;white-space:nowrap}
 .wp-em-legend-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
 @media(max-width:1024px){.wp-cards-grid{grid-template-columns:repeat(3,1fr);gap:6px}}
 @media(max-width:700px){.wp-cards-grid{grid-template-columns:repeat(2,1fr);gap:6px}}
@@ -2651,7 +2654,7 @@ function togglePortalTips(){
       </div>
     </nav>
     <div class="portal-sidebar-footer">
-      V0.7.1eu
+      V0.7.1ev
     </div>
   </aside>
   <!-- Main -->

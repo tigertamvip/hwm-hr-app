@@ -4591,17 +4591,17 @@ function _renderEisenhowerMatrix(year){
   var n='重要紧急',ni='重要不急',du='日常紧急',dr='日常事项';
   var activeQuads=[n,ni,du,dr].reduce(function(a,v){a[v]=quads[v].length>0;return a;},{});
 
-  // SVG 矩阵
-  var W=220,H=160,XC=Math.round(W/2),YC=Math.round(H/2),R=4;
+  // SVG 矩阵（★ V0.7.1ev: 圆点 4→6px、轴标签 9→10px，提升可读性）
+  var W=220,H=160,XC=Math.round(W/2),YC=Math.round(H/2),R=6;
   var svg='<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto">';
   // 十字轴
   svg+='<line x1="'+XC+'" y1="18" x2="'+XC+'" y2="'+(H-14)+'" stroke="#cbd5e1" stroke-width="1"/>';
   svg+='<line x1="14" y1="'+YC+'" x2="'+(W-14)+'" y2="'+YC+'" stroke="#cbd5e1" stroke-width="1"/>';
   // 象限标签
-  svg+='<text x="'+XC+'" y="14" text-anchor="middle" fill="#9ca3af" font-size="9" font-family="system-ui">重要</text>';
-  svg+='<text x="'+XC+'" y="'+(H-3)+'" text-anchor="middle" fill="#9ca3af" font-size="9" font-family="system-ui">日常</text>';
-  svg+='<text x="6" y="'+(YC-4)+'" text-anchor="start" fill="#9ca3af" font-size="9" font-family="system-ui">不紧急</text>';
-  svg+='<text x="'+(W-6)+'" y="'+(YC-4)+'" text-anchor="end" fill="#9ca3af" font-size="9" font-family="system-ui">紧急</text>';
+  svg+='<text x="'+XC+'" y="14" text-anchor="middle" fill="#9ca3af" font-size="10" font-family="system-ui">重要</text>';
+  svg+='<text x="'+XC+'" y="'+(H-3)+'" text-anchor="middle" fill="#9ca3af" font-size="10" font-family="system-ui">日常</text>';
+  svg+='<text x="6" y="'+(YC-4)+'" text-anchor="start" fill="#9ca3af" font-size="10" font-family="system-ui">不紧急</text>';
+  svg+='<text x="'+(W-6)+'" y="'+(YC-4)+'" text-anchor="end" fill="#9ca3af" font-size="10" font-family="system-ui">紧急</text>';
 
   // 每个象限的点位置
   var quadRanges=[{cxL:8,cxR:XC-10,cyT:8,cyB:YC-10,goal:ni},{cxL:XC+10,cxR:W-8,cyT:8,cyB:YC-10,goal:n},{cxL:8,cxR:XC-10,cyT:YC+10,cyB:H-8,goal:dr},{cxL:XC+10,cxR:W-8,cyT:YC+10,cyB:H-8,goal:du}];
@@ -4638,12 +4638,13 @@ function _renderEisenhowerMatrix(year){
   }
   html+='</div>';
 
-  // 四个象限计数
+  // 四个象限计数（★ V0.7.1ev: emoji 标签改优先级色点+文字，字号 8→10px，符合线性图标规范）
   var allQuads=[n,ni,du,dr];
-  html+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:3px;font-size:8px;color:#6b7280;margin-top:2px;white-space:nowrap">';
+  html+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:3px;font-size:10px;color:#6b7280;margin-top:2px;white-space:nowrap">';
   for(var qi=0;qi<allQuads.length;qi++){
-    var lab=allQuads[qi].replace('重要紧急','⚡重急').replace('重要不急','📌重不急').replace('日常紧急','🔥日急').replace('日常事项','📋日常');
-    html+='<div style="padding:2px 4px;background:#F8FAFB;border-radius:2px">'+lab+' <b style="color:#374151">'+quads[allQuads[qi]].length+'</b></div>';
+    var _qShort=allQuads[qi].replace('重要紧急','重急').replace('重要不急','重不急').replace('日常紧急','日急').replace('日常事项','日常');
+    var _qColor=WP_GOAL_COLORS[allQuads[qi]]||'#9ca3af';
+    html+='<div style="padding:2px 4px;background:#F8FAFB;border-radius:2px"><span style="color:'+_qColor+';font-size:8px">●</span> '+_qShort+' <b style="color:#374151">'+quads[allQuads[qi]].length+'</b></div>';
   }
   html+='</div>';
   html+='</div>';
@@ -4744,7 +4745,7 @@ function _renderTimeManagementPanel(plan){
   html+='<tr><td><span style="color:#dc2626;margin-right:6px">○</span>计划延迟提交次数</td><td class="td-val" style="color:#dc2626;font-weight:600">'+_statPlanLate+' 次</td></tr>';
   html+='<tr><td><span style="color:#059669;margin-right:6px">✓</span>小结按时提交次数</td><td class="td-val" style="color:#059669;font-weight:600">'+_statSumOn+' 次</td></tr>';
   html+='<tr><td><span style="color:#dc2626;margin-right:6px">○</span>小结延迟提交次数</td><td class="td-val" style="color:#dc2626;font-weight:600">'+_statSumLate+' 次</td></tr>';
-  html+='<tr><td style="font-size:9px;color:#9ca3af;padding-top:6px;border-top:1px solid #e5e7eb;white-space:pre-line" colspan="2">注：\n按时提交不再奖励/扣分，仅作统计（当年累计）。截止时间：每周六 12:00，法定节假日顺延。</td></tr>';
+  html+='<tr><td style="font-size:10px;color:#6b7280;padding-top:6px;border-top:1px solid #F1F4F9;white-space:pre-line" colspan="2">注：\n按时提交不再奖励/扣分，仅作统计（当年累计）。截止时间：每周六 12:00，法定节假日顺延。</td></tr>';
   html+='</table>';
   html+='</div>';
   html+='</div>';
@@ -4759,7 +4760,7 @@ function _renderTimeManagementPanel(plan){
   html+='<tr><td>重要不急</td><td class="td-val td-pos">+2</td><td class="td-val td-neg">−1</td><td class="td-val td-neg">−4</td></tr>';
   html+='<tr><td>日常紧急</td><td class="td-val td-pos">+1.5</td><td class="td-val td-neg">−1</td><td class="td-val td-neg">−3</td></tr>';
   html+='<tr><td>日常事项</td><td class="td-val td-pos">+1</td><td class="td-val td-neg">−0.5</td><td class="td-val td-neg">−2</td></tr>';
-  html+='<tr><td style="font-size:9px;color:#9ca3af;padding-top:6px;border-top:1px solid #e5e7eb;white-space:pre-line" colspan="4">注：\n手动选择"暂停中"→终止计算，积分=0\n逾期未超 5 个工作日→逾期完成；超 5 个工作日→自动判定未做</td></tr>';
+  html+='<tr><td style="font-size:10px;color:#6b7280;padding-top:6px;border-top:1px solid #F1F4F9;white-space:pre-line" colspan="4">注：\n手动选择"暂停中"→终止计算，积分=0\n逾期未超 5 个工作日→逾期完成；超 5 个工作日→自动判定未做</td></tr>';
   html+='</table>';
   html+='</div>';
   html+='</div>';
@@ -4778,7 +4779,7 @@ function _renderTimeManagementPanel(plan){
     html+='<div class="wp-card-score-row"><span class="wp-card-score-label"><span style="color:'+(WP_GOAL_COLORS[_ycn]||'#6b7280')+';margin-right:4px">●</span>'+_ylabel+'</span><span class="wp-card-score-val" style="color:'+(_yv>=0?'#059669':'#dc2626')+'">'+(_yv>0?'+':'')+_yv+' 分</span></div>';
   }
   html+='<div class="wp-card-divider"><div style="display:flex;justify-content:space-between"><span style="color:#0F2C4B;font-size:12px;font-weight:500">净积分</span><span class="wp-card-score-bold">'+(_ytdNet>=0?'+':'')+_ytdNet+'</span></div></div>';
-  html+='<div style="font-size:9px;color:#9ca3af;margin-top:4px;line-height:1.4">注：同一任务（含上周转入）仅按最新完成状态计一次分，不重复奖罚</div>';
+  html+='<div style="font-size:10px;color:#6b7280;margin-top:4px;line-height:1.4">注：同一任务（含上周转入）仅按最新完成状态计一次分，不重复奖罚</div>';
   html+='</div>';
   html+='</div>';
 
@@ -4788,8 +4789,8 @@ function _renderTimeManagementPanel(plan){
   html+='<div class="wp-card">';
   html+='<div class="wp-card-title"><span style="display:inline-flex;align-items:center;gap:5px"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>小便签</span></div>';
   html+='<div>';
-  html+='<textarea id="wpMemoPad" oninput="wpMemoInput(this)"'+(_memoEditable?'':' readonly')+' placeholder="'+(_memoEditable?'随手记一笔：待办提醒、临时想法、要跟进的小事…':'（本周暂无便签）')+'" style="width:100%;min-height:118px;box-sizing:border-box;border:1px dashed #D8C97A;background:#FFFBEA;border-radius:4px;padding:8px 10px;font-size:12px;line-height:1.7;color:#5B5340;resize:vertical;outline:none;font-family:inherit">'+_h(_memoVal)+'</textarea>';
-  if(_memoEditable)html+='<div style="font-size:9px;color:#B5A76A;margin-top:3px;text-align:right">输入即自动保存</div>';
+  html+='<textarea id="wpMemoPad" oninput="wpMemoInput(this)"'+(_memoEditable?'':' readonly')+' placeholder="'+(_memoEditable?'随手记一笔：待办提醒、临时想法、要跟进的小事…':'（本周暂无便签）')+'" style="width:100%;min-height:118px;box-sizing:border-box;border:1px solid #EDE3C0;background:#FFFDF7;border-radius:4px;padding:8px 10px;font-size:12px;line-height:1.7;color:#5B5340;resize:vertical;outline:none;font-family:inherit">'+_h(_memoVal)+'</textarea>';
+  if(_memoEditable)html+='<div style="font-size:10px;color:#C4B586;margin-top:3px;text-align:right">输入即自动保存</div>';
   html+='</div>';
   html+='</div>';
   // ★ V0.5.0: 艾森豪威尔矩阵卡片
