@@ -3256,13 +3256,13 @@ function renderWPTable(plan){
     var myName=(currentUser&&currentUser.name)||'';
     var isFrozen = _wpCurrent.plan && _wpCurrent.plan.frozen && _wpCurrent.plan.frozenBy===myName;
     html+='<button class="'+(isFrozen?'wp-btn-freeze':'')+'" onclick="toggleWPFreeze()" title="锁定后下属不能修改本周重点/优先级/计划完成日期">';
-    html+=isFrozen?'🔐 解除锁定':'🔐 锁定周计划';
+    html+=isFrozen?'<span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;margin-right:4px"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg></span> 解除锁定':'<span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;margin-right:4px"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span> 锁定周计划';
     html+='</button>';
     // ★ V0.6.1ad: 完成评价 Toggle（部门成员视图）
     if(_wpCurrent.plan && _wpCurrent.plan.bossEvaluated){
       html+='<button onclick="revokeBossEval()"><span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;margin-right:4px"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6.7 2.97L3 13"/></svg></span> 撤销评价</button>';
     }else{
-      html+='<button onclick="openBossEval()">⭐ 完成评价</button>';
+      html+='<button onclick="openBossEval()"><span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;margin-right:4px"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span> 完成评价</button>';
     }
   }else if(_wpViewingSubordinate){
     // 查看下属：审核锁定 + 上级评价编辑（V0.6.1cf: 修订模式已取消，上级修改不再标红）
@@ -3271,13 +3271,13 @@ function renderWPTable(plan){
     var myName=(currentUser&&currentUser.name)||'';
     var isFrozen = _wpCurrent.plan && _wpCurrent.plan.frozen && _wpCurrent.plan.frozenBy===myName;
     html+='<button class="'+(isFrozen?'wp-btn-freeze':'')+'" onclick="toggleWPFreeze()" title="锁定后下属不能修改本周重点、优先级、计划完成日期">';
-    html+=isFrozen?'🔐 解除锁定':'🔐 锁定周计划';
+    html+=isFrozen?'<span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;margin-right:4px"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg></span> 解除锁定':'<span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;margin-right:4px"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span> 锁定周计划';
     html+='</button>';
     // ★ V0.6.1ad: 完成评价 Toggle（直属下属视图）
     if(_wpCurrent.plan && _wpCurrent.plan.bossEvaluated){
       html+='<button onclick="revokeBossEval()"><span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;margin-right:4px"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6.7 2.97L3 13"/></svg></span> 撤销评价</button>';
     }else{
-      html+='<button onclick="openBossEval()">⭐ 完成评价</button>';
+      html+='<button onclick="openBossEval()"><span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;margin-right:4px"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span> 完成评价</button>';
     }
   }else{
     // 自己的计划：完整编辑功能（去掉新增+转发，左下角已有新建）
