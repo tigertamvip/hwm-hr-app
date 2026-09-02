@@ -3353,14 +3353,14 @@ function renderWPTable(plan){
     var _arr=_wpSort.dir==='asc'?' ↑':' ↓';
     switch(_wpSort.col){case'priority':_sPri=_arr;break;case'startDate':_sSd=_arr;break;case'plannedDate':_sPd=_arr;break;case'remainingDays':_sRd=_arr;break;case'actualDate':_sAd=_arr;break;case'status':_sSt=_arr;break;}
   }
-  html+='<th class="col-num">#</th><th class="col-work">本周事项</th>';
+  html+='<th class="col-num"></th><th class="col-work">本周任务</th>';
   html+='<th class="col-goal wp-sortable" ondblclick="toggleWPSort(\'priority\')" title="💡 双击表头切换排序" style="cursor:pointer">优先级 <span style="opacity:.75;font-size:9px;color:#3B7DB4">⇅</span>'+_sPri+'</th>';
   html+='<th class="col-hours wp-sortable" ondblclick="toggleWPSort(\'startDate\')" title="💡 双击表头切换排序" style="cursor:pointer">启动日期 <span style="opacity:.75;font-size:9px;color:#3B7DB4">⇅</span>'+_sSd+'</th>';
-  html+='<th class="col-hours wp-sortable" ondblclick="toggleWPSort(\'plannedDate\')" title="💡 双击表头切换排序" style="cursor:pointer">计划完成日期 <span style="opacity:.75;font-size:9px;color:#3B7DB4">⇅</span>'+_sPd+'</th>';
+  html+='<th class="col-hours wp-sortable" ondblclick="toggleWPSort(\'plannedDate\')" title="💡 双击表头切换排序" style="cursor:pointer">任务限期 <span style="opacity:.75;font-size:9px;color:#3B7DB4">⇅</span>'+_sPd+'</th>';
   html+='<th class="col-remaining wp-sortable" ondblclick="toggleWPSort(\'remainingDays\')" title="💡 双击表头切换排序" style="cursor:pointer;min-width:80px">剩余工作日 <span style="opacity:.75;font-size:9px;color:#3B7DB4">⇅</span>'+_sRd+'</th>';
   html+='<th class="col-hours wp-sortable" ondblclick="toggleWPSort(\'actualDate\')" title="双击排序" style="cursor:pointer">实际完成日期'+_sAd+'</th>';
   // ★ V0.7.1eo: "用时(工作日)"列已删除（Tiger 2026-09-02 指令）
-  html+='<th class="col-status wp-sortable" ondblclick="toggleWPSort(\'status\')" title="双击排序" style="cursor:pointer">状态'+_sSt+'</th>';
+  html+='<th class="col-status wp-sortable" ondblclick="toggleWPSort(\'status\')" title="双击排序" style="cursor:pointer">当前状态'+_sSt+'</th>';
   html+='<th class="col-score">积分</th><th class="col-supporters">协同人 \| 状态</th><th class="col-remarks">需要支持</th><th class="col-boss" style="white-space:normal;overflow:visible">上级意见与建议</th>';
   html+='</tr></thead><tbody>';
 
