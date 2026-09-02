@@ -3347,7 +3347,7 @@ function renderWPTable(plan){
     else newTasks.push(j);
   }
 
-  html+='<div class="wp-table-x-scroll"><div class="wp-table-area"><div class="wp-table-wrap"><table class="wp-table"><colgroup><col style="width:56px"><col style="width:180px"><col style="width:80px"><col style="width:115px"><col style="width:115px"><col style="width:80px"><col style="width:115px"><col style="width:90px"><col style="width:48px"><col style="width:80px"><col style="width:150px"><col style="width:90px"><col style="width:56px"><col style="width:150px"><col style="width:150px"></colgroup><thead><tr>';
+  html+='<div class="wp-table-x-scroll"><div class="wp-table-area"><div class="wp-table-wrap"><table class="wp-table"><colgroup><col style="width:56px"><col style="width:180px"><col style="width:80px"><col style="width:115px"><col style="width:115px"><col style="width:80px"><col style="width:115px"><col style="width:90px"><col style="width:48px"><col style="width:80px"><col style="width:90px"><col style="width:56px"><col style="width:150px"><col style="width:150px"></colgroup><thead><tr>';
   var _sPri='',_sSd='',_sPd='',_sRd='',_sAd='',_sSt='';
   if(_wpSort && _wpSort.col && _wpSort.dir){
     var _arr=_wpSort.dir==='asc'?' ↑':' ↓';
@@ -3361,14 +3361,14 @@ function renderWPTable(plan){
   html+='<th class="col-hours wp-sortable" ondblclick="toggleWPSort(\'actualDate\')" title="双击排序" style="cursor:pointer">实际完成日期'+_sAd+'</th>';
   // ★ V0.7.1eo: "用时(工作日)"列已删除（Tiger 2026-09-02 指令）
   html+='<th class="col-status wp-sortable" ondblclick="toggleWPSort(\'status\')" title="双击排序" style="cursor:pointer">状态'+_sSt+'</th>';
-  html+='<th class="col-score">积分</th><th class="col-supporters">协同人 \| 状态</th><th class="col-wide">问题与挑战</th><th class="col-remarks">需要支持</th><th class="col-boss" style="white-space:normal;overflow:visible">上级意见与建议</th>';
+  html+='<th class="col-score">积分</th><th class="col-supporters">协同人 \| 状态</th><th class="col-remarks">需要支持</th><th class="col-boss" style="white-space:normal;overflow:visible">上级意见与建议</th>';
   html+='</tr></thead><tbody>';
 
   var seq=0;
 
   // 上周转入区块
   if(carriedTasks.length>0){
-    html+='<tr class="wp-section-header" style="background:#E8F4FE"><td colspan="15" style="padding:6px 12px;font-size:12px;font-weight:600;color:#3B7DB4;border-bottom:2px solid #B7D6F0"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#3B7DB4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:4px"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>上周转入（'+carriedTasks.length+'项）</td></tr>';
+    html+='<tr class="wp-section-header" style="background:#E8F4FE"><td colspan="14" style="padding:6px 12px;font-size:12px;font-weight:600;color:#3B7DB4;border-bottom:2px solid #B7D6F0"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#3B7DB4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:4px"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>上周转入（'+carriedTasks.length+'项）</td></tr>';
     for(var ci=0;ci<carriedTasks.length;ci++){
       var jj=carriedTasks[ci]; seq++;
       var tt=plan.tasks[jj];
@@ -3397,9 +3397,7 @@ function renderWPTable(plan){
       html+='<td class="'+edCls+' col-status" data-field="tasks.'+jj+'.status" data-type="select" data-opts="'+WP_STATUS_OPTIONS.join(',')+'"'+edClick+'>'+(tt.status?_renderStatusDot(tt.status):'<span style="color:#C0C0C0;font-style:italic;pointer-events:none;user-select:none">选择</span>')+'</td>';
       html+=_renderTaskScoreCell(plan,jj);
       html+='<td class="'+edCls+' col-supporters" data-field="tasks.'+jj+'.supporters" data-type="text"'+edClick+'>'+_renderSupportersCell(plan,jj,tt.supporters)+'</td>';
-      // ★ j83: 清洗 col-problems 脏数据 — 历史数据可能有"填写"作为实际值
-      var _cleanProblems=_cleanPlaceholderText(tt.problems);
-      html+='<td class="'+edCls+' col-wide" data-field="tasks.'+jj+'.problems" data-type="textarea"'+edClick+'>'+(_cleanProblems?(plan._revisions&&plan._revisions['tasks.'+jj+'.problems']?renderWPCellValue(plan,'tasks.'+jj+'.problems',_cleanProblems):_h(_cleanProblems)):'<span style="color:#C0C0C0;font-style:italic;pointer-events:none;user-select:none">填写</span>')+'</td>';
+      // ★ V0.7.1ew: "问题与挑战"列已删除（Tiger 2026-09-02 指令；problems 数据保留，Excel 导出不变）
       // ★ V0.7.1bz: 问题类型 + 需上级介入 列已删除
       // ★ j83: 清洗 col-remarks 脏数据
       var _cleanRemarks=_cleanPlaceholderText(tt.remarks);
@@ -3415,7 +3413,7 @@ function renderWPTable(plan){
   // 本周新增区块（标题行总是渲染）
   // ★ V0.7.1cq: 计算 afterIdx — 在最后一行 carriedTask 后插入；若没 carriedTask 则插入到开头（-1）
   var _addAfterIdx=carriedTasks.length>0?carriedTasks[carriedTasks.length-1]:-1;
-  html+='<tr class="wp-section-header" style="background:#F0F9FF"><td colspan="15" style="padding:6px 12px;font-size:12px;font-weight:600;color:#3B7DB4;border-bottom:2px solid #BAE6FD"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#3B7DB4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:4px"><path d="M12 5v14M5 12h14"/></svg>本周新增（'+newTasks.length+'项）</td></tr>';
+  html+='<tr class="wp-section-header" style="background:#F0F9FF"><td colspan="14" style="padding:6px 12px;font-size:12px;font-weight:600;color:#3B7DB4;border-bottom:2px solid #BAE6FD"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#3B7DB4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:4px"><path d="M12 5v14M5 12h14"/></svg>本周新增（'+newTasks.length+'项）</td></tr>';
   for(var ni=0;ni<newTasks.length;ni++){
     var j=newTasks[ni]; seq++;
     var t=plan.tasks[j];
@@ -3447,10 +3445,7 @@ function renderWPTable(plan){
     html+='<td class="editable col-status" data-field="tasks.'+j+'.status" data-type="select" data-opts="'+WP_STATUS_OPTIONS.join(',')+'" onclick="startEditCell(this)">'+(t.status?_renderStatusDot(t.status):'<span style="color:#C0C0C0;font-style:italic;pointer-events:none;user-select:none">选择</span>')+'</td>';
     html+=_renderTaskScoreCell(plan,j);
     html+='<td class="editable col-supporters" data-field="tasks.'+j+'.supporters" data-type="text" onclick="startEditCell(this)">'+_renderSupportersCell(plan,j,t.supporters)+'</td>';
-    var _problemKey='tasks.'+j+'.problems';
-    var _problemRevision=plan._revisions&&plan._revisions[_problemKey];
-    var _problemDisplay=_normalizeProblemPlaceholder(_problemRevision?_problemRevision.value:t.problems);
-    html+='<td class="editable col-wide" data-field="'+_problemKey+'" data-type="textarea" onclick="startEditCell(this)">'+(_problemDisplay?_h(_problemDisplay):'<span style="color:#C0C0C0;font-style:italic;pointer-events:none;user-select:none">填写</span>')+'</td>';
+    // ★ V0.7.1ew: "问题与挑战"列已删除（数据保留，Excel 导出不变）
     // ★ V0.7.1bz: 问题类型 + 需上级介入 列已删除
     // ★ V0.3.36: 备注说明(员工自填，新列)
     // ★ j83: 清洗脏数据
@@ -3476,7 +3471,6 @@ function renderWPTable(plan){
   _blankAddHtml+='<td class="col-status" style="color:#C0C0C0;text-align:center;cursor:pointer" '+_blankRowClick+'>选择</td>';
   _blankAddHtml+='<td style="text-align:center;color:#9CA3AF">—</td>';
   _blankAddHtml+='<td class="col-supporters" style="color:#C0C0C0;cursor:pointer" '+_blankRowClick+'>协同人</td>';
-  _blankAddHtml+='<td class="col-wide" style="color:#C0C0C0;cursor:pointer" '+_blankRowClick+'>问题与挑战</td>';
   _blankAddHtml+='<td class="col-remarks" style="color:#C0C0C0;cursor:pointer" '+_blankRowClick+'>需要支持</td>';
   _blankAddHtml+='<td class="col-boss" style="color:#C0C0C0;cursor:pointer" '+_blankRowClick+'>上级建议</td>';
   _blankAddHtml+='</tr>';
@@ -3490,7 +3484,7 @@ function renderWPTable(plan){
   html+='<td class="wp-total-num">'+hasActual+' 项完成</td>'; // 实际完成日期
   html+='<td style="text-align:center;background:#f6f8fc"></td>'; // 状态
   html+='<td style="text-align:center;background:#f6f8fc;font-weight:600;font-size:12px;color:#2A476A">'+(taskScoreDisplay||'')+'</td>'; // 积分
-  html+='<td colspan="2" style="text-align:right;padding-right:12px;background:#f6f8fc">逾期任务</td>'; // 协同+问题
+  html+='<td colspan="1" style="text-align:right;padding-right:12px;background:#f6f8fc">逾期任务</td>'; // 协同（★ V0.7.1ew: 问题列已删，colspan 2→1）
   html+='<td class="wp-total-num" style="color:'+(overdue>0?'var(--danger)':'var(--success)')+'">'+overdue+' 项</td>'; // 问题类型
   html+='<td colspan="3" style="background:#f6f8fc"></td>'; // 需上级+备注+上级评价
   html+='</tr>';
