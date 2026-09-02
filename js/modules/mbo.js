@@ -1172,15 +1172,15 @@ function renderWPSubSelect(){
   if(!div)return;
   var myName=(currentUser&&currentUser.name)||'';
 
-  // 收集直属下属
-  var subs=getWPSubordinates().filter(function(s){return s!==myName;});
+  // 收集直属下属（★ V0.7.1en: 渲染时过滤已离职者 — 通用兜底机制）
+  var subs=getWPSubordinates().filter(function(s){return s!==myName&&!_isResignedByName(s);});
   var subsDetail=getSubordinatesDetail(currentUser._uid);
 
   // 收集间接下属（排除直属和当前用户）
   var deptMembers=getAllIndirectSubordinates(currentUser._uid);
   var nonDirect=[];
   for(var i=0;i<deptMembers.length;i++){
-    if(subs.indexOf(deptMembers[i])<0)nonDirect.push(deptMembers[i]);
+    if(subs.indexOf(deptMembers[i])<0&&!_isResignedByName(deptMembers[i]))nonDirect.push(deptMembers[i]);
   }
 
   // ★ V0.6.1j: 收集授权我阅览其周计划的同事（排除已在上级列表中的）
@@ -1188,7 +1188,7 @@ function renderWPSubSelect(){
   var sharedNames=[];
   for(var i=0;i<sharedList.length;i++){
     var sName=sharedList[i].name;
-    if(subs.indexOf(sName)<0 && nonDirect.indexOf(sName)<0 && sName!==myName){
+    if(subs.indexOf(sName)<0 && nonDirect.indexOf(sName)<0 && sName!==myName && !_isResignedByName(sName)){
       sharedNames.push(sName);
     }
   }
@@ -2403,6 +2403,24 @@ function _getEmpDB(){
   if(typeof allEmployees!=='undefined'&&allEmployees&&allEmployees.length>0)return allEmployees;
   if(window.__PRELOADED_EMPLOYEES__&&window.__PRELOADED_EMPLOYEES__.length>0)return window.__PRELOADED_EMPLOYEES__;
   return [];
+}
+
+// ★ V0.7.1en: 按姓名判定是否已离职（保守规则：花名册查得到且明确"已离职"/有离职日期 → true；查不到 → false 不隐藏）
+function _isResignedByName(name){
+  if(!name)return false;
+  try{
+    var emps=_getEmpDB();
+    for(var i=0;i<emps.length;i++){
+      var e=emps[i];
+      if(!e)continue;
+      var n=e.name||e['姓名'];
+      if(n===name){
+        if(typeof isResigned==='function')return isResigned(e);
+        return !!e.resignDate||e.status==='已离职';
+      }
+    }
+  }catch(err){}
+  return false;
 }
 
 // ★ V0.6.1.gj: 刷新协同人 datalist — 从 allEmployees 动态生成立即可用

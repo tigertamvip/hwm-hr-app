@@ -359,6 +359,8 @@ async function sysDeleteUser(){
   if(!ok)return;
   var deletedUid=_sysEditingUid;
   delete USERS[deletedUid];
+  // ★ V0.7.1en: 级联清除所有上级下属列表中对该用户的引用（通用机制）
+  if(typeof removeSubordinateRefs==='function')removeSubordinateRefs(uName);
   saveUserSettings();
   // ★ 同步从 Supabase 删除该用户（防止其他设备拉取到已删除的用户）
   (async function(){
@@ -690,6 +692,8 @@ function sysDoRosterSync(){
   var removed=0;
   for(var j=0;j<toRemove.length;j++){
     if(USERS[toRemove[j]]){delete USERS[toRemove[j]];removed++;}
+    // ★ V0.7.1en: 级联清除所有上级下属列表中对该离职用户的引用（通用机制）
+    if(typeof removeSubordinateRefs==='function')removeSubordinateRefs(toRemove[j]);
   }
   if(added>0||removed>0){
     saveUserSettings();syncAllToCloud();sysRenderUserTable();

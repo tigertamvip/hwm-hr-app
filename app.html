@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="version" content="V0.7.1em">
+<meta name="version" content="V0.7.1en">
 <!-- cache-bust: 2026-08-06-07-12 -->
 <meta name="theme-color" content="#02314D">
 <link rel="manifest" href="manifest.json?v=bc">
@@ -2651,7 +2651,7 @@ function togglePortalTips(){
       </div>
     </nav>
     <div class="portal-sidebar-footer">
-      V0.7.1em
+      V0.7.1en
     </div>
   </aside>
   <!-- Main -->
@@ -3622,6 +3622,46 @@ function normToSB(emp){var o={};Object.keys(emp).forEach(function(k){o[JS2SB[k]|
 function isResigned(e){return !!e.resignDate||e.status==='已离职';}
 function isActive(e){return !e.resignDate&&e.status!=='已离职';}
 
+// ★ V0.7.1en: 离职级联清除 — 通用机制（对以后所有离职员工生效，非个案补丁）
+// 触发点：① HR档案状态改为"已离职"保存(saveHREdits) ② 系统维护删除用户(sysDeleteUser) ③ 花名册同步清理(sysDoRosterSync)
+// 清除所有上级 subordinates 下属列表中对某姓名的引用，返回清理条数
+function removeSubordinateRefs(name){
+  if(!name)return 0;
+  var cleaned=0;
+  for(var k in USERS){
+    if(!USERS.hasOwnProperty(k))continue;
+    var subs=USERS[k].subordinates;
+    if(subs&&subs[name]!==undefined){delete subs[name];cleaned++;}
+  }
+  return cleaned;
+}
+// 离职清除全量：删系统维护账号 + 清下属引用 + 云端同步
+function purgeDepartedUser(name){
+  if(!name)return;
+  try{
+    var removedUid=null;
+    // 1) 删除系统维护中的账号（按 uid 或显示名匹配）
+    for(var uid in USERS){
+      if(!USERS.hasOwnProperty(uid))continue;
+      if(uid===name||(USERS[uid].name||'')===name){removedUid=uid;delete USERS[uid];}
+    }
+    // 2) 清除所有人的下属列表中对他的引用
+    var cleaned=removeSubordinateRefs(name);
+    saveUserSettings();
+    // 3) 云端同步：删该用户 + 推送更新后的上级数据
+    if(removedUid){
+      (async function(){
+        try{
+          var resp=await supabase.from(SUPABASE_USERS_TABLE).delete().eq('uid',removedUid);
+          if(resp.error)console.warn('HWM: Cloud delete departed user failed',resp.error.message);
+        }catch(e){console.warn('HWM: Cloud delete departed user error',e.message);}
+      })();
+    }
+    if(typeof syncAllToCloud==='function')syncAllToCloud();
+    console.log('[V0.7.1en] 离职清除: '+name+'（账号'+(removedUid?'已删':'本就不存在')+'，清理 '+cleaned+' 个上级的下属引用）');
+  }catch(e){console.warn('[V0.7.1en] purgeDepartedUser 失败',e);}
+}
+
 
 // ===== 多用户权限系统 =====
 var AUTH_SESSION_KEY='hr_auth_session';
@@ -3773,6 +3813,36 @@ function forceCleanShadowUsers(){
 }
 // 页面加载时立即执行一次清理
 forceCleanShadowUsers();
+
+// ★ V0.7.1en: 每次加载清理"幽灵下属" — 下属列表中指向不存在账号的引用（清历史残留，如洪传跃；幂等，开销极小）
+(function(){
+  try{
+    var validNames={};
+    for(var k in USERS){
+      if(!USERS.hasOwnProperty(k))continue;
+      validNames[k]=true;
+      var nm=(USERS[k].name||'').trim();
+      if(nm)validNames[nm]=true;
+    }
+    var ghost=[];
+    for(var k2 in USERS){
+      if(!USERS.hasOwnProperty(k2))continue;
+      var subs=USERS[k2].subordinates;
+      if(!subs)continue;
+      for(var sn in subs){
+        if(!subs.hasOwnProperty(sn))continue;
+        if(!validNames[sn]){delete subs[sn];ghost.push(sn);}
+      }
+    }
+    if(ghost.length>0){
+      console.log('[V0.7.1en] 清除幽灵下属引用:',ghost.join(','));
+      saveUserSettings();
+      if(typeof syncAllToCloud==='function')syncAllToCloud();
+    }else{
+      console.log('[V0.7.1en] 幽灵下属检查通过');
+    }
+  }catch(e){console.warn('[V0.7.1en] 幽灵下属清理失败',e);}
+})();
 
 function loadUserSettings(){
   try{
@@ -7273,6 +7343,7 @@ function showDetail(empId){
 async function saveHREdits(empId){
   var emp=allEmployees.find(function(x){return x.empId===empId});
   if(!emp)return;
+  var _wasResigned=isResigned(emp); // ★ V0.7.1en: 记录修改前的离职状态
   // 收集所有可编辑字段的值
   var changed=false;
   var inputs=document.querySelectorAll('[data-field]');
@@ -7313,6 +7384,8 @@ async function saveHREdits(empId){
   showToast(wasNew?'已新增：'+emp.name:'已保存 ✓');
   syncToSupabase(emp);
   __hasUnsavedEdits=false;
+  // ★ V0.7.1en: 状态改为"已离职"（或填写了离职日期）→ 级联清除系统维护账号+所有人下属列表中的引用（通用机制，对以后所有离职员工生效）
+  if(!_wasResigned&&isResigned(emp)&&emp.name){purgeDepartedUser(emp.name);}
 }
 
 async function handlePhotoDrop(e,empId){
