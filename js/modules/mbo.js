@@ -1106,7 +1106,7 @@ function renderWPUserInfo(){
     var moodDot='';
     if(subMood){
       var moodCls={happy:'mood-happy',calm:'mood-calm',tired:'mood-tired',pain:'mood-pain',silent:'mood-silent'}[subMood]||'';
-      moodDot=' <span class="wp-mood-dot '+moodCls+'" title="本周心情：'+( {happy:'开心',calm:'平静',tired:'疲惫',pain:'痛苦',silent:'沉默'}[subMood]||'')+'"></span>';
+      moodDot=' <span class="wp-mood-dot '+moodCls+'" title="本周状态：'+( {happy:'开心',calm:'还好',tired:'难过',aggrieved:'委屈',pain:'痛苦',silent:'沉默'}[subMood]||'')+'"></span>';
     }
     div.innerHTML='查看直属下属：'+_h(subName)+' | '+_h(subDept)+' | '+_h(subPos)+moodDot;
   }else if(_wpViewingDeptMember){
@@ -1120,7 +1120,7 @@ function renderWPUserInfo(){
     var moodDot2='';
     if(memMood){
       var moodCls2={happy:'mood-happy',calm:'mood-calm',tired:'mood-tired',pain:'mood-pain',silent:'mood-silent'}[memMood]||'';
-      moodDot2=' <span class="wp-mood-dot '+moodCls2+'" title="本周心情：'+( {happy:'开心',calm:'平静',tired:'疲惫',pain:'痛苦',silent:'沉默'}[memMood]||'')+'"></span>';
+      moodDot2=' <span class="wp-mood-dot '+moodCls2+'" title="本周状态：'+( {happy:'开心',calm:'还好',tired:'难过',aggrieved:'委屈',pain:'痛苦',silent:'沉默'}[memMood]||'')+'"></span>';
     }
     div.innerHTML='查看更多下属：'+_h(memName)+' | '+_h(memDept)+' | '+_h(memPos)+moodDot2;
   }else{
@@ -3549,8 +3549,8 @@ function renderWPTable(plan){
     var currentMoods=[];
     if(Array.isArray(plan.moods)) currentMoods=plan.moods;
     else if(typeof plan.mood==='string' && plan.mood) currentMoods=plan.mood.split(',');
-    var moods=[{key:'happy',emoji:'😊',label:'成就',cls:'mood-happy'},{key:'calm',emoji:'😌',label:'平静',cls:'mood-calm'},{key:'tired',emoji:'😩',label:'困顿',cls:'mood-tired'},{key:'aggrieved',emoji:'😢',label:'委屈',cls:'mood-aggrieved'},{key:'silent',emoji:'😶',label:'难言',cls:'mood-silent'}];
-    html+='<div class="wp-mood-selector"><span class="wp-mood-label">本周心情：</span><span style="font-size:11px;color:var(--text-hint);margin-left:4px">（最多选 2 种）</span>';
+    var moods=[{key:'happy',emoji:'😊',label:'开心',cls:'mood-happy'},{key:'calm',emoji:'😌',label:'还好',cls:'mood-calm'},{key:'tired',emoji:'😩',label:'难过',cls:'mood-tired'},{key:'aggrieved',emoji:'😢',label:'委屈',cls:'mood-aggrieved'},{key:'silent',emoji:'😶',label:'沉默',cls:'mood-silent'}];
+    html+='<div class="wp-mood-selector"><span class="wp-mood-label">本周状态：</span><span style="font-size:11px;color:var(--text-hint);margin-left:4px">（最多选 2 种）</span>';
     for(var mi=0;mi<moods.length;mi++){
       var m=moods[mi];
       var isSel=currentMoods.indexOf(m.key)>=0;
@@ -3562,7 +3562,7 @@ function renderWPTable(plan){
     // 上级看下属时显示其心情
     var moodRead=plan.mood||'';
     if(moodRead){
-      var moodMap={happy:{emoji:'😊',label:'开心'},calm:{emoji:'😌',label:'平静'},tired:{emoji:'😩',label:'疲惫'},pain:{emoji:'😭',label:'痛苦'},silent:{emoji:'😶',label:'沉默'}};
+      var moodMap={happy:{emoji:'😊',label:'开心'},calm:{emoji:'😌',label:'还好'},tired:{emoji:'😩',label:'难过'},aggrieved:{emoji:'😢',label:'委屈'},pain:{emoji:'😭',label:'痛苦'},silent:{emoji:'😶',label:'沉默'}};
       var md=moodMap[moodRead];
       if(md) html+='<div class="wp-mood-display"><span class="wp-mood-display-emoji">'+md.emoji+'</span> '+md.label+'</div>';
     }
@@ -5182,7 +5182,7 @@ function saveWPMood(mood, el) {
   } else {
     // 最多 2 种；满了就提示
     if (moodList.length >= 2) {
-      showToast('最多可选 2 种心情，请先取消一个', 'warning');
+      showToast('最多可选 2 种状态，请先取消一个', 'warning');
       return;
     }
     moodList.push(mood);
@@ -5201,7 +5201,7 @@ function saveWPMood(mood, el) {
     }
   }
   // 选中态已在 DOM 中更新；此处不重绘周计划，避免重建滚动容器造成页面跳动。
-  showToast(moodList.length > 0 ? ('💬 已选 ' + moodList.length + ' 种心情') : '💬 心情已清除', 'info');
+  showToast(moodList.length > 0 ? ('💬 已选 ' + moodList.length + ' 种状态') : '💬 状态已清除', 'info');
 }
 
 // ★ V0.6.1.hh: 保存上级评级（奖牌）
