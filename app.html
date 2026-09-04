@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" data-page-node-id="NC8v6uKaUQDG9FNFlzHIEB">
 <meta http-equiv="Pragma" content="no-cache" data-page-node-id="Ln6kSFsdED8qWcviiBCPd8">
 <meta http-equiv="Expires" content="0" data-page-node-id="2NipHshsCoa5XDoJoBwfDG">
-<meta name="version" content="V0.7.1fy" data-page-node-id="wIVx4Ldqk6PVQph1A4CPmc">
+<meta name="version" content="V0.7.1fz" data-page-node-id="wIVx4Ldqk6PVQph1A4CPmc">
 <!-- cache-bust: 2026-09-02-15-19 -->
 <meta name="theme-color" content="#02314D" data-page-node-id="ggKwnJKgAgeRSAVH3KZkHF">
 <link rel="manifest" href="manifest.json?v=bc" data-page-node-id="CDqt7vutzPDpR4etXTpBDM">
@@ -1186,7 +1186,7 @@ body{
 .qs-title:before{content:'';width:3px;height:13px;background:#FFCF66;border-radius:2px}
 .qs-sub{font-size:11px;color:#9ca3af;letter-spacing:.5px}
 /* ★ V0.7.1fw: 苹果式横向滑动轮播（>4 位时右滑可见），卡片固定 200px，照片占比收敛 */
-.qs-grid{display:flex;gap:20px;overflow-x:auto;scroll-snap-type:x mandatory;padding:2px 2px 8px;scrollbar-width:thin;scrollbar-color:#D6DEE8 transparent}
+.qs-grid{display:flex;gap:36px;overflow-x:auto;scroll-snap-type:x mandatory;padding:2px 2px 8px;scrollbar-width:thin;scrollbar-color:#D6DEE8 transparent}
 .qs-grid::-webkit-scrollbar{height:4px}
 .qs-grid::-webkit-scrollbar-thumb{background:#D6DEE8;border-radius:2px}
 .qs-grid::-webkit-scrollbar-track{background:transparent}
@@ -2761,7 +2761,7 @@ function togglePortalTips(){
       </div>
     </nav>
     <div class="portal-sidebar-footer" data-page-node-id="OiBFhH2xGBYBBB8alwepMC">
-      V0.7.1fy
+      V0.7.1fz
     </div>
   </aside>
   <!-- Main -->
@@ -2870,19 +2870,19 @@ function togglePortalTips(){
         function _qsCurQuarter(){var d=new Date();return d.getFullYear()+'-Q'+(Math.floor(d.getMonth()/3)+1);}
         function _qsEsc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
         var _qsThumbSvg='<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88z"/></svg>';
-        function _qsLikedSet(){
-          var q=(typeof _qsViewQuarter!=='undefined'&&_qsViewQuarter)||_qsCurQuarter();
-          try{return JSON.parse(localStorage.getItem('qs_likes_'+q)||'{}');}catch(e){return {};}
-        }
+        // ★ V0.7.1fz: 点赞改"要闻同款"机制——云端 liked_by 数组按账号判定（同设备多账号互不干扰）
+        function _qsMe(){try{return (typeof currentUser!=='undefined'&&currentUser)?(currentUser._uid||currentUser.name||''):'';}catch(e){return '';}}
         function _qsCardHtml(s,i){
           var photo = s.photo
             ? '<img src="'+s.photo+'" alt="'+_qsEsc(s.name)+'">'
             : '<div class="qs-avatar '+_QS_AV_CLS[i%4]+'">'+_qsEsc((s.name||'·').charAt(0).toUpperCase())+'</div>';
-          // ★ V0.7.1fu: 点赞按钮（仅正式数据显示；占位卡不显示）
           var likeBtn='';
           if(s.slot){
-            var liked=!!_qsLikedSet()[s.slot];
-            likeBtn='<button type="button" class="qs-like'+(liked?' qs-liked':'')+'" onclick="_qsLike(event,'+s.slot+')" title="为 TA 点赞">'+_qsThumbSvg+'<span class="qs-like-n">'+(s.likes||0)+'</span></button>';
+            var lb=Array.isArray(s.liked_by)?s.liked_by:[];
+            var me=_qsMe();
+            var liked=me&&lb.indexOf(me)>=0;
+            var cnt=lb.length>0?lb.length:(s.likes||0);
+            likeBtn='<button type="button" class="qs-like'+(liked?' qs-liked':'')+'" onclick="_qsLike(event,'+s.slot+')" title="为 TA 点赞">'+_qsThumbSvg+'<span class="qs-like-n">'+cnt+'</span></button>';
           }
           return '<div class="qs-card"><div class="qs-photo">'+
             '<span class="qs-star">'+_qsStarSvg+'</span>'+
@@ -2890,44 +2890,51 @@ function togglePortalTips(){
             '<div class="qs-veil"><p class="qs-story">'+_qsEsc(s.story)+'</p></div>'+
           '</div><div class="qs-name">'+_qsEsc(s.name)+'</div><div class="qs-dept">'+_qsEsc(s.dept)+'</div>'+likeBtn+'</div>';
         }
-        // ★ V0.7.1fy: 点赞——以云端为最终口径（先读基值再±1写回，写后用云端值校正显示），失败可见
+        // ★ V0.7.1fz: 点赞——云端 liked_by 数组切换（每人一票，跨账号/跨设备正确累计；列未建时退回计数模式）
         window._qsLike=async function(ev,slot){
           ev.stopPropagation();ev.preventDefault();
           var q=_qsViewQuarter||_qsCurQuarter();
-          var set=_qsLikedSet();
-          var liked=!!set[slot];
+          var me=_qsMe();
+          if(!me){if(typeof showToast==='function')showToast('请先登录','warning');return;}
           var btn=ev.currentTarget;
           var span=btn.querySelector('.qs-like-n');
+          var wasLiked=btn.classList.contains('qs-liked');
           btn.classList.remove('qs-like-pop');void btn.offsetWidth;btn.classList.add('qs-like-pop');
-          if(liked)delete set[slot];else set[slot]=1;
-          try{localStorage.setItem('qs_likes_'+q,JSON.stringify(set));}catch(e){}
-          btn.classList.toggle('qs-liked',!liked);
-          function _syncLocal(n){
-            span.textContent=n;
+          // 乐观先行
+          var n0=parseInt(span.textContent)||0;
+          span.textContent=wasLiked?Math.max(0,n0-1):n0+1;
+          btn.classList.toggle('qs-liked',!wasLiked);
+          function _syncLocal(arr,cnt){
+            span.textContent=cnt;
+            btn.classList.toggle('qs-liked',arr?arr.indexOf(me)>=0:!wasLiked);
             try{
               var cache=JSON.parse(localStorage.getItem('hwm_quarter_stars_'+q)||'null');
-              if(cache){for(var ci=0;ci<cache.length;ci++){if(cache[ci].slot===slot)cache[ci].likes=n;}localStorage.setItem('hwm_quarter_stars_'+q,JSON.stringify(cache));}
+              if(cache){for(var ci=0;ci<cache.length;ci++){if(cache[ci].slot===slot){if(arr)cache[ci].liked_by=arr;cache[ci].likes=cnt;}}localStorage.setItem('hwm_quarter_stars_'+q,JSON.stringify(cache));}
             }catch(e){}
           }
-          var n=parseInt(span.textContent)||0;
-          _syncLocal(liked?Math.max(0,n-1):n+1); // 乐观先行
-          if(typeof supabase!=='undefined'&&supabase&&supabase.from){
+          if(typeof supabase==='undefined'||!supabase||!supabase.from)return;
+          try{
+            var cur=await supabase.from('hwm_quarter_stars').select('likes,liked_by').eq('quarter',q).eq('slot',slot).single();
+            if(cur.error)throw cur.error;
+            var arr=Array.isArray(cur.data&&cur.data.liked_by)?cur.data.liked_by.slice():[];
+            var ai=arr.indexOf(me);
+            if(ai>=0)arr.splice(ai,1);else arr.push(me);
+            var cnt=arr.length;
+            var upd=await supabase.from('hwm_quarter_stars').update({liked_by:arr,likes:cnt}).eq('quarter',q).eq('slot',slot);
+            if(upd.error)throw upd.error;
+            _syncLocal(arr,cnt); // 云端口径校正——第二个账号点赞显示 2
+          }catch(e){
+            // ★ liked_by 列未建（SQL 未跑）→ 退回仅计数模式
+            console.warn('[qs-like] liked_by 路径失败，退回计数模式:',e&&e.message);
             try{
-              var cur=await supabase.from('hwm_quarter_stars').select('likes').eq('quarter',q).eq('slot',slot).single();
-              if(cur.error){
-                console.warn('[qs-like] 读取基值失败:',cur.error.message);
-              }else if(cur.data){
-                var base=cur.data.likes||0;
-                var upd=liked?Math.max(0,base-1):base+1;
-                var u2=await supabase.from('hwm_quarter_stars').update({likes:upd}).eq('quarter',q).eq('slot',slot);
-                if(u2.error){
-                  console.warn('[qs-like] 写入失败:',u2.error.message);
-                  if(typeof showToast==='function')showToast('⚠️ 点赞未同步到云端','warning');
-                }else{
-                  _syncLocal(upd); // ★ 云端口径校正——多人累计可见
-                }
+              var c2=await supabase.from('hwm_quarter_stars').select('likes').eq('quarter',q).eq('slot',slot).single();
+              if(!c2.error&&c2.data){
+                var base=c2.data.likes||0;
+                var u3=wasLiked?Math.max(0,base-1):base+1;
+                var u2=await supabase.from('hwm_quarter_stars').update({likes:u3}).eq('quarter',q).eq('slot',slot);
+                if(!u2.error)_syncLocal(null,u3);
               }
-            }catch(e){console.warn('[qs-like] 异常:',e.message);}
+            }catch(e2){console.warn('[qs-like] 计数模式也失败:',e2&&e2.message);if(typeof showToast==='function')showToast('⚠️ 点赞未同步到云端','warning');}
           }
         };
         function _qsRender(list){
@@ -2971,9 +2978,10 @@ function togglePortalTips(){
           // 云端覆盖
           if(typeof supabase==='undefined'||!supabase||!supabase.from){_qsGate();return;}
           try{
-            var resp=await supabase.from('hwm_quarter_stars').select('slot,name,dept,story,photo,likes').eq('quarter',q).order('slot');
+            var resp=await supabase.from('hwm_quarter_stars').select('slot,name,dept,story,photo,likes,liked_by').eq('quarter',q).order('slot');
             if(!resp.error){
               var rows=(resp.data||[]).filter(function(r){return r.name;});
+              rows.forEach(function(r){if(Array.isArray(r.liked_by))r.likes=r.liked_by.length;}); // ★ V0.7.1fz: 赞数=点赞人数
               if(rows.length){
                 _qsRender(rows);
                 try{localStorage.setItem('hwm_quarter_stars_'+q,JSON.stringify(rows));}catch(e){}
