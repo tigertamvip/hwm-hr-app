@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" data-page-node-id="NC8v6uKaUQDG9FNFlzHIEB">
 <meta http-equiv="Pragma" content="no-cache" data-page-node-id="Ln6kSFsdED8qWcviiBCPd8">
 <meta http-equiv="Expires" content="0" data-page-node-id="2NipHshsCoa5XDoJoBwfDG">
-<meta name="version" content="V0.7.1fv" data-page-node-id="wIVx4Ldqk6PVQph1A4CPmc">
+<meta name="version" content="V0.7.1fw" data-page-node-id="wIVx4Ldqk6PVQph1A4CPmc">
 <!-- cache-bust: 2026-09-02-15-19 -->
 <meta name="theme-color" content="#02314D" data-page-node-id="ggKwnJKgAgeRSAVH3KZkHF">
 <link rel="manifest" href="manifest.json?v=bc" data-page-node-id="CDqt7vutzPDpR4etXTpBDM">
@@ -1185,9 +1185,14 @@ body{
 .qs-title{font-size:13px;font-weight:600;color:#1F2937;letter-spacing:2.5px;display:flex;align-items:center;gap:8px}
 .qs-title:before{content:'';width:3px;height:13px;background:#FFCF66;border-radius:2px}
 .qs-sub{font-size:11px;color:#9ca3af;letter-spacing:.5px}
-.qs-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
-.qs-card{text-align:center;opacity:0;transform:translateY(14px);animation:qsIn .6s cubic-bezier(.22,1,.36,1) forwards}
+/* ★ V0.7.1fw: 苹果式横向滑动轮播（>4 位时右滑可见），卡片固定 200px，照片占比收敛 */
+.qs-grid{display:flex;gap:20px;overflow-x:auto;scroll-snap-type:x mandatory;padding:2px 2px 8px;scrollbar-width:thin;scrollbar-color:#D6DEE8 transparent}
+.qs-grid::-webkit-scrollbar{height:4px}
+.qs-grid::-webkit-scrollbar-thumb{background:#D6DEE8;border-radius:2px}
+.qs-grid::-webkit-scrollbar-track{background:transparent}
+.qs-card{flex:0 0 200px;scroll-snap-align:start;text-align:center;opacity:0;transform:translateY(14px);animation:qsIn .6s cubic-bezier(.22,1,.36,1) forwards}
 .qs-card:nth-child(1){animation-delay:.05s}.qs-card:nth-child(2){animation-delay:.14s}.qs-card:nth-child(3){animation-delay:.23s}.qs-card:nth-child(4){animation-delay:.32s}
+.qs-card:nth-child(5){animation-delay:.41s}.qs-card:nth-child(6){animation-delay:.50s}.qs-card:nth-child(7){animation-delay:.59s}.qs-card:nth-child(8){animation-delay:.68s}
 @keyframes qsIn{to{opacity:1;transform:translateY(0)}}
 .qs-photo{position:relative;aspect-ratio:1/1;border-radius:4px;overflow:hidden;cursor:default;transition:transform .45s cubic-bezier(.4,0,.2,1),box-shadow .45s}
 .qs-photo img,.qs-avatar{width:100%;height:100%;object-fit:cover;display:block;filter:grayscale(.45);transform:scale(1);transition:filter .5s ease,transform 1.4s cubic-bezier(.22,1,.36,1)}
@@ -1199,15 +1204,16 @@ body{
 .qs-sheen{position:absolute;inset:-20%;z-index:2;pointer-events:none;background:linear-gradient(115deg,transparent 42%,rgba(255,255,255,.38) 50%,transparent 58%);transform:translateX(-110%)}
 .qs-card:hover .qs-sheen{animation:qsSheen .9s cubic-bezier(.4,0,.2,1) .05s forwards}
 @keyframes qsSheen{to{transform:translateX(110%)}}
-.qs-veil{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:26px 14px 12px;text-align:left;background:linear-gradient(to top,rgba(255,255,255,.92) 62%,rgba(255,255,255,0));opacity:0;transform:translateY(10px);transition:opacity .35s ease,transform .35s cubic-bezier(.4,0,.2,1)}
+.qs-veil{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:26px 12px 10px;text-align:center;background:linear-gradient(to top,rgba(255,255,255,.92) 62%,rgba(255,255,255,0));opacity:0;transform:translateY(10px);transition:opacity .35s ease,transform .35s cubic-bezier(.4,0,.2,1)}
 .qs-card:hover .qs-veil{opacity:1;transform:translateY(0)}
-.qs-story{font-size:11.5px;line-height:1.7;color:#1F2937;opacity:0;filter:blur(3px);transform:translateY(6px);transition:opacity .4s ease .08s,filter .4s ease .08s,transform .4s cubic-bezier(.22,1,.36,1) .08s}
+.qs-story{font-size:11.5px;line-height:1.7;color:#1F2937;text-align:center;opacity:0;filter:blur(3px);transform:translateY(6px);transition:opacity .4s ease .08s,filter .4s ease .08s,transform .4s cubic-bezier(.22,1,.36,1) .08s}
 .qs-card:hover .qs-story{opacity:1;filter:blur(0);transform:translateY(0)}
 .qs-name{margin-top:10px;font-size:13px;font-weight:600;color:#1F2937;letter-spacing:.5px}
 .qs-dept{margin-top:2px;font-size:11px;color:#9ca3af;letter-spacing:.3px}
 .qs-av1{background:#E8F1F8;color:#4984AC}.qs-av2{background:#F0EBF6;color:#7A6A9B}.qs-av3{background:#EAF4EF;color:#4C8669}.qs-av4{background:#F8F0E8;color:#B07E4F}
-@media(max-width:1024px){.qs-grid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:560px){.qs-grid{grid-template-columns:1fr}}
+/* ★ V0.7.1fw: 管理弹窗"添加一位"按钮 */
+.qs-mgr-add{width:100%;margin-top:10px;padding:9px 0;background:#FAFBFC;border:1.5px dashed #C9D6E2;border-radius:4px;color:#3B7DB4;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s}
+.qs-mgr-add:hover{background:#E8F4FE;border-color:#3B7DB4}
 /* ★ V0.7.1fs: 季度之星管理弹窗 + 管理按钮 */
 .qs-admin-btn{background:#fff;border:1px solid #C9D6E2;color:#3B7DB4;border-radius:4px;padding:3px 10px;font-size:11px;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center}
 .qs-admin-btn:hover{background:#E8F4FE;border-color:#3B7DB4}
@@ -2749,7 +2755,7 @@ function togglePortalTips(){
       </div>
     </nav>
     <div class="portal-sidebar-footer" data-page-node-id="OiBFhH2xGBYBBB8alwepMC">
-      V0.7.1fv
+      V0.7.1fw
     </div>
   </aside>
   <!-- Main -->
@@ -2909,7 +2915,7 @@ function togglePortalTips(){
         function _qsRender(list){
           var grid=document.getElementById('qsGrid');
           if(!grid)return;
-          grid.innerHTML=list.slice(0,4).map(_qsCardHtml).join('');
+          grid.innerHTML=list.map(_qsCardHtml).join('');
         }
         function _qsIsAdmin(){
           try{
@@ -2951,43 +2957,68 @@ function togglePortalTips(){
         }
         // ===== 管理弹窗 =====
         var _qsMgr={photos:{}};
+        // ★ V0.7.1fw: 槽位构建器（支持动态添加，最多 8 位）
+        function _qsSlotHtml(si,d){
+          d=d||{};
+          var initPhoto=d.photo||'';
+          if(initPhoto)_qsMgr.photos[si]=initPhoto;
+          return '<div class="qs-mgr-slot">'+
+            '<div class="qs-mgr-photo" id="qsMgrPhoto'+si+'" title="拖拽照片到这里，或点击选择（自动居中裁剪为正方形）">'+
+              (initPhoto?'<img src="'+initPhoto+'">':'<span class="qs-mgr-photo-hint">拖照片到这里<br>或点击选择</span>')+
+              '<input type="file" accept="image/*" style="display:none" id="qsMgrFile'+si+'">'+
+            '</div>'+
+            '<div class="qs-mgr-fields">'+
+              '<div class="qs-mgr-row"><label>姓名</label><input type="text" id="qsMgrName'+si+'" list="qsEmpList" value="'+_qsEsc(d.name||'')+'" placeholder="输入姓名（可联想花名册）" onchange="_qsMgrNameFill('+si+')"></div>'+
+              '<div class="qs-mgr-row"><label>部门</label><input type="text" id="qsMgrDept'+si+'" value="'+_qsEsc(d.dept||'')+'" placeholder="部门"></div>'+
+              '<div class="qs-mgr-row"><label>事迹</label><textarea id="qsMgrStory'+si+'" rows="2" maxlength="50" placeholder="50 字以内，简述该员工的季度突出事迹" oninput="_qsStoryInput('+si+')">'+_qsEsc(d.story||'')+'</textarea><span class="qs-mgr-cnt" id="qsMgrCnt'+si+'">'+((d.story||'').length)+'/50</span></div>'+
+            '</div>'+
+          '</div>';
+        }
+        function _qsBindZone(idx){
+          var zone=document.getElementById('qsMgrPhoto'+idx);
+          var file=document.getElementById('qsMgrFile'+idx);
+          if(!zone||!file)return;
+          zone.addEventListener('click',function(){file.click();});
+          zone.addEventListener('dragover',function(e){e.preventDefault();zone.classList.add('qs-mgr-photo-over');});
+          zone.addEventListener('dragleave',function(){zone.classList.remove('qs-mgr-photo-over');});
+          zone.addEventListener('drop',function(e){e.preventDefault();zone.classList.remove('qs-mgr-photo-over');if(e.dataTransfer.files&&e.dataTransfer.files[0])_qsCrop(e.dataTransfer.files[0],idx);});
+          file.addEventListener('change',function(){if(file.files&&file.files[0])_qsCrop(file.files[0],idx);file.value='';});
+        }
+        window._qsMgrAddSlot=function(){
+          if(_qsMgr.slotCount>=8){if(typeof showToast==='function')showToast('每季度最多 8 位','warning');return;}
+          var idx=_qsMgr.slotCount;
+          _qsMgr.slotCount++;
+          var wrap=document.getElementById('qsMgrSlots');
+          if(wrap){wrap.insertAdjacentHTML('beforeend',_qsSlotHtml(idx,{}));_qsBindZone(idx);}
+          var add=document.getElementById('qsMgrAddBtn');
+          if(add&&_qsMgr.slotCount>=8)add.style.display='none';
+        };
         window._qsOpenMgr=async function(){
           var old=document.getElementById('qsMgrModal');
           if(old)old.remove();
           var q=_qsCurQuarter();
-          var data=[null,null,null,null];
+          var data={};
           try{
             var cache=JSON.parse(localStorage.getItem('hwm_quarter_stars_'+q)||'null');
-            if(cache)for(var i=0;i<cache.length&&i<4;i++)data[(cache[i].slot||i+1)-1]=cache[i];
+            if(cache)cache.forEach(function(r){if(r&&r.slot>=1)data[r.slot-1]=r;});
           }catch(e){}
           if(typeof supabase!=='undefined'&&supabase&&supabase.from){
             try{
-              var resp=await supabase.from('hwm_quarter_stars').select('slot,name,dept,story,photo').eq('quarter',q).order('slot');
-              if(!resp.error&&resp.data)resp.data.forEach(function(r){if(r.slot>=1&&r.slot<=4)data[r.slot-1]=r;});
+              var resp=await supabase.from('hwm_quarter_stars').select('slot,name,dept,story,photo,likes').eq('quarter',q).order('slot');
+              if(!resp.error&&resp.data)resp.data.forEach(function(r){if(r.slot>=1)data[r.slot-1]=r;});
             }catch(e){}
           }
+          var maxSlot=0;
+          for(var dk in data){if(data.hasOwnProperty(dk)&&data[dk]&&data[dk].name)maxSlot=Math.max(maxSlot,parseInt(dk)+1);}
           _qsMgr.photos={};
+          _qsMgr.slotCount=Math.min(8,Math.max(4,maxSlot));
           var slots='';
-          for(var si=0;si<4;si++){
-            var d=data[si]||{};
-            var initPhoto=d.photo||'';
-            if(initPhoto)_qsMgr.photos[si]=initPhoto;
-            slots+='<div class="qs-mgr-slot">'+
-              '<div class="qs-mgr-photo" id="qsMgrPhoto'+si+'" title="拖拽照片到这里，或点击选择（自动居中裁剪为正方形）">'+
-                (initPhoto?'<img src="'+initPhoto+'">':'<span class="qs-mgr-photo-hint">拖照片到这里<br>或点击选择</span>')+
-                '<input type="file" accept="image/*" style="display:none" id="qsMgrFile'+si+'">'+
-              '</div>'+
-              '<div class="qs-mgr-fields">'+
-                '<div class="qs-mgr-row"><label>姓名</label><input type="text" id="qsMgrName'+si+'" list="qsEmpList" value="'+_qsEsc(d.name||'')+'" placeholder="输入姓名（可联想花名册）" onchange="_qsMgrNameFill('+si+')"></div>'+
-                '<div class="qs-mgr-row"><label>部门</label><input type="text" id="qsMgrDept'+si+'" value="'+_qsEsc(d.dept||'')+'" placeholder="部门"></div>'+
-                '<div class="qs-mgr-row"><label>事迹</label><textarea id="qsMgrStory'+si+'" rows="2" maxlength="50" placeholder="50 字以内，简述该员工的季度突出事迹" oninput="_qsStoryInput('+si+')">'+_qsEsc(d.story||'')+'</textarea><span class="qs-mgr-cnt" id="qsMgrCnt'+si+'">'+((d.story||'').length)+'/50</span></div>'+
-              '</div>'+
-            '</div>';
-          }
+          for(var si=0;si<_qsMgr.slotCount;si++)slots+=_qsSlotHtml(si,data[si]);
           var html='<div class="qs-mgr-overlay" id="qsMgrModal" onclick="if(event.target===this)this.remove()">'+
             '<div class="qs-mgr-card">'+
               '<div class="qs-mgr-head"><span>季度之星管理 · '+q.replace('-',' ')+'</span><button class="qs-mgr-close" onclick="document.getElementById(\'qsMgrModal\').remove()">×</button></div>'+
-              '<div class="qs-mgr-body"><datalist id="qsEmpList"></datalist>'+slots+'</div>'+
+              '<div class="qs-mgr-body"><datalist id="qsEmpList"></datalist><div id="qsMgrSlots">'+slots+'</div>'+
+              '<button type="button" class="qs-mgr-add" id="qsMgrAddBtn" onclick="_qsMgrAddSlot()" style="'+(_qsMgr.slotCount>=8?'display:none':'')+'">＋ 添加一位季度之星（最多 8 位）</button></div>'+
               '<div class="qs-mgr-foot"><span class="qs-mgr-tip">照片自动居中裁剪为正方形 400×400；槽位留空则该位置不展示</span><span><button class="qs-mgr-btn-ghost" onclick="document.getElementById(\'qsMgrModal\').remove()">取消</button><button class="qs-mgr-btn-primary" onclick="_qsSave()">保存发布</button></span></div>'+
             '</div></div>';
           document.body.insertAdjacentHTML('beforeend',html);
@@ -3000,16 +3031,7 @@ function togglePortalTips(){
             if(dl)dl.innerHTML=opts;
           }catch(e){}
           // 绑定拖拽/点击上传
-          for(var bi=0;bi<4;bi++){(function(idx){
-            var zone=document.getElementById('qsMgrPhoto'+idx);
-            var file=document.getElementById('qsMgrFile'+idx);
-            if(!zone||!file)return;
-            zone.addEventListener('click',function(){file.click();});
-            zone.addEventListener('dragover',function(e){e.preventDefault();zone.classList.add('qs-mgr-photo-over');});
-            zone.addEventListener('dragleave',function(){zone.classList.remove('qs-mgr-photo-over');});
-            zone.addEventListener('drop',function(e){e.preventDefault();zone.classList.remove('qs-mgr-photo-over');if(e.dataTransfer.files&&e.dataTransfer.files[0])_qsCrop(e.dataTransfer.files[0],idx);});
-            file.addEventListener('change',function(){if(file.files&&file.files[0])_qsCrop(file.files[0],idx);file.value='';});
-          })(bi);}
+          for(var bi=0;bi<_qsMgr.slotCount;bi++)_qsBindZone(bi);
         };
         window._qsMgrNameFill=function(idx){
           var nv=(document.getElementById('qsMgrName'+idx)||{}).value||'';
@@ -3071,7 +3093,7 @@ function togglePortalTips(){
         window._qsSave=async function(){
           var q=_qsCurQuarter();
           var rows=[];
-          for(var i=0;i<4;i++){
+          for(var i=0;i<_qsMgr.slotCount;i++){
             var name=((document.getElementById('qsMgrName'+i)||{}).value||'').trim();
             if(!name)continue;
             rows.push({quarter:q,slot:i+1,name:name,
