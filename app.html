@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" data-page-node-id="NC8v6uKaUQDG9FNFlzHIEB">
 <meta http-equiv="Pragma" content="no-cache" data-page-node-id="Ln6kSFsdED8qWcviiBCPd8">
 <meta http-equiv="Expires" content="0" data-page-node-id="2NipHshsCoa5XDoJoBwfDG">
-<meta name="version" content="V0.7.1fu" data-page-node-id="wIVx4Ldqk6PVQph1A4CPmc">
+<meta name="version" content="V0.7.1fv" data-page-node-id="wIVx4Ldqk6PVQph1A4CPmc">
 <!-- cache-bust: 2026-09-02-15-19 -->
 <meta name="theme-color" content="#02314D" data-page-node-id="ggKwnJKgAgeRSAVH3KZkHF">
 <link rel="manifest" href="manifest.json?v=bc" data-page-node-id="CDqt7vutzPDpR4etXTpBDM">
@@ -2749,7 +2749,7 @@ function togglePortalTips(){
       </div>
     </nav>
     <div class="portal-sidebar-footer" data-page-node-id="OiBFhH2xGBYBBB8alwepMC">
-      V0.7.1fu
+      V0.7.1fv
     </div>
   </aside>
   <!-- Main -->
@@ -4281,7 +4281,8 @@ function loadUserSettings(){
 function syncUsersFromCloud(){
   (async function(){
     try{
-      var resp=await supabase.from(SUPABASE_USERS_TABLE).select('uid,user_data,updated_at').limit(200);
+      // ★ V0.7.1fv: limit 200→1000（云端已 231 用户，超出部分永不回同步——谭晨航权限丢失根因）
+      var resp=await supabase.from(SUPABASE_USERS_TABLE).select('uid,user_data,updated_at').limit(1000);
       if(resp.error){console.warn('HWM: Users cloud sync failed',resp.error.message);return;}
       if(!resp.data||resp.data.length===0)return;
       var localSaved=localStorage.getItem('HWM_USER_SETTINGS');
@@ -4313,6 +4314,8 @@ function syncUsersFromCloud(){
           var cr=resp.data[j];
           if(cr.user_data&&cr.user_data.name){
             USERS[cr.uid]=cr.user_data;
+            // ★ V0.7.1fv: 恢复时盖时间戳，避免之后每次登录都被云端无意义覆盖
+            USERS[cr.uid]._cloudUpdated=cr.updated_at||'';
           }
         }
         // 以云端数据为主，写回 localStorage
@@ -4376,6 +4379,15 @@ function syncUsersToCloud(){
         showToast('⚠️ 用户权限数据云端同步失败');
       } else {
         console.log('HWM: Users pushed to cloud');
+        // ★ V0.7.1fv: 推送成功后给本地盖 _cloudUpdated 时间戳——否则下次登录云端必覆盖本地（时间戳永远过期）
+        try{
+          var stamped=false;
+          for(var uid2 in USERS){
+            if(!USERS.hasOwnProperty(uid2))continue;
+            if(USERS[uid2]._cloudUpdated!==now){USERS[uid2]._cloudUpdated=now;stamped=true;}
+          }
+          if(stamped)localStorage.setItem('HWM_USER_SETTINGS',JSON.stringify(USERS));
+        }catch(e2){}
       }
     }catch(e){
       console.error('HWM: Users cloud push error',e.message);
