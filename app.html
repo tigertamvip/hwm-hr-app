@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" data-page-node-id="NC8v6uKaUQDG9FNFlzHIEB">
 <meta http-equiv="Pragma" content="no-cache" data-page-node-id="Ln6kSFsdED8qWcviiBCPd8">
 <meta http-equiv="Expires" content="0" data-page-node-id="2NipHshsCoa5XDoJoBwfDG">
-<meta name="version" content="V0.7.1ft" data-page-node-id="wIVx4Ldqk6PVQph1A4CPmc">
+<meta name="version" content="V0.7.1fu" data-page-node-id="wIVx4Ldqk6PVQph1A4CPmc">
 <!-- cache-bust: 2026-09-02-15-19 -->
 <meta name="theme-color" content="#02314D" data-page-node-id="ggKwnJKgAgeRSAVH3KZkHF">
 <link rel="manifest" href="manifest.json?v=bc" data-page-node-id="CDqt7vutzPDpR4etXTpBDM">
@@ -1239,6 +1239,13 @@ body{
 .qs-mgr-btn-primary:hover{background:#2E6A9A}
 .qs-mgr-btn-ghost{background:#fff;border:1px solid #C9D6E2;color:#3B7DB4;border-radius:4px;padding:7px 16px;font-size:13px;cursor:pointer;transition:all .15s}
 .qs-mgr-btn-ghost:hover{background:#E8F4FE}
+/* ★ V0.7.1fu: 点赞按钮（YouTube 式拇指+计数+弹跳） */
+.qs-like{margin-top:6px;display:inline-flex;align-items:center;gap:4px;background:#fff;border:1px solid #E0E4EA;border-radius:20px;padding:3px 10px;font-size:11px;color:#6b7280;cursor:pointer;transition:all .15s;font-variant-numeric:tabular-nums}
+.qs-like:hover{border-color:#3B7DB4;color:#3B7DB4;background:#F4F9FE}
+.qs-like.qs-liked{border-color:#3B7DB4;color:#3B7DB4;background:#E8F4FE}
+.qs-like.qs-liked svg{fill:#3B7DB4;fill-opacity:.18}
+.qs-like-pop svg{animation:qsLikePop .35s cubic-bezier(.34,1.56,.64,1)}
+@keyframes qsLikePop{0%{transform:scale(1)}45%{transform:scale(1.45) rotate(-8deg)}100%{transform:scale(1)}}
 .portal-avatar-show{width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.2);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;border:1px solid rgba(255,255,255,.35)}
 .portal-avatar-divider{width:1px;height:18px;background:#dadce0;flex-shrink:0}
 .portal-logout-btn{padding:6px 30px;border:none;border-radius:4px;background:rgba(44,95,138,.9);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:#fff;font-size:12px;font-weight:600;cursor:pointer;transition:all .12s}
@@ -2742,7 +2749,7 @@ function togglePortalTips(){
       </div>
     </nav>
     <div class="portal-sidebar-footer" data-page-node-id="OiBFhH2xGBYBBB8alwepMC">
-      V0.7.1ft
+      V0.7.1fu
     </div>
   </aside>
   <!-- Main -->
@@ -2849,16 +2856,56 @@ function togglePortalTips(){
         var _qsStarSvg='<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#C9A227" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
         function _qsCurQuarter(){var d=new Date();return d.getFullYear()+'-Q'+(Math.floor(d.getMonth()/3)+1);}
         function _qsEsc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+        var _qsThumbSvg='<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88z"/></svg>';
+        function _qsLikedSet(){
+          try{return JSON.parse(localStorage.getItem('qs_likes_'+_qsCurQuarter())||'{}');}catch(e){return {};}
+        }
         function _qsCardHtml(s,i){
           var photo = s.photo
             ? '<img src="'+s.photo+'" alt="'+_qsEsc(s.name)+'">'
             : '<div class="qs-avatar '+_QS_AV_CLS[i%4]+'">'+_qsEsc((s.name||'·').charAt(0).toUpperCase())+'</div>';
+          // ★ V0.7.1fu: 点赞按钮（仅正式数据显示；占位卡不显示）
+          var likeBtn='';
+          if(s.slot){
+            var liked=!!_qsLikedSet()[s.slot];
+            likeBtn='<button type="button" class="qs-like'+(liked?' qs-liked':'')+'" onclick="_qsLike(event,'+s.slot+')" title="为 TA 点赞">'+_qsThumbSvg+'<span class="qs-like-n">'+(s.likes||0)+'</span></button>';
+          }
           return '<div class="qs-card"><div class="qs-photo">'+
             '<span class="qs-star">'+_qsStarSvg+'</span>'+
             '<div class="qs-sheen"></div>'+photo+
             '<div class="qs-veil"><p class="qs-story">'+_qsEsc(s.story)+'</p></div>'+
-          '</div><div class="qs-name">'+_qsEsc(s.name)+'</div><div class="qs-dept">'+_qsEsc(s.dept)+'</div></div>';
+          '</div><div class="qs-name">'+_qsEsc(s.name)+'</div><div class="qs-dept">'+_qsEsc(s.dept)+'</div>'+likeBtn+'</div>';
         }
+        // ★ V0.7.1fu: 点赞——本机每季度每星限一次（可再点取消），云端计数
+        window._qsLike=async function(ev,slot){
+          ev.stopPropagation();ev.preventDefault();
+          var q=_qsCurQuarter();
+          var set=_qsLikedSet();
+          var liked=!!set[slot];
+          var btn=ev.currentTarget;
+          var span=btn.querySelector('.qs-like-n');
+          var n=parseInt(span.textContent)||0;
+          var nn=liked?Math.max(0,n-1):n+1;
+          span.textContent=nn;
+          btn.classList.toggle('qs-liked',!liked);
+          btn.classList.remove('qs-like-pop');void btn.offsetWidth;btn.classList.add('qs-like-pop');
+          if(liked)delete set[slot];else set[slot]=1;
+          try{localStorage.setItem('qs_likes_'+q,JSON.stringify(set));}catch(e){}
+          try{
+            var cache=JSON.parse(localStorage.getItem('hwm_quarter_stars_'+q)||'null');
+            if(cache){for(var ci=0;ci<cache.length;ci++){if(cache[ci].slot===slot)cache[ci].likes=nn;}localStorage.setItem('hwm_quarter_stars_'+q,JSON.stringify(cache));}
+          }catch(e){}
+          if(typeof supabase!=='undefined'&&supabase&&supabase.from){
+            try{
+              var cur=await supabase.from('hwm_quarter_stars').select('likes').eq('quarter',q).eq('slot',slot).single();
+              if(!cur.error&&cur.data){
+                var base=cur.data.likes||0;
+                var upd=liked?Math.max(0,base-1):base+1;
+                await supabase.from('hwm_quarter_stars').update({likes:upd}).eq('quarter',q).eq('slot',slot);
+              }
+            }catch(e){}
+          }
+        };
         function _qsRender(list){
           var grid=document.getElementById('qsGrid');
           if(!grid)return;
@@ -2893,7 +2940,7 @@ function togglePortalTips(){
           // 云端覆盖
           if(typeof supabase==='undefined'||!supabase||!supabase.from)return;
           try{
-            var resp=await supabase.from('hwm_quarter_stars').select('slot,name,dept,story,photo').eq('quarter',q).order('slot');
+            var resp=await supabase.from('hwm_quarter_stars').select('slot,name,dept,story,photo,likes').eq('quarter',q).order('slot');
             if(resp.error)return; // 表不存在等 → 保持占位
             var rows=(resp.data||[]).filter(function(r){return r.name;});
             if(rows.length){
@@ -2933,7 +2980,7 @@ function togglePortalTips(){
               '<div class="qs-mgr-fields">'+
                 '<div class="qs-mgr-row"><label>姓名</label><input type="text" id="qsMgrName'+si+'" list="qsEmpList" value="'+_qsEsc(d.name||'')+'" placeholder="输入姓名（可联想花名册）" onchange="_qsMgrNameFill('+si+')"></div>'+
                 '<div class="qs-mgr-row"><label>部门</label><input type="text" id="qsMgrDept'+si+'" value="'+_qsEsc(d.dept||'')+'" placeholder="部门"></div>'+
-                '<div class="qs-mgr-row"><label>事迹</label><textarea id="qsMgrStory'+si+'" rows="2" maxlength="50" placeholder="50 字以内，简述该员工的季度突出事迹" oninput="document.getElementById(\'qsMgrCnt'+si+'\').textContent=this.value.length+\'/50\'">'+_qsEsc(d.story||'')+'</textarea><span class="qs-mgr-cnt" id="qsMgrCnt'+si+'">'+((d.story||'').length)+'/50</span></div>'+
+                '<div class="qs-mgr-row"><label>事迹</label><textarea id="qsMgrStory'+si+'" rows="2" maxlength="50" placeholder="50 字以内，简述该员工的季度突出事迹" oninput="_qsStoryInput('+si+')">'+_qsEsc(d.story||'')+'</textarea><span class="qs-mgr-cnt" id="qsMgrCnt'+si+'">'+((d.story||'').length)+'/50</span></div>'+
               '</div>'+
             '</div>';
           }
@@ -2980,6 +3027,20 @@ function togglePortalTips(){
             }
           }catch(e){}
         };
+        // ★ V0.7.1fu: 事迹字数——到 50 字计数变红并提示
+        window._qsStoryInput=function(idx){
+          var ta=document.getElementById('qsMgrStory'+idx);
+          var cnt=document.getElementById('qsMgrCnt'+idx);
+          if(!ta||!cnt)return;
+          var l=ta.value.length;
+          cnt.textContent=l+'/50';
+          if(l>=50){
+            cnt.style.color='#D64541';cnt.style.fontWeight='600';
+            if(!ta._warned){ta._warned=true;if(typeof showToast==='function')showToast('事迹限 50 字，请精简后再发布','warning');}
+          }else{
+            cnt.style.color='';cnt.style.fontWeight='';ta._warned=false;
+          }
+        };
         // 照片：读文件 → canvas 居中裁方 → 400×400 WebP
         window._qsCrop=function(file,idx){
           if(!file||!file.type||file.type.indexOf('image/')!==0){if(typeof showToast==='function')showToast('请选择图片文件','warning');return;}
@@ -2995,6 +3056,8 @@ function togglePortalTips(){
               var url=cv.toDataURL('image/webp',0.82);
               if(url.length<100)url=cv.toDataURL('image/jpeg',0.85);
               _qsMgr.photos[idx]=url;
+              // ★ V0.7.1fu: 非正方形照片提示已自动裁剪
+              if(img.width!==img.height&&typeof showToast==='function')showToast('照片非正方形，已自动居中裁剪');
               var zone=document.getElementById('qsMgrPhoto'+idx);
               if(zone)zone.innerHTML='<img src="'+url+'"><input type="file" accept="image/*" style="display:none" id="qsMgrFile'+idx+'">';
               // 重绑文件输入（innerHTML 重建后）
@@ -3022,9 +3085,11 @@ function togglePortalTips(){
           var m=document.getElementById('qsMgrModal');if(m)m.remove();
           if(typeof supabase!=='undefined'&&supabase&&supabase.from){
             try{
-              await supabase.from('hwm_quarter_stars').delete().eq('quarter',q);
-              var ins=await supabase.from('hwm_quarter_stars').insert(rows);
+              // ★ V0.7.1fu: upsert 保留点赞数；再删除本季不再展示的槽位
+              var ins=await supabase.from('hwm_quarter_stars').upsert(rows,{onConflict:'quarter,slot'});
               if(ins.error){if(typeof showToast==='function')showToast('⚠️ 云端保存失败（已存本机）：'+ins.error.message,'warning');return;}
+              var keep=rows.map(function(r){return r.slot;});
+              await supabase.from('hwm_quarter_stars').delete().eq('quarter',q).not('slot','in','('+keep.join(',')+')');
             }catch(e){if(typeof showToast==='function')showToast('⚠️ 云端同步失败（已存本机）','warning');return;}
           }
           if(typeof showToast==='function')showToast('✓ 季度之星已发布');
