@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" data-page-node-id="NC8v6uKaUQDG9FNFlzHIEB">
 <meta http-equiv="Pragma" content="no-cache" data-page-node-id="Ln6kSFsdED8qWcviiBCPd8">
 <meta http-equiv="Expires" content="0" data-page-node-id="2NipHshsCoa5XDoJoBwfDG">
-<meta name="version" content="V0.7.1fx" data-page-node-id="wIVx4Ldqk6PVQph1A4CPmc">
+<meta name="version" content="V0.7.1fy" data-page-node-id="wIVx4Ldqk6PVQph1A4CPmc">
 <!-- cache-bust: 2026-09-02-15-19 -->
 <meta name="theme-color" content="#02314D" data-page-node-id="ggKwnJKgAgeRSAVH3KZkHF">
 <link rel="manifest" href="manifest.json?v=bc" data-page-node-id="CDqt7vutzPDpR4etXTpBDM">
@@ -1214,6 +1214,12 @@ body{
 /* ★ V0.7.1fw: 管理弹窗"添加一位"按钮 */
 .qs-mgr-add{width:100%;margin-top:10px;padding:9px 0;background:#FAFBFC;border:1.5px dashed #C9D6E2;border-radius:4px;color:#3B7DB4;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s}
 .qs-mgr-add:hover{background:#E8F4FE;border-color:#3B7DB4}
+/* ★ V0.7.1fy: 槽位拖拽换位 + 季度下拉 */
+.qs-mgr-grip{flex-shrink:0;color:#C9D2DC;cursor:grab;display:flex;align-items:center;padding:0 2px}
+.qs-mgr-grip:active{cursor:grabbing}
+.qs-mgr-slot.qs-mgr-dragging{opacity:.45}
+.qs-quarter-sel{margin-left:10px;font-size:11px;color:#3B7DB4;border:1px solid #C9D6E2;border-radius:4px;padding:2px 6px;background:#fff;cursor:pointer}
+.qs-quarter-sel:hover{border-color:#3B7DB4}
 /* ★ V0.7.1fs: 季度之星管理弹窗 + 管理按钮 */
 .qs-admin-btn{background:#fff;border:1px solid #C9D6E2;color:#3B7DB4;border-radius:4px;padding:3px 10px;font-size:11px;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center}
 .qs-admin-btn:hover{background:#E8F4FE;border-color:#3B7DB4}
@@ -2755,7 +2761,7 @@ function togglePortalTips(){
       </div>
     </nav>
     <div class="portal-sidebar-footer" data-page-node-id="OiBFhH2xGBYBBB8alwepMC">
-      V0.7.1fx
+      V0.7.1fy
     </div>
   </aside>
   <!-- Main -->
@@ -2845,6 +2851,7 @@ function togglePortalTips(){
         <div class="qs-head">
           <span class="qs-title">季度之星</span>
           <span class="qs-sub" id="qsQuarterLabel">2026 Q3 · 与卓越同行</span>
+          <select id="qsQuarterSel" class="qs-quarter-sel" style="display:none" onchange="_qsLoad(this.value)"></select>
           <span id="qsAdminSlot" style="margin-left:auto"></span>
         </div>
         <div class="qs-grid" id="qsGrid"></div>
@@ -2864,7 +2871,8 @@ function togglePortalTips(){
         function _qsEsc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
         var _qsThumbSvg='<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88z"/></svg>';
         function _qsLikedSet(){
-          try{return JSON.parse(localStorage.getItem('qs_likes_'+_qsCurQuarter())||'{}');}catch(e){return {};}
+          var q=(typeof _qsViewQuarter!=='undefined'&&_qsViewQuarter)||_qsCurQuarter();
+          try{return JSON.parse(localStorage.getItem('qs_likes_'+q)||'{}');}catch(e){return {};}
         }
         function _qsCardHtml(s,i){
           var photo = s.photo
@@ -2882,34 +2890,44 @@ function togglePortalTips(){
             '<div class="qs-veil"><p class="qs-story">'+_qsEsc(s.story)+'</p></div>'+
           '</div><div class="qs-name">'+_qsEsc(s.name)+'</div><div class="qs-dept">'+_qsEsc(s.dept)+'</div>'+likeBtn+'</div>';
         }
-        // ★ V0.7.1fu: 点赞——本机每季度每星限一次（可再点取消），云端计数
+        // ★ V0.7.1fy: 点赞——以云端为最终口径（先读基值再±1写回，写后用云端值校正显示），失败可见
         window._qsLike=async function(ev,slot){
           ev.stopPropagation();ev.preventDefault();
-          var q=_qsCurQuarter();
+          var q=_qsViewQuarter||_qsCurQuarter();
           var set=_qsLikedSet();
           var liked=!!set[slot];
           var btn=ev.currentTarget;
           var span=btn.querySelector('.qs-like-n');
-          var n=parseInt(span.textContent)||0;
-          var nn=liked?Math.max(0,n-1):n+1;
-          span.textContent=nn;
-          btn.classList.toggle('qs-liked',!liked);
           btn.classList.remove('qs-like-pop');void btn.offsetWidth;btn.classList.add('qs-like-pop');
           if(liked)delete set[slot];else set[slot]=1;
           try{localStorage.setItem('qs_likes_'+q,JSON.stringify(set));}catch(e){}
-          try{
-            var cache=JSON.parse(localStorage.getItem('hwm_quarter_stars_'+q)||'null');
-            if(cache){for(var ci=0;ci<cache.length;ci++){if(cache[ci].slot===slot)cache[ci].likes=nn;}localStorage.setItem('hwm_quarter_stars_'+q,JSON.stringify(cache));}
-          }catch(e){}
+          btn.classList.toggle('qs-liked',!liked);
+          function _syncLocal(n){
+            span.textContent=n;
+            try{
+              var cache=JSON.parse(localStorage.getItem('hwm_quarter_stars_'+q)||'null');
+              if(cache){for(var ci=0;ci<cache.length;ci++){if(cache[ci].slot===slot)cache[ci].likes=n;}localStorage.setItem('hwm_quarter_stars_'+q,JSON.stringify(cache));}
+            }catch(e){}
+          }
+          var n=parseInt(span.textContent)||0;
+          _syncLocal(liked?Math.max(0,n-1):n+1); // 乐观先行
           if(typeof supabase!=='undefined'&&supabase&&supabase.from){
             try{
               var cur=await supabase.from('hwm_quarter_stars').select('likes').eq('quarter',q).eq('slot',slot).single();
-              if(!cur.error&&cur.data){
+              if(cur.error){
+                console.warn('[qs-like] 读取基值失败:',cur.error.message);
+              }else if(cur.data){
                 var base=cur.data.likes||0;
                 var upd=liked?Math.max(0,base-1):base+1;
-                await supabase.from('hwm_quarter_stars').update({likes:upd}).eq('quarter',q).eq('slot',slot);
+                var u2=await supabase.from('hwm_quarter_stars').update({likes:upd}).eq('quarter',q).eq('slot',slot);
+                if(u2.error){
+                  console.warn('[qs-like] 写入失败:',u2.error.message);
+                  if(typeof showToast==='function')showToast('⚠️ 点赞未同步到云端','warning');
+                }else{
+                  _syncLocal(upd); // ★ 云端口径校正——多人累计可见
+                }
               }
-            }catch(e){}
+            }catch(e){console.warn('[qs-like] 异常:',e.message);}
           }
         };
         function _qsRender(list){
@@ -2931,38 +2949,66 @@ function togglePortalTips(){
         function _qsGate(){
           var slot=document.getElementById('qsAdminSlot');
           if(!slot)return;
-          if(_qsIsAdmin()){
+          // ★ V0.7.1fy: 仅"当前季度 + 有权限"才显示管理按钮
+          if(_qsIsAdmin()&&_qsViewQuarter===_qsCurQuarter()){
             slot.innerHTML='<button class="qs-admin-btn" onclick="_qsOpenMgr()"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>管理</button>';
+          }else{
+            slot.innerHTML='';
           }
         }
-        async function _qsLoad(){
-          var q=_qsCurQuarter();
+        var _qsViewQuarter='';
+        async function _qsLoad(q){
+          q=q||_qsCurQuarter();
+          _qsViewQuarter=q;
           document.getElementById('qsQuarterLabel').textContent=q.replace('-',' ')+' · 与卓越同行';
+          var sel=document.getElementById('qsQuarterSel');
+          if(sel&&sel.value!==q&&sel.querySelector('option[value="'+q+'"]'))sel.value=q;
           // 本地缓存先渲染（离线/秒开）
           try{
             var cache=JSON.parse(localStorage.getItem('hwm_quarter_stars_'+q)||'null');
             if(cache&&cache.length){_qsRender(cache);}else{_qsRender(_QS_PLACEHOLDER);}
           }catch(e){_qsRender(_QS_PLACEHOLDER);}
           // 云端覆盖
-          if(typeof supabase==='undefined'||!supabase||!supabase.from)return;
+          if(typeof supabase==='undefined'||!supabase||!supabase.from){_qsGate();return;}
           try{
             var resp=await supabase.from('hwm_quarter_stars').select('slot,name,dept,story,photo,likes').eq('quarter',q).order('slot');
-            if(resp.error)return; // 表不存在等 → 保持占位
-            var rows=(resp.data||[]).filter(function(r){return r.name;});
-            if(rows.length){
-              _qsRender(rows);
-              try{localStorage.setItem('hwm_quarter_stars_'+q,JSON.stringify(rows));}catch(e){}
+            if(!resp.error){
+              var rows=(resp.data||[]).filter(function(r){return r.name;});
+              if(rows.length){
+                _qsRender(rows);
+                try{localStorage.setItem('hwm_quarter_stars_'+q,JSON.stringify(rows));}catch(e){}
+              }else if(q!==_qsCurQuarter()){
+                _qsRender([]); // 历史季度无数据 → 不显示占位示意
+                var grid=document.getElementById('qsGrid');
+                if(grid)grid.innerHTML='<div style="padding:24px 0;text-align:center;color:#9ca3af;font-size:12px;width:100%">该季度未发布季度之星</div>';
+              }
             }
+            // ★ V0.7.1fy: 季度下拉——有数据的季度都可回看
+            try{
+              var qa=await supabase.from('hwm_quarter_stars').select('quarter');
+              if(!qa.error&&qa.data){
+                var seen={},qs=[];
+                var cur=_qsCurQuarter();seen[cur]=true;qs.push(cur);
+                for(var qi=0;qi<qa.data.length;qi++){var qq=qa.data[qi].quarter;if(qq&&!seen[qq]){seen[qq]=true;qs.push(qq);}}
+                qs.sort().reverse();
+                if(qs.length>1&&sel){
+                  sel.innerHTML=qs.map(function(x){return '<option value="'+x+'"'+(x===q?' selected':'')+'>'+x.replace('-',' ')+'</option>';}).join('');
+                  sel.style.display='';
+                }
+              }
+            }catch(e){}
           }catch(e){}
+          _qsGate(); // 回看历史季度时隐藏管理按钮（仅当前季度可管理）
         }
         // ===== 管理弹窗 =====
         var _qsMgr={photos:{}};
-        // ★ V0.7.1fw: 槽位构建器（支持动态添加，最多 8 位）
+        // ★ V0.7.1fy: 槽位构建器（支持动态添加最多 8 位 + 拖拽换位）
         function _qsSlotHtml(si,d){
           d=d||{};
           var initPhoto=d.photo||'';
           if(initPhoto)_qsMgr.photos[si]=initPhoto;
-          return '<div class="qs-mgr-slot">'+
+          return '<div class="qs-mgr-slot" id="qsMgrSlot'+si+'" draggable="true" title="按住左侧手柄拖拽可调整顺序">'+
+            '<span class="qs-mgr-grip" title="拖拽调整顺序"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><circle cx="9" cy="5" r="1.6"/><circle cx="15" cy="5" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="19" r="1.6"/><circle cx="15" cy="19" r="1.6"/></svg></span>'+
             '<div class="qs-mgr-photo" id="qsMgrPhoto'+si+'" title="拖拽照片到这里，或点击选择（自动居中裁剪为正方形）">'+
               (initPhoto?'<img src="'+initPhoto+'">':'<span class="qs-mgr-photo-hint">拖照片到这里<br>或点击选择</span>')+
               '<input type="file" accept="image/*" style="display:none" id="qsMgrFile'+si+'">'+
@@ -2989,7 +3035,7 @@ function togglePortalTips(){
           var idx=_qsMgr.slotCount;
           _qsMgr.slotCount++;
           var wrap=document.getElementById('qsMgrSlots');
-          if(wrap){wrap.insertAdjacentHTML('beforeend',_qsSlotHtml(idx,{}));_qsBindZone(idx);}
+          if(wrap){wrap.insertAdjacentHTML('beforeend',_qsSlotHtml(idx,{}));_qsBindZone(idx);_qsBindDrag(idx);}
           var add=document.getElementById('qsMgrAddBtn');
           if(add&&_qsMgr.slotCount>=8)add.style.display='none';
         };
@@ -3030,9 +3076,50 @@ function togglePortalTips(){
             for(var ei=0;ei<emps.length;ei++){var en=emps[ei]&&(emps[ei].name||emps[ei]['姓名']);if(en)opts+='<option value="'+_qsEsc(en)+'">';}
             if(dl)dl.innerHTML=opts;
           }catch(e){}
-          // 绑定拖拽/点击上传
-          for(var bi=0;bi<_qsMgr.slotCount;bi++)_qsBindZone(bi);
+          // 绑定拖拽/点击上传 + 拖拽换位
+          for(var bi=0;bi<_qsMgr.slotCount;bi++){_qsBindZone(bi);_qsBindDrag(bi);}
         };
+        // ★ V0.7.1fy: 槽位拖拽换位——拖到目标槽位上松开即交换两槽全部内容
+        function _qsBindDrag(idx){
+          var el=document.getElementById('qsMgrSlot'+idx);
+          if(!el)return;
+          el.addEventListener('dragstart',function(e){
+            // 从照片区发起的拖拽是上传，不换序
+            if(e.target&&e.target.closest&&e.target.closest('.qs-mgr-photo')){e.preventDefault();return;}
+            _qsMgr.dragIdx=idx;el.classList.add('qs-mgr-dragging');
+          });
+          el.addEventListener('dragend',function(){el.classList.remove('qs-mgr-dragging');});
+          el.addEventListener('dragover',function(e){
+            if(e.target&&e.target.closest&&e.target.closest('.qs-mgr-photo'))return; // 让照片区处理上传
+            e.preventDefault();
+          });
+          el.addEventListener('drop',function(e){
+            if(e.target&&e.target.closest&&e.target.closest('.qs-mgr-photo'))return;
+            e.preventDefault();
+            var from=_qsMgr.dragIdx;
+            if(from===undefined||from===idx)return;
+            _qsSwapSlots(from,idx);
+          });
+        }
+        function _qsSwapSlots(a,b){
+          var fields=['Name','Dept','Story'];
+          for(var fi=0;fi<fields.length;fi++){
+            var ea=document.getElementById('qsMgr'+fields[fi]+a),eb=document.getElementById('qsMgr'+fields[fi]+b);
+            if(ea&&eb){var tv=ea.value;ea.value=eb.value;eb.value=tv;}
+          }
+          _qsStoryInput(a);_qsStoryInput(b);
+          var pa=_qsMgr.photos[a],pb=_qsMgr.photos[b];
+          if(pb)_qsMgr.photos[a]=pb;else delete _qsMgr.photos[a];
+          if(pa)_qsMgr.photos[b]=pa;else delete _qsMgr.photos[b];
+          _qsSetPhotoZone(a,_qsMgr.photos[a]);_qsSetPhotoZone(b,_qsMgr.photos[b]);
+        }
+        function _qsSetPhotoZone(idx,url){
+          var zone=document.getElementById('qsMgrPhoto'+idx);
+          if(!zone)return;
+          zone.innerHTML=(url?'<img src="'+url+'">':'<span class="qs-mgr-photo-hint">拖照片到这里<br>或点击选择</span>')+'<input type="file" accept="image/*" style="display:none" id="qsMgrFile'+idx+'">';
+          var nf=document.getElementById('qsMgrFile'+idx);
+          if(nf)nf.addEventListener('change',function(){if(nf.files&&nf.files[0])_qsCrop(nf.files[0],idx);nf.value='';});
+        }
         window._qsMgrNameFill=function(idx){
           var nv=(document.getElementById('qsMgrName'+idx)||{}).value||'';
           if(!nv)return;
@@ -3077,14 +3164,10 @@ function togglePortalTips(){
               cv.getContext('2d').drawImage(img,sx,sy,side,side,0,0,400,400);
               var url=cv.toDataURL('image/webp',0.82);
               if(url.length<100)url=cv.toDataURL('image/jpeg',0.85);
-              _qsMgr.photos[idx]=url;
-              // ★ V0.7.1fu: 非正方形照片提示已自动裁剪
-              if(img.width!==img.height&&typeof showToast==='function')showToast('照片非正方形，已自动居中裁剪');
-              var zone=document.getElementById('qsMgrPhoto'+idx);
-              if(zone)zone.innerHTML='<img src="'+url+'"><input type="file" accept="image/*" style="display:none" id="qsMgrFile'+idx+'">';
-              // 重绑文件输入（innerHTML 重建后）
-              var nf=document.getElementById('qsMgrFile'+idx);
-              if(nf)nf.addEventListener('change',function(){if(nf.files&&nf.files[0])_qsCrop(nf.files[0],idx);nf.value='';});
+          _qsMgr.photos[idx]=url;
+          // ★ V0.7.1fu: 非正方形照片提示已自动裁剪
+          if(img.width!==img.height&&typeof showToast==='function')showToast('照片非正方形，已自动居中裁剪');
+          _qsSetPhotoZone(idx,url);
             };
             img.src=ev.target.result;
           };
@@ -3092,6 +3175,14 @@ function togglePortalTips(){
         };
         window._qsSave=async function(){
           var q=_qsCurQuarter();
+          // ★ V0.7.1fy: 先读云端现有点赞数，表单行携带——保存后显示/缓存不丢赞（原先表单行无 likes，保存即显 0）
+          var likeMap={};
+          if(typeof supabase!=='undefined'&&supabase&&supabase.from){
+            try{
+              var lr=await supabase.from('hwm_quarter_stars').select('slot,likes').eq('quarter',q);
+              if(!lr.error&&lr.data)lr.data.forEach(function(r){likeMap[r.slot]=r.likes||0;});
+            }catch(e){}
+          }
           var rows=[];
           for(var i=0;i<_qsMgr.slotCount;i++){
             var name=((document.getElementById('qsMgrName'+i)||{}).value||'').trim();
@@ -3099,7 +3190,8 @@ function togglePortalTips(){
             rows.push({quarter:q,slot:i+1,name:name,
               dept:((document.getElementById('qsMgrDept'+i)||{}).value||'').trim(),
               story:((document.getElementById('qsMgrStory'+i)||{}).value||'').trim().slice(0,50),
-              photo:_qsMgr.photos[i]||''});
+              photo:_qsMgr.photos[i]||'',
+              likes:likeMap[i+1]||0});
           }
           if(!rows.length){if(typeof showToast==='function')showToast('至少填写 1 位季度之星','warning');return;}
           try{localStorage.setItem('hwm_quarter_stars_'+q,JSON.stringify(rows));}catch(e){}
@@ -4107,6 +4199,34 @@ var _DEFAULT_USERS={
 // USERS 从 localStorage 加载，回退到默认值
 // ★ V0.6.1eg: 如果 localStorage 用户数 > 100（疑似异常），先清空让程序从云端重新拉取
 var USERS=loadUserSettings();
+
+// ★ V0.7.1fy: 一次性迁移（带闸门）——清理 V0.7.1dm 时期误传播的 newsEditor=true
+// 背景：V0.7.1em 版迁移无闸门导致"合法授权被每次加载清掉"（谭晨航事件）；
+// 但完全删掉又导致 legacy true 残留 → 任意员工都能看到季度之星"管理"按钮。
+// 现恢复迁移并加一次性闸门：每个浏览器只跑一次，清理后合法授权（白名单/之后系统维护授予）永久保留。
+(function(){
+  try{
+    if(localStorage.getItem('hwm_mig_news_fy')==='1')return;
+    var _WL={'谭晨航':true}; // 显式授权白名单（系统 owner，已确认授权）
+    var fixed=[];
+    for(var k in USERS){
+      if(!USERS.hasOwnProperty(k))continue;
+      var u=USERS[k];
+      if(!u||!u.permissions)continue;
+      if(u.role==='admin'||u.role==='data_admin')continue;
+      if(_WL[k]||_WL[u.name])continue;
+      if(u.permissions.newsEditor===true){
+        u.permissions.newsEditor=false;
+        fixed.push(u.name||k);
+      }
+    }
+    if(fixed.length>0){
+      console.log('[V0.7.1fy] 清理误传播 newsEditor：'+fixed.length+' 人 →',fixed.join(','));
+      saveUserSettings();
+    }
+    localStorage.setItem('hwm_mig_news_fy','1');
+  }catch(e){console.warn('[V0.7.1fy] 迁移失败',e);}
+})();
 
 // ★ V0.7.1em: 一次性迁移 — 双管齐下
 //   (a) admin/data_admin：强制恢复 newsEditor=true（V0.7.1do 改默认导致存档 false 覆盖 true）
