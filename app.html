@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" data-page-node-id="NC8v6uKaUQDG9FNFlzHIEB">
 <meta http-equiv="Pragma" content="no-cache" data-page-node-id="Ln6kSFsdED8qWcviiBCPd8">
 <meta http-equiv="Expires" content="0" data-page-node-id="2NipHshsCoa5XDoJoBwfDG">
-<meta name="version" content="V0.7.1fp" data-page-node-id="wIVx4Ldqk6PVQph1A4CPmc">
+<meta name="version" content="V0.7.1fq" data-page-node-id="wIVx4Ldqk6PVQph1A4CPmc">
 <!-- cache-bust: 2026-09-02-15-19 -->
 <meta name="theme-color" content="#02314D" data-page-node-id="ggKwnJKgAgeRSAVH3KZkHF">
 <link rel="manifest" href="manifest.json?v=bc" data-page-node-id="CDqt7vutzPDpR4etXTpBDM">
@@ -2682,7 +2682,7 @@ function togglePortalTips(){
       </div>
     </nav>
     <div class="portal-sidebar-footer" data-page-node-id="OiBFhH2xGBYBBB8alwepMC">
-      V0.7.1fp
+      V0.7.1fq
     </div>
   </aside>
   <!-- Main -->
@@ -2755,7 +2755,7 @@ function togglePortalTips(){
       </div>
       <div class="portal-twocol" data-page-node-id="cPsZi5P7buQbHZOpG5osuM">
         <div class="portal-panel" data-page-node-id="yIPvmoQYC4DUnoUTK75ajL">
-          <div class="portal-panel-header" data-page-node-id="aSSjno9bO5oEjHelDGUGCh"><span style="display:flex;align-items:center;gap:6px" data-page-node-id="l2vJN0Bb03W6PxZ5YCIBmi"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#d93025" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-page-node-id="Z1JTeyuG921mmO744Fo4JA"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" data-page-node-id="4D7B5v1eBUTDuOJP77yZlg"/></svg>重要紧急 / 重要不急</span><span class="portal-prio-head" id="portalPrioCount" title="点击跳转到本周工作计划" data-page-node-id="sU8bEjzghKu3O2IxixdIbS">0 条 ↗</span></div>
+          <div class="portal-panel-header" data-page-node-id="aSSjno9bO5oEjHelDGUGCh"><span style="display:flex;align-items:center;gap:6px" data-page-node-id="l2vJN0Bb03W6PxZ5YCIBmi"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#e37400" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-page-node-id="Z1JTeyuG921mmO744Fo4JA"><circle cx="12" cy="12" r="10" data-page-node-id="4D7B5v1eBUTDuOJP77yZlg"/><polyline points="12 6 12 12 16 14"/></svg>未来 3 个工作日到期</span><span class="portal-prio-head" id="portalPrioCount" title="点击跳转到本周工作计划" data-page-node-id="sU8bEjzghKu3O2IxixdIbS">0 条 ↗</span></div>
           <div class="portal-panel-body" id="portalPrioBody" data-page-node-id="Ixaerw7lrivGilIZIyyK18">
             <div style="padding:16px 0;text-align:center;color:#9ca3af;font-size:12px" data-page-node-id="Zz3PQBGuU8MZdmnHjTTKZ0">加载中…</div>
           </div>
@@ -5066,29 +5066,34 @@ function _refreshPortalData(){
     if(pdcRate) pdcRate.textContent = rate!==null ? rate+'%' : '—%';
     if(pdcRateSub) pdcRateSub.textContent = thisMonthTasks.total>0 ? ('共 '+thisMonthTasks.total+' 项任务') : '暂无本月数据';
 
-    // --- V0.7.1cx: 重要紧急/重要不急任务列表 （显示未完成 + 已逾期完成之外的） ---
-    // ★ V0.7.1fp: 同一任务在本月多周各有副本（上周转入机制），展示层按清洗后正文去重——
-    // 周 id 升序遍历、后周覆盖前周，最新一周的副本状态为准（历史周数据保留，仅展示去重）
+    // --- ★ V0.7.1fq: 未来3个工作日内即将到期的任务（取代原"重要紧急/重要不急"卡片） ---
+    // 全部周按 id 升序遍历、后周覆盖前周（同一任务只认最新副本，V0.7.1fp 展示层去重）
     var prioMap = {};
     Object.keys(wpData).sort().forEach(function(wid){
       var p2 = wpData[wid];
       if(!p2 || !p2.tasks) return;
-      var parts = wid.split('-');
-      if(parseInt(parts[1])!==mo || parseInt(parts[0])!==yr) return;
       p2.tasks.forEach(function(t){
         if(!t.work) return;
-        var g = t.goal||'';
-        if(g!=='重要紧急' && g!=='重要不急') return;
         var key = (typeof _stripCarriedFromLabels==='function' ? _stripCarriedFromLabels(t.work) : String(t.work)).trim();
         if(!key) return;
-        prioMap[key] = {work:key, plannedDate:t.plannedDate||'', status:t.status||'', goal:g, weekId:wid};
+        prioMap[key] = {work:key, plannedDate:t.plannedDate||'', status:t.status||'', goal:t.goal||'', weekId:wid};
       });
     });
+    // 截止窗口：今天 ~ 今天+3个工作日（跳过周末）
+    var _today0 = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    var _dueEnd = new Date(_today0);
+    var _wdAdded = 0;
+    while(_wdAdded < 3){ _dueEnd.setDate(_dueEnd.getDate()+1); var _dd = _dueEnd.getDay(); if(_dd!==0 && _dd!==6) _wdAdded++; }
     var prioTasks = [];
     for(var pk in prioMap){
       if(!prioMap.hasOwnProperty(pk)) continue;
-      if(prioMap[pk].status==='按时完成') continue;
-      prioTasks.push(prioMap[pk]);
+      var pt = prioMap[pk];
+      if(pt.status==='按时完成') continue;
+      if(!pt.plannedDate) continue;
+      var pdt = new Date(pt.plannedDate);
+      if(isNaN(pdt)) continue;
+      if(pdt < _today0 || pdt > _dueEnd) continue;
+      prioTasks.push(pt);
     }
     // 按截止日期排序
     prioTasks.sort(function(a,b){return (a.plannedDate||'9999').localeCompare(b.plannedDate||'9999');});
@@ -5100,12 +5105,15 @@ function _refreshPortalData(){
     }
     if(prioBodyEl){
       if(prioTasks.length===0){
-        prioBodyEl.innerHTML = '<div style="padding:20px 0;text-align:center;color:#9ca3af;font-size:12px">暂无重要紧急/重要不急的待办事项</div>';
+        prioBodyEl.innerHTML = '<div style="padding:20px 0;text-align:center;color:#9ca3af;font-size:12px">未来 3 个工作日暂无到期任务</div>';
       } else {
         var html = '';
         prioTasks.slice(0,7).forEach(function(t){
-          var color = t.goal==='重要紧急'?'#c5221f':'#e37400';
-          var goalLabel = t.goal==='重要紧急'?'急':'常';
+          // ★ V0.7.1fq: 四优先级色点（急=红/重=钢青/日=橙/常=灰蓝）
+          var _priMeta = {'重要紧急':{c:'#c5221f',t:'急'},'重要不急':{c:'#4984AC',t:'重'},'日常紧急':{c:'#FF9500',t:'日'},'日常事项':{c:'#5E7080',t:'常'}};
+          var _pm = _priMeta[t.goal] || _priMeta['日常事项'];
+          var color = _pm.c;
+          var goalLabel = _pm.t;
           var dueText = '';
           if(t.plannedDate){
             var pDate = new Date(t.plannedDate);
@@ -5118,9 +5126,9 @@ function _refreshPortalData(){
           } else {
             dueText = '<span class="portal-task-due">'+t.status+'</span>';
           }
-          // ★ V0.7.1cx: 渲染时兜底 strip "来"字（来源标签 + 末尾连续"来"污染）
+          // ★ V0.7.1ff: 剥离"来源"标签（冒号/空格双格式）+ 末尾连续"来"污染
           var workText = (t.work||'')
-            .replace(/\s*来源[：:]\d{4}年\d{1,2}月第[1-5]周(?:来)?\s*/g,' ')
+            .replace(/\s*来源[：:]?\s*\d{4}年\d{1,2}月第[1-5]周\s*/g,' ')
             .replace(/来{2,}$/,'')  // 末尾连续 2+ 个"来"（污染）
             .trim();
           html += '<div class="portal-task-item"><span class="portal-task-prio" style="background:'+color+';position:relative" title="'+t.goal+'"><span style="font-size:8px;color:#fff;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-weight:700">'+goalLabel+'</span></span><span>'+workText+'</span>'+dueText+'</div>';
