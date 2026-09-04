@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" data-page-node-id="NC8v6uKaUQDG9FNFlzHIEB">
 <meta http-equiv="Pragma" content="no-cache" data-page-node-id="Ln6kSFsdED8qWcviiBCPd8">
 <meta http-equiv="Expires" content="0" data-page-node-id="2NipHshsCoa5XDoJoBwfDG">
-<meta name="version" content="V0.7.1fr" data-page-node-id="wIVx4Ldqk6PVQph1A4CPmc">
+<meta name="version" content="V0.7.1fs" data-page-node-id="wIVx4Ldqk6PVQph1A4CPmc">
 <!-- cache-bust: 2026-09-02-15-19 -->
 <meta name="theme-color" content="#02314D" data-page-node-id="ggKwnJKgAgeRSAVH3KZkHF">
 <link rel="manifest" href="manifest.json?v=bc" data-page-node-id="CDqt7vutzPDpR4etXTpBDM">
@@ -1208,6 +1208,37 @@ body{
 .qs-av1{background:#E8F1F8;color:#4984AC}.qs-av2{background:#F0EBF6;color:#7A6A9B}.qs-av3{background:#EAF4EF;color:#4C8669}.qs-av4{background:#F8F0E8;color:#B07E4F}
 @media(max-width:1024px){.qs-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:560px){.qs-grid{grid-template-columns:1fr}}
+/* ★ V0.7.1fs: 季度之星管理弹窗 + 管理按钮 */
+.qs-admin-btn{background:#fff;border:1px solid #C9D6E2;color:#3B7DB4;border-radius:4px;padding:3px 10px;font-size:11px;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center}
+.qs-admin-btn:hover{background:#E8F4FE;border-color:#3B7DB4}
+.qs-mgr-overlay{position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:1000;display:flex;align-items:center;justify-content:center;animation:qsMgrFade .2s ease}
+@keyframes qsMgrFade{from{opacity:0}to{opacity:1}}
+.qs-mgr-card{background:#fff;border-radius:6px;width:720px;max-width:94vw;max-height:88vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(15,23,42,.25)}
+.qs-mgr-head{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid #F0F2F5;font-size:15px;font-weight:600;color:#1F2937}
+.qs-mgr-close{background:none;border:none;font-size:20px;color:#9ca3af;cursor:pointer;line-height:1;padding:2px 6px}
+.qs-mgr-close:hover{color:#1F2937}
+.qs-mgr-body{padding:18px 24px;overflow-y:auto}
+.qs-mgr-slot{display:flex;gap:16px;padding:14px 0;border-bottom:1px dashed #EDF1F7}
+.qs-mgr-slot:last-child{border-bottom:none}
+.qs-mgr-photo{width:96px;height:96px;flex-shrink:0;border:1.5px dashed #C9D6E2;border-radius:4px;display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;background:#FAFBFC;transition:all .15s;position:relative}
+.qs-mgr-photo:hover{border-color:#3B7DB4;background:#F4F9FE}
+.qs-mgr-photo-over{border-color:#3B7DB4;background:#E8F4FE;transform:scale(1.03)}
+.qs-mgr-photo img{width:100%;height:100%;object-fit:cover;display:block}
+.qs-mgr-photo-hint{font-size:10px;color:#9ca3af;text-align:center;line-height:1.6;padding:4px}
+.qs-mgr-fields{flex:1;display:flex;flex-direction:column;gap:8px}
+.qs-mgr-row{display:flex;align-items:flex-start;gap:8px;position:relative}
+.qs-mgr-row label{width:34px;flex-shrink:0;font-size:12px;color:#6b7280;padding-top:6px}
+.qs-mgr-row input[type=text]{flex:1;padding:6px 10px;border:1px solid #E0E4EA;border-radius:4px;font-size:13px;transition:border .15s}
+.qs-mgr-row input[type=text]:focus{outline:none;border-color:#3B7DB4;box-shadow:0 0 0 3px rgba(59,125,180,.12)}
+.qs-mgr-row textarea{flex:1;padding:6px 10px;border:1px solid #E0E4EA;border-radius:4px;font-size:12.5px;line-height:1.6;resize:vertical;font-family:inherit;transition:border .15s}
+.qs-mgr-row textarea:focus{outline:none;border-color:#3B7DB4;box-shadow:0 0 0 3px rgba(59,125,180,.12)}
+.qs-mgr-cnt{position:absolute;right:8px;bottom:6px;font-size:10px;color:#C0C0C0}
+.qs-mgr-foot{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;border-top:1px solid #F0F2F5;background:#FAFBFC;border-radius:0 0 6px 6px}
+.qs-mgr-tip{font-size:11px;color:#9ca3af}
+.qs-mgr-btn-primary{background:#3B7DB4;color:#fff;border:none;border-radius:4px;padding:7px 18px;font-size:13px;font-weight:600;cursor:pointer;margin-left:8px;transition:background .15s}
+.qs-mgr-btn-primary:hover{background:#2E6A9A}
+.qs-mgr-btn-ghost{background:#fff;border:1px solid #C9D6E2;color:#3B7DB4;border-radius:4px;padding:7px 16px;font-size:13px;cursor:pointer;transition:all .15s}
+.qs-mgr-btn-ghost:hover{background:#E8F4FE}
 .portal-avatar-show{width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.2);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;border:1px solid rgba(255,255,255,.35)}
 .portal-avatar-divider{width:1px;height:18px;background:#dadce0;flex-shrink:0}
 .portal-logout-btn{padding:6px 30px;border:none;border-radius:4px;background:rgba(44,95,138,.9);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:#fff;font-size:12px;font-weight:600;cursor:pointer;transition:all .12s}
@@ -2711,7 +2742,7 @@ function togglePortalTips(){
       </div>
     </nav>
     <div class="portal-sidebar-footer" data-page-node-id="OiBFhH2xGBYBBB8alwepMC">
-      V0.7.1fr
+      V0.7.1fs
     </div>
   </aside>
   <!-- Main -->
@@ -2796,16 +2827,213 @@ function togglePortalTips(){
           </div>
         </div>
       </div>
-      <!-- ★ V0.7.1fr: 季度之星（占位示意，正式启用时替换照片/姓名/事迹） -->
-      <div class="qs-panel">
-        <div class="qs-head"><span class="qs-title">季度之星</span><span class="qs-sub">2026 Q3 · 与卓越同行</span></div>
-        <div class="qs-grid">
-          <div class="qs-card"><div class="qs-photo"><span class="qs-star"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#C9A227" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span><div class="qs-sheen"></div><div class="qs-avatar qs-av1">A</div><div class="qs-veil"><p class="qs-story">本季度突出事迹简要说明（50 字以内），正式启用时替换为该员工的真实优秀事迹。</p></div></div><div class="qs-name">Anndy</div><div class="qs-dept">xxx 部</div></div>
-          <div class="qs-card"><div class="qs-photo"><span class="qs-star"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#C9A227" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span><div class="qs-sheen"></div><div class="qs-avatar qs-av2">M</div><div class="qs-veil"><p class="qs-story">本季度突出事迹简要说明（50 字以内），正式启用时替换为该员工的真实优秀事迹。</p></div></div><div class="qs-name">Maggie</div><div class="qs-dept">xxx 部</div></div>
-          <div class="qs-card"><div class="qs-photo"><span class="qs-star"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#C9A227" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span><div class="qs-sheen"></div><div class="qs-avatar qs-av3">T</div><div class="qs-veil"><p class="qs-story">本季度突出事迹简要说明（50 字以内），正式启用时替换为该员工的真实优秀事迹。</p></div></div><div class="qs-name">Tonny</div><div class="qs-dept">xxx 部</div></div>
-          <div class="qs-card"><div class="qs-photo"><span class="qs-star"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#C9A227" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span><div class="qs-sheen"></div><div class="qs-avatar qs-av4">J</div><div class="qs-veil"><p class="qs-story">本季度突出事迹简要说明（50 字以内），正式启用时替换为该员工的真实优秀事迹。</p></div></div><div class="qs-name">Jason</div><div class="qs-dept">xxx 部</div></div>
+      <!-- ★ V0.7.1fs: 季度之星（云端渲染 + 管理员发布；未配置时显示占位示意） -->
+      <div class="qs-panel" id="qsPanel">
+        <div class="qs-head">
+          <span class="qs-title">季度之星</span>
+          <span class="qs-sub" id="qsQuarterLabel">2026 Q3 · 与卓越同行</span>
+          <span id="qsAdminSlot" style="margin-left:auto"></span>
         </div>
+        <div class="qs-grid" id="qsGrid"></div>
       </div>
+      <script>
+      (function(){
+        // ===== 季度之星 V0.7.1fs =====
+        var _QS_PLACEHOLDER=[
+          {name:'Anndy',dept:'xxx 部',story:'本季度突出事迹简要说明（50 字以内），正式启用时替换为该员工的真实优秀事迹。',avatar:'A',cls:'qs-av1'},
+          {name:'Maggie',dept:'xxx 部',story:'本季度突出事迹简要说明（50 字以内），正式启用时替换为该员工的真实优秀事迹。',avatar:'M',cls:'qs-av2'},
+          {name:'Tonny',dept:'xxx 部',story:'本季度突出事迹简要说明（50 字以内），正式启用时替换为该员工的真实优秀事迹。',avatar:'T',cls:'qs-av3'},
+          {name:'Jason',dept:'xxx 部',story:'本季度突出事迹简要说明（50 字以内），正式启用时替换为该员工的真实优秀事迹。',avatar:'J',cls:'qs-av4'}
+        ];
+        var _QS_AV_CLS=['qs-av1','qs-av2','qs-av3','qs-av4'];
+        var _qsStarSvg='<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#C9A227" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
+        function _qsCurQuarter(){var d=new Date();return d.getFullYear()+'-Q'+(Math.floor(d.getMonth()/3)+1);}
+        function _qsEsc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+        function _qsCardHtml(s,i){
+          var photo = s.photo
+            ? '<img src="'+s.photo+'" alt="'+_qsEsc(s.name)+'">'
+            : '<div class="qs-avatar '+_QS_AV_CLS[i%4]+'">'+_qsEsc((s.name||'·').charAt(0).toUpperCase())+'</div>';
+          return '<div class="qs-card"><div class="qs-photo">'+
+            '<span class="qs-star">'+_qsStarSvg+'</span>'+
+            '<div class="qs-sheen"></div>'+photo+
+            '<div class="qs-veil"><p class="qs-story">'+_qsEsc(s.story)+'</p></div>'+
+          '</div><div class="qs-name">'+_qsEsc(s.name)+'</div><div class="qs-dept">'+_qsEsc(s.dept)+'</div></div>';
+        }
+        function _qsRender(list){
+          var grid=document.getElementById('qsGrid');
+          if(!grid)return;
+          grid.innerHTML=list.slice(0,4).map(_qsCardHtml).join('');
+        }
+        function _qsIsAdmin(){
+          try{
+            var u=(typeof currentUser!=='undefined'&&currentUser)?currentUser.name:'';
+            if(!u)return false;
+            var rec=(typeof USERS!=='undefined')?(USERS[u]||USERS[(currentUser&&currentUser._uid)||'']):null;
+            if(!rec)return false;
+            if(rec.role==='admin')return true;
+            var p=rec.permissions||{};
+            return !!(p.newsEditor);
+          }catch(e){return false;}
+        }
+        function _qsGate(){
+          var slot=document.getElementById('qsAdminSlot');
+          if(!slot)return;
+          if(_qsIsAdmin()){
+            slot.innerHTML='<button class="qs-admin-btn" onclick="_qsOpenMgr()"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>管理</button>';
+          }
+        }
+        async function _qsLoad(){
+          var q=_qsCurQuarter();
+          document.getElementById('qsQuarterLabel').textContent=q.replace('-',' ')+' · 与卓越同行';
+          // 本地缓存先渲染（离线/秒开）
+          try{
+            var cache=JSON.parse(localStorage.getItem('hwm_quarter_stars_'+q)||'null');
+            if(cache&&cache.length){_qsRender(cache);}else{_qsRender(_QS_PLACEHOLDER);}
+          }catch(e){_qsRender(_QS_PLACEHOLDER);}
+          // 云端覆盖
+          if(typeof supabase==='undefined'||!supabase||!supabase.from)return;
+          try{
+            var resp=await supabase.from('hwm_quarter_stars').select('slot,name,dept,story,photo').eq('quarter',q).order('slot');
+            if(resp.error)return; // 表不存在等 → 保持占位
+            var rows=(resp.data||[]).filter(function(r){return r.name;});
+            if(rows.length){
+              _qsRender(rows);
+              try{localStorage.setItem('hwm_quarter_stars_'+q,JSON.stringify(rows));}catch(e){}
+            }
+          }catch(e){}
+        }
+        // ===== 管理弹窗 =====
+        var _qsMgr={photos:{}};
+        window._qsOpenMgr=async function(){
+          var old=document.getElementById('qsMgrModal');
+          if(old)old.remove();
+          var q=_qsCurQuarter();
+          var data=[null,null,null,null];
+          try{
+            var cache=JSON.parse(localStorage.getItem('hwm_quarter_stars_'+q)||'null');
+            if(cache)for(var i=0;i<cache.length&&i<4;i++)data[(cache[i].slot||i+1)-1]=cache[i];
+          }catch(e){}
+          if(typeof supabase!=='undefined'&&supabase&&supabase.from){
+            try{
+              var resp=await supabase.from('hwm_quarter_stars').select('slot,name,dept,story,photo').eq('quarter',q).order('slot');
+              if(!resp.error&&resp.data)resp.data.forEach(function(r){if(r.slot>=1&&r.slot<=4)data[r.slot-1]=r;});
+            }catch(e){}
+          }
+          _qsMgr.photos={};
+          var slots='';
+          for(var si=0;si<4;si++){
+            var d=data[si]||{};
+            var initPhoto=d.photo||'';
+            if(initPhoto)_qsMgr.photos[si]=initPhoto;
+            slots+='<div class="qs-mgr-slot">'+
+              '<div class="qs-mgr-photo" id="qsMgrPhoto'+si+'" title="拖拽照片到这里，或点击选择（自动居中裁剪为正方形）">'+
+                (initPhoto?'<img src="'+initPhoto+'">':'<span class="qs-mgr-photo-hint">拖照片到这里<br>或点击选择</span>')+
+                '<input type="file" accept="image/*" style="display:none" id="qsMgrFile'+si+'">'+
+              '</div>'+
+              '<div class="qs-mgr-fields">'+
+                '<div class="qs-mgr-row"><label>姓名</label><input type="text" id="qsMgrName'+si+'" list="qsEmpList" value="'+_qsEsc(d.name||'')+'" placeholder="输入姓名（可联想花名册）" onchange="_qsMgrNameFill('+si+')"></div>'+
+                '<div class="qs-mgr-row"><label>部门</label><input type="text" id="qsMgrDept'+si+'" value="'+_qsEsc(d.dept||'')+'" placeholder="部门"></div>'+
+                '<div class="qs-mgr-row"><label>事迹</label><textarea id="qsMgrStory'+si+'" rows="2" maxlength="50" placeholder="50 字以内，简述该员工的季度突出事迹" oninput="document.getElementById(\'qsMgrCnt'+si+'\').textContent=this.value.length+\'/50\'">'+_qsEsc(d.story||'')+'</textarea><span class="qs-mgr-cnt" id="qsMgrCnt'+si+'">'+((d.story||'').length)+'/50</span></div>'+
+              '</div>'+
+            '</div>';
+          }
+          var html='<div class="qs-mgr-overlay" id="qsMgrModal" onclick="if(event.target===this)this.remove()">'+
+            '<div class="qs-mgr-card">'+
+              '<div class="qs-mgr-head"><span>季度之星管理 · '+q.replace('-',' ')+'</span><button class="qs-mgr-close" onclick="document.getElementById(\'qsMgrModal\').remove()">×</button></div>'+
+              '<div class="qs-mgr-body"><datalist id="qsEmpList"></datalist>'+slots+'</div>'+
+              '<div class="qs-mgr-foot"><span class="qs-mgr-tip">照片自动居中裁剪为正方形 400×400；槽位留空则该位置不展示</span><span><button class="qs-mgr-btn-ghost" onclick="document.getElementById(\'qsMgrModal\').remove()">取消</button><button class="qs-mgr-btn-primary" onclick="_qsSave()">保存发布</button></span></div>'+
+            '</div></div>';
+          document.body.insertAdjacentHTML('beforeend',html);
+          // 花名册联想
+          try{
+            var emps=(typeof _getEmpDB==='function')?_getEmpDB():[];
+            var dl=document.getElementById('qsEmpList');
+            var opts='';
+            for(var ei=0;ei<emps.length;ei++){var en=emps[ei]&&(emps[ei].name||emps[ei]['姓名']);if(en)opts+='<option value="'+_qsEsc(en)+'">';}
+            if(dl)dl.innerHTML=opts;
+          }catch(e){}
+          // 绑定拖拽/点击上传
+          for(var bi=0;bi<4;bi++){(function(idx){
+            var zone=document.getElementById('qsMgrPhoto'+idx);
+            var file=document.getElementById('qsMgrFile'+idx);
+            if(!zone||!file)return;
+            zone.addEventListener('click',function(){file.click();});
+            zone.addEventListener('dragover',function(e){e.preventDefault();zone.classList.add('qs-mgr-photo-over');});
+            zone.addEventListener('dragleave',function(){zone.classList.remove('qs-mgr-photo-over');});
+            zone.addEventListener('drop',function(e){e.preventDefault();zone.classList.remove('qs-mgr-photo-over');if(e.dataTransfer.files&&e.dataTransfer.files[0])_qsCrop(e.dataTransfer.files[0],idx);});
+            file.addEventListener('change',function(){if(file.files&&file.files[0])_qsCrop(file.files[0],idx);file.value='';});
+          })(bi);}
+        };
+        window._qsMgrNameFill=function(idx){
+          var nv=(document.getElementById('qsMgrName'+idx)||{}).value||'';
+          if(!nv)return;
+          try{
+            var emps=(typeof _getEmpDB==='function')?_getEmpDB():[];
+            for(var i=0;i<emps.length;i++){
+              var en=emps[i]&&(emps[i].name||emps[i]['姓名']);
+              if(en===nv){
+                var ed=emps[i].dept||emps[i]['部门']||emps[i].center||'';
+                var dv=document.getElementById('qsMgrDept'+idx);
+                if(dv&&ed)dv.value=ed;
+                break;
+              }
+            }
+          }catch(e){}
+        };
+        // 照片：读文件 → canvas 居中裁方 → 400×400 WebP
+        window._qsCrop=function(file,idx){
+          if(!file||!file.type||file.type.indexOf('image/')!==0){if(typeof showToast==='function')showToast('请选择图片文件','warning');return;}
+          var reader=new FileReader();
+          reader.onload=function(ev){
+            var img=new Image();
+            img.onload=function(){
+              var side=Math.min(img.width,img.height);
+              var sx=(img.width-side)/2, sy=(img.height-side)/2;
+              var cv=document.createElement('canvas');
+              cv.width=400;cv.height=400;
+              cv.getContext('2d').drawImage(img,sx,sy,side,side,0,0,400,400);
+              var url=cv.toDataURL('image/webp',0.82);
+              if(url.length<100)url=cv.toDataURL('image/jpeg',0.85);
+              _qsMgr.photos[idx]=url;
+              var zone=document.getElementById('qsMgrPhoto'+idx);
+              if(zone)zone.innerHTML='<img src="'+url+'"><input type="file" accept="image/*" style="display:none" id="qsMgrFile'+idx+'">';
+              // 重绑文件输入（innerHTML 重建后）
+              var nf=document.getElementById('qsMgrFile'+idx);
+              if(nf)nf.addEventListener('change',function(){if(nf.files&&nf.files[0])_qsCrop(nf.files[0],idx);nf.value='';});
+            };
+            img.src=ev.target.result;
+          };
+          reader.readAsDataURL(file);
+        };
+        window._qsSave=async function(){
+          var q=_qsCurQuarter();
+          var rows=[];
+          for(var i=0;i<4;i++){
+            var name=((document.getElementById('qsMgrName'+i)||{}).value||'').trim();
+            if(!name)continue;
+            rows.push({quarter:q,slot:i+1,name:name,
+              dept:((document.getElementById('qsMgrDept'+i)||{}).value||'').trim(),
+              story:((document.getElementById('qsMgrStory'+i)||{}).value||'').trim().slice(0,50),
+              photo:_qsMgr.photos[i]||''});
+          }
+          if(!rows.length){if(typeof showToast==='function')showToast('至少填写 1 位季度之星','warning');return;}
+          try{localStorage.setItem('hwm_quarter_stars_'+q,JSON.stringify(rows));}catch(e){}
+          _qsRender(rows);
+          var m=document.getElementById('qsMgrModal');if(m)m.remove();
+          if(typeof supabase!=='undefined'&&supabase&&supabase.from){
+            try{
+              await supabase.from('hwm_quarter_stars').delete().eq('quarter',q);
+              var ins=await supabase.from('hwm_quarter_stars').insert(rows);
+              if(ins.error){if(typeof showToast==='function')showToast('⚠️ 云端保存失败（已存本机）：'+ins.error.message,'warning');return;}
+            }catch(e){if(typeof showToast==='function')showToast('⚠️ 云端同步失败（已存本机）','warning');return;}
+          }
+          if(typeof showToast==='function')showToast('✓ 季度之星已发布');
+        };
+        // 启动
+        _qsGate();
+        _qsLoad();
+      })();
+      </script>
       <div class="portal-panel" data-page-node-id="gGYszcj8QAZk9I38wLHJ7I">
           <div class="portal-panel-header" data-page-node-id="ybZl1At1SQ2b3XMUQ4YXL5"><span style="display:flex;align-items:center;gap:6px" data-page-node-id="zsU4hBxrBGGBvu3175GSfY"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#3B7DB4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" data-page-node-id="hoC7IHWA1HBc8TqKRG1ZEO"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" data-page-node-id="GEiWmhYeTpBA18alMiPTrn"/></svg>建言献策 | 合理化建议</span><span style="font-size:11px;color:#5f6368" data-page-node-id="u7VtM6Guo27DA35P7WMntG">即将上线</span></div>
           <div class="portal-panel-body" data-page-node-id="Nh7S53aeleEbRLcjdE3Gxy">
