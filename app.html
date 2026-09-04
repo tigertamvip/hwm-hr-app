@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" data-page-node-id="NC8v6uKaUQDG9FNFlzHIEB">
 <meta http-equiv="Pragma" content="no-cache" data-page-node-id="Ln6kSFsdED8qWcviiBCPd8">
 <meta http-equiv="Expires" content="0" data-page-node-id="2NipHshsCoa5XDoJoBwfDG">
-<meta name="version" content="V0.7.1fo" data-page-node-id="wIVx4Ldqk6PVQph1A4CPmc">
+<meta name="version" content="V0.7.1fp" data-page-node-id="wIVx4Ldqk6PVQph1A4CPmc">
 <!-- cache-bust: 2026-09-02-15-19 -->
 <meta name="theme-color" content="#02314D" data-page-node-id="ggKwnJKgAgeRSAVH3KZkHF">
 <link rel="manifest" href="manifest.json?v=bc" data-page-node-id="CDqt7vutzPDpR4etXTpBDM">
@@ -2682,7 +2682,7 @@ function togglePortalTips(){
       </div>
     </nav>
     <div class="portal-sidebar-footer" data-page-node-id="OiBFhH2xGBYBBB8alwepMC">
-      V0.7.1fo
+      V0.7.1fp
     </div>
   </aside>
   <!-- Main -->
@@ -5067,8 +5067,10 @@ function _refreshPortalData(){
     if(pdcRateSub) pdcRateSub.textContent = thisMonthTasks.total>0 ? ('共 '+thisMonthTasks.total+' 项任务') : '暂无本月数据';
 
     // --- V0.7.1cx: 重要紧急/重要不急任务列表 （显示未完成 + 已逾期完成之外的） ---
-    var prioTasks = [];
-    Object.keys(wpData).forEach(function(wid){
+    // ★ V0.7.1fp: 同一任务在本月多周各有副本（上周转入机制），展示层按清洗后正文去重——
+    // 周 id 升序遍历、后周覆盖前周，最新一周的副本状态为准（历史周数据保留，仅展示去重）
+    var prioMap = {};
+    Object.keys(wpData).sort().forEach(function(wid){
       var p2 = wpData[wid];
       if(!p2 || !p2.tasks) return;
       var parts = wid.split('-');
@@ -5077,11 +5079,17 @@ function _refreshPortalData(){
         if(!t.work) return;
         var g = t.goal||'';
         if(g!=='重要紧急' && g!=='重要不急') return;
-        var st = t.status||'';
-        if(st==='按时完成') return;
-        prioTasks.push({work:t.work, plannedDate:t.plannedDate||'', status:st, goal:g, weekId:wid});
+        var key = (typeof _stripCarriedFromLabels==='function' ? _stripCarriedFromLabels(t.work) : String(t.work)).trim();
+        if(!key) return;
+        prioMap[key] = {work:key, plannedDate:t.plannedDate||'', status:t.status||'', goal:g, weekId:wid};
       });
     });
+    var prioTasks = [];
+    for(var pk in prioMap){
+      if(!prioMap.hasOwnProperty(pk)) continue;
+      if(prioMap[pk].status==='按时完成') continue;
+      prioTasks.push(prioMap[pk]);
+    }
     // 按截止日期排序
     prioTasks.sort(function(a,b){return (a.plannedDate||'9999').localeCompare(b.plannedDate||'9999');});
     var prioCountEl = document.getElementById('portalPrioCount');
