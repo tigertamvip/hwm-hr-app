@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" data-page-node-id="NC8v6uKaUQDG9FNFlzHIEB">
 <meta http-equiv="Pragma" content="no-cache" data-page-node-id="Ln6kSFsdED8qWcviiBCPd8">
 <meta http-equiv="Expires" content="0" data-page-node-id="2NipHshsCoa5XDoJoBwfDG">
-<meta name="version" content="V0.7.1fs" data-page-node-id="wIVx4Ldqk6PVQph1A4CPmc">
+<meta name="version" content="V0.7.1ft" data-page-node-id="wIVx4Ldqk6PVQph1A4CPmc">
 <!-- cache-bust: 2026-09-02-15-19 -->
 <meta name="theme-color" content="#02314D" data-page-node-id="ggKwnJKgAgeRSAVH3KZkHF">
 <link rel="manifest" href="manifest.json?v=bc" data-page-node-id="CDqt7vutzPDpR4etXTpBDM">
@@ -2742,7 +2742,7 @@ function togglePortalTips(){
       </div>
     </nav>
     <div class="portal-sidebar-footer" data-page-node-id="OiBFhH2xGBYBBB8alwepMC">
-      V0.7.1fs
+      V0.7.1ft
     </div>
   </aside>
   <!-- Main -->
@@ -3029,8 +3029,15 @@ function togglePortalTips(){
           }
           if(typeof showToast==='function')showToast('✓ 季度之星已发布');
         };
-        // 启动
-        _qsGate();
+        // 启动（★ V0.7.1ft: 页面加载时未登录，currentUser 为空导致按钮不挂——轮询至登录后再判定）
+        window._qsGate=_qsGate;
+        var _qsGateTries=0;
+        function _qsGateRetry(){
+          var logged=(typeof currentUser!=='undefined'&&currentUser&&currentUser.name);
+          if(logged){_qsGate();return;}
+          if(_qsGateTries++<40)setTimeout(_qsGateRetry,1500);
+        }
+        _qsGateRetry();
         _qsLoad();
       })();
       </script>
