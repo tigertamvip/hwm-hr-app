@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" data-page-node-id="NC8v6uKaUQDG9FNFlzHIEB">
 <meta http-equiv="Pragma" content="no-cache" data-page-node-id="Ln6kSFsdED8qWcviiBCPd8">
 <meta http-equiv="Expires" content="0" data-page-node-id="2NipHshsCoa5XDoJoBwfDG">
-<meta name="version" content="V0.7.1fw" data-page-node-id="wIVx4Ldqk6PVQph1A4CPmc">
+<meta name="version" content="V0.7.1fx" data-page-node-id="wIVx4Ldqk6PVQph1A4CPmc">
 <!-- cache-bust: 2026-09-02-15-19 -->
 <meta name="theme-color" content="#02314D" data-page-node-id="ggKwnJKgAgeRSAVH3KZkHF">
 <link rel="manifest" href="manifest.json?v=bc" data-page-node-id="CDqt7vutzPDpR4etXTpBDM">
@@ -2755,7 +2755,7 @@ function togglePortalTips(){
       </div>
     </nav>
     <div class="portal-sidebar-footer" data-page-node-id="OiBFhH2xGBYBBB8alwepMC">
-      V0.7.1fw
+      V0.7.1fx
     </div>
   </aside>
   <!-- Main -->
@@ -4111,8 +4111,11 @@ var USERS=loadUserSettings();
 // ★ V0.7.1em: 一次性迁移 — 双管齐下
 //   (a) admin/data_admin：强制恢复 newsEditor=true（V0.7.1do 改默认导致存档 false 覆盖 true）
 //   (b) 其他角色：清理残留的 newsEditor=true（V0.7.1dm 期间 admin 默认含 true 误传播）
+// ★ V0.7.1fx: 迁移加一次性闸门——原代码每次加载都强制执行(b)，把"系统维护里合法授予的非管理员 newsEditor"反复清掉
+//   （谭晨航权限每次登录丢失的根因：授权→迁移清除→再授权→再清除）。迁移使命早已完成，跑一次即可。
 (function(){
   try{
+    if(localStorage.getItem('hwm_mig_71em_done')==='1')return;
     var fixed=[];
     for(var k in USERS){
       if(!USERS.hasOwnProperty(k))continue;
@@ -4139,6 +4142,7 @@ var USERS=loadUserSettings();
     }else{
       console.log('[V0.7.1em] newsEditor 状态检查通过');
     }
+    try{localStorage.setItem('hwm_mig_71em_done','1');}catch(e2){}
   }catch(e){console.warn('[V0.7.1em] 迁移失败',e);}
 })();
 
