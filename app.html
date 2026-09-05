@@ -1233,8 +1233,9 @@ body{
 .qs-mgr-slot{display:flex;gap:16px;padding:14px 0;border-bottom:1px dashed #EDF1F7;position:relative}
 .qs-mgr-slot:last-child{border-bottom:none}
 /* ★ V0.7.1ga: 槽位删除按钮（幽灵垃圾桶，悬停变红） */
-.qs-mgr-del{position:absolute;top:12px;right:0;height:26px;padding:0 9px;display:inline-flex;align-items:center;gap:4px;background:#fff;border:1px solid #D6DEE8;border-radius:4px;color:#5f6368;font-size:11px;cursor:pointer;transition:all .15s}
-.qs-mgr-del:hover{border-color:#D93025;color:#D93025;background:#FEF2F2}
+/* ★ V0.7.1gf: 删除按钮挪到照片左上角——圆形角标，一眼可见 */
+.qs-mgr-del{position:absolute;left:24px;top:6px;width:22px;height:22px;border-radius:50%;background:#fff;border:1.5px solid #D6DEE8;color:#9CA3AF;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:3;padding:0;transition:all .15s;box-shadow:0 1px 3px rgba(15,23,42,.12)}
+.qs-mgr-del:hover{border-color:#D93025;color:#D93025;background:#FEF2F2;transform:scale(1.12)}
 .qs-mgr-photo{width:96px;height:96px;flex-shrink:0;border:1.5px dashed #C9D6E2;border-radius:4px;display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;background:#FAFBFC;transition:all .15s;position:relative}
 .qs-mgr-photo:hover{border-color:#3B7DB4;background:#F4F9FE}
 .qs-mgr-photo-over{border-color:#3B7DB4;background:#E8F4FE;transform:scale(1.03)}
@@ -3020,7 +3021,7 @@ function togglePortalTips(){
           if(initPhoto)_qsMgr.photos[si]=initPhoto;
           return '<div class="qs-mgr-slot" id="qsMgrSlot'+si+'" draggable="true" title="按住左侧手柄拖拽可调整顺序">'+
             '<span class="qs-mgr-grip" title="拖拽调整顺序"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><circle cx="9" cy="5" r="1.6"/><circle cx="15" cy="5" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="19" r="1.6"/><circle cx="15" cy="19" r="1.6"/></svg></span>'+
-            '<button type="button" class="qs-mgr-del" onclick="_qsMgrClearSlot('+si+')" title="删除该槽位全部信息（保存后生效）"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg><span>删除</span></button>'+
+            '<button type="button" class="qs-mgr-del" onclick="_qsMgrClearSlot('+si+')" title="删除该员工全部信息（保存后生效）"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>'+
             '<div class="qs-mgr-photo" id="qsMgrPhoto'+si+'" title="拖拽照片到这里，或点击选择（自动居中裁剪为正方形）">'+
               (initPhoto?'<img src="'+initPhoto+'">':'<span class="qs-mgr-photo-hint">拖照片到这里<br>或点击选择</span>')+
               '<input type="file" accept="image/*" style="display:none" id="qsMgrFile'+si+'">'+
