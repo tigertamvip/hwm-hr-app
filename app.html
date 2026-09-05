@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" data-page-node-id="NC8v6uKaUQDG9FNFlzHIEB">
 <meta http-equiv="Pragma" content="no-cache" data-page-node-id="Ln6kSFsdED8qWcviiBCPd8">
 <meta http-equiv="Expires" content="0" data-page-node-id="2NipHshsCoa5XDoJoBwfDG">
-<meta name="version" content="V0.7.1gg" data-page-node-id="wIVx4Ldqk6PVQph1A4CPmc">
+<meta name="version" content="V0.7.1gh" data-page-node-id="wIVx4Ldqk6PVQph1A4CPmc">
 <!-- cache-bust: 2026-09-02-15-19 -->
 <meta name="theme-color" content="#02314D" data-page-node-id="ggKwnJKgAgeRSAVH3KZkHF">
 <link rel="manifest" href="manifest.json?v=bc" data-page-node-id="CDqt7vutzPDpR4etXTpBDM">
@@ -2765,7 +2765,7 @@ function togglePortalTips(){
       </div>
     </nav>
     <div class="portal-sidebar-footer" data-page-node-id="OiBFhH2xGBYBBB8alwepMC">
-      V0.7.1gg
+      V0.7.1gh
     </div>
   </aside>
   <!-- Main -->
@@ -3236,7 +3236,9 @@ function togglePortalTips(){
         var _qsGateTries=0;
         function _qsGateRetry(){
           var logged=(typeof currentUser!=='undefined'&&currentUser&&currentUser.name);
-          if(logged){_qsGate();return;}
+          // ★ V0.7.1gh: 登录后必须重跑 _qsLoad——面板在登录前已按匿名渲染（liked 全 false=灰色），
+          // 重拉云端 liked_by 按本人 uid 重算蓝色已赞态（退出再登录蓝色持久化的根因修复）
+          if(logged){_qsGate();_qsLoad();return;}
           if(_qsGateTries++<40)setTimeout(_qsGateRetry,1500);
         }
         _qsGateRetry();
