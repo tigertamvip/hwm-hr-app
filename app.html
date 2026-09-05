@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" data-page-node-id="NC8v6uKaUQDG9FNFlzHIEB">
 <meta http-equiv="Pragma" content="no-cache" data-page-node-id="Ln6kSFsdED8qWcviiBCPd8">
 <meta http-equiv="Expires" content="0" data-page-node-id="2NipHshsCoa5XDoJoBwfDG">
-<meta name="version" content="V0.7.1fz" data-page-node-id="wIVx4Ldqk6PVQph1A4CPmc">
+<meta name="version" content="V0.7.1ga" data-page-node-id="wIVx4Ldqk6PVQph1A4CPmc">
 <!-- cache-bust: 2026-09-02-15-19 -->
 <meta name="theme-color" content="#02314D" data-page-node-id="ggKwnJKgAgeRSAVH3KZkHF">
 <link rel="manifest" href="manifest.json?v=bc" data-page-node-id="CDqt7vutzPDpR4etXTpBDM">
@@ -1230,8 +1230,11 @@ body{
 .qs-mgr-close{background:none;border:none;font-size:20px;color:#9ca3af;cursor:pointer;line-height:1;padding:2px 6px}
 .qs-mgr-close:hover{color:#1F2937}
 .qs-mgr-body{padding:18px 24px;overflow-y:auto}
-.qs-mgr-slot{display:flex;gap:16px;padding:14px 0;border-bottom:1px dashed #EDF1F7}
+.qs-mgr-slot{display:flex;gap:16px;padding:14px 0;border-bottom:1px dashed #EDF1F7;position:relative}
 .qs-mgr-slot:last-child{border-bottom:none}
+/* ★ V0.7.1ga: 槽位删除按钮（幽灵垃圾桶，悬停变红） */
+.qs-mgr-del{position:absolute;top:12px;right:0;width:26px;height:26px;display:flex;align-items:center;justify-content:center;background:#fff;border:1px solid #E0E4EA;border-radius:4px;color:#9ca3af;cursor:pointer;transition:all .15s}
+.qs-mgr-del:hover{border-color:#D93025;color:#D93025;background:#FEF2F2}
 .qs-mgr-photo{width:96px;height:96px;flex-shrink:0;border:1.5px dashed #C9D6E2;border-radius:4px;display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;background:#FAFBFC;transition:all .15s;position:relative}
 .qs-mgr-photo:hover{border-color:#3B7DB4;background:#F4F9FE}
 .qs-mgr-photo-over{border-color:#3B7DB4;background:#E8F4FE;transform:scale(1.03)}
@@ -2761,7 +2764,7 @@ function togglePortalTips(){
       </div>
     </nav>
     <div class="portal-sidebar-footer" data-page-node-id="OiBFhH2xGBYBBB8alwepMC">
-      V0.7.1fz
+      V0.7.1ga
     </div>
   </aside>
   <!-- Main -->
@@ -3017,6 +3020,7 @@ function togglePortalTips(){
           if(initPhoto)_qsMgr.photos[si]=initPhoto;
           return '<div class="qs-mgr-slot" id="qsMgrSlot'+si+'" draggable="true" title="按住左侧手柄拖拽可调整顺序">'+
             '<span class="qs-mgr-grip" title="拖拽调整顺序"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><circle cx="9" cy="5" r="1.6"/><circle cx="15" cy="5" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="19" r="1.6"/><circle cx="15" cy="19" r="1.6"/></svg></span>'+
+            '<button type="button" class="qs-mgr-del" onclick="_qsMgrClearSlot('+si+')" title="删除该槽位全部信息（保存后生效）"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>'+
             '<div class="qs-mgr-photo" id="qsMgrPhoto'+si+'" title="拖拽照片到这里，或点击选择（自动居中裁剪为正方形）">'+
               (initPhoto?'<img src="'+initPhoto+'">':'<span class="qs-mgr-photo-hint">拖照片到这里<br>或点击选择</span>')+
               '<input type="file" accept="image/*" style="display:none" id="qsMgrFile'+si+'">'+
@@ -3038,6 +3042,16 @@ function togglePortalTips(){
           zone.addEventListener('drop',function(e){e.preventDefault();zone.classList.remove('qs-mgr-photo-over');if(e.dataTransfer.files&&e.dataTransfer.files[0])_qsCrop(e.dataTransfer.files[0],idx);});
           file.addEventListener('change',function(){if(file.files&&file.files[0])_qsCrop(file.files[0],idx);file.value='';});
         }
+        // ★ V0.7.1ga: 清空槽位（照片+姓名+部门+事迹整体删除；保存后云端同步删除，取消弹窗则作废）
+        window._qsMgrClearSlot=function(idx){
+          var nm=document.getElementById('qsMgrName'+idx);if(nm)nm.value='';
+          var dp=document.getElementById('qsMgrDept'+idx);if(dp)dp.value='';
+          var st=document.getElementById('qsMgrStory'+idx);if(st){st.value='';st._warned=false;}
+          var cnt=document.getElementById('qsMgrCnt'+idx);if(cnt){cnt.textContent='0/50';cnt.style.color='';cnt.style.fontWeight='';}
+          delete _qsMgr.photos[idx];
+          if(typeof _qsSetPhotoZone==='function')_qsSetPhotoZone(idx,'');
+          if(typeof showToast==='function')showToast('已清空该槽位，点"保存发布"后生效');
+        };
         window._qsMgrAddSlot=function(){
           if(_qsMgr.slotCount>=8){if(typeof showToast==='function')showToast('每季度最多 8 位','warning');return;}
           var idx=_qsMgr.slotCount;
