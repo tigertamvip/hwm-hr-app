@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" data-page-node-id="NC8v6uKaUQDG9FNFlzHIEB">
 <meta http-equiv="Pragma" content="no-cache" data-page-node-id="Ln6kSFsdED8qWcviiBCPd8">
 <meta http-equiv="Expires" content="0" data-page-node-id="2NipHshsCoa5XDoJoBwfDG">
-<meta name="version" content="V0.7.1gc" data-page-node-id="wIVx4Ldqk6PVQph1A4CPmc">
+<meta name="version" content="V0.7.1ge" data-page-node-id="wIVx4Ldqk6PVQph1A4CPmc">
 <!-- cache-bust: 2026-09-02-15-19 -->
 <meta name="theme-color" content="#02314D" data-page-node-id="ggKwnJKgAgeRSAVH3KZkHF">
 <link rel="manifest" href="manifest.json?v=bc" data-page-node-id="CDqt7vutzPDpR4etXTpBDM">
@@ -2764,7 +2764,7 @@ function togglePortalTips(){
       </div>
     </nav>
     <div class="portal-sidebar-footer" data-page-node-id="OiBFhH2xGBYBBB8alwepMC">
-      V0.7.1gc
+      V0.7.1ge
     </div>
   </aside>
   <!-- Main -->
@@ -4273,6 +4273,8 @@ var USERS=loadUserSettings();
         continue;
       }
       // 非管理员：清理残留的 true（必须通过系统维护表显式授权）
+      // ★ V0.7.1ge: 白名单——谭晨航为显式授权（系统 owner），与 fy 迁移口径一致，防止新浏览器首跑误清
+      if(nm==='谭晨航')continue;
       if(u.permissions.newsEditor===true){
         u.permissions.newsEditor=false;
         fixed.push(nm+'['+u.role+']');
@@ -4981,6 +4983,21 @@ async function loadCompanyNews(){
     if(!hasCached)body.innerHTML='<div class="news-empty">要闻加载失败，请刷新重试</div>';
   }
 }
+
+// ★ V0.7.1ge: 要闻自愈加载——根因是 initApp 未登录崩溃导致登录链上的新闻加载从未执行；
+// 此处改为独立轮询：登录后每 2s 检查一次，面板无内容就调用加载（在飞防重+失败重试），直至出数
+var _newsEnsureTries=0,_newsInflight=false;
+function _newsEnsureLoaded(){
+  var b=document.getElementById('companyNewsBody');
+  if(b&&b.querySelector('.news-item'))return; // 已加载
+  var logged=(typeof currentUser!=='undefined'&&currentUser&&currentUser.name);
+  if(logged&&!_newsInflight&&typeof loadCompanyNews==='function'){
+    _newsInflight=true;
+    Promise.resolve(loadCompanyNews()).catch(function(){}).then(function(){_newsInflight=false;});
+  }
+  if(_newsEnsureTries++<15)setTimeout(_newsEnsureLoaded,2000);
+}
+_newsEnsureLoaded();
 
 function renderCompanyNews(list,drafts,isEditor){
   var body=document.getElementById('companyNewsBody');
@@ -7412,7 +7429,9 @@ function updateStats(){
   var mr=pool.filter(function(e){var d=parseD(e.resignDate);return d&&d>=ms&&d<=me;}).length;
   // 本月标题：支持 admin/data_admin 点击编辑月份
   var monthLabel=localStorage.getItem('stats_month_label')||(Y+'年'+(M+1)+'月');
-  var canEditMonth=(currentUser.role==='admin'||currentUser.role==='data_admin');
+  // ★ V0.7.1ge: currentUser 判空——未登录时 initApp→renderAll 在此崩溃，后续初始化全被中断（要闻永不加载的根因）
+  var _curRole=(typeof currentUser!=='undefined'&&currentUser)?currentUser.role:'';
+  var canEditMonth=(_curRole==='admin'||_curRole==='data_admin');
   var monthEditClass=canEditMonth?' stats-month-editable':'';
   var monthEditHint=canEditMonth?' title="点击修改月份" style="cursor:pointer;border-bottom:1px dashed #02314D"':'';
   var b1='<div class="stats-box-title">本月情况（<span class="stats-month-text'+monthEditClass+'" '+monthEditHint+' onclick="editStatsMonth(event)">'+monthLabel+'</span>）</div>';
