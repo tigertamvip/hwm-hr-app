@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" data-page-node-id="NC8v6uKaUQDG9FNFlzHIEB">
 <meta http-equiv="Pragma" content="no-cache" data-page-node-id="Ln6kSFsdED8qWcviiBCPd8">
 <meta http-equiv="Expires" content="0" data-page-node-id="2NipHshsCoa5XDoJoBwfDG">
-<meta name="version" content="V0.7.1gh" data-page-node-id="wIVx4Ldqk6PVQph1A4CPmc">
+<meta name="version" content="V0.7.1gj" data-page-node-id="wIVx4Ldqk6PVQph1A4CPmc">
 <!-- cache-bust: 2026-09-02-15-19 -->
 <meta name="theme-color" content="#02314D" data-page-node-id="ggKwnJKgAgeRSAVH3KZkHF">
 <link rel="manifest" href="manifest.json?v=bc" data-page-node-id="CDqt7vutzPDpR4etXTpBDM">
@@ -1136,7 +1136,7 @@ body{
 .portal-datacell .pdc-sub{font-size:12px;color:#5f6368;margin-top:2px}
 .portal-twocol{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
 .portal-panel{background:#fff;border:1px solid #e3e8ef;border-radius:4px;overflow:hidden}
-.portal-panel-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #e3eaf2;background:#F0F5FA;font-size:13px;font-weight:600;color:#3B7DB4}
+.portal-panel-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #e3eaf2;background:#F0F5FA;font-size:13px;font-weight:600;color:#1F2937}
 .portal-panel-body{padding:12px 16px}
 .portal-panel-body--scroll{max-height:280px;overflow-y:scroll;padding:12px 16px;scrollbar-gutter:stable}
 .portal-panel-body--scroll::-webkit-scrollbar{width:10px;height:10px;background:#f1f3f4}
@@ -1195,10 +1195,11 @@ body{
 .qs-card:nth-child(5){animation-delay:.41s}.qs-card:nth-child(6){animation-delay:.50s}.qs-card:nth-child(7){animation-delay:.59s}.qs-card:nth-child(8){animation-delay:.68s}
 @keyframes qsIn{to{opacity:1;transform:translateY(0)}}
 .qs-photo{position:relative;aspect-ratio:1/1;border-radius:4px;overflow:hidden;cursor:default;transition:transform .45s cubic-bezier(.4,0,.2,1),box-shadow .45s}
-.qs-photo img,.qs-avatar{width:100%;height:100%;object-fit:cover;display:block;filter:grayscale(.45);transform:scale(1);transition:filter .5s ease,transform 1.4s cubic-bezier(.22,1,.36,1)}
+/* ★ V0.7.1gj: 取消灰色遮罩——照片常显全彩（灰调显病态，Tiger 反馈）；悬停保留推近 */
+.qs-photo img,.qs-avatar{width:100%;height:100%;object-fit:cover;display:block;transform:scale(1);transition:transform 1.4s cubic-bezier(.22,1,.36,1)}
 .qs-avatar{display:flex;align-items:center;justify-content:center;font-size:42px;font-weight:600;letter-spacing:2px;font-family:Georgia,serif}
 .qs-card:hover .qs-photo{transform:translateY(-3px);box-shadow:0 14px 30px -10px rgba(15,23,42,.22)}
-.qs-card:hover .qs-photo img,.qs-card:hover .qs-avatar{filter:grayscale(0);transform:scale(1.07)}
+.qs-card:hover .qs-photo img,.qs-card:hover .qs-avatar{transform:scale(1.07)}
 .qs-star{position:absolute;top:8px;left:8px;z-index:3;opacity:.55;transition:opacity .3s,transform .4s cubic-bezier(.34,1.56,.64,1)}
 .qs-card:hover .qs-star{opacity:1;transform:scale(1.12)}
 .qs-sheen{position:absolute;inset:-20%;z-index:2;pointer-events:none;background:linear-gradient(115deg,transparent 42%,rgba(255,255,255,.38) 50%,transparent 58%);transform:translateX(-110%)}
@@ -2765,7 +2766,7 @@ function togglePortalTips(){
       </div>
     </nav>
     <div class="portal-sidebar-footer" data-page-node-id="OiBFhH2xGBYBBB8alwepMC">
-      V0.7.1gh
+      V0.7.1gj
     </div>
   </aside>
   <!-- Main -->
