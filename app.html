@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" data-page-node-id="NC8v6uKaUQDG9FNFlzHIEB">
 <meta http-equiv="Pragma" content="no-cache" data-page-node-id="Ln6kSFsdED8qWcviiBCPd8">
 <meta http-equiv="Expires" content="0" data-page-node-id="2NipHshsCoa5XDoJoBwfDG">
-<meta name="version" content="V0.7.1gj" data-page-node-id="wIVx4Ldqk6PVQph1A4CPmc">
+<meta name="version" content="V0.7.1gk" data-page-node-id="wIVx4Ldqk6PVQph1A4CPmc">
 <!-- cache-bust: 2026-09-02-15-19 -->
 <meta name="theme-color" content="#02314D" data-page-node-id="ggKwnJKgAgeRSAVH3KZkHF">
 <link rel="manifest" href="manifest.json?v=bc" data-page-node-id="CDqt7vutzPDpR4etXTpBDM">
@@ -2766,7 +2766,7 @@ function togglePortalTips(){
       </div>
     </nav>
     <div class="portal-sidebar-footer" data-page-node-id="OiBFhH2xGBYBBB8alwepMC">
-      V0.7.1gj
+      V0.7.1gk
     </div>
   </aside>
   <!-- Main -->
@@ -2856,7 +2856,7 @@ function togglePortalTips(){
         <div class="qs-head">
           <span class="qs-title">季度之星</span>
           <span class="qs-sub" id="qsQuarterLabel">2026 Q3 · 与卓越同行</span>
-          <select id="qsQuarterSel" class="qs-quarter-sel" style="display:none" onchange="_qsLoad(this.value)"></select>
+          <select id="qsQuarterSel" class="qs-quarter-sel" style="display:none" onchange="_qsChangeQuarter(this.value)"></select>
           <span id="qsAdminSlot" style="margin-left:auto"></span>
         </div>
         <div class="qs-grid" id="qsGrid"></div>
@@ -2975,11 +2975,15 @@ function togglePortalTips(){
           document.getElementById('qsQuarterLabel').textContent=q.replace('-',' ')+' · 与卓越同行';
           var sel=document.getElementById('qsQuarterSel');
           if(sel&&sel.value!==q&&sel.querySelector('option[value="'+q+'"]'))sel.value=q;
-          // 本地缓存先渲染（离线/秒开）
+          // ★ V0.7.1gk: 本地缓存先渲染；无缓存显示"尚未发布"（占位示意卡正式退役——Q4 起不再出现 Anndy 等假数据）
+          function _qsEmptyGrid(){
+            var grid=document.getElementById('qsGrid');
+            if(grid)grid.innerHTML='<div style="padding:24px 0;text-align:center;color:#9ca3af;font-size:12px;width:100%">本季度之星尚未发布</div>';
+          }
           try{
             var cache=JSON.parse(localStorage.getItem('hwm_quarter_stars_'+q)||'null');
-            if(cache&&cache.length){_qsRender(cache);}else{_qsRender(_QS_PLACEHOLDER);}
-          }catch(e){_qsRender(_QS_PLACEHOLDER);}
+            if(cache&&cache.length){_qsRender(cache);}else{_qsEmptyGrid();}
+          }catch(e){_qsEmptyGrid();}
           // 云端覆盖
           if(typeof supabase==='undefined'||!supabase||!supabase.from){_qsGate();return;}
           try{
@@ -2990,10 +2994,9 @@ function togglePortalTips(){
               if(rows.length){
                 _qsRender(rows);
                 try{localStorage.setItem('hwm_quarter_stars_'+q,JSON.stringify(rows));}catch(e){}
-              }else if(q!==_qsCurQuarter()){
-                _qsRender([]); // 历史季度无数据 → 不显示占位示意
-                var grid=document.getElementById('qsGrid');
-                if(grid)grid.innerHTML='<div style="padding:24px 0;text-align:center;color:#9ca3af;font-size:12px;width:100%">该季度未发布季度之星</div>';
+              }else{
+                // ★ V0.7.1gk: 任何季度云端无数据 → 显示未发布（不再显示占位示意）
+                _qsEmptyGrid();
               }
             }
             // ★ V0.7.1fy: 季度下拉——有数据的季度都可回看
@@ -3233,6 +3236,8 @@ function togglePortalTips(){
           if(typeof showToast==='function')showToast('✓ 季度之星已发布');
         };
         // 启动（★ V0.7.1ft: 页面加载时未登录，currentUser 为空导致按钮不挂——轮询至登录后再判定）
+        // ★ V0.7.1gk: 内联 onchange 在全局作用域执行，IIFE 内函数必须显式导出（Q3 切换失效根因）
+        window._qsChangeQuarter=function(v){_qsLoad(v);};
         window._qsGate=_qsGate;
         var _qsGateTries=0;
         function _qsGateRetry(){
