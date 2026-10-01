@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" data-page-node-id="NC8v6uKaUQDG9FNFlzHIEB">
 <meta http-equiv="Pragma" content="no-cache" data-page-node-id="Ln6kSFsdED8qWcviiBCPd8">
 <meta http-equiv="Expires" content="0" data-page-node-id="2NipHshsCoa5XDoJoBwfDG">
-<meta name="version" content="V0.7.1gk" data-page-node-id="wIVx4Ldqk6PVQph1A4CPmc">
+<meta name="version" content="V0.7.1gl" data-page-node-id="wIVx4Ldqk6PVQph1A4CPmc">
 <!-- cache-bust: 2026-09-02-15-19 -->
 <meta name="theme-color" content="#02314D" data-page-node-id="ggKwnJKgAgeRSAVH3KZkHF">
 <link rel="manifest" href="manifest.json?v=bc" data-page-node-id="CDqt7vutzPDpR4etXTpBDM">
@@ -2578,9 +2578,9 @@ select.form-input{padding-right:28px;appearance:auto;-webkit-appearance:menulist
 .portal-news-publish:hover{background:#3B7DB4;color:#fff}
 .portal-news-draftbtn{padding:3px 10px;border:1px solid #D0D5DD;background:#fff;color:#5f6368;border-radius:4px;font-size:11px;cursor:pointer;white-space:nowrap;transition:all .2s}
 .portal-news-draftbtn:hover{background:#f6f8fc;color:#1F2937}
-#companyNewsBody{max-height:360px;overflow-y:auto}
+#companyNewsBody{max-height:200px;overflow-y:auto}/* ★ V0.7.1gl: 5 行可见+滚动看更多（行高≈35px×5+padding） */
 .news-empty{padding:16px 0;text-align:center;color:#9ca3af;font-size:12px}
-.news-item{padding:10px 2px;border-bottom:1px solid #eef1f5}
+.news-item{padding:8px 2px;border-bottom:1px solid #eef1f5}/* ★ V0.7.1gl: 10px→8px，与左侧到期任务行距一致 */
 .news-item:last-child{border-bottom:none}
 .news-item-main{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .news-title-btn{background:none;border:none;padding:0;font-size:13px;font-weight:500;color:#1F2937;text-align:left;cursor:pointer;flex:1;line-height:1.4}
@@ -2766,7 +2766,7 @@ function togglePortalTips(){
       </div>
     </nav>
     <div class="portal-sidebar-footer" data-page-node-id="OiBFhH2xGBYBBB8alwepMC">
-      V0.7.1gk
+      V0.7.1gl
     </div>
   </aside>
   <!-- Main -->
