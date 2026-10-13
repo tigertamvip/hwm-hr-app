@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" data-page-node-id="NC8v6uKaUQDG9FNFlzHIEB">
 <meta http-equiv="Pragma" content="no-cache" data-page-node-id="Ln6kSFsdED8qWcviiBCPd8">
 <meta http-equiv="Expires" content="0" data-page-node-id="2NipHshsCoa5XDoJoBwfDG">
-<meta name="version" content="V0.7.1gm" data-page-node-id="wIVx4Ldqk6PVQph1A4CPmc">
+<meta name="version" content="V0.7.1gn" data-page-node-id="wIVx4Ldqk6PVQph1A4CPmc">
 <!-- cache-bust: 2026-09-02-15-19 -->
 <meta name="theme-color" content="#02314D" data-page-node-id="ggKwnJKgAgeRSAVH3KZkHF">
 <link rel="manifest" href="manifest.json?v=bc" data-page-node-id="CDqt7vutzPDpR4etXTpBDM">
@@ -2766,7 +2766,7 @@ function togglePortalTips(){
       </div>
     </nav>
     <div class="portal-sidebar-footer" data-page-node-id="OiBFhH2xGBYBBB8alwepMC">
-      V0.7.1gm
+      V0.7.1gn
     </div>
   </aside>
   <!-- Main -->
@@ -4455,6 +4455,25 @@ function loadUserSettings(){
   return JSON.parse(JSON.stringify(_DEFAULT_USERS));
 }
 
+// ★ V0.7.1gn: 离线用户目录快照兜底（国内封锁 *.supabase.co 期间）
+// 快照由 GitHub Actions 每 15 分钟从云端拉取并提交到仓库，经 GitHub Pages 同源分发（国内可达）
+var _usersSnapshotCache=null; // {fetched_at,users} | 'loading' | null
+function _fetchUsersSnapshot(){
+  return new Promise(function(resolve){
+    if(_usersSnapshotCache&&_usersSnapshotCache!=='loading')return resolve(_usersSnapshotCache);
+    fetch('users-snapshot.json?t='+Date.now()).then(function(r){
+      if(!r.ok)throw new Error('snapshot http '+r.status);
+      return r.json();
+    }).then(function(j){
+      _usersSnapshotCache=(j&&j.users)?j:null;
+      resolve(_usersSnapshotCache);
+    }).catch(function(e){
+      console.warn('[users] 快照拉取失败',e.message);
+      resolve(null);
+    });
+  });
+}
+
 // 用户数据云端同步：拉取
 // ★ V0.6.1.hs: 本地为空时从云端拉取作为主数据源（不再回退到 _DEFAULT_USERS）
 function syncUsersFromCloud(){
@@ -4503,7 +4522,25 @@ function syncUsersFromCloud(){
         // 刷新系统维护表格（如果已打开）
         if(typeof sysRenderUserTable==='function')setTimeout(sysRenderUserTable,500);
       }
-    }catch(e){console.warn('HWM: Users cloud sync error (non-critical)',e.message);}
+    }catch(e){
+      console.warn('HWM: Users cloud sync error (non-critical)',e.message);
+      // ★ V0.7.1gn: 云端不可达（网络封锁）→ 本地为空时用同源快照恢复用户目录
+      if(!localStorage.getItem('HWM_USER_SETTINGS')){
+        _fetchUsersSnapshot().then(function(snap){
+          if(!snap)return;
+          var n=0;
+          for(var uid in snap.users){
+            if(snap.users[uid]&&snap.users[uid].name){USERS[uid]=snap.users[uid];n++;}
+          }
+          if(n>0){
+            saveUserSettings();
+            forceCleanShadowUsers();
+            console.log('[users] 已从离线快照恢复 '+n+' 个用户（快照时间 '+snap.fetched_at+'）');
+            if(typeof sysRenderUserTable==='function')setTimeout(sysRenderUserTable,500);
+          }
+        });
+      }
+    }
   })();
 }
 
@@ -4688,9 +4725,20 @@ function verifyLogin(){
           err.textContent='用户名或密码错误';
         }
       }catch(e){
-        err.style.color='var(--danger)';
-        err.textContent='登录验证失败，请检查网络后重试';
         console.warn('HWM: Cloud login lookup failed',e);
+        // ★ V0.7.1gn: 云端不可达 → 尝试同源离线快照验证（国内网络封锁期间兜底）
+        _fetchUsersSnapshot().then(function(snap){
+          var su=snap&&snap.users?snap.users[username]:null;
+          if(su&&su.name){
+            USERS[username]=su;
+            try{localStorage.setItem('HWM_USER_SETTINGS',JSON.stringify(USERS));}catch(e2){}
+            console.log('[login] 云端不可达，已从离线快照验证:',username);
+            doLogin(username, su, pwdInput, err);
+          }else{
+            err.style.color='var(--danger)';
+            err.textContent=snap?'用户名或密码错误':'登录验证失败，请检查网络后重试';
+          }
+        });
       }
     })();
   }

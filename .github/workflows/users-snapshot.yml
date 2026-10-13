@@ -1,0 +1,48 @@
+name: users-snapshot
+
+# 国内网络封锁 *.supabase.co（TLS 重置）→ 浏览器直连 Supabase 全部失败。
+# GitHub Actions 运行器在海外，可正常访问 Supabase。
+# 本工作流定时把 hwm_users 用户目录快照提交回仓库，
+# 经 GitHub Pages 同源分发（国内可达），作为 App 登录的离线兜底数据源。
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch hwm_users from Supabase
+        run: |
+          set -e
+          RESP=$(curl -sf --max-time 60 \
+            "https://xgysfujnhwgevmojzkbf.supabase.co/rest/v1/hwm_users?select=uid,user_data,updated_at&limit=1000" \
+            -H "apikey: sb_publishable_dPt0sB5D8ZQ6ZdHt6wuvyA_MkjOeknx" \
+            -H "Authorization: Bearer sb_publishable_dPt0sB5D8ZQ6ZdHt6wuvyA_MkjOeknx")
+          echo "$RESP" | python3 -c "
+          import json,sys,datetime
+          rows=json.load(sys.stdin)
+          assert isinstance(rows,list) and len(rows)>0, 'empty users table?!'
+          users={r['uid']:dict(r['user_data'],_cloudUpdated=r.get('updated_at') or '') for r in rows if r.get('uid') and r.get('user_data')}
+          out={'fetched_at':datetime.datetime.utcnow().isoformat()+'Z','count':len(users),'users':users}
+          json.dump(out,open('users-snapshot.json','w'),ensure_ascii=False)
+          print('snapshot users:',len(users))
+          "
+
+      - name: Commit snapshot
+        run: |
+          git config user.name "hwm-snapshot-bot"
+          git config user.email "bot@tiger-buddy.com"
+          git add users-snapshot.json
+          git diff --cached --quiet && echo "no change" && exit 0
+          git commit -m "chore: users-snapshot $(date -u +%Y-%m-%dT%H:%MZ) [skip ci]"
+          git push
