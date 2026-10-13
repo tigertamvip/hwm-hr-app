@@ -52,9 +52,10 @@ window.APP_CONFIG = {
 // ===== Supabase 数据库配置 =====
 // 每个新客户需注册独立 Supabase 项目，替换以下地址和 Key
 var SUPABASE_URL = 'https://xgysfujnhwgevmojzkbf.supabase.co';
-// ★ 2026-10-13 国内网络封锁 *.supabase.co（TLS 重置）→ 经 EdgeOne 边缘函数 /sb 反向代理中转
-// 仅 tiger-buddy.com 域名下启用代理；localhost / GitHub Pages 仍直连（海外网络可用时）
-if (typeof location !== 'undefined' && /(^|\.)tiger-buddy\.com$/.test(location.hostname)) {
+// ★ 2026-10-13 国内网络封锁 *.supabase.co（TLS 重置）：
+// 登录/用户目录已由 users-snapshot.json 离线快照兜底（GitHub Actions 每 15 分钟更新）。
+// /sb 边缘代理仅当域名切回 EdgeOne 后才会生效（GitHub Pages 无函数能力，勿在此启用）。
+if (typeof location !== 'undefined' && /(^|\.)edgeone\.app$/.test(location.hostname)) {
   SUPABASE_URL = location.origin + '/sb';
 }
 var SUPABASE_ANON_KEY = 'sb_publishable_dPt0sB5D8ZQ6ZdHt6wuvyA_MkjOeknx';

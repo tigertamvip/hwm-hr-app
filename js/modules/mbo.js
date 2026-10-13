@@ -829,7 +829,10 @@ function saveWPData(onlyWeekId){
           if(r.error){
             cloudSaveSucceeded=false;
             console.error('HWM: WP Supabase upsert batch',i,'failed',r.error.message);
-            showToast('⚠️ 周计划云端同步失败: '+r.error.message);
+            // ★ V0.7.1go: 错误信息净化——网络异常时网关会返回整段 HTML 错误页，不能直接弹给用户
+            var _syncErrMsg=(r.error&&r.error.message)||'';
+            if(/<|<\s*html|Not Allowed|fetch failed|Failed to fetch|NetworkError|network/i.test(_syncErrMsg))_syncErrMsg='网络异常';
+            showToast('⚠️ 周计划云端同步失败（'+_syncErrMsg+'）：内容已存本机，网络恢复后自动补传');
           }
         }
       }
