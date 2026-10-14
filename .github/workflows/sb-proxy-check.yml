@@ -1,0 +1,23 @@
+name: sb-proxy-check
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe proxy deployment and custom domain
+        run: |
+          echo "=== 1. 函数本体（vercel.app 直连，期望返回 Supabase 'No API key' JSON）==="
+          curl -s --max-time 30 -w "\n[HTTP:%{http_code}]\n" "https://hwm-sb-proxy.vercel.app/api/rest/v1/" || echo CURL_FAIL_1
+          echo
+          echo "=== 2. 自定义域名 sb.tiger-buddy.com（期望返回用户 JSON）==="
+          curl -s --max-time 30 -w "\n[HTTP:%{http_code}]\n" "https://sb.tiger-buddy.com/api/rest/v1/hwm_users?select=username&limit=1" \
+            -H "apikey: sb_publishable_dPt0sB5D8ZQ6ZdHt6wuvyA_MkjOeknx" \
+            -H "Authorization: Bearer sb_publishable_dPt0sB5D8ZQ6ZdHt6wuvyA_MkjOeknx" || echo CURL_FAIL_2
+          echo
+          echo "=== 3. DNS 解析 ==="
+          dig +short hwm-sb-proxy.vercel.app A
+          dig +short sb.tiger-buddy.com CNAME
+          dig +short sb.tiger-buddy.com A
