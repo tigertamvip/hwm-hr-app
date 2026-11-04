@@ -4,6 +4,8 @@ name: users-snapshot
 # GitHub Actions 运行器在海外，可正常访问 Supabase。
 # 本工作流定时把 hwm_users 用户目录快照提交回仓库，
 # 经 GitHub Pages 同源分发（国内可达），作为 App 登录的离线兜底数据源。
+# ★ 2026-11-04 修复：bot 用 GITHUB_TOKEN push 不会触发 pages.yml 部署，
+#   导致线上快照停在旧版（登录失效 3 周无人知）。现在快照提交后由本工作流直接部署 Pages。
 
 on:
   push:
@@ -14,6 +16,12 @@ on:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages-deploy-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   snapshot:
@@ -39,10 +47,31 @@ jobs:
           "
 
       - name: Commit snapshot
+        id: commit
         run: |
           git config user.name "hwm-snapshot-bot"
           git config user.email "bot@tiger-buddy.com"
           git add users-snapshot.json
-          git diff --cached --quiet && echo "no change" && exit 0
-          git commit -m "chore: users-snapshot $(date -u +%Y-%m-%dT%H:%MZ)"
-          git push
+          if git diff --cached --quiet; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "no change"
+          else
+            git commit -m "chore: users-snapshot $(date -u +%Y-%m-%dT%H:%MZ)"
+            git push
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      # 快照有变化时直接部署 Pages（绕开 GITHUB_TOKEN 不触发其它工作流的限制）
+      - name: Setup Pages
+        if: steps.commit.outputs.changed == 'true'
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        if: steps.commit.outputs.changed == 'true'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - name: Deploy to GitHub Pages
+        if: steps.commit.outputs.changed == 'true'
+        uses: actions/deploy-pages@v4
